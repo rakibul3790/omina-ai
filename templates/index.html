@@ -4554,17 +4554,7 @@ Reply: ${botText.slice(0,800)}`,
                   </button>
                 )}
               </div>
-              {/* Loading overlay on config page */}
-              {storyLoading&&(
-                <div className="feat-loading-wrap" style={{flex:1,position:'relative',overflow:'hidden',minHeight:120}}>
-                  <div className="feat-load-overlay"><div className="fl-clock"><div className="fl-hour"></div><div className="fl-minute"></div></div><span className="fl-label">Writing your story...</span></div>
-                  <div className="space-y-3 p-5">
-                    {[1,2,3,4].map(i=><div key={i} className="rounded-xl p-4 border animate-pulse" style={{borderColor:'var(--br)',background:'var(--bg3)',animationDelay:i*0.1+'s'}}><div className="h-3 rounded mb-2" style={{background:'var(--br)',width:(60-i*5)+'%'}}></div><div className="h-2 rounded w-full mb-1.5" style={{background:'var(--br)'}}></div><div className="h-2 rounded mb-1.5" style={{background:'var(--br)',width:(85-i*3)+'%'}}></div><div className="h-2 rounded" style={{background:'var(--br)',width:(70+i*3)+'%'}}></div></div>)}
-                  </div>
-                </div>
-              )}
-            ):
-            (
+            ):(
               <div className="flex-1 overflow-y-auto sb p-5 feat-loading-wrap">
                 {storyLoading&&<div className="feat-load-overlay"><div className="fl-clock"><div className="fl-hour"></div><div className="fl-minute"></div></div><span className="fl-label">Writing your story...</span></div>}
                 {storyLoading&&(
