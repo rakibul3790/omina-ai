@@ -608,6 +608,64 @@ function Toast({t}) {
 }
 
 /* ── TYPEWRITER COMPONENT ──────────────────────────────── */
+// ── Inline Source Icon ─────────────────────────────────────
+function InlineSourceIcon({title, url}) {
+  const [show, setShow] = React.useState(false);
+  const ref = React.useRef(null);
+  React.useEffect(()=>{
+    if(!show) return;
+    const handler = (e)=>{ if(ref.current && !ref.current.contains(e.target)) setShow(false); };
+    document.addEventListener('mousedown', handler);
+    return ()=>document.removeEventListener('mousedown', handler);
+  },[show]);
+  return (
+    <span ref={ref} style={{position:'relative',display:'inline-block',verticalAlign:'middle',marginLeft:3}}>
+      <button onClick={()=>setShow(s=>!s)}
+        style={{background:'none',border:'none',cursor:'pointer',padding:'0 1px',lineHeight:1,display:'inline-flex',alignItems:'center'}}>
+        <i className="fa-solid fa-globe" style={{fontSize:10,color:'rgba(255,255,255,0.35)',transition:'color .15s'}}
+          onMouseEnter={e=>e.target.style.color='rgba(255,255,255,0.7)'}
+          onMouseLeave={e=>e.target.style.color='rgba(255,255,255,0.35)'}></i>
+      </button>
+      {show&&(
+        <span style={{position:'absolute',bottom:'120%',left:'50%',transform:'translateX(-50%)',
+          zIndex:9999,background:'#1e293b',border:'1px solid rgba(255,255,255,0.12)',
+          borderRadius:8,padding:'7px 10px',minWidth:220,maxWidth:300,
+          boxShadow:'0 8px 24px rgba(0,0,0,0.5)',whiteSpace:'nowrap'}}>
+          <span style={{display:'block',fontSize:11,color:'rgba(255,255,255,0.9)',fontWeight:600,
+            marginBottom:4,overflow:'hidden',textOverflow:'ellipsis'}}>{title||url}</span>
+          <a href={url} target="_blank" rel="noopener noreferrer"
+            style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:10,
+              color:'#60a5fa',textDecoration:'none',wordBreak:'break-all',whiteSpace:'normal'}}
+            onMouseEnter={e=>e.currentTarget.style.textDecoration='underline'}
+            onMouseLeave={e=>e.currentTarget.style.textDecoration='none'}>
+            <i className="fa-solid fa-arrow-up-right-from-square" style={{fontSize:9,flexShrink:0}}></i>
+            {url.length>45?url.slice(0,45)+'…':url}
+          </a>
+          {/* Arrow */}
+          <span style={{position:'absolute',bottom:-5,left:'50%',transform:'translateX(-50%)',
+            width:8,height:8,background:'#1e293b',border:'1px solid rgba(255,255,255,0.12)',
+            borderTop:'none',borderLeft:'none',transform:'translateX(-50%) rotate(45deg)'}}></span>
+        </span>
+      )}
+    </span>
+  );
+}
+
+// ── Render text with inline source icons ──────────────────
+function renderWithInlineSources(text, inlineSources) {
+  if(!inlineSources || Object.keys(inlineSources).length===0) return null;
+  const parts = text.split(/(\_\_SRC\_\d+\_\_)/g);
+  return parts.map((part, i) => {
+    if(inlineSources[part]) {
+      const {title, url} = inlineSources[part];
+      return <InlineSourceIcon key={i} title={title} url={url}/>;
+    }
+    // render markdown for text parts
+    const html = marked.parse(part||'');
+    return <span key={i} className="md-body" dangerouslySetInnerHTML={{__html: html}}/>;
+  });
+}
+
 // ── Web Worker blob for typewriter timing ──────────────────
 // Runs in a separate thread — NOT throttled by tab visibility
 const _twWorkerCode = `
@@ -632,7 +690,7 @@ function _makeTwWorker() {
   } catch(e) { return null; }
 }
 
-function TypewriterText({text, onDone, speed=10}) {
+function TypewriterText({text, onDone, speed=10, inlineSources={}}) {
   const [displayed, setDisplayed] = useState('');
   const [done, setDone] = useState(false);
   const idx = useRef(0);
@@ -699,7 +757,19 @@ function TypewriterText({text, onDone, speed=10}) {
   },[text]);
 
   marked.setOptions({breaks:true,gfm:true});
-  const html = marked.parse(displayed);
+
+  const hasInlineSrc = inlineSources && Object.keys(inlineSources).length > 0;
+
+  if(done && hasInlineSrc) {
+    return (
+      <div>
+        {renderWithInlineSources(text, inlineSources)}
+      </div>
+    );
+  }
+
+  const cleanDisplayed = (displayed||'').replace(/__SRC_\d+__/g, '');
+  const html = marked.parse(cleanDisplayed);
   const withCopy = html.replace(/<pre>/g,'<div class="cbw"><pre>').replace(/<\/pre>/g,'</pre><button class="ccb" onclick="(function(b){const p=b.previousElementSibling;navigator.clipboard.writeText(p.innerText).then(()=>{b.textContent=\'Copied!\';setTimeout(()=>b.textContent=\'Copy\',1500)});})(this)">Copy</button></div>');
 
   return (
@@ -3103,7 +3173,25 @@ function App() {
           }
         });
       }
-      const msgText = (webSearch ? `[WEB SEARCH MODE] Search the web for current, accurate information to answer this query. After your response, add a SOURCES section at the very end in this exact format:\n\n---SOURCES---\n[1] Title | URL\n[2] Title | URL\n(list all websites you referenced)\n---END SOURCES---\n\nQuery: ${text}` : text) + fileContext;
+      const msgText = (webSearch
+        ? `[WEB SEARCH MODE] Search the web for current, accurate information. 
+For EVERY sentence or sub-topic in your response that uses information from a specific website, add a source marker at the end of that sentence in this exact format: [[SRC:Title|URL]]
+
+Example: "The Eiffel Tower is 330 meters tall. [[SRC:Wikipedia|https://en.wikipedia.org/wiki/Eiffel_Tower]]"
+
+Do NOT add a sources section at the end. Put sources inline after each relevant sentence/point.
+
+Query: ${text}`
+        : canvasMode
+          ? text
+          : (() => {
+              // Canvas OFF: only give code if user explicitly asks for it
+              const codePhrase = /\b(write|create|make|build|generate|code|script|function|program|implement|develop|html|css|javascript|python|website|webpage|app|component|class|algorithm|snippet|example code|give me code|show me code)\b/i.test(text);
+              if(codePhrase) return text;
+              // No code phrase: instruct AI not to produce code blocks
+              return `[IMPORTANT: Do NOT use code blocks (\`\`\`) or write code in your response. Answer in plain text only.]\n\n${text}`;
+            })()
+      ) + fileContext;
 
       // ── Offline cache check ──
       const cacheKey = msgText.trim().toLowerCase().slice(0,120);
@@ -3167,23 +3255,19 @@ ${cached}`,sender:'bot',model,timestamp:Date.now(),language};
         });
       }
       const botMsgId = Date.now()+1;
-      // Parse sources from web search reply
+      // Parse inline sources from web search reply [[SRC:Title|URL]]
       let replyText = data.reply||'No response.';
-      let parsedSources = [];
+      let inlineSources = {};
       if(webSearch) {
-        const srcMatch = replyText.match(/---SOURCES---([\s\S]*?)---END SOURCES---/);
-        if(srcMatch) {
-          const srcBlock = srcMatch[1].trim();
-          parsedSources = srcBlock.split('\n')
-            .filter(l=>l.trim().match(/^\[\d+\]/))
-            .map(l=>{
-              const parts = l.replace(/^\[\d+\]\s*/,'').split('|');
-              return {title:(parts[0]||'').trim(), url:(parts[1]||'').trim()};
-            }).filter(s=>s.title||s.url);
-          replyText = replyText.replace(/---SOURCES---[\s\S]*?---END SOURCES---/,'').trim();
-        }
+        let srcIdx = 0;
+        replyText = replyText.replace(/\[\[SRC:([^\]|]+)\|([^\]]+)\]\]/g, (match, title, url) => {
+          const key = `__SRC_${srcIdx}__`;
+          inlineSources[key] = {title: title.trim(), url: url.trim()};
+          srcIdx++;
+          return key;
+        });
       }
-      const botMsg={id:botMsgId,text:replyText,sender:'bot',model,persona,timestamp:Date.now(),language,webSearch:webSearch,sources:parsedSources};
+      const botMsg={id:botMsgId,text:replyText,sender:'bot',model,persona,timestamp:Date.now(),language,webSearch:webSearch,sources:[],inlineSources:inlineSources};
       // Use flushSync to force immediate React update even in background tab
       try {
         ReactDOM.flushSync(()=>{
@@ -6791,39 +6875,6 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                         {msg.sender==='bot'&&<div className="flex items-center gap-2 mb-1.5">
                           <p className="text-[10px] font-bold tracking-widest uppercase" style={{color:'var(--t3)'}}>{msg.model?.name||model.name}</p>
                           {msg.webSearch&&<span className="text-[9px] px-1.5 py-0.5 rounded-full flex items-center gap-1 border" style={{background:'rgba(59,130,246,.1)',color:'#60A5FA',borderColor:'rgba(59,130,246,.2)'}}><i className="fa-solid fa-globe text-[8px]"></i>Web</span>}
-                          {msg.sources&&msg.sources.length>0&&(()=>{
-                            const [showSrc,setShowSrc]=React.useState(false);
-                            return(
-                              <div style={{position:'relative',display:'inline-block'}}>
-                                <button onClick={()=>setShowSrc(s=>!s)}
-                                  className="text-[9px] px-1.5 py-0.5 rounded-full flex items-center gap-1 border transition-all"
-                                  style={{background:showSrc?'rgba(52,211,153,.15)':'rgba(52,211,153,.08)',color:'#34D399',borderColor:'rgba(52,211,153,.3)',cursor:'pointer'}}>
-                                  <i className="fa-solid fa-globe text-[8px]"></i>
-                                  {msg.sources.length} source{msg.sources.length>1?'s':''}
-                                </button>
-                                {showSrc&&(
-                                  <div style={{position:'absolute',top:'100%',left:0,zIndex:999,marginTop:4,
-                                    background:'var(--bg2)',border:'1px solid var(--br)',borderRadius:10,
-                                    padding:'8px',minWidth:260,maxWidth:320,boxShadow:'0 8px 24px rgba(0,0,0,.4)'}}>
-                                    <p style={{fontSize:10,color:'var(--t3)',fontWeight:700,textTransform:'uppercase',letterSpacing:'.06em',marginBottom:6}}>Sources</p>
-                                    {msg.sources.map((s,i)=>(
-                                      <a key={i} href={s.url} target="_blank" rel="noopener noreferrer"
-                                        style={{display:'flex',alignItems:'flex-start',gap:6,padding:'5px 6px',
-                                          borderRadius:7,textDecoration:'none',transition:'background .12s'}}
-                                        onMouseEnter={e=>e.currentTarget.style.background='var(--bg3)'}
-                                        onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
-                                        <i className="fa-solid fa-link" style={{fontSize:9,color:'var(--t3)',marginTop:2,flexShrink:0}}></i>
-                                        <div>
-                                          <p style={{fontSize:11,color:'var(--t1)',fontWeight:500,lineHeight:1.3}}>{s.title||s.url}</p>
-                                          {s.url&&<p style={{fontSize:9,color:'var(--t3)',marginTop:1,wordBreak:'break-all'}}>{s.url.slice(0,50)}{s.url.length>50?'…':''}</p>}
-                                        </div>
-                                      </a>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })()}
                         </div>}
                         {msg.fp&&<div className="mb-3 rounded-xl overflow-hidden border max-w-[220px]" style={{borderColor:'var(--br)'}}><img src={msg.fp} className="w-full h-auto" alt=""/></div>}
                         {msg.fn&&!msg.fp&&<div className="mb-2 flex items-center gap-2 text-xs text-blue-400 w-fit px-3 py-1.5 rounded-lg border border-blue-400/20" style={{background:'rgba(59,130,246,.1)'}}><i className="fa-solid fa-paperclip"></i>{msg.fn}</div>}
@@ -6855,9 +6906,12 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                                       ? <TypewriterText
                                           text={dispText}
                                           speed={2}
+                                          inlineSources={msg.inlineSources||{}}
                                           onDone={()=>setTypewriterMsgId(null)}
                                         />
-                                      : <div className="md-body" dangerouslySetInnerHTML={mkd(dispText)}/>;
+                                      : (msg.inlineSources && Object.keys(msg.inlineSources).length>0)
+                                        ? <div>{renderWithInlineSources(dispText, msg.inlineSources)}</div>
+                                        : <div className="md-body" dangerouslySetInnerHTML={mkd(dispText)}/>;
                                   })()}
                                   {getBranch(msg.id)&&(()=>{const b=getBranch(msg.id);return(
                                     <div className="flex items-center gap-2 mt-3 pt-2 border-t" style={{borderColor:'var(--br)'}}>
