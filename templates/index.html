@@ -2780,7 +2780,24 @@ function App() {
     recRef.current=r;r.start();setVoiceOn(true);toast_('Listening…','info');
   };
 
-  const stopGen=()=>{if(abortRef.current)abortRef.current.abort();setTyping(false);setGlobalTyping(false);};
+  const stopGen=()=>{
+    if(abortRef.current) abortRef.current.abort();
+    setTyping(false);setGlobalTyping(false);setTypingSid(null);
+    // Add "stopped" message to current session
+    setSessions(prev=>{
+      const u=[...prev];
+      const i=u.findIndex(s=>s.id===sid);
+      if(i!==-1){
+        u[i].messages.push({
+          id:Date.now()+1,
+          text:'⏹ **Response stopped**',
+          sender:'bot',
+          timestamp:Date.now()
+        });
+      }
+      return u;
+    });
+  };
 
   const newChat=(fid=null)=>{
     setSid(null);setInput('');setFile(null);setFilePreview(null);setFiles([]);setShowCanvas(false);setActiveFolderId(fid||null);setActiveTool(null);
@@ -3622,6 +3639,12 @@ Reply: ${botText.slice(0,800)}`,
                 border:'none',background:'#DC2626',color:'#fff',fontSize:12,fontWeight:700,cursor:'pointer',flexShrink:0}}
               onMouseEnter={e=>e.currentTarget.style.background='#EF4444'}
               onMouseLeave={e=>e.currentTarget.style.background='#DC2626'}>
+              <i className="fa-solid fa-stop" style={{fontSize:10}}></i> Stop
+            </button>
+          :typewriterMsgId
+          ?<button disabled
+              style={{display:'flex',alignItems:'center',gap:5,padding:'7px 12px',borderRadius:10,
+                border:'none',background:'var(--bg3)',color:'var(--t3)',fontSize:12,fontWeight:700,cursor:'default',flexShrink:0,opacity:0.4}}>
               <i className="fa-solid fa-stop" style={{fontSize:10}}></i> Stop
             </button>
           :<button onClick={()=>send()} disabled={!input.trim()&&!file}
@@ -6773,7 +6796,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                                     return msg.id===typewriterMsgId
                                       ? <TypewriterText
                                           text={dispText}
-                                          speed={10}
+                                          speed={2}
                                           onDone={()=>setTypewriterMsgId(null)}
                                         />
                                       : <div className="md-body" dangerouslySetInnerHTML={mkd(dispText)}/>;
