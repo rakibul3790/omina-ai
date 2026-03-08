@@ -33,7 +33,7 @@ db = firestore.client()
 
 # ── Groq Client ─────────────────────────────────────────────
 groq_client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
-GROQ_MODEL = "llama-3.3-70b-versatile"
+GROQ_MODEL = "llama3-70b-8192"
 
 # ── Fixed Instructions ───────────────────────────────────────
 FIXED_INSTRUCTIONS = (
@@ -189,7 +189,7 @@ def chat():
 
         # Firestore এ message count বাড়ানো
         db.collection("users").document(user["uid"]).update({
-            "msg_count": firestore.INCREMENT(1)
+            "msg_count": firestore.Increment(1)
         })
 
     except Exception as e:
