@@ -185,7 +185,7 @@ def chat():
 
         # Firestore এ message count বাড়ানো
         db.collection("users").document(user["uid"]).update({
-            "msg_count": firestore.INCREMENT(1)
+            "msg_count": firestore.Increment(1)
         })
 
     except Exception as e:
@@ -369,4 +369,5 @@ def export_chat():
 if __name__ == "__main__":
     print("Omina AI running at http://127.0.0.1:5000")
     app.run(debug=True)
+
 
