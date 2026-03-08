@@ -1671,220 +1671,308 @@ function CanvasPanel({content, onClose}) {
 }
 
 function ImageGenModal({onClose,onGenerate,history,setHistory}) {
-  const [prompt,setPrompt]=React.useState('');
-  const [style,setStyle]=React.useState('realistic');
-  const [negPrompt,setNegPrompt]=React.useState('');
-  const [aspect,setAspect]=React.useState('1:1');
-  const [quality,setQuality]=React.useState('standard');
-  const [tab,setTab]=React.useState('create');
-  const [loading,setLoading]=React.useState(false);
+  const [prompt,setPrompt]       = React.useState('');
+  const [style,setStyle]         = React.useState('realistic');
+  const [negPrompt,setNegPrompt] = React.useState('');
+  const [aspect,setAspect]       = React.useState('1:1');
+  const [tab,setTab]             = React.useState('create');
+  const [loading,setLoading]     = React.useState(false);
+  const [genResult,setGenResult] = React.useState(null); // {image, model, prompt}
+  const [error,setError]         = React.useState('');
+  const [showNeg,setShowNeg]     = React.useState(false);
 
   const STYLES=[
-    {id:'realistic', label:'Realistic',  icon:'fa-camera',       color:'#3B82F6'},
-    {id:'anime',     label:'Anime',       icon:'fa-star',         color:'#EC4899'},
-    {id:'oil',       label:'Oil Paint',   icon:'fa-palette',      color:'#F59E0B'},
-    {id:'watercolor',label:'Watercolor',  icon:'fa-droplet',      color:'#06B6D4'},
-    {id:'3d',        label:'3D Render',   icon:'fa-cube',         color:'#8B5CF6'},
-    {id:'pixel',     label:'Pixel Art',   icon:'fa-border-all',   color:'#10B981'},
-    {id:'sketch',    label:'Sketch',      icon:'fa-pencil',       color:'#64748B'},
-    {id:'cyberpunk', label:'Cyberpunk',   icon:'fa-bolt',         color:'#A78BFA'},
-    {id:'flat',      label:'Flat Design', icon:'fa-layer-group',  color:'#34D399'},
-    {id:'fantasy',   label:'Fantasy',     icon:'fa-wand-sparkles',color:'#EF4444'},
-    {id:'minimal',   label:'Minimalist',  icon:'fa-minus',        color:'#94A3B8'},
-    {id:'vintage',   label:'Vintage',     icon:'fa-film',         color:'#D97706'},
+    {id:'realistic', label:'Realistic',  icon:'fa-camera',          color:'#3B82F6'},
+    {id:'anime',     label:'Anime',      icon:'fa-star',            color:'#EC4899'},
+    {id:'oil',       label:'Oil Paint',  icon:'fa-palette',         color:'#F59E0B'},
+    {id:'watercolor',label:'Watercolor', icon:'fa-droplet',         color:'#06B6D4'},
+    {id:'3d',        label:'3D Render',  icon:'fa-cube',            color:'#8B5CF6'},
+    {id:'pixel',     label:'Pixel Art',  icon:'fa-border-all',      color:'#10B981'},
+    {id:'sketch',    label:'Sketch',     icon:'fa-pencil',          color:'#64748B'},
+    {id:'cyberpunk', label:'Cyberpunk',  icon:'fa-bolt',            color:'#A78BFA'},
+    {id:'flat',      label:'Flat',       icon:'fa-layer-group',     color:'#34D399'},
+    {id:'fantasy',   label:'Fantasy',    icon:'fa-wand-sparkles',   color:'#EF4444'},
+    {id:'minimal',   label:'Minimal',    icon:'fa-minus',           color:'#94A3B8'},
+    {id:'vintage',   label:'Vintage',    icon:'fa-film',            color:'#D97706'},
   ];
-  const ASPECTS=['1:1','16:9','9:16','4:3','3:2'];
+  const ASPECTS=[
+    {id:'1:1', label:'1:1', icon:'fa-square'},
+    {id:'16:9',label:'16:9',icon:'fa-rectangle-landscape'},
+    {id:'9:16',label:'9:16',icon:'fa-rectangle-portrait'},
+    {id:'4:3', label:'4:3', icon:'fa-rectangle'},
+    {id:'3:2', label:'3:2', icon:'fa-image'},
+  ];
   const PRESETS=[
-    {label:'Sunset City',    p:'A futuristic city skyline at golden sunset, neon lights on wet streets, cinematic'},
-    {label:'Space Explorer', p:'An astronaut on an alien planet, two moons in sky, vibrant nebula background'},
-    {label:'Fantasy Castle', p:'A majestic medieval castle on a floating island, clouds, magical atmosphere'},
-    {label:'Cyberpunk Girl', p:'A cyberpunk girl with neon hair in a rainy Tokyo alley, holographic ads'},
-    {label:'Deep Ocean',     p:'Bioluminescent deep sea creatures in the darkest ocean, ethereal blue glow'},
-    {label:'Mountain Dawn',  p:'Snow-capped mountain peaks at dawn, golden hour light, misty valleys'},
-    {label:'Forest Spirit',  p:'A mystical forest spirit of leaves and light, ancient trees, fireflies'},
-    {label:'Studio Portrait',p:'A professional headshot portrait, soft studio lighting, bokeh background'},
+    {label:'🌆 Sunset City',    p:'A futuristic city skyline at golden sunset, neon lights reflecting on wet streets'},
+    {label:'🚀 Space Explorer', p:'An astronaut on a colorful alien planet, twin moons, vibrant nebula in the sky'},
+    {label:'🏰 Fantasy Castle', p:'A majestic medieval castle on a floating island surrounded by clouds and magic'},
+    {label:'🤖 Cyberpunk Girl', p:'A cyberpunk girl with neon hair in a rainy Tokyo alley, holographic advertisements'},
+    {label:'🌊 Deep Ocean',     p:'Bioluminescent creatures in the deep ocean, ethereal blue glow, dark mysterious'},
+    {label:'🏔️ Mountain Dawn',  p:'Snow-capped mountain peaks at dawn, golden hour light, misty valleys below'},
+    {label:'🌿 Forest Spirit',  p:'A mystical forest spirit made of leaves and light, ancient trees, fireflies'},
+    {label:'📸 Portrait',       p:'A professional headshot portrait, soft studio lighting, bokeh background'},
   ];
 
-  const handleGenerate = () => {
-    if(!prompt.trim()) return;
-    setLoading(true);
-    const selectedStyle = STYLES.find(s=>s.id===style)?.label||style;
-    const fullPrompt = negPrompt ? prompt+', avoid: '+negPrompt : prompt;
-    setTimeout(()=>{
-      const entry = {id:Date.now(),prompt:prompt.trim(),style:selectedStyle,aspect,quality,negPrompt,createdAt:Date.now()};
-      if(setHistory) setHistory(prev=>[entry,...prev.slice(0,49)]);
+  const handleGenerate = async () => {
+    if(!prompt.trim() || loading) return;
+    setLoading(true); setError(''); setGenResult(null);
+    try {
+      const res = await fetch('/api/generate-image', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({prompt: prompt.trim(), style, aspect, neg_prompt: negPrompt})
+      });
+      const data = await res.json();
+      if(data.success && data.image) {
+        setGenResult(data);
+        const entry = {id:Date.now(), prompt:prompt.trim(), style, aspect, createdAt:Date.now(), image:data.image};
+        if(setHistory) setHistory(prev=>[entry,...prev.slice(0,19)]);
+        setTab('result');
+      } else {
+        setError(data.error || 'Generation failed. Try again.');
+      }
+    } catch(e) {
+      setError('Network error. Check connection.');
+    } finally {
       setLoading(false);
-      onGenerate(fullPrompt, selectedStyle);
-      onClose();
-    }, 800);
+    }
+  };
+
+  const downloadImage = () => {
+    if(!genResult?.image) return;
+    const a = document.createElement('a');
+    a.href = genResult.image;
+    a.download = `omina-ai-${Date.now()}.png`;
+    a.click();
   };
 
   const curStyle = STYLES.find(s=>s.id===style)||STYLES[0];
 
   return(
-    <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.85)'}} onClick={onClose}>
-      <div className="feat-modal-inner w-full max-w-2xl rounded-2xl border shadow-2xl overflow-hidden flex flex-col" style={{background:'var(--bg2)',borderColor:'var(--br)',maxHeight:'90vh'}} onClick={e=>e.stopPropagation()}>
+    <div className="feat-modal-wrap fixed inset-0 z-[150] flex items-center justify-center p-0 sm:p-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.88)'}} onClick={onClose}>
+      <div className="feat-modal-inner w-full sm:max-w-lg rounded-none sm:rounded-2xl border shadow-2xl flex flex-col" style={{background:'var(--bg2)',borderColor:'var(--br)',height:'100dvh',maxHeight:'100dvh'}} onClick={e=>e.stopPropagation()}>
 
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b flex-shrink-0" style={{borderColor:'var(--br)',background:'linear-gradient(135deg,rgba(124,58,237,.1),rgba(219,39,119,.06))'}}>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{background:'linear-gradient(135deg,#7C3AED,#DB2777)',boxShadow:'0 0 18px rgba(124,58,237,.4)'}}>
-              <i className="fa-solid fa-wand-magic-sparkles text-white text-sm"></i>
+        {/* ── Header ── */}
+        <div className="flex items-center justify-between px-4 py-3 border-b flex-shrink-0" style={{borderColor:'var(--br)',background:'linear-gradient(135deg,rgba(124,58,237,.1),rgba(219,39,119,.06))'}}>
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{background:'linear-gradient(135deg,#7C3AED,#DB2777)',boxShadow:'0 0 14px rgba(124,58,237,.4)'}}>
+              <i className="fa-solid fa-wand-magic-sparkles text-white" style={{fontSize:12}}></i>
             </div>
             <div>
-              <p className="font-bold text-base" style={{color:'var(--t1)'}}>Image Generation</p>
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] px-2 py-0.5 rounded-full font-bold" style={{background:'rgba(139,92,246,.2)',color:'#a78bfa',border:'1px solid rgba(139,92,246,.3)'}}>AI POWERED</span>
-                <span className="text-[10px]" style={{color:'var(--t3)'}}>Describe any image in text</span>
-              </div>
+              <p className="font-bold text-sm" style={{color:'var(--t1)'}}>Image Generation</p>
+              <p className="text-[10px]" style={{color:'var(--t3)'}}>Powered by FLUX · Stable Diffusion</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            {[['create','\u2728 Create'],['history','\ud83d\udcdc History']].map(([t,l])=>(
-              <button key={t} onClick={()=>setTab(t)} className="px-3 py-1.5 rounded-xl text-xs font-bold transition-all" style={{background:tab===t?'linear-gradient(135deg,#7C3AED,#DB2777)':'var(--bg3)',color:tab===t?'white':'var(--t2)'}}>
-                {l}
+          <div className="flex items-center gap-1">
+            {['create','history'].map(t=>(
+              <button key={t} onClick={()=>setTab(t)}
+                className="px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all capitalize"
+                style={{background:tab===t?'linear-gradient(135deg,#7C3AED,#DB2777)':'var(--bg3)',color:tab===t?'white':'var(--t2)'}}>
+                {t==='create'?'✨ Create':t==='result'?'🖼️ Result':'📜 History'}
               </button>
             ))}
-            <button onClick={onClose} className="w-8 h-8 rounded-xl flex items-center justify-center ml-1 transition-all" style={{color:'var(--t2)'}} onMouseEnter={e=>e.currentTarget.style.background='var(--bg3)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><i className="fa-solid fa-xmark"></i></button>
+            {genResult&&<button onClick={()=>setTab('result')}
+              className="px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all"
+              style={{background:tab==='result'?'linear-gradient(135deg,#7C3AED,#DB2777)':'var(--bg3)',color:tab==='result'?'white':'var(--t2)'}}>
+              🖼️ Result
+            </button>}
+            <button onClick={onClose} className="w-8 h-8 rounded-xl flex items-center justify-center ml-1" style={{color:'var(--t2)'}} onMouseEnter={e=>e.currentTarget.style.background='var(--bg3)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+              <i className="fa-solid fa-xmark"></i>
+            </button>
           </div>
         </div>
 
+        {/* ── CREATE TAB ── */}
         {tab==='create'&&(
-          <div className="flex flex-1 overflow-hidden" style={{minHeight:420}}>
-            {/* Left Controls */}
-            <div className="flex-1 overflow-y-auto sb p-5 space-y-4">
+          <div className="flex-1 overflow-y-auto sb" style={{WebkitOverflowScrolling:'touch'}}>
+            <div className="p-4 space-y-4">
+
+              {/* Prompt */}
               <div>
-                <label className="text-xs font-bold uppercase tracking-widest mb-2 flex items-center gap-1.5" style={{color:'var(--t3)'}}>
-                  <i className="fa-solid fa-pen-nib text-purple-400 text-[10px]"></i>Describe Your Image
+                <label className="text-[10px] font-bold uppercase tracking-widest mb-1.5 flex items-center gap-1.5" style={{color:'var(--t3)'}}>
+                  <i className="fa-solid fa-pen-nib" style={{color:'#a78bfa',fontSize:9}}></i>Describe Your Image
                 </label>
                 <textarea value={prompt} onChange={e=>setPrompt(e.target.value)}
                   placeholder="A magical forest at twilight with glowing fireflies, cinematic lighting..."
-                  className="w-full rounded-xl px-4 py-3 text-sm outline-none resize-none border transition-all"
-                  style={{background:'var(--bg3)',borderColor:'var(--br)',color:'var(--t1)',minHeight:80}}
-                  onFocus={e=>e.target.style.borderColor='rgba(124,58,237,.5)'} onBlur={e=>e.target.style.borderColor='var(--br)'}
+                  className="w-full rounded-xl px-3.5 py-3 text-sm outline-none resize-none border transition-all"
+                  style={{background:'var(--bg3)',borderColor:'var(--br)',color:'var(--t1)',minHeight:80,fontSize:15}}
+                  onFocus={e=>e.target.style.borderColor='rgba(124,58,237,.5)'}
+                  onBlur={e=>e.target.style.borderColor='var(--br)'}
                   rows="3"/>
                 <div className="flex items-center justify-between mt-1">
                   <span className="text-[10px]" style={{color:'var(--t3)'}}>{prompt.length}/500</span>
-                  <button onClick={()=>setPrompt('')} className="text-[10px]" style={{color:'var(--t3)'}}>Clear</button>
-                </div>
-              </div>
-
-              <div>
-                <label className="text-xs font-bold uppercase tracking-widest mb-2 flex items-center gap-1.5" style={{color:'var(--t3)'}}>
-                  <i className="fa-solid fa-palette text-pink-400 text-[10px]"></i>Art Style
-                </label>
-                <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:6}}>
-                  {STYLES.map(s=>(
-                    <button key={s.id} onClick={()=>setStyle(s.id)} className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl border transition-all" style={{background:style===s.id?s.color+'18':'var(--bg3)',borderColor:style===s.id?s.color+'66':'var(--br)'}}>
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{background:style===s.id?s.color+'22':'var(--bg)'}}>
-                        <i className={`fa-solid ${s.icon} text-[11px]`} style={{color:style===s.id?s.color:'var(--t3)'}}></i>
-                      </div>
-                      <span className="text-[9px] font-semibold text-center leading-tight" style={{color:style===s.id?s.color:'var(--t3)'}}>{s.label}</span>
+                  <div className="flex gap-2">
+                    <button onClick={()=>setShowNeg(s=>!s)} className="text-[10px]" style={{color:showNeg?'#a78bfa':'var(--t3)'}}>
+                      {showNeg?'▴':'▾'} Negative
                     </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs font-bold uppercase tracking-widest mb-2 block" style={{color:'var(--t3)'}}>Aspect Ratio</label>
-                  <div className="flex gap-1.5 flex-wrap">
-                    {ASPECTS.map(a=>(
-                      <button key={a} onClick={()=>setAspect(a)} className="px-2.5 py-1.5 rounded-lg text-[11px] font-bold border transition-all" style={{background:aspect===a?'rgba(124,58,237,.2)':'var(--bg3)',borderColor:aspect===a?'rgba(124,58,237,.5)':'var(--br)',color:aspect===a?'#a78bfa':'var(--t3)'}}>
-                        {a}
-                      </button>
-                    ))}
+                    {prompt&&<button onClick={()=>setPrompt('')} className="text-[10px]" style={{color:'var(--t3)'}}>Clear</button>}
                   </div>
                 </div>
-                <div>
-                  <label className="text-xs font-bold uppercase tracking-widest mb-2 block" style={{color:'var(--t3)'}}>Quality</label>
-                  <div className="flex gap-1.5">
-                    {[['standard','Std','#64748B'],['high','High','#3B82F6'],['ultra','Ultra','#8B5CF6']].map(([q,l,c])=>(
-                      <button key={q} onClick={()=>setQuality(q)} className="flex-1 py-1.5 rounded-lg text-[11px] font-bold border transition-all" style={{background:quality===q?c+'22':'var(--bg3)',borderColor:quality===q?c+'55':'var(--br)',color:quality===q?c:'var(--t3)'}}>{l}</button>
-                    ))}
-                  </div>
-                </div>
+                {showNeg&&(
+                  <input value={negPrompt} onChange={e=>setNegPrompt(e.target.value)}
+                    placeholder="blurry, low quality, watermark, distorted..."
+                    className="w-full mt-1.5 px-3 py-2 rounded-xl text-xs outline-none border transition-all"
+                    style={{background:'var(--bg3)',borderColor:'rgba(239,68,68,.25)',color:'var(--t1)',fontSize:14}}
+                    onFocus={e=>e.target.style.borderColor='rgba(239,68,68,.5)'}
+                    onBlur={e=>e.target.style.borderColor='rgba(239,68,68,.25)'}/>
+                )}
               </div>
 
+              {/* Quick Presets */}
               <div>
-                <label className="text-xs font-bold uppercase tracking-widest mb-2 flex items-center gap-1.5" style={{color:'var(--t3)'}}>
-                  <i className="fa-solid fa-ban text-red-400 text-[10px]"></i>Negative Prompt <span className="font-normal normal-case tracking-normal ml-1 opacity-60">(optional)</span>
-                </label>
-                <input value={negPrompt} onChange={e=>setNegPrompt(e.target.value)} placeholder="blurry, low quality, distorted, watermark..."
-                  className="w-full px-3 py-2.5 rounded-xl text-xs outline-none border transition-all"
-                  style={{background:'var(--bg3)',borderColor:'var(--br)',color:'var(--t1)'}}
-                  onFocus={e=>e.target.style.borderColor='rgba(239,68,68,.35)'} onBlur={e=>e.target.style.borderColor='var(--br)'}/>
-              </div>
-            </div>
-
-            {/* Right: Preview + Presets */}
-            <div className="w-52 border-l flex flex-col overflow-hidden flex-shrink-0" style={{borderColor:'var(--br)'}}>
-              <div className="p-3 border-b" style={{borderColor:'var(--br)'}}>
-                <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{color:'var(--t3)'}}>Current Style</p>
-                <div className="rounded-xl flex items-center justify-center p-4 border" style={{borderColor:'var(--br)',background:curStyle.color+'08',minHeight:80}}>
-                  <div className="text-center">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-2" style={{background:curStyle.color+'22',border:'1px solid '+curStyle.color+'44'}}>
-                      <i className={`fa-solid ${curStyle.icon} text-sm`} style={{color:curStyle.color}}></i>
-                    </div>
-                    <p className="text-xs font-bold" style={{color:curStyle.color}}>{curStyle.label}</p>
-                    {prompt&&<p className="text-[9px] mt-1 line-clamp-2 leading-tight" style={{color:'var(--t3)'}}>{prompt.slice(0,50)}{prompt.length>50?'...':''}</p>}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex-1 overflow-y-auto sb p-3">
                 <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{color:'var(--t3)'}}>Quick Presets</p>
-                <div className="space-y-1.5">
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
                   {PRESETS.map((pr,i)=>(
-                    <button key={i} onClick={()=>setPrompt(pr.p)} className="w-full text-left px-2.5 py-2 rounded-lg text-[10px] border transition-all" style={{borderColor:'var(--br)',color:'var(--t2)',background:'var(--bg3)'}} onMouseEnter={e=>{e.currentTarget.style.borderColor='rgba(124,58,237,.4)';e.currentTarget.style.color='#a78bfa';}} onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--br)';e.currentTarget.style.color='var(--t2)';}}>
+                    <button key={i} onClick={()=>setPrompt(pr.p)}
+                      className="text-left px-3 py-2 rounded-xl text-[11px] border transition-all"
+                      style={{borderColor:'var(--br)',color:'var(--t2)',background:'var(--bg3)',lineHeight:1.3}}
+                      onMouseEnter={e=>{e.currentTarget.style.borderColor='rgba(124,58,237,.4)';e.currentTarget.style.color='#a78bfa';}}
+                      onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--br)';e.currentTarget.style.color='var(--t2)';}}>
                       {pr.label}
                     </button>
                   ))}
                 </div>
               </div>
 
-              <div className="p-3 border-t" style={{borderColor:'var(--br)'}}>
-                <button onClick={handleGenerate} disabled={!prompt.trim()||loading} className="w-full py-3 rounded-xl text-sm font-bold text-white transition-all disabled:opacity-40 flex items-center justify-center gap-2" style={{background:'linear-gradient(135deg,#7C3AED,#DB2777)',boxShadow:prompt.trim()?'0 4px 16px rgba(124,58,237,.35)':'none'}}>
-                  {loading
-                    ?<><i className="fa-solid fa-spinner fa-spin text-xs"></i>Sending...</>
-                    :<><i className="fa-solid fa-wand-magic-sparkles text-xs"></i>Generate</>}
-                </button>
-                <p className="text-[9px] text-center mt-1.5" style={{color:'var(--t3)'}}>Prompt sent to Ollama chat</p>
+              {/* Style Grid */}
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{color:'var(--t3)'}}>
+                  <i className="fa-solid fa-palette mr-1" style={{color:'#EC4899',fontSize:9}}></i>Art Style
+                </p>
+                <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:5}}>
+                  {STYLES.map(s=>(
+                    <button key={s.id} onClick={()=>setStyle(s.id)}
+                      className="flex flex-col items-center gap-1 p-2 rounded-xl border transition-all"
+                      style={{background:style===s.id?s.color+'18':'var(--bg3)',borderColor:style===s.id?s.color+'66':'var(--br)'}}>
+                      <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{background:style===s.id?s.color+'22':'var(--bg)'}}>
+                        <i className={`fa-solid ${s.icon}`} style={{fontSize:10,color:style===s.id?s.color:'var(--t3)'}}></i>
+                      </div>
+                      <span style={{fontSize:8,fontWeight:600,color:style===s.id?s.color:'var(--t3)',textAlign:'center',lineHeight:1.1}}>{s.label}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
+
+              {/* Aspect Ratio */}
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{color:'var(--t3)'}}>Aspect Ratio</p>
+                <div className="flex gap-2 flex-wrap">
+                  {ASPECTS.map(a=>(
+                    <button key={a.id} onClick={()=>setAspect(a.id)}
+                      className="px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-all"
+                      style={{background:aspect===a.id?'rgba(124,58,237,.2)':'var(--bg3)',borderColor:aspect===a.id?'rgba(124,58,237,.5)':'var(--br)',color:aspect===a.id?'#a78bfa':'var(--t3)'}}>
+                      {a.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
             </div>
           </div>
         )}
 
+        {/* ── RESULT TAB ── */}
+        {tab==='result'&&(
+          <div className="flex-1 overflow-y-auto sb p-4 flex flex-col gap-4" style={{WebkitOverflowScrolling:'touch'}}>
+            {genResult?.image?(
+              <>
+                <div className="rounded-2xl overflow-hidden border flex-shrink-0" style={{borderColor:'rgba(124,58,237,.3)'}}>
+                  <img src={genResult.image} alt="Generated" style={{width:'100%',display:'block',maxHeight:'50vh',objectFit:'contain',background:'#000'}}/>
+                </div>
+                <div className="rounded-xl p-3 border" style={{borderColor:'var(--br)',background:'var(--bg3)'}}>
+                  <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{color:'var(--t3)'}}>Prompt</p>
+                  <p className="text-xs leading-relaxed" style={{color:'var(--t1)'}}>{genResult.prompt}</p>
+                  <div className="flex gap-2 mt-2">
+                    <span className="text-[9px] px-2 py-0.5 rounded-full font-bold" style={{background:'rgba(124,58,237,.15)',color:'#a78bfa'}}>{genResult.style||style}</span>
+                    <span className="text-[9px] px-2 py-0.5 rounded-full font-bold" style={{background:'rgba(59,130,246,.1)',color:'#60a5fa'}}>{aspect}</span>
+                    {genResult.model&&<span className="text-[9px] px-2 py-0.5 rounded-full font-bold" style={{background:'rgba(16,185,129,.1)',color:'#34d399'}}>{genResult.model}</span>}
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={downloadImage} className="flex-1 py-2.5 rounded-xl text-sm font-bold border flex items-center justify-center gap-2 transition-all" style={{borderColor:'rgba(124,58,237,.3)',color:'#a78bfa',background:'rgba(124,58,237,.08)'}}>
+                    <i className="fa-solid fa-download text-xs"></i>Download
+                  </button>
+                  <button onClick={()=>{setPrompt(genResult.prompt);setTab('create');setGenResult(null);setError('');}} className="flex-1 py-2.5 rounded-xl text-sm font-bold border flex items-center justify-center gap-2 transition-all" style={{borderColor:'rgba(59,130,246,.3)',color:'#60a5fa',background:'rgba(59,130,246,.08)'}}>
+                    <i className="fa-solid fa-rotate-right text-xs"></i>Regenerate
+                  </button>
+                  <button onClick={()=>{if(onGenerate)onGenerate(genResult.prompt,genResult.style||style);onClose();}} className="flex-1 py-2.5 rounded-xl text-sm font-bold border flex items-center justify-center gap-2 transition-all" style={{borderColor:'rgba(16,185,129,.3)',color:'#34d399',background:'rgba(16,185,129,.08)'}}>
+                    <i className="fa-solid fa-comment-dots text-xs"></i>Chat
+                  </button>
+                </div>
+              </>
+            ):(
+              <div className="flex-1 flex items-center justify-center flex-col gap-4 py-12">
+                <i className="fa-solid fa-image text-4xl" style={{color:'rgba(124,58,237,.3)'}}></i>
+                <p className="text-sm" style={{color:'var(--t3)'}}>No image generated yet</p>
+                <button onClick={()=>setTab('create')} className="px-4 py-2 rounded-xl text-sm font-bold text-white" style={{background:'linear-gradient(135deg,#7C3AED,#DB2777)'}}>
+                  Start Creating
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── HISTORY TAB ── */}
         {tab==='history'&&(
-          <div className="flex-1 overflow-y-auto sb p-4">
-            {(!history||history.length===0)
-              ?<div className="text-center py-14" style={{color:'var(--t3)'}}>
-                <p className="text-4xl mb-3">&#127912;</p>
+          <div className="flex-1 overflow-y-auto sb p-4" style={{WebkitOverflowScrolling:'touch'}}>
+            {(!history||history.length===0)?(
+              <div className="text-center py-14" style={{color:'var(--t3)'}}>
+                <p className="text-4xl mb-3">🎨</p>
                 <p className="text-sm font-medium" style={{color:'var(--t2)'}}>No generations yet</p>
-                <p className="text-xs mt-1">Use the Create tab to get started!</p>
+                <p className="text-xs mt-1">Use Create tab to generate!</p>
                 <button onClick={()=>setTab('create')} className="mt-4 px-4 py-2 rounded-xl text-xs font-bold text-white" style={{background:'linear-gradient(135deg,#7C3AED,#DB2777)'}}>Start Creating</button>
               </div>
-              :<div className="space-y-2">
+            ):(
+              <div className="grid gap-3" style={{gridTemplateColumns:'1fr 1fr'}}>
                 {history.map(h=>(
-                  <div key={h.id} className="flex items-start gap-3 p-3 rounded-xl border transition-all" style={{borderColor:'var(--br)',background:'var(--bg3)'}} onMouseEnter={e=>e.currentTarget.style.borderColor='rgba(124,58,237,.35)'} onMouseLeave={e=>e.currentTarget.style.borderColor='var(--br)'}>
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{background:'linear-gradient(135deg,rgba(124,58,237,.15),rgba(219,39,119,.1))'}}>
-                      <i className="fa-solid fa-image text-sm" style={{color:'rgba(167,139,250,.7)'}}></i>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold truncate" style={{color:'var(--t1)'}}>{h.prompt}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold" style={{background:'rgba(124,58,237,.15)',color:'#a78bfa'}}>{h.style}</span>
-                        <span className="text-[9px]" style={{color:'var(--t3)'}}>{h.aspect}</span>
-                        <span className="text-[9px]" style={{color:'var(--t3)'}}>{new Date(h.createdAt).toLocaleDateString()}</span>
+                  <div key={h.id} className="rounded-xl overflow-hidden border transition-all" style={{borderColor:'var(--br)',background:'var(--bg3)'}}
+                    onMouseEnter={e=>e.currentTarget.style.borderColor='rgba(124,58,237,.35)'}
+                    onMouseLeave={e=>e.currentTarget.style.borderColor='var(--br)'}>
+                    {h.image?(
+                      <img src={h.image} alt="" style={{width:'100%',aspectRatio:'1',objectFit:'cover',display:'block'}}/>
+                    ):(
+                      <div style={{aspectRatio:'1',background:'rgba(124,58,237,.08)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                        <i className="fa-solid fa-image" style={{fontSize:24,color:'rgba(167,139,250,.4)'}}></i>
+                      </div>
+                    )}
+                    <div className="p-2">
+                      <p className="text-[10px] font-medium truncate mb-1" style={{color:'var(--t1)'}}>{h.prompt}</p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[9px] px-1.5 py-0.5 rounded-full" style={{background:'rgba(124,58,237,.15)',color:'#a78bfa'}}>{h.style}</span>
+                        <button onClick={()=>{setPrompt(h.prompt);setStyle(h.style||'realistic');setTab('create');}} style={{fontSize:9,color:'#60a5fa',background:'none',border:'none',cursor:'pointer'}}>Reuse</button>
                       </div>
                     </div>
-                    <button onClick={()=>{setPrompt(h.prompt);setTab('create');}} className="text-[10px] px-2 py-1 rounded-lg border flex-shrink-0 transition-all" style={{borderColor:'rgba(124,58,237,.3)',color:'#a78bfa',background:'rgba(124,58,237,.08)'}}>Reuse</button>
                   </div>
                 ))}
               </div>
-            }
+            )}
           </div>
         )}
+
+        {/* ── Bottom: Error + Generate Button ── */}
+        {(tab==='create'||loading||error)&&(
+          <div className="flex-shrink-0 p-4 border-t" style={{borderColor:'var(--br)',background:'var(--bg2)',paddingBottom:'max(16px, env(safe-area-inset-bottom))'}}>
+            {error&&(
+              <div className="mb-3 px-3 py-2 rounded-xl text-xs flex items-start gap-2" style={{background:'rgba(239,68,68,.1)',color:'#f87171',border:'1px solid rgba(239,68,68,.2)'}}>
+                <i className="fa-solid fa-triangle-exclamation flex-shrink-0 mt-0.5" style={{fontSize:10}}></i>
+                <span>{error}</span>
+              </div>
+            )}
+            {loading?(
+              <div className="w-full py-3.5 rounded-xl flex items-center justify-center gap-3" style={{background:'rgba(124,58,237,.1)',border:'1px solid rgba(124,58,237,.3)'}}>
+                <div style={{width:18,height:18,borderRadius:'50%',border:'2px solid rgba(124,58,237,.3)',borderTopColor:'#a78bfa',animation:'spin 0.8s linear infinite'}}></div>
+                <span className="text-sm font-bold" style={{color:'#a78bfa'}}>Generating image...</span>
+              </div>
+            ):(
+              <button onClick={handleGenerate} disabled={!prompt.trim()}
+                className="w-full py-3.5 rounded-xl text-sm font-bold text-white transition-all disabled:opacity-40 flex items-center justify-center gap-2"
+                style={{background:'linear-gradient(135deg,#7C3AED,#DB2777)',boxShadow:prompt.trim()?'0 4px 20px rgba(124,58,237,.4)':'none'}}>
+                <i className="fa-solid fa-wand-magic-sparkles text-xs"></i>Generate Image
+              </button>
+            )}
+          </div>
+        )}
+
       </div>
     </div>
   );
@@ -3418,7 +3506,8 @@ ${cached}`,sender:'bot',model,timestamp:Date.now(),language};
   };
 
   const handleImgGen=(prompt,style)=>{
-    const p=`Describe this image request in vivid, detailed language:\n\n**Prompt:** "${prompt}"\n**Style:** ${style}`;
+    // Called when user clicks "Chat" from result page — adds context to chat
+    const p=`I just generated an image with the prompt: "${prompt}" (style: ${style}). Can you suggest variations or improvements to this prompt?`;
     send(p);
   };
 
