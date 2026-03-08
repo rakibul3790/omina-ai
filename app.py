@@ -1,0 +1,370 @@
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session, make_response
+import os, re, json as _json, datetime as _dt
+from collections import Counter
+from groq import Groq
+import firebase_admin
+from firebase_admin import credentials, auth, firestore
+
+app = Flask(__name__)
+app.secret_key = os.environ.get("SECRET_KEY", "omina-secret-2026")
+
+# ── Firebase Admin Init ──────────────────────────────────────
+firebase_config = {
+    "type": "service_account",
+    "project_id":                  "omina-ai-14a60",
+    "private_key_id":              "eaf56794ae9af11c892942a252599f0ae78c7230",
+    "private_key":                 "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC8RlNqX26+5565\nV1c2okgwibYfZQnPqL0WM6HWRIbk/r/T2vuh1pCd9Cs4ro0PG5f9nkJbXnSqNHIH\nIGX8qqWp6QCm+dykCd9tmdBHX76OsBxh6RROyDSbygYDVMsInPWfh/YiwsTw7uqK\ns0lk/jFeVUwgdOYJD4pntb4DLvaHdyo0UWfKzBwnRpZ00EyxGIrpNuLwV2svad5i\nmEx1jYnV4YJ3npZMOmUR/LQcpQDF64CLMae1QClkSZVoircSt5rGCEPQv8Vzy4vN\n3OiceG2uoojf0B7D5VddcBhufZYZqh3MaiCeVoGJN0zJ8ksYBkd1dh69/vOu3pPM\nLx3fqVTRAgMBAAECggEAALbMoF42lbIfuJqk/fIVUz5FwmjIExFmy5nKWqp6wGBa\nJQRn3YAfJrQX/FeMbfCQDs3daeqI4dtRAWWerWcWDIbknVugH6GeEnabjksnwYoj\nKHqcvLkMi61rzB9+8NAKLDVl1I3cfrVRQ2grjQC2Y8AdAj3qjYzkNwyoJTcBHkzQ\nlj9gSoxEhT+cb7Neka2aiybOuSnaU0cF62sjMQYa0O09H5bOZb80SQFV3q4VMRsV\noZrRV55dL3YyiLOdsBd/j8NxK/ttQZVuxxGwGJEAi6nTWS9bxZ/YJk60Uiz/6kkA\n/EmkzmNYdBFjO/LtBdNEbEj0dKpeuGTIcDvrHos6rwKBgQDl2PT5kXnLu5c22fyl\nGkTEuDwlDS+iW2XBZim2FbBSLMRCS2Rrxtu+JarpPQU5DQnooxmjpuraXd+72nXw\n7HtMjeDpZ92vP+SV7VrMiMlMW7rIq9s61ym2YzJAzIhEZX9IpUCIb55Idha09wk9\nhhtSu0ne34L/vQRF3J/9pmyFKwKBgQDRsm3HRUG0P1Kj5U2ycgamHxvjoY4ITsuY\n0gZMiZrMwc54LcDzRhNIOc3YysVxvYEFERn6lFiKLwExx3tlmx+cvW+bOOt5Ziyv\nQ4n3ld7BZkYJ3OVGB1x4n5NgZ47G6gT9ztF36zF+p4LaXNFVQWe3bCUBCkEXawS8\nLp+ifShH8wKBgQDZnjsDeAtbK/eVxXqBT4fAwbagVgW9sM989x+S+KICi8QeCIfB\ny3wOYleZkV66j2/MRXBnFAjUS4EjuUllnGF5L/O8ycyIuvPQR/RqJzCADXGhwaVF\n5qXlu7G+zGhQadDDlUKuaw/wB26kVCj5iVmhURY14GWFgQ7knmkUnVeuFQKBgFuG\n0s2gV/5RiUOKKXCSvn4xo92mPTU5Fzp7qU4s3YkzqmfgKJDGbFIhEMzoLGfpu++3\nOCycJU0jGRVeKWj+3TxvntAUdwsE4soY45ZSLukhN77EULpRKjZoCE6SxMnjiQwz\nAlCiMndCrCWdT60zoA56QGiEzkZnaqisfPbSRAurAoGAOpLRH6QWFpS3i0d3QYXR\njNPVn0J+z5jPr4w9Cyue+4P51aq8aw7cvRY3D2HGqbniHxO5CaPQU89MLECAhb5e\nbSkVbUdcL513i0BFLUt1wwi0pFxkR+sEHIY/PR29CbvX4/Jd3V44vvueQQNq94m7\nPpbiGqT7nY8xZvZIQfJfCRQ=\n-----END PRIVATE KEY-----\n",
+    "client_email":                "firebase-adminsdk-fbsvc@omina-ai-14a60.iam.gserviceaccount.com",
+    "client_id":                   "103712826243593595932",
+    "auth_uri":                    "https://accounts.google.com/o/oauth2/auth",
+    "token_uri":                   "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url":        "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40omina-ai-14a60.iam.gserviceaccount.com",
+}
+
+cred = credentials.Certificate(firebase_config)
+firebase_admin.initialize_app(cred)
+db = firestore.client()
+
+# ── Groq Client ─────────────────────────────────────────────
+groq_client = Groq(api_key="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")
+GROQ_MODEL = "llama3-70b-8192"
+
+# ── Fixed Instructions ───────────────────────────────────────
+FIXED_INSTRUCTIONS = (
+    "When asked to build a website, landing page, portfolio, or any web project "
+    "WITHOUT specific design instructions: be CREATIVE — choose a unique color palette, "
+    "modern layout, and impressive design on your own. Use Tailwind CSS via CDN. "
+    "Make it visually stunning with gradients, animations, glassmorphism, or bold typography. "
+    "Add realistic placeholder content and Font Awesome icons. "
+    "Always produce complete, ready-to-run HTML in a single file. "
+    "Never ask for design clarification — just build something impressive."
+)
+
+MOOD_MAP = {
+    "friendly":     " Respond in a warm, friendly, conversational tone.",
+    "professional": " Be concise and professional.",
+    "creative":     " Be extra creative and expressive.",
+    "funny":        " Add a touch of humor.",
+    "serious":      " Be precise and serious, no fluff.",
+}
+
+# ── Helper: verify Firebase ID token ────────────────────────
+def verify_token(id_token):
+    try:
+        decoded = auth.verify_id_token(id_token)
+        return decoded
+    except Exception:
+        return None
+
+def get_current_user():
+    """Session থেকে user info নেওয়া"""
+    if "uid" not in session:
+        return None
+    return {"uid": session["uid"], "name": session.get("user_name", "User"), "email": session.get("user_email", "")}
+
+# ── Routes ───────────────────────────────────────────────────
+@app.route("/")
+def home():
+    if "uid" not in session:
+        return redirect(url_for("login_page"))
+    return render_template("index.html",
+        user_name=session.get("user_name", "User"),
+        user_email=session.get("user_email", "")
+    )
+
+@app.route("/login")
+def login_page():
+    if "uid" in session:
+        return redirect(url_for("home"))
+    return render_template("login.html")
+
+# ── Firebase token verify & session set ─────────────────────
+@app.route("/api/session", methods=["POST"])
+def set_session():
+    """Frontend থেকে Firebase ID token পাঠাবে, backend session সেট করবে"""
+    data     = request.json
+    id_token = data.get("idToken", "")
+    decoded  = verify_token(id_token)
+    if not decoded:
+        return jsonify({"success": False, "message": "Invalid token."}), 401
+
+    uid   = decoded["uid"]
+    email = decoded.get("email", "")
+    name  = decoded.get("name", email.split("@")[0])
+
+    # Firestore এ user document তৈরি/আপডেট
+    user_ref = db.collection("users").document(uid)
+    user_doc = user_ref.get()
+    if not user_doc.exists:
+        user_ref.set({
+            "name":      name,
+            "email":     email,
+            "plan":      "free",
+            "joined":    _dt.datetime.utcnow().isoformat(),
+            "msg_count": 0,
+            "bio":       "",
+            "avatar":    decoded.get("picture", ""),
+        })
+    else:
+        # Avatar আপডেট
+        user_ref.update({"avatar": decoded.get("picture", "")})
+
+    session["uid"]        = uid
+    session["user_name"]  = user_doc.get("name") if user_doc.exists else name
+    session["user_email"] = email
+
+    return jsonify({"success": True, "name": session["user_name"]})
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("login_page"))
+
+# ── Chat ─────────────────────────────────────────────────────
+@app.route("/chat", methods=["POST"])
+def chat():
+    user = get_current_user()
+    if not user:
+        return jsonify({"reply": "Error: Not logged in."}), 401
+
+    data       = request.json
+    user_msg   = data.get("message", "")
+    custom_sys = data.get("system_prompt", "").strip()
+    lang_instr = data.get("lang_instruction", "").strip()
+    history    = data.get("history", [])
+    mood       = data.get("mood", "")
+    file_names = data.get("file_names", [])
+    persona_prompt = data.get("persona_prompt", "").strip()
+
+    # Base system
+    base_system = (
+        f"You are Omina AI, a highly capable AI assistant. "
+        f"The user's name is {user['name']}. "
+        "Always format responses with markdown: headings, bullet points, **bold**, `code blocks`."
+    )
+    if custom_sys:
+        base_system = custom_sys
+    elif persona_prompt:
+        base_system = persona_prompt
+
+    if file_names:
+        files_str = ", ".join(file_names)
+        base_system += (
+            f" The user has uploaded {len(file_names)} file(s): {files_str}. "
+            "The file content is included in the user's message. Analyze it as requested."
+        )
+
+    if lang_instr:
+        system_content = (
+            lang_instr + " " + base_system + " " +
+            FIXED_INSTRUCTIONS + MOOD_MAP.get(mood, "") +
+            " " + lang_instr
+        )
+    else:
+        system_content = base_system + " " + FIXED_INSTRUCTIONS + MOOD_MAP.get(mood, "")
+
+    # History (last 12)
+    messages = []
+    for h in history[-12:]:
+        role = "user" if h.get("role") == "user" else "assistant"
+        messages.append({"role": role, "content": h.get("content", "")})
+    messages.append({"role": "user", "content": user_msg})
+
+    try:
+        completion = groq_client.chat.completions.create(
+            model=GROQ_MODEL,
+            messages=[{"role": "system", "content": system_content}] + messages,
+            max_tokens=2048,
+            temperature=0.75,
+            top_p=0.9,
+        )
+        bot_reply = completion.choices[0].message.content
+        bot_reply = re.sub(r"<think>.*?</think>", "", bot_reply, flags=re.DOTALL).strip()
+
+        # Firestore এ message count বাড়ানো
+        db.collection("users").document(user["uid"]).update({
+            "msg_count": firestore.INCREMENT(1)
+        })
+
+    except Exception as e:
+        bot_reply = f"Error: {str(e)}"
+
+    return jsonify({"reply": bot_reply})
+
+# ── Profile ──────────────────────────────────────────────────
+@app.route("/api/profile", methods=["GET"])
+def get_profile():
+    user = get_current_user()
+    if not user:
+        return jsonify({"success": False, "message": "Not logged in."}), 401
+    doc = db.collection("users").document(user["uid"]).get()
+    if not doc.exists:
+        return jsonify({"success": False, "message": "User not found."}), 404
+    d = doc.to_dict()
+    return jsonify({"success": True, "profile": {
+        "name":      d.get("name", ""),
+        "email":     d.get("email", ""),
+        "avatar":    d.get("avatar", ""),
+        "bio":       d.get("bio", ""),
+        "joined":    d.get("joined", "Unknown"),
+        "plan":      d.get("plan", "free"),
+        "msg_count": d.get("msg_count", 0),
+    }})
+
+@app.route("/api/profile", methods=["PUT"])
+def update_profile():
+    user = get_current_user()
+    if not user:
+        return jsonify({"success": False, "message": "Not logged in."}), 401
+    data    = request.json
+    allowed = {k: data[k] for k in ["name", "bio", "avatar"] if k in data}
+    db.collection("users").document(user["uid"]).update(allowed)
+    if "name" in allowed:
+        session["user_name"] = allowed["name"]
+    return jsonify({"success": True, "message": "Profile updated."})
+
+# ── Stats ────────────────────────────────────────────────────
+@app.route("/api/stats", methods=["GET"])
+def get_stats():
+    user = get_current_user()
+    if not user:
+        return jsonify({"success": False, "message": "Not logged in."}), 401
+
+    sessions_ref = db.collection("users").document(user["uid"]).collection("chat_sessions")
+    sessions     = list(sessions_ref.stream())
+
+    total_sessions = len(sessions)
+    total_messages = 0
+    user_messages  = 0
+    day_counter    = Counter()
+
+    for s in sessions:
+        s_data = s.to_dict()
+        msgs   = s_data.get("messages", [])
+        total_messages += len(msgs)
+        for m in msgs:
+            if m.get("role") == "user":
+                user_messages += 1
+            ts = m.get("timestamp", "")
+            if ts:
+                day_counter[ts[:10]] += 1
+
+    bot_messages    = total_messages - user_messages
+    avg_per_session = round(total_messages / total_sessions, 1) if total_sessions else 0
+    most_active_day = day_counter.most_common(1)[0] if day_counter else ("N/A", 0)
+
+    return jsonify({"success": True, "stats": {
+        "total_sessions":    total_sessions,
+        "total_messages":    total_messages,
+        "user_messages":     user_messages,
+        "bot_messages":      bot_messages,
+        "avg_per_session":   avg_per_session,
+        "most_active_day":   most_active_day[0],
+        "most_active_count": most_active_day[1],
+    }})
+
+# ── Intents Management ───────────────────────────────────────
+def _load_intents():
+    try:
+        with open("intents.json", "r", encoding="utf-8") as f:
+            return _json.load(f)
+    except:
+        return {"intents": []}
+
+def _save_intents(data):
+    with open("intents.json", "w", encoding="utf-8") as f:
+        _json.dump(data, f, ensure_ascii=False, indent=2)
+
+@app.route("/api/intents", methods=["GET"])
+def list_intents():
+    if not get_current_user():
+        return jsonify({"success": False, "message": "Not logged in."}), 401
+    data = _load_intents()
+    return jsonify({"success": True, "intents": data.get("intents", []), "count": len(data.get("intents", []))})
+
+@app.route("/api/intents", methods=["POST"])
+def add_intent():
+    if not get_current_user():
+        return jsonify({"success": False, "message": "Not logged in."}), 401
+    body      = request.json
+    tag       = body.get("tag", "").strip()
+    patterns  = body.get("patterns", [])
+    responses = body.get("responses", [])
+    if not tag or not patterns or not responses:
+        return jsonify({"success": False, "message": "tag, patterns, and responses are required."}), 400
+    data = _load_intents()
+    for intent in data["intents"]:
+        if intent["tag"] == tag:
+            return jsonify({"success": False, "message": f"Tag '{tag}' already exists."}), 400
+    data["intents"].append({"tag": tag, "patterns": patterns, "responses": responses})
+    _save_intents(data)
+    return jsonify({"success": True, "message": f"Intent '{tag}' added.", "total": len(data["intents"])})
+
+@app.route("/api/intents/<tag>", methods=["DELETE"])
+def delete_intent(tag):
+    if not get_current_user():
+        return jsonify({"success": False, "message": "Not logged in."}), 401
+    data   = _load_intents()
+    before = len(data["intents"])
+    data["intents"] = [i for i in data["intents"] if i["tag"] != tag]
+    if len(data["intents"]) == before:
+        return jsonify({"success": False, "message": f"Tag '{tag}' not found."}), 404
+    _save_intents(data)
+    return jsonify({"success": True, "message": f"Intent '{tag}' deleted."})
+
+@app.route("/api/intents/<tag>", methods=["PUT"])
+def update_intent(tag):
+    if not get_current_user():
+        return jsonify({"success": False, "message": "Not logged in."}), 401
+    body = request.json
+    data = _load_intents()
+    for intent in data["intents"]:
+        if intent["tag"] == tag:
+            if "patterns"  in body: intent["patterns"]  = body["patterns"]
+            if "responses" in body: intent["responses"] = body["responses"]
+            _save_intents(data)
+            return jsonify({"success": True, "message": f"Intent '{tag}' updated."})
+    return jsonify({"success": False, "message": f"Tag '{tag}' not found."}), 404
+
+# ── Chat Export ──────────────────────────────────────────────
+@app.route("/api/export/chat", methods=["POST"])
+def export_chat():
+    if not get_current_user():
+        return jsonify({"success": False, "message": "Not logged in."}), 401
+    data     = request.json
+    messages = data.get("messages", [])
+    fmt      = data.get("format", "json").lower()
+    title    = data.get("title", "Omina Chat")
+    now      = _dt.datetime.now().strftime("%Y-%m-%d %H:%M")
+
+    if fmt == "json":
+        payload = _json.dumps({"title": title, "exported_at": now, "messages": messages}, ensure_ascii=False, indent=2)
+        resp    = make_response(payload)
+        resp.headers["Content-Type"]        = "application/json"
+        resp.headers["Content-Disposition"] = f'attachment; filename="omina_chat_{_dt.datetime.now().strftime("%Y%m%d_%H%M%S")}.json"'
+        return resp
+    elif fmt == "txt":
+        lines = [f"Omina AI — {title}", f"Exported: {now}", "=" * 50, ""]
+        for m in messages:
+            role = "You" if m.get("role") == "user" else "Omina AI"
+            lines += [f"[{role}]", m.get("content", ""), ""]
+        resp = make_response("\n".join(lines))
+        resp.headers["Content-Type"]        = "text/plain; charset=utf-8"
+        resp.headers["Content-Disposition"] = f'attachment; filename="omina_chat_{_dt.datetime.now().strftime("%Y%m%d_%H%M%S")}.txt"'
+        return resp
+    elif fmt == "md":
+        lines = [f"# {title}", f"> Exported from Omina AI · {now}", ""]
+        for m in messages:
+            role = "**You**" if m.get("role") == "user" else "**Omina AI**"
+            lines += [f"### {role}", m.get("content", ""), ""]
+        resp = make_response("\n".join(lines))
+        resp.headers["Content-Type"]        = "text/markdown; charset=utf-8"
+        resp.headers["Content-Disposition"] = f'attachment; filename="omina_chat_{_dt.datetime.now().strftime("%Y%m%d_%H%M%S")}.md"'
+        return resp
+
+    return jsonify({"success": False, "message": "Invalid format. Use: json, txt, md"}), 400
+
+if __name__ == "__main__":
+    print("Omina AI running at http://127.0.0.1:5000")
+    app.run(debug=True)
