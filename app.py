@@ -9,17 +9,18 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "omina-secret-2026")
 
 # ── Firebase Admin Init ──────────────────────────────────────
+# সব sensitive data environment variables থেকে নেওয়া হচ্ছে
 firebase_config = {
-    "type": "service_account",
-    "project_id":                  "omina-ai-14a60",
-    "private_key_id":              "eaf56794ae9af11c892942a252599f0ae78c7230",
-    "private_key":                 "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC8RlNqX26+5565\nV1c2okgwibYfZQnPqL0WM6HWRIbk/r/T2vuh1pCd9Cs4ro0PG5f9nkJbXnSqNHIH\nIGX8qqWp6QCm+dykCd9tmdBHX76OsBxh6RROyDSbygYDVMsInPWfh/YiwsTw7uqK\ns0lk/jFeVUwgdOYJD4pntb4DLvaHdyo0UWfKzBwnRpZ00EyxGIrpNuLwV2svad5i\nmEx1jYnV4YJ3npZMOmUR/LQcpQDF64CLMae1QClkSZVoircSt5rGCEPQv8Vzy4vN\n3OiceG2uoojf0B7D5VddcBhufZYZqh3MaiCeVoGJN0zJ8ksYBkd1dh69/vOu3pPM\nLx3fqVTRAgMBAAECggEAALbMoF42lbIfuJqk/fIVUz5FwmjIExFmy5nKWqp6wGBa\nJQRn3YAfJrQX/FeMbfCQDs3daeqI4dtRAWWerWcWDIbknVugH6GeEnabjksnwYoj\nKHqcvLkMi61rzB9+8NAKLDVl1I3cfrVRQ2grjQC2Y8AdAj3qjYzkNwyoJTcBHkzQ\nlj9gSoxEhT+cb7Neka2aiybOuSnaU0cF62sjMQYa0O09H5bOZb80SQFV3q4VMRsV\noZrRV55dL3YyiLOdsBd/j8NxK/ttQZVuxxGwGJEAi6nTWS9bxZ/YJk60Uiz/6kkA\n/EmkzmNYdBFjO/LtBdNEbEj0dKpeuGTIcDvrHos6rwKBgQDl2PT5kXnLu5c22fyl\nGkTEuDwlDS+iW2XBZim2FbBSLMRCS2Rrxtu+JarpPQU5DQnooxmjpuraXd+72nXw\n7HtMjeDpZ92vP+SV7VrMiMlMW7rIq9s61ym2YzJAzIhEZX9IpUCIb55Idha09wk9\nhhtSu0ne34L/vQRF3J/9pmyFKwKBgQDRsm3HRUG0P1Kj5U2ycgamHxvjoY4ITsuY\n0gZMiZrMwc54LcDzRhNIOc3YysVxvYEFERn6lFiKLwExx3tlmx+cvW+bOOt5Ziyv\nQ4n3ld7BZkYJ3OVGB1x4n5NgZ47G6gT9ztF36zF+p4LaXNFVQWe3bCUBCkEXawS8\nLp+ifShH8wKBgQDZnjsDeAtbK/eVxXqBT4fAwbagVgW9sM989x+S+KICi8QeCIfB\ny3wOYleZkV66j2/MRXBnFAjUS4EjuUllnGF5L/O8ycyIuvPQR/RqJzCADXGhwaVF\n5qXlu7G+zGhQadDDlUKuaw/wB26kVCj5iVmhURY14GWFgQ7knmkUnVeuFQKBgFuG\n0s2gV/5RiUOKKXCSvn4xo92mPTU5Fzp7qU4s3YkzqmfgKJDGbFIhEMzoLGfpu++3\nOCycJU0jGRVeKWj+3TxvntAUdwsE4soY45ZSLukhN77EULpRKjZoCE6SxMnjiQwz\nAlCiMndCrCWdT60zoA56QGiEzkZnaqisfPbSRAurAoGAOpLRH6QWFpS3i0d3QYXR\njNPVn0J+z5jPr4w9Cyue+4P51aq8aw7cvRY3D2HGqbniHxO5CaPQU89MLECAhb5e\nbSkVbUdcL513i0BFLUt1wwi0pFxkR+sEHIY/PR29CbvX4/Jd3V44vvueQQNq94m7\nPpbiGqT7nY8xZvZIQfJfCRQ=\n-----END PRIVATE KEY-----\n",
-    "client_email":                "firebase-adminsdk-fbsvc@omina-ai-14a60.iam.gserviceaccount.com",
-    "client_id":                   "103712826243593595932",
+    "type":                        "service_account",
+    "project_id":                  os.environ.get("FIREBASE_PROJECT_ID"),
+    "private_key_id":              os.environ.get("FIREBASE_PRIVATE_KEY_ID"),
+    "private_key":                 os.environ.get("FIREBASE_PRIVATE_KEY", "").replace("\\n", "\n"),
+    "client_email":                os.environ.get("FIREBASE_CLIENT_EMAIL"),
+    "client_id":                   os.environ.get("FIREBASE_CLIENT_ID"),
     "auth_uri":                    "https://accounts.google.com/o/oauth2/auth",
     "token_uri":                   "https://oauth2.googleapis.com/token",
     "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-    "client_x509_cert_url":        "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40omina-ai-14a60.iam.gserviceaccount.com",
+    "client_x509_cert_url":        os.environ.get("FIREBASE_CLIENT_CERT_URL"),
 }
 
 cred = credentials.Certificate(firebase_config)
@@ -27,7 +28,7 @@ firebase_admin.initialize_app(cred)
 db = firestore.client()
 
 # ── Groq Client ─────────────────────────────────────────────
-groq_client = Groq(api_key="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")
+groq_client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 GROQ_MODEL = "llama3-70b-8192"
 
 # ── Fixed Instructions ───────────────────────────────────────
