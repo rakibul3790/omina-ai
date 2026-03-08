@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Omina AI - Login</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp }             from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+                 GoogleAuthProvider, signInWithPopup, updateProfile,
+                 sendPasswordResetEmail }     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+        // Flask থেকে inject করা config
+        const firebaseConfig = {
+            apiKey:    "AIzaSyC_T55dLwWIdulcTcs7nXQfj9cuqA38nhE",
+            authDomain:"omina-ai-14a60.firebaseapp.com",
+            projectId: "omina-ai-14a60",
+            appId:     "1:1059129736424:web:98c0c58883b3bad8241d5d",
+        };
+
+        const app_fb  = initializeApp(firebaseConfig);
+        const auth_fb = getAuth(app_fb);
+
+        // Global এ expose করা হচ্ছে React এর জন্য
+        window._fbAuth       = auth_fb;
+        window._fbGoogle     = new GoogleAuthProvider();
+        window._fbSignIn     = signInWithEmailAndPassword;
+        window._fbRegister   = createUserWithEmailAndPassword;
+        window._fbGoogleLogin= signInWithPopup;
+        window._fbUpdateProfile = updateProfile;
+        window._fbResetPw    = sendPasswordResetEmail;
+        window._fbReady      = true;
+        window.dispatchEvent(new Event("fb-ready"));
+    </script>
+
+    <style>
+        body { margin: 0; background-color: #0E1117; font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; }
+        .animate-in { animation: fadeIn 0.5s ease-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0 30px #1E232B inset !important;
+            -webkit-text-fill-color: #e2e8f0 !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        {% raw %}
+        const { useState, useEffect } = React;
+
+        // Backend session সেট করার helper
+        async function setBackendSession(idToken) {
+            const res = await fetch("/api/session", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ idToken })
+            });
+            return res.json();
+        }
+
+        function AuthApp() {
+            const [isLogin, setIsLogin]                   = useState(true);
+            const [isForgotPassword, setIsForgotPassword] = useState(false);
+            const [showPassword, setShowPassword]          = useState(false);
+            const [isLoading, setIsLoading]                = useState(false);
+            const [errorMsg, setErrorMsg]                  = useState("");
+            const [successMsg, setSuccessMsg]              = useState("");
+            const [fbReady, setFbReady]                    = useState(!!window._fbReady);
+
+            const [formData, setFormData] = useState({ name: "", email: "", password: "" });
+
+            useEffect(() => {
+                if (!fbReady) {
+                    window.addEventListener("fb-ready", () => setFbReady(true));
+                }
+            }, []);
+
+            const handleInputChange = (e) => {
+                setFormData({ ...formData, [e.target.name]: e.target.value });
+            };
+
+            const handleAfterAuth = async (userCredential) => {
+                const idToken = await userCredential.user.getIdToken();
+                const result  = await setBackendSession(idToken);
+                if (result.success) {
+                    window.location.href = "/";
+                } else {
+                    setErrorMsg(result.message || "Session error.");
+                }
+            };
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                if (!fbReady) { setErrorMsg("Firebase is loading, please wait..."); return; }
+                setIsLoading(true);
+                setErrorMsg("");
+                setSuccessMsg("");
+
+                try {
+                    if (isLogin) {
+                        const cred = await window._fbSignIn(window._fbAuth, formData.email, formData.password);
+                        await handleAfterAuth(cred);
+                    } else {
+                        const cred = await window._fbRegister(window._fbAuth, formData.email, formData.password);
+                        // Display name সেট
+                        await window._fbUpdateProfile(cred.user, { displayName: formData.name });
+                        await handleAfterAuth(cred);
+                    }
+                } catch (err) {
+                    const messages = {
+                        "auth/user-not-found":       "No account found with this email.",
+                        "auth/wrong-password":       "Incorrect password.",
+                        "auth/email-already-in-use": "This email is already registered.",
+                        "auth/weak-password":        "Password must be at least 6 characters.",
+                        "auth/invalid-email":        "Please enter a valid email address.",
+                        "auth/invalid-credential":   "Invalid email or password.",
+                        "auth/too-many-requests":    "Too many attempts. Try again later.",
+                    };
+                    setErrorMsg(messages[err.code] || err.message);
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+
+            const handleGoogleLogin = async () => {
+                if (!fbReady) { setErrorMsg("Firebase is loading, please wait..."); return; }
+                setIsLoading(true);
+                setErrorMsg("");
+                try {
+                    const cred = await window._fbGoogleLogin(window._fbAuth, window._fbGoogle);
+                    await handleAfterAuth(cred);
+                } catch (err) {
+                    if (err.code !== "auth/popup-closed-by-user") {
+                        setErrorMsg(err.message);
+                    }
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+
+            const handleForgotSubmit = async (e) => {
+                e.preventDefault();
+                if (!fbReady) { setErrorMsg("Firebase is loading..."); return; }
+                setIsLoading(true);
+                setErrorMsg("");
+                try {
+                    await window._fbResetPw(window._fbAuth, formData.email);
+                    setSuccessMsg(`Password reset link sent to ${formData.email}`);
+                    setTimeout(() => { setIsForgotPassword(false); setSuccessMsg(""); }, 4000);
+                } catch (err) {
+                    setErrorMsg(err.message);
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+
+            const toggleAuthMode = () => {
+                setIsLogin(!isLogin);
+                setShowPassword(false);
+                setErrorMsg("");
+                setSuccessMsg("");
+            };
+
+            return (
+                <div className="min-h-screen bg-[#0E1117] flex items-center justify-center p-4 relative overflow-hidden">
+
+                    <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/20 blur-[120px] rounded-full pointer-events-none"></div>
+                    <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-600/20 blur-[120px] rounded-full pointer-events-none"></div>
+
+                    <div className="w-full max-w-md bg-[#161B22] border border-slate-800 rounded-3xl p-8 sm:p-10 shadow-2xl relative z-10 animate-in">
+
+                        <div className="flex flex-col items-center mb-8">
+                            <div className="w-16 h-16 bg-slate-800/50 border border-slate-700 rounded-2xl flex items-center justify-center mb-4 shadow-inner">
+                                <i className="fa-solid fa-robot text-blue-500 text-3xl"></i>
+                            </div>
+                            <h1 className="text-2xl font-bold text-slate-100 mb-2 tracking-tight">
+                                {isForgotPassword ? "Reset Password" : (isLogin ? "Welcome back" : "Create an account")}
+                            </h1>
+                            <p className="text-sm text-slate-400 text-center">
+                                {isForgotPassword
+                                    ? "Enter your email to receive a reset link."
+                                    : (isLogin ? "Sign in to access your AI workspace." : "Sign up to start with Omina AI.")}
+                            </p>
+                        </div>
+
+                        {errorMsg && (
+                            <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm px-4 py-3 rounded-xl text-center mb-6 animate-in">
+                                <i className="fa-solid fa-circle-exclamation mr-2"></i>{errorMsg}
+                            </div>
+                        )}
+                        {successMsg && (
+                            <div className="bg-blue-500/10 border border-blue-500/30 text-blue-400 text-sm px-4 py-3 rounded-xl text-center mb-6 animate-in">
+                                <i className="fa-solid fa-circle-check mr-2"></i>{successMsg}
+                            </div>
+                        )}
+
+                        {isForgotPassword ? (
+                            <form onSubmit={handleForgotSubmit} className="space-y-4 animate-in">
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <i className="fa-regular fa-envelope text-slate-500"></i>
+                                    </div>
+                                    <input type="email" name="email" value={formData.email} onChange={handleInputChange}
+                                        placeholder="Email address" required
+                                        className="w-full bg-[#1E232B] border border-slate-700 rounded-xl py-3.5 pl-11 pr-4 text-slate-200 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder-slate-500"
+                                    />
+                                </div>
+                                <button type="submit" disabled={isLoading}
+                                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3.5 rounded-xl transition-all shadow-lg shadow-blue-500/20 mt-6 flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
+                                    {isLoading ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <span>Send Reset Link</span>}
+                                </button>
+                                <div className="mt-6 text-center text-sm text-slate-400">
+                                    Remember your password?{" "}
+                                    <button type="button" onClick={() => setIsForgotPassword(false)} className="text-blue-400 hover:text-blue-300 font-medium">Back to login</button>
+                                </div>
+                            </form>
+                        ) : (
+                            <form onSubmit={handleSubmit} className="space-y-4 animate-in">
+                                {!isLogin && (
+                                    <div className="relative">
+                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <i className="fa-regular fa-user text-slate-500"></i>
+                                        </div>
+                                        <input type="text" name="name" value={formData.name} onChange={handleInputChange}
+                                            placeholder="Full Name" required={!isLogin}
+                                            className="w-full bg-[#1E232B] border border-slate-700 rounded-xl py-3.5 pl-11 pr-4 text-slate-200 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder-slate-500"
+                                        />
+                                    </div>
+                                )}
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <i className="fa-regular fa-envelope text-slate-500"></i>
+                                    </div>
+                                    <input type="email" name="email" value={formData.email} onChange={handleInputChange}
+                                        placeholder="Email address" required
+                                        className="w-full bg-[#1E232B] border border-slate-700 rounded-xl py-3.5 pl-11 pr-4 text-slate-200 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder-slate-500"
+                                    />
+                                </div>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <i className="fa-solid fa-lock text-slate-500"></i>
+                                    </div>
+                                    <input type={showPassword ? "text" : "password"} name="password" value={formData.password} onChange={handleInputChange}
+                                        placeholder="Password" required
+                                        className="w-full bg-[#1E232B] border border-slate-700 rounded-xl py-3.5 pl-11 pr-12 text-slate-200 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder-slate-500"
+                                    />
+                                    <button type="button" onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-500 hover:text-slate-300 transition-colors">
+                                        <i className={`fa-regular ${showPassword ? "fa-eye-slash" : "fa-eye"}`}></i>
+                                    </button>
+                                </div>
+                                {isLogin && (
+                                    <div className="flex justify-end mt-1">
+                                        <button type="button" onClick={() => setIsForgotPassword(true)} className="text-xs text-blue-400 hover:text-blue-300">
+                                            Forgot password?
+                                        </button>
+                                    </div>
+                                )}
+                                <button type="submit" disabled={isLoading}
+                                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3.5 rounded-xl transition-all shadow-lg shadow-blue-500/20 mt-6 flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
+                                    {isLoading ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <span>{isLogin ? "Sign In" : "Create Account"}</span>}
+                                </button>
+
+                                <div className="flex items-center my-6">
+                                    <div className="flex-1 border-t border-slate-800"></div>
+                                    <span className="px-3 text-xs text-slate-500 font-medium">OR CONTINUE WITH</span>
+                                    <div className="flex-1 border-t border-slate-800"></div>
+                                </div>
+
+                                <button type="button" onClick={handleGoogleLogin} disabled={isLoading}
+                                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-[#1E232B] hover:bg-[#252A33] border border-slate-700 rounded-xl text-sm text-slate-300 transition-colors disabled:opacity-60">
+                                    <i className="fa-brands fa-google text-red-400"></i>
+                                    <span>Continue with Google</span>
+                                </button>
+
+                                <div className="mt-8 text-center text-sm text-slate-400">
+                                    {isLogin ? "Don't have an account? " : "Already have an account? "}
+                                    <button type="button" onClick={toggleAuthMode} className="text-blue-400 hover:text-blue-300 font-medium">
+                                        {isLogin ? "Sign up" : "Log in"}
+                                    </button>
+                                </div>
+                            </form>
+                        )}
+                    </div>
+
+                    <div className="absolute bottom-6 w-full text-center text-xs text-slate-600">
+                        &copy; 2026 Omina AI. All rights reserved.
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById("root"));
+        root.render(<AuthApp />);
+        {% endraw %}
+    </script>
+</body>
+</html>
