@@ -33,7 +33,7 @@ db = firestore.client()
 
 # ── Groq Client ─────────────────────────────────────────────
 groq_client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
-GROQ_MODEL = "llama3-70b-8192"
+GROQ_MODEL = "llama-3.3-70b-versatile"
 
 # ── Fixed Instructions ───────────────────────────────────────
 FIXED_INSTRUCTIONS = (
@@ -189,7 +189,7 @@ def chat():
 
         # Firestore এ message count বাড়ানো
         db.collection("users").document(user["uid"]).update({
-            "msg_count": firestore.Increment(1)
+            "msg_count": firestore.INCREMENT(1)
         })
 
     except Exception as e:
@@ -383,6 +383,9 @@ def generate_image():
     style     = data.get("style", "realistic")
     aspect    = data.get("aspect", "1:1")
     neg_prompt = data.get("neg_prompt", "").strip()
+    lighting   = data.get("lighting", "").strip()
+    color      = data.get("color", "").strip()
+    seed_val   = data.get("seed", None)
 
     if not prompt:
         return jsonify({"success": False, "error": "Prompt is required."}), 400
@@ -411,13 +414,17 @@ def generate_image():
     w, h = aspect_size.get(aspect, (1024, 1024))
     style_suffix = style_map.get(style, "")
     full_prompt  = f"{prompt}, {style_suffix}" if style_suffix else prompt
+    if lighting:
+        full_prompt += f", {lighting.lower()} lighting"
+    if color:
+        full_prompt += f", {color.lower()} color palette"
     if neg_prompt:
         full_prompt += f" --no {neg_prompt}"
 
     try:
         import urllib.parse
-        encoded = urllib.parse.quote(full_prompt)
-        seed    = abs(hash(full_prompt)) % 99999
+        encoded  = urllib.parse.quote(full_prompt)
+        seed     = int(seed_val) if seed_val else abs(hash(full_prompt)) % 99999
         url     = f"https://image.pollinations.ai/prompt/{encoded}?width={w}&height={h}&seed={seed}&nologo=true&enhance=true"
 
         resp = _requests.get(url, timeout=90, headers={"User-Agent": "OminaAI/1.0"})
