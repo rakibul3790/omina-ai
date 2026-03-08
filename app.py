@@ -29,7 +29,7 @@ db = firestore.client()
 
 # ── Groq Client ─────────────────────────────────────────────
 groq_client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
-GROQ_MODEL = "llama3-70b-8192"
+GROQ_MODEL = "llama-3.3-70b-versatile"
 
 # ── Fixed Instructions ───────────────────────────────────────
 FIXED_INSTRUCTIONS = (
@@ -369,3 +369,4 @@ def export_chat():
 if __name__ == "__main__":
     print("Omina AI running at http://127.0.0.1:5000")
     app.run(debug=True)
+
