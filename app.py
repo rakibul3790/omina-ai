@@ -189,7 +189,7 @@ def chat():
 
         # Firestore এ message count বাড়ানো
         db.collection("users").document(user["uid"]).update({
-            "msg_count": firestore.INCREMENT(1)
+            "msg_count": firestore.Increment(1)
         })
 
     except Exception as e:
