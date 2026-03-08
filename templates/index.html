@@ -4542,17 +4542,25 @@ Reply: ${botText.slice(0,800)}`,
                   </button>
                 )}
               </div>
-            ):(
+            ):
+            (
               <div className="flex-1 overflow-y-auto sb p-5 feat-loading-wrap">
-                {storyLoading&&<div className="feat-load-overlay"><div className="fl-clock"><div className="fl-hour"></div><div className="fl-minute"></div></div><span className="fl-label">Loading...</span></div>}
-                <div className="rounded-xl border p-5" style={{borderColor:'rgba(245,158,11,.3)',background:'rgba(245,158,11,.04)'}}>
+                {storyLoading&&<div className="feat-load-overlay"><div className="fl-clock"><div className="fl-hour"></div><div className="fl-minute"></div></div><span className="fl-label">Writing your story...</span></div>}
+                {storyLoading&&(
+                  <div className="space-y-3">
+                    <div className="rounded-xl p-4 border animate-pulse" style={{borderColor:'var(--br)',background:'var(--bg3)'}}><div className="h-4 rounded w-2/5 mb-3" style={{background:'var(--br)'}}></div><div className="h-2.5 rounded w-full mb-2" style={{background:'var(--br)'}}></div><div className="h-2.5 rounded w-11/12 mb-2" style={{background:'var(--br)'}}></div><div className="h-2.5 rounded w-4/5" style={{background:'var(--br)'}}></div></div>
+                    <div className="rounded-xl p-4 border animate-pulse" style={{borderColor:'var(--br)',background:'var(--bg3)',animationDelay:'.1s'}}><div className="h-2.5 rounded w-full mb-2" style={{background:'var(--br)'}}></div><div className="h-2.5 rounded w-10/12 mb-2" style={{background:'var(--br)'}}></div><div className="h-2.5 rounded w-3/4" style={{background:'var(--br)'}}></div></div>
+                    <div className="rounded-xl p-4 border animate-pulse" style={{borderColor:'var(--br)',background:'var(--bg3)',animationDelay:'.2s'}}><div className="h-2.5 rounded w-full mb-2" style={{background:'var(--br)'}}></div><div className="h-2.5 rounded w-9/12" style={{background:'var(--br)'}}></div></div>
+                  </div>
+                )}
+                {!storyLoading&&<div className="rounded-xl border p-5" style={{borderColor:'rgba(245,158,11,.3)',background:'rgba(245,158,11,.04)'}}>
                   <div className="flex items-center gap-2 mb-4 pb-3 border-b" style={{borderColor:'rgba(245,158,11,.2)'}}>
                     <span className="text-[10px] px-2 py-0.5 rounded-full font-bold capitalize" style={{background:'rgba(245,158,11,.15)',color:'#F59E0B'}}>{storyConfig.genre}</span>
                     <span className="text-[10px] px-2 py-0.5 rounded-full font-bold capitalize" style={{background:'rgba(239,68,68,.12)',color:'#EF4444'}}>{storyConfig.mood}</span>
                     <span className="text-[10px] px-2 py-0.5 rounded-full font-bold capitalize" style={{background:'rgba(59,130,246,.12)',color:'#60a5fa'}}>{storyConfig.length}</span>
                   </div>
                   <div className="prose prose-sm text-sm leading-relaxed whitespace-pre-wrap" style={{color:'var(--t1)',fontFamily:"'DM Sans',sans-serif",lineHeight:1.8}}>{storyResult}</div>
-                </div>
+                </div>}
                 <div className="flex gap-3 mt-4">
                   <button onClick={()=>navigator.clipboard.writeText(storyResult).then(()=>toast_('Story copied!','success'))} className="flex-1 py-2.5 rounded-xl text-sm font-bold border transition-all flex items-center justify-center gap-2" style={{borderColor:'rgba(245,158,11,.3)',color:'#F59E0B',background:'rgba(245,158,11,.08)'}}>
                     <i className="fa-solid fa-copy text-xs"></i>Copy
@@ -5538,15 +5546,15 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
         // Only user messages — filtered by reset date
         const resetTs = wcResetDate ? new Date(wcResetDate).getTime() : 0;
         const allMsgs = sessions.flatMap(s=>
-          (s.messages||[]).filter(m=>m.sender==='user' && (!resetTs || (m.ts||0)>resetTs))
+          (s.messages||[]).filter(m=>m.sender==='user' && (!resetTs || ((m.timestamp||m.ts||0)>resetTs)))
         );
         const allText = allMsgs.map(m=>m.text||'').join(' ');
         const stopwords=new Set(['the','a','an','and','or','but','in','on','at','to','for','of','with','is','are','was','were','be','been','have','has','had','do','does','did','will','would','could','should','may','might','can','i','you','he','she','it','we','they','me','him','her','us','them','my','your','his','its','our','their','this','that','these','those','what','which','who','when','where','why','how','all','each','every','some','no','not','only','so','than','too','very','just','if','then','there','here','also','about','more','like','get','dont','use','want','need','make','know','think','tell','give','take','come','see','look','let','say','good','new','first','last','long','great','little','own','right','big','high','different','small','large','next','early','young','important','few','public','bad','same','able','please','write','create','help','using','code','sure','okay','thanks','thank','yes','yeah','nope','hi','hello','hey','koro','kore','kora','korbe','hobe','thakbe','dau','dao','amr','tumi','tomar','amar','ami','apni','apnar','ekta','kono','ache','acche','hoy','hoye','theke']);
         const words = allText.toLowerCase().replace(/[^a-z\u0980-\u09ff\s]/g,' ').split(/\s+/).filter(w=>w.length>3&&!stopwords.has(w)&&!wcIgnored.includes(w));
         const freq={};
         words.forEach(w=>{freq[w]=(freq[w]||0)+1;});
-        // Only show words used MORE than 50 times
-        const MIN_COUNT = 50;
+        // Show words used MORE than 2 times (was 50 — too high, nothing showed)
+        const MIN_COUNT = 2;
         const all_sorted = Object.entries(freq).sort((a,b)=>b[1]-a[1]);
         const sorted = all_sorted.filter(([,c])=>c>MIN_COUNT);
         const top10 = sorted.slice(0,10);
@@ -5558,8 +5566,8 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
         // Timeline — top word per day
         const dayMap={};
         allMsgs.forEach(m=>{
-          if(!m.ts) return;
-          const day=new Date(m.ts).toLocaleDateString('en-GB',{day:'2-digit',month:'short'});
+          if(!m.ts&&!m.timestamp) return;
+          const day=new Date(m.timestamp||m.ts).toLocaleDateString('en-GB',{day:'2-digit',month:'short'});
           const ws=(m.text||'').toLowerCase().replace(/[^a-z\s]/g,' ').split(/\s+/).filter(w=>w.length>3&&!stopwords.has(w)&&!wcIgnored.includes(w));
           ws.forEach(w=>{if(!dayMap[day])dayMap[day]={};dayMap[day][w]=(dayMap[day][w]||0)+1;});
         });
@@ -5604,7 +5612,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                   <div>
                     <p className="font-bold text-sm" style={{color:'var(--t1)'}}>Word Cloud</p>
                     <p className="text-[11px]" style={{color:'var(--t3)'}}>
-                      Words used 50+ times · {sorted.length} qualifying words
+                      Words used 3+ times · {sorted.length} qualifying words
                       {wcResetDate&&<span className="ml-1.5 px-1.5 py-0.5 rounded-full text-[9px]" style={{background:'rgba(99,102,241,.15)',color:'#a78bfa'}}>Reset: {new Date(wcResetDate).toLocaleDateString()}</span>}
                     </p>
                   </div>
