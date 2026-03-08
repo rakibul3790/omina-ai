@@ -3047,37 +3047,49 @@ function App() {
       /^save\s+(?:this|that)[\s:]+(.+)/i,
       /^note\s+(?:that\s+)?(.+)/i,
       /^always\s+remember\s+(?:that\s+)?(.+)/i,
+      /^keep\s+in\s+mind\s+(?:that\s+)?(.+)/i,
+      /^don\'?t\s+forget\s+(?:that\s+)?(.+)/i,
       /^মনে\s+রেখো\s+(.+)/i,
       /^মনে\s+রাখো\s+(.+)/i,
       /^এটা\s+মনে\s+রেখো[\s:]+(.+)/i,
       /^সেভ\s+করো[\s:]+(.+)/i,
+      /^মনে\s+রেখ\s+(.+)/i,
+      /^মনে\s+রাখ\s+(.+)/i,
     ];
-    const interestPats = [
-      /i (?:really\s+)?(?:love|like|enjoy|am into|am interested in)\s+(.+)/i,
-      /i\'?m (?:a\s+)?(?:big fan of|passionate about|obsessed with)\s+(.+)/i,
-      /my (?:favorite|favourite)\s+\w+\s+is\s+(.+)/i,
-      /i work (?:as|in)\s+(.+)/i,
-      /আমি\s+(.+?)\s+(?:পছন্দ করি|ভালোবাসি|ভালো লাগে)/i,
-      /আমার\s+(?:প্রিয়|পছন্দের)\s+(.+)/i,
+    const factPats = [
+      { re: /my name is\s+(.+)/i,           prefix: 'My name is ' },
+      { re: /i(?:'?m| am) (?:a |an )?(.+(?:developer|designer|engineer|student|teacher|doctor|writer|manager|freelancer|artist|gamer|founder).+)/i, prefix: 'I am ' },
+      { re: /i work (?:as|at|for|in)\s+(.+)/i, prefix: 'I work at ' },
+      { re: /i live in\s+(.+)/i,            prefix: 'I live in ' },
+      { re: /i(?:'?m| am) from\s+(.+)/i,   prefix: 'I am from ' },
+      { re: /my (?:favorite|favourite)\s+\w+\s+is\s+(.+)/i, prefix: '' },
+      { re: /i (?:really\s+)?(?:love|like|enjoy|am into)\s+(.+)/i, prefix: '' },
+      { re: /i(?:'?m| am) (?:a\s+)?(?:big fan of|passionate about|obsessed with)\s+(.+)/i, prefix: '' },
+      { re: /i(?:'?m| am)\s+(\d+)\s+years?\s+old/i, prefix: 'I am ', suffix: ' years old' },
+      { re: /my (?:main\s+)?(?:language|stack|framework|tool)\s+is\s+(.+)/i, prefix: '' },
+      { re: /আমার নাম\s+(.+)/i,             prefix: 'আমার নাম ' },
+      { re: /আমি\s+(.+?)(?:\s+এ|\s+তে)?\s+থাকি/i, prefix: 'আমি থাকি ' },
+      { re: /আমি\s+(.+?)\s+(?:পছন্দ করি|ভালোবাসি|ভালো লাগে)/i, prefix: '' },
+      { re: /আমার\s+(?:প্রিয়|পছন্দের)\s+(.+)/i, prefix: '' },
     ];
     for(const pat of rememberPats){
       const m = userMsg.match(pat);
       if(m && m[1] && m[1].trim().length > 2){
         const txt = m[1].trim();
         if(!currentMems.some(x=>x.text.toLowerCase()===txt.toLowerCase())){
-          setMems(p=>[...p,{id:Date.now(),text:txt,createdAt:new Date().toLocaleDateString(),source:'chat'}]);
+          setMems(p=>[...p,{id:Date.now(),text:txt,createdAt:new Date().toLocaleDateString(),source:'chat',category:'custom'}]);
           toastFn('🧠 Memory saved','success');
         }
         return true;
       }
     }
-    for(const pat of interestPats){
-      const m = userMsg.match(pat);
-      if(m && m[0] && m[0].trim().length > 5){
-        const txt = m[0].trim();
-        if(!currentMems.some(x=>x.text.toLowerCase()===txt.toLowerCase())){
-          setMems(p=>[...p,{id:Date.now(),text:txt,createdAt:new Date().toLocaleDateString(),source:'auto'}]);
-          toastFn('🧠 Interest noted','info');
+    for(const {re, prefix, suffix=''} of factPats){
+      const m = userMsg.match(re);
+      if(m && m[1] && m[1].trim().length > 1){
+        const txt = prefix ? prefix + m[1].trim() + suffix : m[0].trim();
+        if(txt.length > 4 && !currentMems.some(x=>x.text.toLowerCase()===txt.toLowerCase())){
+          setMems(p=>[...p,{id:Date.now(),text:txt,createdAt:new Date().toLocaleDateString(),source:'auto',category:'auto'}]);
+          toastFn('🧠 Noted','info');
         }
       }
     }
@@ -7349,81 +7361,133 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                 <h3 className="text-base font-semibold border-b pb-3 mb-5" style={{color:'var(--t1)',borderColor:'var(--br)'}}>Data</h3>
 
                 {/* ═══════════ AI MEMORY PANEL ═══════════ */}
-                <div className="mb-5 rounded-2xl overflow-hidden border" style={{borderColor:'rgba(139,92,246,.25)',background:'linear-gradient(135deg,rgba(139,92,246,.06) 0%,rgba(99,102,241,.04) 100%)'}}>
+                <div className="mb-6 rounded-2xl overflow-hidden border" style={{borderColor:'rgba(139,92,246,.2)',background:'var(--bg)'}}>
+
                   {/* Header */}
-                  <div className="flex items-center justify-between px-4 py-3 border-b" style={{borderColor:'rgba(139,92,246,.15)',background:'rgba(139,92,246,.08)'}}>
+                  <div className="flex items-center justify-between px-4 py-3" style={{background:'linear-gradient(135deg,rgba(124,58,237,.12),rgba(79,70,229,.08))',borderBottom:'1px solid rgba(139,92,246,.15)'}}>
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{background:'linear-gradient(135deg,#7C3AED,#4F46E5)',boxShadow:'0 0 12px rgba(124,58,237,.4)'}}>
-                        <i className="fa-solid fa-brain text-white text-sm"></i>
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{background:'linear-gradient(135deg,#7C3AED,#4F46E5)',boxShadow:'0 0 10px rgba(124,58,237,.35)'}}>
+                        <i className="fa-solid fa-brain text-white" style={{fontSize:12}}></i>
                       </div>
                       <div>
                         <p className="text-sm font-bold" style={{color:'var(--t1)'}}>AI Memory</p>
                         <p className="text-[10px]" style={{color:'var(--t3)'}}>AI সবসময় এই তথ্যগুলো মনে রাখে</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] px-2.5 py-1 rounded-full font-bold" style={{background:'rgba(139,92,246,.2)',color:'#c4b5fd',border:'1px solid rgba(139,92,246,.3)'}}>{aiMemories.length} saved</span>
-                      {aiMemories.length>0&&<button onClick={()=>{if(window.confirm('Clear all memories?'))setAiMemories([]);}} className="text-[10px] px-2.5 py-1 rounded-full font-bold border transition-all" style={{borderColor:'rgba(239,68,68,.25)',color:'#f87171',background:'rgba(239,68,68,.06)'}} title="Clear all">
-                        <i className="fa-solid fa-trash-can mr-1"></i>Clear
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[10px] px-2 py-0.5 rounded-full font-bold" style={{background:'rgba(139,92,246,.15)',color:'#c4b5fd',border:'1px solid rgba(139,92,246,.25)'}}>{aiMemories.length} saved</span>
+                      {aiMemories.length>0&&<button onClick={()=>{if(window.confirm('Clear all memories?'))setAiMemories([]);}} className="text-[10px] px-2 py-0.5 rounded-full font-bold border transition-all" style={{borderColor:'rgba(239,68,68,.2)',color:'#f87171',background:'rgba(239,68,68,.05)'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(239,68,68,.12)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(239,68,68,.05)'}>
+                        <i className="fa-solid fa-trash-can mr-1"></i>Clear all
                       </button>}
                     </div>
                   </div>
 
-                  {/* Add new memory input */}
+                  {/* Quick add chips */}
                   <div className="px-4 pt-3 pb-2">
+                    <p className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{color:'var(--t3)'}}>Quick Add</p>
+                    <div className="flex flex-wrap gap-1.5 mb-3">
+                      {[
+                        {icon:'fa-user',label:'Name',placeholder:'My name is...'},
+                        {icon:'fa-briefcase',label:'Job',placeholder:'I work as...'},
+                        {icon:'fa-map-marker-alt',label:'Location',placeholder:'I live in...'},
+                        {icon:'fa-code',label:'Stack',placeholder:'I use...'},
+                        {icon:'fa-heart',label:'Hobby',placeholder:'I love...'},
+                        {icon:'fa-language',label:'Language',placeholder:'I speak...'},
+                      ].map(({icon,label,placeholder})=>(
+                        <button key={label}
+                          onClick={()=>{
+                            const val = prompt(placeholder);
+                            if(val&&val.trim()){
+                              const txt = placeholder.replace('...','') + val.trim();
+                              if(!aiMemories.some(x=>x.text.toLowerCase()===txt.toLowerCase())){
+                                setAiMemories(p=>[...p,{id:Date.now(),text:txt,createdAt:new Date().toLocaleDateString(),source:'manual',category:label.toLowerCase()}]);
+                                toast_('🧠 Memory saved','success');
+                              }
+                            }
+                          }}
+                          className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold border transition-all"
+                          style={{background:'rgba(139,92,246,.06)',borderColor:'rgba(139,92,246,.2)',color:'#a78bfa',cursor:'pointer'}}
+                          onMouseEnter={e=>{e.currentTarget.style.background='rgba(139,92,246,.15)';e.currentTarget.style.borderColor='rgba(139,92,246,.4)';}}
+                          onMouseLeave={e=>{e.currentTarget.style.background='rgba(139,92,246,.06)';e.currentTarget.style.borderColor='rgba(139,92,246,.2)';}}>
+                          <i className={`fa-solid ${icon}`} style={{fontSize:8}}></i>{label}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Custom input */}
                     <div className="flex gap-2">
                       <div className="flex-1 relative">
-                        <i className="fa-solid fa-pen-to-square absolute left-3 top-1/2 -translate-y-1/2 text-xs" style={{color:'var(--t3)'}}></i>
+                        <i className="fa-solid fa-pen-to-square absolute left-3 top-1/2 -translate-y-1/2" style={{fontSize:10,color:'var(--t3)'}}></i>
                         <input value={newMemory} onChange={e=>setNewMemory(e.target.value)}
-                          onKeyDown={e=>{if(e.key==='Enter'&&newMemory.trim()){setAiMemories(p=>[...p,{id:Date.now(),text:newMemory.trim(),createdAt:new Date().toLocaleDateString(),source:'manual'}]);setNewMemory('');toast_('Memory saved','success');}}}
-                          placeholder="e.g. My name is Rakib, I love crypto…"
-                          className="w-full pl-8 pr-3 py-2.5 rounded-xl text-xs outline-none border transition-all"
-                          style={{background:'var(--bg)',borderColor:'rgba(139,92,246,.2)',color:'var(--t1)'}}
+                          onKeyDown={e=>{if(e.key==='Enter'&&newMemory.trim()){
+                            if(!aiMemories.some(x=>x.text.toLowerCase()===newMemory.trim().toLowerCase())){
+                              setAiMemories(p=>[...p,{id:Date.now(),text:newMemory.trim(),createdAt:new Date().toLocaleDateString(),source:'manual',category:'custom'}]);
+                              toast_('🧠 Memory saved','success');
+                            } else { toast_('Already saved','info'); }
+                            setNewMemory('');
+                          }}}
+                          placeholder="Type any fact about you… press Enter"
+                          className="w-full pl-8 pr-3 py-2 rounded-xl text-xs outline-none border transition-all"
+                          style={{background:'var(--bg3)',borderColor:'rgba(139,92,246,.2)',color:'var(--t1)'}}
                           onFocus={e=>e.target.style.borderColor='rgba(139,92,246,.5)'}
                           onBlur={e=>e.target.style.borderColor='rgba(139,92,246,.2)'}/>
                       </div>
-                      <button onClick={()=>{if(newMemory.trim()){setAiMemories(p=>[...p,{id:Date.now(),text:newMemory.trim(),createdAt:new Date().toLocaleDateString(),source:'manual'}]);setNewMemory('');toast_('Memory saved','success');}}}
-                        className="px-3.5 py-2.5 rounded-xl text-xs font-bold flex-shrink-0 transition-all"
+                      <button onClick={()=>{if(newMemory.trim()){
+                        if(!aiMemories.some(x=>x.text.toLowerCase()===newMemory.trim().toLowerCase())){
+                          setAiMemories(p=>[...p,{id:Date.now(),text:newMemory.trim(),createdAt:new Date().toLocaleDateString(),source:'manual',category:'custom'}]);
+                          toast_('🧠 Memory saved','success');
+                        } else { toast_('Already saved','info'); }
+                        setNewMemory('');
+                      }}}
+                        className="px-3.5 py-2 rounded-xl text-xs font-bold flex-shrink-0 transition-all"
                         style={{background:'linear-gradient(135deg,#7C3AED,#4F46E5)',color:'white',boxShadow:'0 2px 8px rgba(124,58,237,.3)'}}>
-                        <i className="fa-solid fa-plus mr-1"></i>Add
+                        <i className="fa-solid fa-plus mr-1"></i>Save
                       </button>
                     </div>
-                    <p className="text-[10px] mt-1.5 ml-1" style={{color:'var(--t3)'}}>
-                      💡 Chat এ "remember that..." বললেও auto save হবে
-                    </p>
+                    <p className="text-[10px] mt-1.5" style={{color:'var(--t3)'}}>💡 Chat এ <span style={{color:'#a78bfa',fontWeight:600}}>"remember that..."</span> বললেও auto save হবে</p>
                   </div>
 
                   {/* Memory list */}
-                  <div className="px-4 pb-3">
+                  <div className="px-4 pb-4">
                     {aiMemories.length===0 ? (
-                      <div className="text-center py-6 rounded-xl border border-dashed" style={{borderColor:'rgba(139,92,246,.2)',background:'rgba(139,92,246,.03)'}}>
-                        <div className="w-10 h-10 rounded-2xl flex items-center justify-center mx-auto mb-2" style={{background:'rgba(139,92,246,.1)'}}>
-                          <i className="fa-solid fa-brain text-lg" style={{color:'rgba(139,92,246,.5)'}}></i>
-                        </div>
+                      <div className="text-center py-8 rounded-xl border border-dashed" style={{borderColor:'rgba(139,92,246,.15)',background:'rgba(139,92,246,.03)'}}>
+                        <i className="fa-solid fa-brain text-2xl mb-2" style={{color:'rgba(139,92,246,.3)'}}></i>
                         <p className="text-xs font-medium" style={{color:'var(--t3)'}}>No memories yet</p>
-                        <p className="text-[10px] mt-0.5" style={{color:'var(--t3)'}}>Add facts above or tell AI to remember something in chat</p>
+                        <p className="text-[10px] mt-1" style={{color:'var(--t3)'}}>Add using quick chips above or type in the box</p>
                       </div>
                     ) : (
-                      <div style={{maxHeight:220,overflowY:'auto'}} className="sb space-y-2">
-                        {aiMemories.map((m,idx)=>(
-                          <div key={m.id} className="group flex items-start gap-3 px-3 py-2.5 rounded-xl border transition-all" style={{background:'var(--bg)',borderColor:'rgba(139,92,246,.15)'}} onMouseEnter={e=>e.currentTarget.style.borderColor='rgba(139,92,246,.3)'} onMouseLeave={e=>e.currentTarget.style.borderColor='rgba(139,92,246,.15)'}>
-                            <div className="w-5 h-5 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style={{background:m.source==='auto'?'rgba(16,185,129,.15)':m.source==='chat'?'rgba(59,130,246,.15)':'rgba(139,92,246,.15)'}}>
-                              <i className={`fa-solid ${m.source==='auto'?'fa-wand-magic-sparkles':m.source==='chat'?'fa-comment-dots':'fa-lock'} text-[9px]`} style={{color:m.source==='auto'?'#34d399':m.source==='chat'?'#60a5fa':'#a78bfa'}}></i>
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-xs leading-relaxed" style={{color:'var(--t1)'}}>{m.text}</p>
-                              <div className="flex items-center gap-2 mt-1">
-                                <span className="text-[9px] px-1.5 py-0.5 rounded-full" style={{background:m.source==='auto'?'rgba(16,185,129,.1)':m.source==='chat'?'rgba(59,130,246,.1)':'rgba(139,92,246,.1)',color:m.source==='auto'?'#34d399':m.source==='chat'?'#60a5fa':'#a78bfa'}}>
-                                  {m.source==='auto'?'auto-detected':m.source==='chat'?'from chat':'manual'}
-                                </span>
-                                <span className="text-[9px]" style={{color:'var(--t3)'}}>{m.createdAt}</span>
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{color:'var(--t3)'}}>Saved Memories</p>
+                        <div style={{maxHeight:240,overflowY:'auto'}} className="sb space-y-1.5">
+                          {aiMemories.map((m,idx)=>{
+                            const srcColor = m.source==='auto'?'#34d399':m.source==='chat'?'#60a5fa':'#a78bfa';
+                            const srcBg = m.source==='auto'?'rgba(16,185,129,.1)':m.source==='chat'?'rgba(59,130,246,.1)':'rgba(139,92,246,.1)';
+                            const srcIcon = m.source==='auto'?'fa-wand-magic-sparkles':m.source==='chat'?'fa-comment-dots':'fa-lock';
+                            const srcLabel = m.source==='auto'?'auto':m.source==='chat'?'chat':'manual';
+                            return(
+                              <div key={m.id} className="group flex items-start gap-2.5 px-3 py-2 rounded-xl border transition-all"
+                                style={{background:'var(--bg3)',borderColor:'rgba(139,92,246,.1)'}}
+                                onMouseEnter={e=>e.currentTarget.style.borderColor='rgba(139,92,246,.3)'}
+                                onMouseLeave={e=>e.currentTarget.style.borderColor='rgba(139,92,246,.1)'}>
+                                <div className="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 mt-0.5" style={{background:srcBg}}>
+                                  <i className={`fa-solid ${srcIcon}`} style={{fontSize:8,color:srcColor}}></i>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs leading-relaxed" style={{color:'var(--t1)'}}>{m.text}</p>
+                                  <div className="flex items-center gap-1.5 mt-0.5">
+                                    <span className="text-[9px] px-1.5 py-0.5 rounded-full font-medium" style={{background:srcBg,color:srcColor}}>{srcLabel}</span>
+                                    <span className="text-[9px]" style={{color:'var(--t3)'}}>{m.createdAt}</span>
+                                  </div>
+                                </div>
+                                <button onClick={()=>setAiMemories(p=>p.filter(x=>x.id!==m.id))}
+                                  className="flex-shrink-0 w-5 h-5 rounded-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
+                                  style={{color:'#f87171',background:'rgba(239,68,68,.1)',border:'none',cursor:'pointer'}}>
+                                  <i className="fa-solid fa-xmark" style={{fontSize:8}}></i>
+                                </button>
                               </div>
-                            </div>
-                            <button onClick={()=>setAiMemories(p=>p.filter(x=>x.id!==m.id))} className="flex-shrink-0 w-6 h-6 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all" style={{color:'#f87171',background:'rgba(239,68,68,.1)',border:'none',cursor:'pointer'}}>
-                              <i className="fa-solid fa-xmark text-[10px]"></i>
-                            </button>
-                          </div>
-                        ))}
+                            );
+                          })}
+                        </div>
                       </div>
                     )}
                   </div>
