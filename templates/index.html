@@ -398,6 +398,38 @@ input:-webkit-autofill{-webkit-box-shadow:0 0 0 30px var(--bgi) inset!important;
   .bottom-input-wrap{padding-left:8px!important;padding-right:8px!important;padding-bottom:env(safe-area-inset-bottom,12px)!important;}
 }
 
+/* ── Image Generation Modal Hover Effects ── */
+.img-style-btn{transition:transform .15s, box-shadow .15s, border-color .2s, background .2s !important;}
+.img-style-btn:hover{transform:translateY(-2px) scale(1.04) !important;box-shadow:0 6px 20px rgba(0,0,0,.35) !important;}
+.img-style-btn:active{transform:scale(.97) !important;}
+
+.img-aspect-btn{transition:transform .12s, border-color .15s, background .15s !important;}
+.img-aspect-btn:hover{transform:scale(1.05) !important;border-color:rgba(124,58,237,.6) !important;}
+
+.img-preset-btn{transition:transform .12s, border-color .2s, color .15s, background .15s !important;}
+.img-preset-btn:hover{transform:translateY(-1px) !important;border-color:rgba(124,58,237,.5) !important;color:#a78bfa !important;background:rgba(124,58,237,.08) !important;}
+.img-preset-btn:active{transform:scale(.97) !important;}
+
+.img-chip-btn{transition:transform .1s, border-color .15s, background .15s, color .15s !important;}
+.img-chip-btn:hover{transform:scale(1.06) !important;}
+
+.img-hist-card{transition:transform .15s, border-color .2s, box-shadow .15s !important;cursor:pointer;}
+.img-hist-card:hover{transform:translateY(-3px) scale(1.01) !important;border-color:rgba(124,58,237,.5) !important;box-shadow:0 8px 24px rgba(124,58,237,.2) !important;}
+
+.img-action-btn{transition:transform .12s, background .15s, border-color .15s !important;}
+.img-action-btn:hover{transform:translateY(-1px) !important;filter:brightness(1.1);}
+.img-action-btn:active{transform:scale(.96) !important;}
+
+.img-gen-btn{transition:transform .12s, box-shadow .2s, filter .15s !important;}
+.img-gen-btn:not(:disabled):hover{transform:translateY(-2px) !important;box-shadow:0 8px 28px rgba(124,58,237,.5) !important;filter:brightness(1.08);}
+.img-gen-btn:not(:disabled):active{transform:scale(.97) !important;}
+
+.img-tab-btn{transition:transform .1s, background .15s !important;}
+.img-tab-btn:hover{transform:scale(1.05) !important;}
+
+.img-recent-thumb{transition:transform .15s, border-color .15s !important;cursor:pointer;}
+.img-recent-thumb:hover{transform:scale(1.06) !important;border-color:rgba(124,58,237,.6) !important;}
+
 /* ── Page Loader ── */
 #omina-loader{
   position:fixed;inset:0;z-index:99999;
@@ -1685,14 +1717,6 @@ function ImageGenModal({onClose,onGenerate,history,setHistory,initialPrompt}) {
   const [lighting,setLighting]   = React.useState('');
   const [color,setColor]         = React.useState('');
 
-  // Auto-generate if opened with a prompt from chat
-  React.useEffect(()=>{
-    if(initialPrompt && initialPrompt.trim()){
-      setPrompt(initialPrompt.trim());
-      setTimeout(()=>handleGenerateRef.current&&handleGenerateRef.current(initialPrompt.trim()),200);
-    }
-  },[]);
-
   const handleGenerateRef = React.useRef(null);
 
   const STYLES=[
@@ -1821,14 +1845,14 @@ function ImageGenModal({onClose,onGenerate,history,setHistory,initialPrompt}) {
           <div className="flex items-center gap-1">
             {['create','history'].map(t=>(
               <button key={t} onClick={()=>setTab(t)}
-                className="px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition-all capitalize"
+                className="img-tab-btn px-2.5 py-1.5 rounded-lg text-[11px] font-bold capitalize"
                 style={{background:tab===t?'linear-gradient(135deg,#7C3AED,#DB2777)':'var(--bg3)',color:tab===t?'white':'var(--t2)'}}>
                 {t==='create'?'✨ Create':'📜 History'}
               </button>
             ))}
             {genResult&&(
               <button onClick={()=>setTab('result')}
-                className="px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition-all"
+                className="img-tab-btn px-2.5 py-1.5 rounded-lg text-[11px] font-bold"
                 style={{background:tab==='result'?'linear-gradient(135deg,#7C3AED,#DB2777)':'var(--bg3)',color:tab==='result'?'white':'var(--t2)'}}>
                 🖼️ Result
               </button>
@@ -1886,7 +1910,7 @@ function ImageGenModal({onClose,onGenerate,history,setHistory,initialPrompt}) {
                   <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:5}}>
                     {STYLES.map(s=>(
                       <button key={s.id} onClick={()=>setStyle(s.id)}
-                        className="flex flex-col items-center gap-1 p-2 sm:p-2.5 rounded-xl border transition-all"
+                        className="img-style-btn flex flex-col items-center gap-1 p-2 sm:p-2.5 rounded-xl border"
                         style={{background:style===s.id?s.color+'18':'var(--bg3)',borderColor:style===s.id?s.color+'66':'var(--br)'}}>
                         <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center" style={{background:style===s.id?s.color+'22':'var(--bg)'}}>
                           <i className={`fa-solid ${s.icon}`} style={{fontSize:10,color:style===s.id?s.color:'var(--t3)'}}></i>
@@ -1903,7 +1927,7 @@ function ImageGenModal({onClose,onGenerate,history,setHistory,initialPrompt}) {
                   <div className="flex gap-2 flex-wrap">
                     {ASPECTS.map(a=>(
                       <button key={a.id} onClick={()=>setAspect(a.id)}
-                        className="flex flex-col items-center px-3 py-2 rounded-xl border transition-all"
+                        className="img-aspect-btn flex flex-col items-center px-3 py-2 rounded-xl border"
                         style={{background:aspect===a.id?'rgba(124,58,237,.15)':'var(--bg3)',borderColor:aspect===a.id?'rgba(124,58,237,.5)':'var(--br)'}}>
                         <span style={{fontSize:11,fontWeight:700,color:aspect===a.id?'#a78bfa':'var(--t2)'}}>{a.label}</span>
                         <span style={{fontSize:9,color:'var(--t3)'}}>{a.hint}</span>
@@ -1921,7 +1945,7 @@ function ImageGenModal({onClose,onGenerate,history,setHistory,initialPrompt}) {
                     <div className="flex flex-wrap gap-1">
                       {LIGHTINGS.map(l=>(
                         <button key={l||'none'} onClick={()=>setLighting(l)}
-                          className="px-2 py-1 rounded-lg text-[10px] border transition-all"
+                          className="img-chip-btn px-2 py-1 rounded-lg text-[10px] border"
                           style={{background:lighting===l?'rgba(245,158,11,.15)':'var(--bg3)',borderColor:lighting===l?'rgba(245,158,11,.4)':'var(--br)',color:lighting===l?'#F59E0B':'var(--t3)'}}>
                           {l||'Auto'}
                         </button>
@@ -1935,7 +1959,7 @@ function ImageGenModal({onClose,onGenerate,history,setHistory,initialPrompt}) {
                     <div className="flex flex-wrap gap-1">
                       {COLORS.map(col=>(
                         <button key={col||'none'} onClick={()=>setColor(col)}
-                          className="px-2 py-1 rounded-lg text-[10px] border transition-all"
+                          className="img-chip-btn px-2 py-1 rounded-lg text-[10px] border"
                           style={{background:color===col?'rgba(6,182,212,.15)':'var(--bg3)',borderColor:color===col?'rgba(6,182,212,.4)':'var(--br)',color:color===col?'#06B6D4':'var(--t3)'}}>
                           {col||'Auto'}
                         </button>
@@ -1963,7 +1987,7 @@ function ImageGenModal({onClose,onGenerate,history,setHistory,initialPrompt}) {
                   <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:5}}>
                     {PRESETS.map((pr,i)=>(
                       <button key={i} onClick={()=>setPrompt(pr.p)}
-                        className="text-left px-3 py-2 rounded-xl text-[10px] sm:text-[11px] border transition-all"
+                        className="img-preset-btn text-left px-3 py-2 rounded-xl text-[10px] sm:text-[11px] border"
                         style={{borderColor:'var(--br)',color:'var(--t2)',background:'var(--bg3)',lineHeight:1.3}}
                         onMouseEnter={e=>{e.currentTarget.style.borderColor='rgba(124,58,237,.4)';e.currentTarget.style.color='#a78bfa';}}
                         onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--br)';e.currentTarget.style.color='var(--t2)';}}>
@@ -2017,7 +2041,7 @@ function ImageGenModal({onClose,onGenerate,history,setHistory,initialPrompt}) {
                   <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:4}}>
                     {history.slice(0,4).map(h=>(
                       <div key={h.id} onClick={()=>{setPrompt(h.prompt);setStyle(h.style||'realistic');}}
-                        className="rounded-lg overflow-hidden border cursor-pointer transition-all"
+                        className="img-recent-thumb rounded-lg overflow-hidden border"
                         style={{borderColor:'var(--br)',aspectRatio:'1'}}
                         title={h.prompt}
                         onMouseEnter={e=>e.currentTarget.style.borderColor='rgba(124,58,237,.5)'}
@@ -2060,16 +2084,16 @@ function ImageGenModal({onClose,onGenerate,history,setHistory,initialPrompt}) {
                       {color&&<span className="text-[10px] px-2 py-1 rounded-full" style={{background:'rgba(6,182,212,.12)',color:'#06B6D4'}}>{color}</span>}
                     </div>
                     <div className="space-y-2">
-                      <button onClick={downloadImage} className="w-full py-2.5 rounded-xl text-sm font-bold border flex items-center justify-center gap-2 transition-all" style={{borderColor:'rgba(124,58,237,.3)',color:'#a78bfa',background:'rgba(124,58,237,.08)'}}>
+                      <button onClick={downloadImage} className="img-action-btn w-full py-2.5 rounded-xl text-sm font-bold border flex items-center justify-center gap-2" style={{borderColor:'rgba(124,58,237,.3)',color:'#a78bfa',background:'rgba(124,58,237,.08)'}}>
                         <i className="fa-solid fa-download text-xs"></i>Download PNG
                       </button>
-                      <button onClick={copyImage} className="w-full py-2.5 rounded-xl text-sm font-bold border flex items-center justify-center gap-2 transition-all" style={{borderColor:'rgba(59,130,246,.3)',color:'#60a5fa',background:'rgba(59,130,246,.08)'}}>
+                      <button onClick={copyImage} className="img-action-btn w-full py-2.5 rounded-xl text-sm font-bold border flex items-center justify-center gap-2" style={{borderColor:'rgba(59,130,246,.3)',color:'#60a5fa',background:'rgba(59,130,246,.08)'}}>
                         <i className="fa-solid fa-copy text-xs"></i>Copy Image
                       </button>
-                      <button onClick={()=>{setPrompt(genResult.prompt);setTab('create');setGenResult(null);setError('');}} className="w-full py-2.5 rounded-xl text-sm font-bold border flex items-center justify-center gap-2 transition-all" style={{borderColor:'rgba(245,158,11,.3)',color:'#F59E0B',background:'rgba(245,158,11,.08)'}}>
+                      <button onClick={()=>{setPrompt(genResult.prompt);setTab('create');setGenResult(null);setError('');}} className="img-action-btn w-full py-2.5 rounded-xl text-sm font-bold border flex items-center justify-center gap-2" style={{borderColor:'rgba(245,158,11,.3)',color:'#F59E0B',background:'rgba(245,158,11,.08)'}}>
                         <i className="fa-solid fa-sliders text-xs"></i>Edit & Regenerate
                       </button>
-                      <button onClick={()=>{if(onGenerate)onGenerate(genResult.prompt,genResult.style||style);onClose();}} className="w-full py-2.5 rounded-xl text-sm font-bold border flex items-center justify-center gap-2 transition-all" style={{borderColor:'rgba(16,185,129,.3)',color:'#34d399',background:'rgba(16,185,129,.08)'}}>
+                      <button onClick={()=>{if(onGenerate)onGenerate(genResult.prompt,genResult.style||style);onClose();}} className="img-action-btn w-full py-2.5 rounded-xl text-sm font-bold border flex items-center justify-center gap-2" style={{borderColor:'rgba(16,185,129,.3)',color:'#34d399',background:'rgba(16,185,129,.08)'}}>
                         <i className="fa-solid fa-comment-dots text-xs"></i>Discuss in Chat
                       </button>
                     </div>
@@ -2111,7 +2135,7 @@ function ImageGenModal({onClose,onGenerate,history,setHistory,initialPrompt}) {
                 </div>
                 <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(150px,1fr))',gap:10}}>
                   {history.map(h=>(
-                    <div key={h.id} className="rounded-xl overflow-hidden border group transition-all" style={{borderColor:'var(--br)',background:'var(--bg3)'}}
+                    <div key={h.id} className="img-hist-card rounded-xl overflow-hidden border group" style={{borderColor:'var(--br)',background:'var(--bg3)'}}
                       onMouseEnter={e=>e.currentTarget.style.borderColor='rgba(124,58,237,.4)'}
                       onMouseLeave={e=>e.currentTarget.style.borderColor='var(--br)'}>
                       {h.image?(
@@ -2180,7 +2204,7 @@ function ImageGenModal({onClose,onGenerate,history,setHistory,initialPrompt}) {
               </div>
             ):(
               <button onClick={()=>handleGenerate()} disabled={!prompt.trim()}
-                className="w-full py-3.5 rounded-xl text-sm font-bold text-white transition-all disabled:opacity-40 flex items-center justify-center gap-2"
+                className="img-gen-btn w-full py-3.5 rounded-xl text-sm font-bold text-white disabled:opacity-40 flex items-center justify-center gap-2"
                 style={{background:prompt.trim()?'linear-gradient(135deg,#7C3AED,#DB2777)':'var(--bg3)',boxShadow:prompt.trim()?'0 4px 20px rgba(124,58,237,.35)':'none'}}>
                 <i className="fa-solid fa-wand-magic-sparkles text-xs"></i>Generate Image
               </button>
@@ -3483,29 +3507,7 @@ function App() {
   const send=async(text=input)=>{
     if((!text.trim()&&!file)||typing) return;
     if(plan==='free'&&msgCount>=dayLimit){toast_(`Daily limit reached. Upgrade!`,'warning');setShowPricing(true);return;}
-    // ── Auto-detect image generation requests ──
-    const imgPats = [
-      /^(?:please\s+)?(?:make|create|generate|draw|design|paint|render|build)\s+(?:a\s+|an\s+|me\s+(?:a\s+|an\s+)?)?(?:image|picture|photo|illustration|artwork|painting|drawing|poster|wallpaper|logo|icon|portrait|landscape|scene|art)\s*(?:of\s+|showing\s+|depicting\s+|about\s+)?(.+)/i,
-      /^(?:can you|could you|please)\s+(?:make|create|generate|draw|design)\s+(?:a\s+|an\s+)?(?:image|picture|photo|illustration|artwork)\s*(?:of\s+)?(.+)/i,
-      /^(?:image|picture|photo|illustration)\s*(?:of|:)\s*(.+)/i,
-      /^(.+)\s+(?:image|picture|photo|illustration|artwork|painting|drawing)$/i,
-      /^আমাকে\s+(?:একটা?\s+)?(?:ছবি|ইমেজ)\s+(?:বানা|তৈরি|দাও|দে|করো|এঁকে দাও)\s+(.+)/i,
-      /^(?:একটা?\s+)?(?:ছবি|ইমেজ)\s+(?:বানা|তৈরি|দাও|দে|করো)\s*(?::\s*)?(.+)/i,
-    ];
-    if(!file && text.trim().length > 3) {
-      for(const pat of imgPats){
-        const m = text.trim().match(pat);
-        if(m){
-          const extractedPrompt = (m[1]||text).trim();
-          if(extractedPrompt.length > 2){
-            setInput('');
-            setImgGenPrompt(extractedPrompt);
-            setShowImgGen(true);
-            return;
-          }
-        }
-      }
-    }
+
     ding(600,0.05);
     const fn=file?.name||null,fp=filePreview;
     const userMsg={id:Date.now(),text,sender:'user',fn,fp,timestamp:Date.now(),webSearch,activeTool:activeTool?.id||null};
