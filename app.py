@@ -371,106 +371,74 @@ def export_chat():
     return jsonify({"success": False, "message": "Invalid format. Use: json, txt, md"}), 400
 
 
-# ── Image Generation ─────────────────────────────────────────
+# ── Image Generation (Pollinations.ai — no API key needed) ───
 @app.route("/api/generate-image", methods=["POST"])
 def generate_image():
     user = get_current_user()
     if not user:
         return jsonify({"success": False, "error": "Not logged in."}), 401
 
-    data   = request.json
-    prompt = data.get("prompt", "").strip()
-    style  = data.get("style", "realistic")
-    aspect = data.get("aspect", "1:1")
+    data      = request.json
+    prompt    = data.get("prompt", "").strip()
+    style     = data.get("style", "realistic")
+    aspect    = data.get("aspect", "1:1")
+    neg_prompt = data.get("neg_prompt", "").strip()
 
     if not prompt:
         return jsonify({"success": False, "error": "Prompt is required."}), 400
 
-    # Style modifiers
     style_map = {
-        "realistic":  "photorealistic, ultra detailed, 8k, professional photography",
-        "anime":      "anime style, vibrant colors, Japanese animation, Studio Ghibli inspired",
+        "realistic":  "photorealistic, ultra detailed, 8k, DSLR photography, sharp focus",
+        "anime":      "anime style, vibrant colors, Japanese animation, Studio Ghibli",
         "oil":        "oil painting, thick brush strokes, classical art, canvas texture",
-        "watercolor": "watercolor painting, soft washes, artistic, delicate",
-        "3d":         "3D render, CGI, octane render, studio lighting, high detail",
-        "pixel":      "pixel art, 16-bit, retro game style, crisp pixels",
-        "sketch":     "pencil sketch, hand drawn, fine line art, grayscale",
-        "cyberpunk":  "cyberpunk, neon lights, dystopian, futuristic, rain-soaked streets",
-        "flat":       "flat design, minimalist, vector art, clean shapes, bold colors",
-        "fantasy":    "fantasy art, magical, epic, detailed illustration",
-        "minimal":    "minimalist, clean, simple, white background, elegant",
-        "vintage":    "vintage, retro, film grain, faded colors, 1970s aesthetic",
+        "watercolor": "watercolor painting, soft color washes, artistic, delicate strokes",
+        "3d":         "3D render, CGI, octane render, studio lighting, highly detailed",
+        "pixel":      "pixel art, 16-bit retro style, crisp pixels, game sprite",
+        "sketch":     "pencil sketch, hand drawn illustration, fine line art, grayscale",
+        "cyberpunk":  "cyberpunk neon, dystopian city, neon lights, futuristic, rain",
+        "flat":       "flat design, minimalist vector art, bold colors, clean shapes",
+        "fantasy":    "fantasy art, magical atmosphere, epic scene, detailed illustration",
+        "minimal":    "minimalist, clean composition, simple elegant, white background",
+        "vintage":    "vintage retro aesthetic, film grain, faded colors, 1970s photo",
     }
-
-    # Aspect ratio → width/height for SDXL
-    aspect_map = {
+    aspect_size = {
         "1:1":  (1024, 1024),
-        "16:9": (1344, 768),
-        "9:16": (768, 1344),
-        "4:3":  (1152, 896),
-        "3:2":  (1216, 832),
+        "16:9": (1280, 720),
+        "9:16": (720, 1280),
+        "4:3":  (1024, 768),
+        "3:2":  (1200, 800),
     }
-    w, h = aspect_map.get(aspect, (1024, 1024))
+    w, h = aspect_size.get(aspect, (1024, 1024))
     style_suffix = style_map.get(style, "")
     full_prompt  = f"{prompt}, {style_suffix}" if style_suffix else prompt
+    if neg_prompt:
+        full_prompt += f" --no {neg_prompt}"
 
-    hf_token = os.environ.get("HF_TOKEN", "")
+    try:
+        import urllib.parse
+        encoded = urllib.parse.quote(full_prompt)
+        seed    = abs(hash(full_prompt)) % 99999
+        url     = f"https://image.pollinations.ai/prompt/{encoded}?width={w}&height={h}&seed={seed}&nologo=true&enhance=true"
 
-    # Try Hugging Face FLUX schnell (fastest free model)
-    models_to_try = [
-        "black-forest-labs/FLUX.1-schnell",
-        "stabilityai/stable-diffusion-xl-base-1.0",
-        "runwayml/stable-diffusion-v1-5",
-    ]
+        resp = _requests.get(url, timeout=90, headers={"User-Agent": "OminaAI/1.0"})
 
-    last_error = "Unknown error"
-    for model_id in models_to_try:
-        try:
-            api_url = f"https://api-inference.huggingface.co/models/{model_id}"
-            headers = {"Content-Type": "application/json"}
-            if hf_token:
-                headers["Authorization"] = f"Bearer {hf_token}"
+        if resp.status_code == 200 and "image" in resp.headers.get("content-type", ""):
+            img_b64 = base64.b64encode(resp.content).decode("utf-8")
+            ctype   = resp.headers.get("content-type", "image/jpeg").split(";")[0]
+            return jsonify({
+                "success": True,
+                "image":   f"data:{ctype};base64,{img_b64}",
+                "model":   "FLUX (Pollinations)",
+                "prompt":  prompt,
+                "style":   style,
+            })
+        else:
+            return jsonify({"success": False, "error": f"Service returned {resp.status_code}. Try again."}), 500
 
-            payload = {
-                "inputs": full_prompt,
-                "parameters": {
-                    "width": min(w, 1024),
-                    "height": min(h, 1024),
-                    "num_inference_steps": 4 if "schnell" in model_id else 20,
-                    "guidance_scale": 0.0 if "schnell" in model_id else 7.5,
-                }
-            }
-
-            resp = _requests.post(api_url, headers=headers, json=payload, timeout=60)
-
-            if resp.status_code == 200 and resp.headers.get("content-type","").startswith("image"):
-                img_b64 = base64.b64encode(resp.content).decode("utf-8")
-                content_type = resp.headers.get("content-type", "image/png").split(";")[0]
-                return jsonify({
-                    "success": True,
-                    "image":   f"data:{content_type};base64,{img_b64}",
-                    "model":   model_id.split("/")[-1],
-                    "prompt":  prompt,
-                    "style":   style,
-                })
-            elif resp.status_code == 503:
-                # Model loading — wait info
-                est = resp.json().get("estimated_time", 30)
-                last_error = f"Model loading, estimated {int(est)}s. Try again shortly."
-                continue
-            else:
-                try:
-                    err_msg = resp.json().get("error", resp.text[:200])
-                except:
-                    err_msg = resp.text[:200]
-                last_error = err_msg
-                continue
-
-        except Exception as e:
-            last_error = str(e)
-            continue
-
-    return jsonify({"success": False, "error": last_error}), 500
+    except _requests.exceptions.Timeout:
+        return jsonify({"success": False, "error": "Generation timed out (>90s). Try a simpler prompt."}), 504
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 if __name__ == "__main__":
