@@ -4542,6 +4542,15 @@ Reply: ${botText.slice(0,800)}`,
                   </button>
                 )}
               </div>
+              {/* Loading overlay on config page */}
+              {storyLoading&&(
+                <div className="feat-loading-wrap" style={{flex:1,position:'relative',overflow:'hidden',minHeight:120}}>
+                  <div className="feat-load-overlay"><div className="fl-clock"><div className="fl-hour"></div><div className="fl-minute"></div></div><span className="fl-label">Writing your story...</span></div>
+                  <div className="space-y-3 p-5">
+                    {[1,2,3,4].map(i=><div key={i} className="rounded-xl p-4 border animate-pulse" style={{borderColor:'var(--br)',background:'var(--bg3)',animationDelay:i*0.1+'s'}}><div className="h-3 rounded mb-2" style={{background:'var(--br)',width:(60-i*5)+'%'}}></div><div className="h-2 rounded w-full mb-1.5" style={{background:'var(--br)'}}></div><div className="h-2 rounded mb-1.5" style={{background:'var(--br)',width:(85-i*3)+'%'}}></div><div className="h-2 rounded" style={{background:'var(--br)',width:(70+i*3)+'%'}}></div></div>)}
+                  </div>
+                </div>
+              )}
             ):
             (
               <div className="flex-1 overflow-y-auto sb p-5 feat-loading-wrap">
@@ -4842,7 +4851,7 @@ Reply: ${botText.slice(0,800)}`,
             </div>
 
             <div className="flex-1 overflow-y-auto sb p-5 feat-loading-wrap">
-              {quizLoading&&<div className="feat-load-overlay"><div className="fl-clock"><div className="fl-hour"></div><div className="fl-minute"></div></div><span className="fl-label">Loading...</span></div>}
+              {quizLoading&&<div className="feat-load-overlay" style={{zIndex:10}}><div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:12}}><div className="fl-clock"><div className="fl-hour"></div><div className="fl-minute"></div></div><span className="fl-label">Generating quiz...</span><button onClick={()=>{if(quizAbortRef.current)quizAbortRef.current.abort();setQuizLoading(false);}} style={{marginTop:4,padding:'6px 18px',borderRadius:8,background:'#dc2626',color:'#fff',border:'none',fontWeight:700,fontSize:12,cursor:'pointer',display:'flex',alignItems:'center',gap:6}}><i className="fa-solid fa-stop" style={{fontSize:9}}></i>Stop</button></div></div>}
               {quizQuestions.length===0?(
                 <div className="space-y-5">
                   {/* Topic */}
@@ -4990,28 +4999,44 @@ Reply: ${botText.slice(0,800)}`,
       {showLangLearn&&(
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.85)'}} onClick={()=>setShowLangLearn(false)}>
           <div className="w-full max-w-2xl rounded-2xl border shadow-2xl flex flex-col" style={{background:'var(--bg2)',borderColor:'var(--br)',maxHeight:'92vh'}} onClick={e=>e.stopPropagation()}>
-            {/* Header */}
-            <div className="px-5 py-4 border-b flex-shrink-0" style={{borderColor:'var(--br)',background:'linear-gradient(135deg,rgba(99,102,241,.1),rgba(16,185,129,.06))'}}>
-              <div className="flex items-center justify-between">
+            {/* Header — redesigned */}
+            <div className="px-5 py-4 border-b flex-shrink-0" style={{borderColor:'var(--br)',background:'linear-gradient(135deg,rgba(99,102,241,.12),rgba(16,185,129,.07))'}}>
+              <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{background:'linear-gradient(135deg,#6366F1,#10B981)',boxShadow:'0 0 16px rgba(99,102,241,.3)'}}>
-                    <i className="fa-solid fa-language text-white text-sm"></i>
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{background:'linear-gradient(135deg,#6366F1,#10B981)',boxShadow:'0 0 18px rgba(99,102,241,.35)'}}>
+                    <i className="fa-solid fa-language text-white" style={{fontSize:14}}></i>
                   </div>
                   <div>
-                    <p className="font-bold text-base" style={{color:'var(--t1)'}}>Language Learning</p>
-                    <p className="text-[11px]" style={{color:'var(--t3)'}}>Flashcards · Phrases · Grammar · Translation</p>
+                    <p className="font-bold text-sm" style={{color:'var(--t1)'}}>Language Learning</p>
+                    <p className="text-[10px]" style={{color:'var(--t3)'}}>Cards · Phrases · Grammar · Translate</p>
                   </div>
                 </div>
-                <button onClick={()=>setShowLangLearn(false)} className="w-8 h-8 rounded-xl flex items-center justify-center" style={{color:'var(--t2)'}} onMouseEnter={e=>e.currentTarget.style.background='var(--bg3)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><i className="fa-solid fa-xmark"></i></button>
+                <button onClick={()=>setShowLangLearn(false)} className="w-8 h-8 rounded-xl flex items-center justify-center transition-all" style={{color:'var(--t3)'}} onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,.08)';e.currentTarget.style.color='var(--t1)'}} onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='var(--t3)'}}><i className="fa-solid fa-xmark text-sm"></i></button>
               </div>
-              {/* Lang + Level + Tabs */}
-              <div className="flex items-center gap-2 mt-3 flex-wrap">
-                <select value={llLang} onChange={e=>{setLlLang(e.target.value);setLlCards([]);}} className="text-xs px-3 py-1.5 rounded-xl border outline-none font-medium" style={{background:'var(--bg3)',borderColor:'var(--br)',color:'var(--t1)'}}>
-                  {[['japanese','🇯🇵 Japanese'],['korean','🇰🇷 Korean'],['spanish','🇪🇸 Spanish'],['french','🇫🇷 French'],['german','🇩🇪 German'],['mandarin','🇨🇳 Mandarin'],['arabic','🇸🇦 Arabic'],['portuguese','🇧🇷 Portuguese'],['italian','🇮🇹 Italian'],['hindi','🇮🇳 Hindi']].map(([v,l])=><option key={v} value={v}>{l}</option>)}
-                </select>
-                <select value={llLevel} onChange={e=>setLlLevel(e.target.value)} className="text-xs px-3 py-1.5 rounded-xl border outline-none font-medium" style={{background:'var(--bg3)',borderColor:'var(--br)',color:'var(--t1)'}}>
-                  {['beginner','intermediate','advanced'].map(v=><option key={v} value={v} className="capitalize">{v.charAt(0).toUpperCase()+v.slice(1)}</option>)}
-                </select>
+              {/* Lang pills + Level pills + Tabs in one row */}
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* Language selector as styled pills */}
+                <div style={{position:'relative',flexShrink:0}}>
+                  <select value={llLang} onChange={e=>{setLlLang(e.target.value);setLlCards([]);}}
+                    style={{appearance:'none',background:'rgba(99,102,241,.1)',border:'1px solid rgba(99,102,241,.3)',
+                      borderRadius:8,padding:'5px 28px 5px 10px',fontSize:11,fontWeight:600,color:'var(--t1)',
+                      cursor:'pointer',outline:'none'}}>
+                    {[['bangla','🇧🇩 বাংলা'],['japanese','🇯🇵 Japanese'],['korean','🇰🇷 Korean'],['spanish','🇪🇸 Spanish'],['french','🇫🇷 French'],['german','🇩🇪 German'],['mandarin','🇨🇳 Mandarin'],['arabic','🇸🇦 Arabic'],['portuguese','🇧🇷 Portuguese'],['italian','🇮🇹 Italian'],['hindi','🇮🇳 Hindi']].map(([v,l])=><option key={v} value={v}>{l}</option>)}
+                  </select>
+                  <i className="fa-solid fa-chevron-down" style={{position:'absolute',right:8,top:'50%',transform:'translateY(-50%)',fontSize:8,color:'var(--t3)',pointerEvents:'none'}}></i>
+                </div>
+                {/* Level pills */}
+                <div className="flex gap-1">
+                  {[['beginner','#10B981'],['intermediate','#F59E0B'],['advanced','#EF4444']].map(([v,clr])=>(
+                    <button key={v} onClick={()=>setLlLevel(v)}
+                      style={{padding:'4px 10px',borderRadius:7,fontSize:10,fontWeight:600,border:'none',cursor:'pointer',
+                        background:llLevel===v?clr+'22':'var(--bg3)',color:llLevel===v?clr:'var(--t3)',
+                        outline:llLevel===v?`1px solid ${clr}55`:'1px solid transparent',transition:'all .12s'}}>
+                      {v.charAt(0).toUpperCase()+v.slice(1)}
+                    </button>
+                  ))}
+                </div>
+                {/* Tabs */}
                 <div className="flex gap-1 ml-auto p-1 rounded-xl" style={{background:'var(--bg3)'}}>
                   {[['flashcard','fa-clone','Cards'],['phrase','fa-comment-dots','Phrases'],['grammar','fa-spell-check','Grammar'],['translate','fa-arrows-left-right','Translate']].map(([t,ic,lb])=>(
                     <button key={t} onClick={()=>setLlTab(t)} className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all" style={{background:llTab===t?'var(--bg2)':'transparent',color:llTab===t?'var(--t1)':'var(--t3)'}}>
@@ -5023,7 +5048,7 @@ Reply: ${botText.slice(0,800)}`,
             </div>
 
             <div className="flex-1 overflow-y-auto sb p-5 feat-loading-wrap">
-              {llLoading&&<div className="feat-load-overlay"><div className="fl-clock"><div className="fl-hour"></div><div className="fl-minute"></div></div><span className="fl-label">Loading...</span></div>}
+              {llLoading&&<div className="feat-load-overlay" style={{zIndex:10}}><div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:12}}><div className="fl-clock"><div className="fl-hour"></div><div className="fl-minute"></div></div><span className="fl-label">Loading lessons...</span><button onClick={()=>{if(llAbortRef.current)llAbortRef.current.abort();setLlLoading(false);}} style={{marginTop:4,padding:'6px 18px',borderRadius:8,background:'#dc2626',color:'#fff',border:'none',fontWeight:700,fontSize:12,cursor:'pointer',display:'flex',alignItems:'center',gap:6}}><i className="fa-solid fa-stop" style={{fontSize:9}}></i>Stop</button></div></div>}
               {/* FLASHCARD TAB */}
               {llTab==='flashcard'&&(
                 <div className="space-y-4">
