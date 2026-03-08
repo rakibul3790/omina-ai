@@ -1,9 +1,13 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session, make_response
-import os, re, json as _json, datetime as _dt
+import os, re, json as _json, datetime as _dt, base64, io
 from collections import Counter
 from groq import Groq
 import firebase_admin
 from firebase_admin import credentials, auth, firestore
+try:
+    import requests as _requests
+except ImportError:
+    _requests = None
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "omina-secret-2026")
@@ -29,7 +33,7 @@ db = firestore.client()
 
 # ── Groq Client ─────────────────────────────────────────────
 groq_client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
-GROQ_MODEL = "llama-3.3-70b-versatile"
+GROQ_MODEL = "llama3-70b-8192"
 
 # ── Fixed Instructions ───────────────────────────────────────
 FIXED_INSTRUCTIONS = (
@@ -185,7 +189,7 @@ def chat():
 
         # Firestore এ message count বাড়ানো
         db.collection("users").document(user["uid"]).update({
-            "msg_count": firestore.Increment(1)
+            "msg_count": firestore.INCREMENT(1)
         })
 
     except Exception as e:
@@ -366,8 +370,109 @@ def export_chat():
 
     return jsonify({"success": False, "message": "Invalid format. Use: json, txt, md"}), 400
 
+
+# ── Image Generation ─────────────────────────────────────────
+@app.route("/api/generate-image", methods=["POST"])
+def generate_image():
+    user = get_current_user()
+    if not user:
+        return jsonify({"success": False, "error": "Not logged in."}), 401
+
+    data   = request.json
+    prompt = data.get("prompt", "").strip()
+    style  = data.get("style", "realistic")
+    aspect = data.get("aspect", "1:1")
+
+    if not prompt:
+        return jsonify({"success": False, "error": "Prompt is required."}), 400
+
+    # Style modifiers
+    style_map = {
+        "realistic":  "photorealistic, ultra detailed, 8k, professional photography",
+        "anime":      "anime style, vibrant colors, Japanese animation, Studio Ghibli inspired",
+        "oil":        "oil painting, thick brush strokes, classical art, canvas texture",
+        "watercolor": "watercolor painting, soft washes, artistic, delicate",
+        "3d":         "3D render, CGI, octane render, studio lighting, high detail",
+        "pixel":      "pixel art, 16-bit, retro game style, crisp pixels",
+        "sketch":     "pencil sketch, hand drawn, fine line art, grayscale",
+        "cyberpunk":  "cyberpunk, neon lights, dystopian, futuristic, rain-soaked streets",
+        "flat":       "flat design, minimalist, vector art, clean shapes, bold colors",
+        "fantasy":    "fantasy art, magical, epic, detailed illustration",
+        "minimal":    "minimalist, clean, simple, white background, elegant",
+        "vintage":    "vintage, retro, film grain, faded colors, 1970s aesthetic",
+    }
+
+    # Aspect ratio → width/height for SDXL
+    aspect_map = {
+        "1:1":  (1024, 1024),
+        "16:9": (1344, 768),
+        "9:16": (768, 1344),
+        "4:3":  (1152, 896),
+        "3:2":  (1216, 832),
+    }
+    w, h = aspect_map.get(aspect, (1024, 1024))
+    style_suffix = style_map.get(style, "")
+    full_prompt  = f"{prompt}, {style_suffix}" if style_suffix else prompt
+
+    hf_token = os.environ.get("HF_TOKEN", "")
+
+    # Try Hugging Face FLUX schnell (fastest free model)
+    models_to_try = [
+        "black-forest-labs/FLUX.1-schnell",
+        "stabilityai/stable-diffusion-xl-base-1.0",
+        "runwayml/stable-diffusion-v1-5",
+    ]
+
+    last_error = "Unknown error"
+    for model_id in models_to_try:
+        try:
+            api_url = f"https://api-inference.huggingface.co/models/{model_id}"
+            headers = {"Content-Type": "application/json"}
+            if hf_token:
+                headers["Authorization"] = f"Bearer {hf_token}"
+
+            payload = {
+                "inputs": full_prompt,
+                "parameters": {
+                    "width": min(w, 1024),
+                    "height": min(h, 1024),
+                    "num_inference_steps": 4 if "schnell" in model_id else 20,
+                    "guidance_scale": 0.0 if "schnell" in model_id else 7.5,
+                }
+            }
+
+            resp = _requests.post(api_url, headers=headers, json=payload, timeout=60)
+
+            if resp.status_code == 200 and resp.headers.get("content-type","").startswith("image"):
+                img_b64 = base64.b64encode(resp.content).decode("utf-8")
+                content_type = resp.headers.get("content-type", "image/png").split(";")[0]
+                return jsonify({
+                    "success": True,
+                    "image":   f"data:{content_type};base64,{img_b64}",
+                    "model":   model_id.split("/")[-1],
+                    "prompt":  prompt,
+                    "style":   style,
+                })
+            elif resp.status_code == 503:
+                # Model loading — wait info
+                est = resp.json().get("estimated_time", 30)
+                last_error = f"Model loading, estimated {int(est)}s. Try again shortly."
+                continue
+            else:
+                try:
+                    err_msg = resp.json().get("error", resp.text[:200])
+                except:
+                    err_msg = resp.text[:200]
+                last_error = err_msg
+                continue
+
+        except Exception as e:
+            last_error = str(e)
+            continue
+
+    return jsonify({"success": False, "error": last_error}), 500
+
+
 if __name__ == "__main__":
     print("Omina AI running at http://127.0.0.1:5000")
     app.run(debug=True)
-
-
