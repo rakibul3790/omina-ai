@@ -299,23 +299,103 @@ input:-webkit-autofill{-webkit-box-shadow:0 0 0 30px var(--bgi) inset!important;
   .sidebar.open{width:256px!important;opacity:1!important;}
 }
 @media(max-width:768px){
-  .sidebar{position:fixed!important;left:0;top:0;bottom:0;width:268px!important;z-index:100;transform:translateX(-110%);transition:transform .3s cubic-bezier(.16,1,.3,1) !important;opacity:1!important;}
+  /* ── Sidebar ── */
+  .sidebar{position:fixed!important;left:0;top:0;bottom:0;width:82vw!important;max-width:300px!important;z-index:100;transform:translateX(-110%);transition:transform .3s cubic-bezier(.16,1,.3,1)!important;opacity:1!important;}
   .sidebar.open{transform:translateX(0)!important;box-shadow:12px 0 40px rgba(0,0,0,.6)!important}
   .sidebar-overlay{pointer-events:none;position:fixed;inset:0;z-index:99;background:rgba(0,0,0,.0);transition:background .3s;}
   .sidebar-overlay.active{pointer-events:all;background:rgba(0,0,0,.65);}
-  .canvas-panel{position:fixed!important;inset:0;z-index:40;width:100%!important}
+
+  /* ── Canvas / Split ── */
+  .canvas-panel{position:fixed!important;inset:0!important;z-index:40;width:100%!important;border-radius:0!important;}
+  .si{display:none!important;}
+
+  /* ── Visibility helpers ── */
   .hide-mobile{display:none!important}
   .feat-checkbox{display:none!important}
   .feat-pin-mobile{display:flex!important}
+
+  /* ── Feature grid ── */
   .feat-grid{grid-template-columns:repeat(2,1fr)!important;}
-  .settings-modal{flex-direction:row!important;height:92vh!important;max-height:92vh!important;width:96vw!important;max-width:96vw!important;}
   .feat-card:hover .feat-pin{opacity:1!important}
-  .settings-sidebar{width:120px!important;min-width:120px!important;flex-direction:column!important;overflow-x:hidden!important;overflow-y:auto!important;border-right:1px solid var(--br)!important;border-bottom:none!important;padding:10px 6px!important;flex-shrink:0!important;}
-  .settings-sidebar h2{font-size:13px!important;margin-bottom:8px!important;padding-left:6px!important;}
-  .settings-sidebar button{padding:7px 8px!important;white-space:normal!important;font-size:11px!important;flex-shrink:0}
+
+  /* ── Settings modal — slide up from bottom ── */
+  .settings-modal{
+    position:fixed!important;
+    bottom:0!important;left:0!important;right:0!important;
+    width:100vw!important;max-width:100vw!important;
+    height:92vh!important;max-height:92vh!important;
+    border-radius:20px 20px 0 0!important;
+    flex-direction:row!important;
+    margin:0!important;
+  }
+  .settings-sidebar{
+    width:56px!important;min-width:56px!important;
+    flex-direction:column!important;
+    overflow-x:hidden!important;overflow-y:auto!important;
+    border-right:1px solid var(--br)!important;border-bottom:none!important;
+    padding:10px 4px!important;flex-shrink:0!important;
+    gap:2px!important;
+  }
+  .settings-sidebar h2{display:none!important;}
+  .settings-sidebar button{
+    padding:9px 4px!important;
+    white-space:normal!important;
+    font-size:0!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    border-radius:10px!important;
+    flex-shrink:0;
+    gap:0!important;
+  }
+  .settings-sidebar button i{font-size:14px!important;margin:0!important;}
   .settings-modal>.flex-1{overflow:hidden!important;min-height:0!important;flex:1!important;}
   .settings-modal .overflow-y-auto{overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;}
-  .settings-modal .p-6{padding:14px!important;}
+  .settings-modal .p-6{padding:14px 14px 24px!important;}
+
+  /* ── Navbar ── */
+  .mob-navbar-compact .incog-badge{display:none!important;}
+
+  /* ── Chat messages ── */
+  .msg-bubble{max-width:92%!important;}
+
+  /* ── Feature modals — full screen on mobile ── */
+  .feat-modal-wrap{
+    position:fixed!important;inset:0!important;
+    padding:0!important;
+    align-items:flex-end!important;
+  }
+  .feat-modal-inner{
+    width:100%!important;max-width:100%!important;
+    height:92vh!important;max-height:92vh!important;
+    border-radius:20px 20px 0 0!important;
+    margin:0!important;
+  }
+
+  /* ── Input toolbar — tighter on mobile ── */
+  .ib{border-radius:18px!important;}
+  .input-toolbar-row{padding:4px 8px 10px!important;gap:4px!important;}
+
+  /* ── Front page ── */
+  .front-title{font-size:2rem!important;line-height:1.2!important;}
+  .front-lang-row{gap:6px!important;}
+
+  /* ── Modals with fixed max-w ── */
+  .mob-full-modal{
+    width:96vw!important;max-width:96vw!important;
+    margin:8px!important;
+    border-radius:18px!important;
+  }
+
+  /* ── Word Cloud / Stat panels ── */
+  .wc-grid{grid-template-columns:1fr 1fr!important;}
+
+  /* ── Touch improvements ── */
+  button,a,[role=button]{-webkit-tap-highlight-color:transparent;}
+  textarea,input{font-size:16px!important;} /* prevent iOS zoom */
+
+  /* ── Bottom input bar ── */
+  .bottom-input-wrap{padding-left:8px!important;padding-right:8px!important;padding-bottom:env(safe-area-inset-bottom,12px)!important;}
 }
 
 /* ── Page Loader ── */
@@ -1643,7 +1723,7 @@ function ImageGenModal({onClose,onGenerate,history,setHistory}) {
 
   return(
     <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.85)'}} onClick={onClose}>
-      <div className="w-full max-w-2xl rounded-2xl border shadow-2xl overflow-hidden flex flex-col" style={{background:'var(--bg2)',borderColor:'var(--br)',maxHeight:'90vh'}} onClick={e=>e.stopPropagation()}>
+      <div className="feat-modal-inner w-full max-w-2xl rounded-2xl border shadow-2xl overflow-hidden flex flex-col" style={{background:'var(--bg2)',borderColor:'var(--br)',maxHeight:'90vh'}} onClick={e=>e.stopPropagation()}>
 
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b flex-shrink-0" style={{borderColor:'var(--br)',background:'linear-gradient(135deg,rgba(124,58,237,.1),rgba(219,39,119,.06))'}}>
@@ -3673,7 +3753,7 @@ Reply: ${botText.slice(0,800)}`,
     const menuHdr={padding:'10px 14px 4px',fontSize:10,fontWeight:700,letterSpacing:'.08em',textTransform:'uppercase',color:'var(--t3)',margin:0};
 
     return(
-      <div style={{display:'flex',alignItems:'center',padding:'6px 12px 12px',gap:'6px'}}>
+      <div className="input-toolbar-row" style={{display:'flex',alignItems:'center',padding:'6px 12px 12px',gap:'6px'}}>
         {/* ── PLUS ── */}
         <div data-plus="1" style={{flexShrink:0}}>
           <button ref={plusBtnRef} onClick={openPlus}
@@ -4031,7 +4111,7 @@ Reply: ${botText.slice(0,800)}`,
 
       {/* ═══ CHAT TEMPLATES MODAL ═══ */}
       {showTemplates&&(
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.75)'}} onClick={()=>{setShowTemplates(false);setActiveCat('All');}}>
+        <div className="feat-modal-wrap fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.75)'}} onClick={()=>{setShowTemplates(false);setActiveCat('All');}}>
           <div className="w-full max-w-2xl rounded-2xl border shadow-2xl overflow-hidden" style={{background:'var(--bg2)',borderColor:'var(--br)',maxHeight:'85vh',display:'flex',flexDirection:'column'}} onClick={e=>e.stopPropagation()}>
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b flex-shrink-0" style={{borderColor:'var(--br)'}}>
@@ -4104,7 +4184,7 @@ Reply: ${botText.slice(0,800)}`,
         const longestChat = todaySessions.reduce((a,s)=>s.messages?.length>a?s.messages.length:a,0);
         const avgLen = userMsgs>0?Math.round(todaySessions.flatMap(s=>s.messages?.filter(m=>m.sender==='user').map(m=>m.text?.length||0)||[]).reduce((a,b)=>a+b,0)/userMsgs):0;
         return(
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.8)'}} onClick={()=>setShowDigest(false)}>
+          <div className="feat-modal-wrap fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.8)'}} onClick={()=>setShowDigest(false)}>
             <div className="w-full max-w-md rounded-2xl border shadow-2xl overflow-hidden" style={{background:'var(--bg2)',borderColor:'var(--br)'}} onClick={e=>e.stopPropagation()}>
               {/* Header */}
               <div className="px-5 py-4 border-b" style={{borderColor:'var(--br)',background:'linear-gradient(135deg,rgba(245,158,11,.1),rgba(239,68,68,.06))'}}>
@@ -4194,7 +4274,7 @@ Reply: ${botText.slice(0,800)}`,
           setRandPromptResult(p);
         };
         return(
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.8)'}} onClick={()=>setShowRandPrompt(false)}>
+          <div className="feat-modal-wrap fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.8)'}} onClick={()=>setShowRandPrompt(false)}>
             <div className="w-full max-w-lg rounded-2xl border shadow-2xl overflow-hidden" style={{background:'var(--bg2)',borderColor:'var(--br)'}} onClick={e=>e.stopPropagation()}>
               {/* Header */}
               <div className="px-5 py-4 border-b" style={{borderColor:'var(--br)',background:'linear-gradient(135deg,rgba(236,72,153,.1),rgba(139,92,246,.06))'}}>
@@ -4258,8 +4338,8 @@ Reply: ${botText.slice(0,800)}`,
 
       {/* ═══ CHAIN OF THOUGHT VIEWER ═══ */}
       {showChainViewer&&(
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.85)'}} onClick={()=>setShowChainViewer(false)}>
-          <div className="w-full max-w-2xl rounded-2xl border shadow-2xl overflow-hidden flex flex-col" style={{background:'var(--bg2)',borderColor:'var(--br)',maxHeight:'90vh'}} onClick={e=>e.stopPropagation()}>
+        <div className="feat-modal-wrap fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.85)'}} onClick={()=>setShowChainViewer(false)}>
+          <div className="feat-modal-inner w-full max-w-2xl rounded-2xl border shadow-2xl overflow-hidden flex flex-col" style={{background:'var(--bg2)',borderColor:'var(--br)',maxHeight:'90vh'}} onClick={e=>e.stopPropagation()}>
             <div className="px-5 py-4 border-b flex-shrink-0" style={{borderColor:'var(--br)',background:'linear-gradient(135deg,rgba(16,185,129,.1),rgba(6,182,212,.06))'}}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -4354,8 +4434,8 @@ Reply: ${botText.slice(0,800)}`,
 
       {/* ═══ CONCEPT MAP ═══ */}
       {showConceptMap&&(
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.85)'}} onClick={()=>setShowConceptMap(false)}>
-          <div className="w-full max-w-2xl rounded-2xl border shadow-2xl overflow-hidden flex flex-col" style={{background:'var(--bg2)',borderColor:'var(--br)',maxHeight:'92vh'}} onClick={e=>e.stopPropagation()}>
+        <div className="feat-modal-wrap fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.85)'}} onClick={()=>setShowConceptMap(false)}>
+          <div className="feat-modal-inner w-full max-w-2xl rounded-2xl border shadow-2xl overflow-hidden flex flex-col" style={{background:'var(--bg2)',borderColor:'var(--br)',maxHeight:'92vh'}} onClick={e=>e.stopPropagation()}>
             <div className="px-5 py-4 border-b flex-shrink-0" style={{borderColor:'var(--br)',background:'linear-gradient(135deg,rgba(139,92,246,.1),rgba(236,72,153,.06))'}}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -4455,8 +4535,8 @@ Reply: ${botText.slice(0,800)}`,
 
       {/* ═══ STORY GENERATOR ═══ */}
       {showStoryGen&&(
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.85)'}} onClick={()=>setShowStoryGen(false)}>
-          <div className="w-full max-w-2xl rounded-2xl border shadow-2xl overflow-hidden flex flex-col" style={{background:'var(--bg2)',borderColor:'var(--br)',maxHeight:'92vh'}} onClick={e=>e.stopPropagation()}>
+        <div className="feat-modal-wrap fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.85)'}} onClick={()=>setShowStoryGen(false)}>
+          <div className="feat-modal-inner w-full max-w-2xl rounded-2xl border shadow-2xl overflow-hidden flex flex-col" style={{background:'var(--bg2)',borderColor:'var(--br)',maxHeight:'92vh'}} onClick={e=>e.stopPropagation()}>
             <div className="px-5 py-4 border-b flex-shrink-0" style={{borderColor:'var(--br)',background:'linear-gradient(135deg,rgba(245,158,11,.1),rgba(239,68,68,.06))'}}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -4666,8 +4746,8 @@ Reply: ${botText.slice(0,800)}`,
 
       {/* ═══ TEAM WORKSPACE ═══ */}
       {showWorkspace&&(
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.85)'}} onClick={()=>setShowWorkspace(false)}>
-          <div className="w-full max-w-2xl rounded-2xl border shadow-2xl overflow-hidden flex flex-col" style={{background:'var(--bg2)',borderColor:'var(--br)',maxHeight:'90vh'}} onClick={e=>e.stopPropagation()}>
+        <div className="feat-modal-wrap fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.85)'}} onClick={()=>setShowWorkspace(false)}>
+          <div className="feat-modal-inner w-full max-w-2xl rounded-2xl border shadow-2xl overflow-hidden flex flex-col" style={{background:'var(--bg2)',borderColor:'var(--br)',maxHeight:'90vh'}} onClick={e=>e.stopPropagation()}>
             {/* Header */}
             <div className="px-5 py-4 border-b flex-shrink-0" style={{borderColor:'var(--br)',background:'linear-gradient(135deg,rgba(16,185,129,.1),rgba(6,182,212,.06))'}}>
               <div className="flex items-center justify-between">
@@ -4831,8 +4911,8 @@ Reply: ${botText.slice(0,800)}`,
 
       {/* ═══ QUIZ GENERATOR ═══ */}
       {showQuiz&&(
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.85)'}} onClick={()=>setShowQuiz(false)}>
-          <div className="w-full max-w-2xl rounded-2xl border shadow-2xl flex flex-col" style={{background:'var(--bg2)',borderColor:'var(--br)',maxHeight:'92vh'}} onClick={e=>e.stopPropagation()}>
+        <div className="feat-modal-wrap fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.85)'}} onClick={()=>setShowQuiz(false)}>
+          <div className="feat-modal-inner w-full max-w-2xl rounded-2xl border shadow-2xl flex flex-col" style={{background:'var(--bg2)',borderColor:'var(--br)',maxHeight:'92vh'}} onClick={e=>e.stopPropagation()}>
             {/* Header */}
             <div className="px-5 py-4 border-b flex-shrink-0" style={{borderColor:'var(--br)',background:'linear-gradient(135deg,rgba(245,158,11,.1),rgba(239,68,68,.06))'}}>
               <div className="flex items-center justify-between">
@@ -4999,8 +5079,8 @@ Reply: ${botText.slice(0,800)}`,
 
       {/* ═══ LANGUAGE LEARNING MODE ═══ */}
       {showLangLearn&&(
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.85)'}} onClick={()=>setShowLangLearn(false)}>
-          <div className="w-full max-w-2xl rounded-2xl border shadow-2xl flex flex-col" style={{background:'var(--bg2)',borderColor:'var(--br)',maxHeight:'92vh'}} onClick={e=>e.stopPropagation()}>
+        <div className="feat-modal-wrap fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.85)'}} onClick={()=>setShowLangLearn(false)}>
+          <div className="feat-modal-inner w-full max-w-2xl rounded-2xl border shadow-2xl flex flex-col" style={{background:'var(--bg2)',borderColor:'var(--br)',maxHeight:'92vh'}} onClick={e=>e.stopPropagation()}>
             {/* Header — redesigned */}
             <div className="px-5 py-4 border-b flex-shrink-0" style={{borderColor:'var(--br)',background:'linear-gradient(135deg,rgba(99,102,241,.12),rgba(16,185,129,.07))'}}>
               <div className="flex items-center justify-between mb-3">
@@ -5401,7 +5481,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
       {/* ═══ PROMPT LIBRARY ═══ */}
       {showPromptLib&&(
         <div className="fixed inset-0 z-[250] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.8)',backdropFilter:'blur(10px)'}} onClick={()=>{setShowPromptLib(false);setPCat('All');}}>
-          <div className="w-full max-w-3xl rounded-2xl border shadow-2xl overflow-hidden flex flex-col" style={{background:'var(--bg2)',borderColor:'var(--br)',maxHeight:'88vh'}} onClick={e=>e.stopPropagation()}>
+          <div className="feat-modal-inner w-full max-w-3xl rounded-2xl border shadow-2xl overflow-hidden flex flex-col" style={{background:'var(--bg2)',borderColor:'var(--br)',maxHeight:'88vh'}} onClick={e=>e.stopPropagation()}>
             <div className="flex items-center justify-between px-5 py-4 border-b flex-shrink-0" style={{borderColor:'var(--br)',background:'linear-gradient(135deg,rgba(139,92,246,.08),rgba(236,72,153,.04))'}}>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{background:'linear-gradient(135deg,#7C3AED,#DB2777)',boxShadow:'0 0 18px rgba(124,58,237,.4)'}}>
@@ -6575,7 +6655,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
           </div>
         )}
         {/* NAVBAR — Search button REMOVED */}
-        <div className="h-14 flex items-center justify-between px-3 md:px-4 flex-shrink-0 border-b" style={{background:'var(--bg2)',borderColor:'var(--br)'}}>
+        <div className="h-14 flex items-center justify-between px-3 md:px-4 flex-shrink-0 border-b mob-navbar-compact" style={{background:'var(--bg2)',borderColor:'var(--br)'}}>
           <div className="flex items-center gap-2">
             <button onClick={()=>setSidebarOpen(s=>!s)} className="p-2 rounded-lg transition-all hover:bg-white/5 active:scale-95" style={{color:'var(--t2)'}} title="Toggle sidebar">
               <i className={`fa-solid ${sidebarOpen?'fa-bars-staggered':'fa-bars'} text-sm`} style={{transition:'all .2s'}}></i>
@@ -6605,18 +6685,18 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
           <div className="flex items-center gap-2">
             {/* Language indicator */}
             {(()=>{const cl=LANGS.find(l=>l.id===language);if(!cl||language==='auto')return null;return(
-              <button onClick={()=>{setShowSettings(true);setSettingsTab('general');}} title="Change language" style={{display:'flex',alignItems:'center',gap:4,padding:'3px 8px',borderRadius:8,border:'1px solid rgba(99,102,241,.3)',background:'rgba(99,102,241,.1)',cursor:'pointer',transition:'all .15s',flexShrink:0}} onMouseEnter={e=>e.currentTarget.style.borderColor='rgba(99,102,241,.5)'} onMouseLeave={e=>e.currentTarget.style.borderColor='rgba(99,102,241,.3)'}>
+              <button onClick={()=>{setShowSettings(true);setSettingsTab('general');}} title="Change language" className="hide-mobile" style={{display:'flex',alignItems:'center',gap:4,padding:'3px 8px',borderRadius:8,border:'1px solid rgba(99,102,241,.3)',background:'rgba(99,102,241,.1)',cursor:'pointer',transition:'all .15s',flexShrink:0}} onMouseEnter={e=>e.currentTarget.style.borderColor='rgba(99,102,241,.5)'} onMouseLeave={e=>e.currentTarget.style.borderColor='rgba(99,102,241,.3)'}>
                 <span style={{fontSize:13,lineHeight:1}}>{cl.flag}</span>
                 <span style={{fontSize:10,fontWeight:700,color:'#a5b4fc'}}>{cl.label.slice(0,8)}</span>
               </button>
             );})()}
             {/* Msg search */}
-            <button onClick={()=>setShowMsgSearch(true)} className="p-2 rounded-lg transition-all hover:bg-white/5" style={{color:'var(--t2)'}} title="Message search (Ctrl+Shift+F)"><i className="fa-solid fa-magnifying-glass-dollar text-sm"></i></button>
+            <button onClick={()=>setShowMsgSearch(true)} className="hide-mobile p-2 rounded-lg transition-all hover:bg-white/5" style={{color:'var(--t2)'}} title="Message search (Ctrl+Shift+F)"><i className="fa-solid fa-magnifying-glass-dollar text-sm"></i></button>
             {/* Incognito toggle */}
             <button onClick={()=>{setIncognito(s=>!s);toast_(incognito?'Incognito OFF — chats will be saved':'Incognito ON — chats won\'t be saved',incognito?'info':'warning');}} className="p-2 rounded-lg transition-all" style={{color:incognito?'#a78bfa':'var(--t2)',background:incognito?'rgba(167,139,250,.12)':'transparent'}} title="Incognito Mode">
               <i className="fa-solid fa-mask text-sm"></i>
             </button>
-            {incognito&&<span className="text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1" style={{background:'rgba(167,139,250,.15)',color:'#a78bfa',border:'1px solid rgba(167,139,250,.3)'}}><i className="fa-solid fa-mask text-[9px]"></i>Incognito</span>}
+            {incognito&&<span className="incog-badge text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1" style={{background:'rgba(167,139,250,.15)',color:'#a78bfa',border:'1px solid rgba(167,139,250,.3)'}}><i className="fa-solid fa-mask text-[9px]"></i>Incognito</span>}
             {/* Tools row */}
             <div className="flex items-center gap-0.5 px-1 py-0.5 rounded-xl border" style={{borderColor:'var(--br)',background:'var(--bg3)'}}>
               <button onClick={()=>setShowAIAgent(s=>!s)} className="p-1.5 rounded-lg transition-all" style={{color:showAIAgent?'#a78bfa':'var(--t2)',background:showAIAgent?'rgba(167,139,250,.12)':'transparent'}} title="AI Agent (Ctrl+Shift+A)">
@@ -6624,7 +6704,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
               </button>
             </div>
             {/* Summary - only show when chatting */}
-            {curSession&&msgs.length>2&&<button onClick={generateSummary} className="p-2 rounded-lg transition-all hover:bg-white/5" style={{color:'var(--t2)'}} title="Chat summary (Ctrl+M)"><i className="fa-solid fa-file-lines text-sm"></i></button>}
+            {curSession&&msgs.length>2&&<button onClick={generateSummary} className="hide-mobile p-2 rounded-lg transition-all hover:bg-white/5" style={{color:'var(--t2)'}} title="Chat summary (Ctrl+M)"><i className="fa-solid fa-file-lines text-sm"></i></button>}
             {/* Split View — desktop only */}
             <button onClick={()=>{if(splitView){setSplitView(false);setSplitSid(null);}else{const other=sessions.find(s=>s.id!==sid);if(other){setSplitSid(other.id);setSplitView(true);}else toast_('Need at least 2 chats for split view','info');}}} className="hide-mobile p-2 rounded-lg transition-all" style={{color:splitView?'#06B6D4':'var(--t2)',background:splitView?'rgba(6,182,212,.12)':'transparent'}} title="Split View (2 chats side-by-side)"><i className="fa-solid fa-columns text-sm"></i></button>
 
@@ -6874,7 +6954,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
               {frontPage?(
                 <div className="w-full max-w-2xl flex flex-col items-center ai px-2">
                   <div className="flex items-center gap-2 mb-2 text-blue-400 text-sm"><i className="fa-solid fa-wand-magic-sparkles"></i><span className="font-medium">Hi {UDATA.name.split(' ')[0]} 👋</span></div>
-                  <h1 className="text-3xl md:text-5xl font-bold mb-3 text-center leading-tight" style={{color:'var(--t1)'}}>How can I help<br/>you today?</h1>
+                  <h1 className="front-title text-3xl md:text-5xl font-bold mb-3 text-center leading-tight" style={{color:'var(--t1)'}}>How can I help<br/>you today?</h1>
                   <p className="text-sm mb-4 text-center" style={{color:'var(--t2)'}}>Mode: <span style={{color:'var(--t1)',fontWeight:600}}><i className={`${mood.icon} ${mood.color} text-xs mr-1`}></i>{mood.name}</span> · Model: <span className={`${model.color} font-medium`}>{model.name}</span></p>
                   {/* Quick language row */}
                   <div className="flex flex-wrap justify-center gap-1.5 mb-5">
@@ -6907,8 +6987,8 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       <InputToolbar send={send} pickFile={pickFile} toggleVoice={toggleVoice} voiceOn={voiceOn} webSearch={webSearch} setWebSearch={setWebSearch} showImgGen={showImgGen} setShowImgGen={setShowImgGen} showCanvas={showCanvas} setShowCanvas={setShowCanvas} canvasMode={canvasMode} setCanvasMode={setCanvasMode} curSession={curSession} msgs={msgs} typing={typing} stopGen={stopGen} input={input} file={file} charCount={charCount} charLimit={charLimit} regen={regen} isFront={true} mood={mood} setMood={setMood}/>
                     </div>
                   </div>
-                  <div className="flex flex-wrap justify-center gap-2 w-full">
-                    {suggestions.map((s,i)=><button key={i} onClick={()=>send(s.t)} className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm border transition-all" style={{background:'var(--bg3)',borderColor:'var(--br)',color:'var(--t2)'}} onMouseEnter={e=>e.currentTarget.style.borderColor='var(--brh)'} onMouseLeave={e=>e.currentTarget.style.borderColor='var(--br)'}><i className={`${s.i} text-xs`}></i>{s.t}</button>)}
+                  <div className="flex flex-wrap justify-center gap-2 w-full px-1">
+                    {suggestions.map((s,i)=><button key={i} onClick={()=>send(s.t)} className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs md:text-sm border transition-all" style={{background:'var(--bg3)',borderColor:'var(--br)',color:'var(--t2)',maxWidth:'calc(50% - 4px)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}} onMouseEnter={e=>e.currentTarget.style.borderColor='var(--brh)'} onMouseLeave={e=>e.currentTarget.style.borderColor='var(--br)'}><i className={`${s.i} text-xs flex-shrink-0`}></i><span style={{overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{s.t}</span></button>)}
                   </div>
                   <div className="mt-6 flex flex-wrap justify-center gap-3 md:gap-4 text-xs" style={{color:'var(--t3)'}}>
                     <span className="flex items-center gap-1"><span className="kbd">Ctrl N</span> New</span>
@@ -6930,7 +7010,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                           </div>
                         );
                       })()}
-                      <div className="max-w-[85%] md:max-w-[78%]">
+                      <div className="msg-bubble max-w-[85%] md:max-w-[78%]">
                         {msg.sender==='bot'&&<div className="flex items-center gap-2 mb-1.5">
                           <p className="text-[10px] font-bold tracking-widest uppercase" style={{color:'var(--t3)'}}>{msg.model?.name||model.name}</p>
                           {msg.webSearch&&<span className="text-[9px] px-1.5 py-0.5 rounded-full flex items-center gap-1 border" style={{background:'rgba(59,130,246,.1)',color:'#60A5FA',borderColor:'rgba(59,130,246,.2)'}}><i className="fa-solid fa-globe text-[8px]"></i>Web</span>}
@@ -7092,7 +7172,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
             </div>
 
             {/* BOTTOM INPUT */}
-            {!frontPage&&<div className="absolute bottom-0 left-0 w-full px-3 md:px-4 pb-4 pt-8 flex justify-center" style={{background:`linear-gradient(to top, var(--bg) 60%, transparent)`,zIndex:10}}>
+            {!frontPage&&<div className="absolute bottom-0 left-0 w-full px-3 md:px-4 pb-4 pt-8 flex justify-center bottom-input-wrap" style={{background:`linear-gradient(to top, var(--bg) 60%, transparent)`,zIndex:10}}>
               <div className="w-full max-w-3xl">
                 <div className="ib rounded-2xl flex flex-col overflow-hidden border" style={{background:'var(--bgi)',borderColor:dragOverInput?'rgba(6,182,212,.6)':'var(--brh)',transition:'border-color .15s',boxShadow:dragOverInput?'0 0 0 2px rgba(6,182,212,.15)':'none'}}>
                   {dragOverInput&&<div className="flex items-center gap-2 px-4 py-1.5 text-[10px] font-medium" style={{background:'rgba(6,182,212,.08)',color:'#06B6D4',borderBottom:'1px solid rgba(6,182,212,.2)'}}><i className="fa-solid fa-arrow-down text-[9px]"></i>Drop text here</div>}
@@ -7178,8 +7258,8 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
       </div>
 
       {/* ── SETTINGS MODAL ── */}
-      {showSettings&&<div className="fixed inset-0 z-[100] flex items-center justify-center p-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.75)'}}>
-        <div className="rounded-2xl w-full max-w-3xl border shadow-2xl overflow-hidden flex flex-col md:flex-row af settings-modal" style={{background:'var(--bg2)',borderColor:'var(--br)',height:'min(560px,90vh)'}}>
+      {showSettings&&<div className="feat-modal-wrap fixed inset-0 z-[100] flex items-center justify-center p-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.75)'}}>
+        <div className="feat-modal-inner rounded-2xl w-full max-w-3xl border shadow-2xl overflow-hidden flex flex-col md:flex-row af settings-modal mob-settings" style={{background:'var(--bg2)',borderColor:'var(--br)',height:'min(560px,90vh)'}}>
           <div className="w-full md:w-52 border-r settings-sidebar flex flex-col gap-0.5 p-3 flex-shrink-0" style={{background:'var(--bg3)',borderColor:'var(--br)'}}>
             <h2 className="text-base font-bold mb-3 px-2" style={{color:'var(--t1)'}}>Settings</h2>
             {[['general','fa-sliders','General'],['persona','fa-masks-theater','Persona'],['language','fa-language','Language'],['appearance','fa-palette','Appearance'],['data','fa-database','Data'],['tools','fa-screwdriver-wrench','Tools'],['quickaccess','fa-wand-magic-sparkles','Features'],['shortcuts','fa-keyboard','Shortcuts'],['about','fa-circle-info','About']].map(([t,ic,lbl])=>(
