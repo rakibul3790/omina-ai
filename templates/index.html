@@ -2780,24 +2780,7 @@ function App() {
     recRef.current=r;r.start();setVoiceOn(true);toast_('Listening…','info');
   };
 
-  const stopGen=()=>{
-    if(abortRef.current) abortRef.current.abort();
-    setTyping(false);setGlobalTyping(false);setTypingSid(null);
-    // Add "stopped" message to current session
-    setSessions(prev=>{
-      const u=[...prev];
-      const i=u.findIndex(s=>s.id===sid);
-      if(i!==-1){
-        u[i].messages.push({
-          id:Date.now()+1,
-          text:'⏹ **Response stopped**',
-          sender:'bot',
-          timestamp:Date.now()
-        });
-      }
-      return u;
-    });
-  };
+  const stopGen=()=>{if(abortRef.current)abortRef.current.abort();setTyping(false);setGlobalTyping(false);};
 
   const newChat=(fid=null)=>{
     setSid(null);setInput('');setFile(null);setFilePreview(null);setFiles([]);setShowCanvas(false);setActiveFolderId(fid||null);setActiveTool(null);
@@ -3002,7 +2985,7 @@ function App() {
       return updated;
     });
 
-    setInput('');setFile(null);setFilePreview(null);setFiles([]);setTyping(true);setGlobalTyping(true);setTypingSid(sessionId||sid);setMsgCount(c=>c+1);setActiveTool(null);
+    setInput('');setFile(null);setFilePreview(null);setFiles([]);setTyping(true);setGlobalTyping(true);setTypingSid(sessionId||sid);setMsgCount(c=>c+1);setActiveTool(webSearch?{id:'web',icon:'fa-solid fa-globe',color:'#34D399',label:'Web Search'}:null);
     if(inputRef.current){inputRef.current.value='';inputRef.current.style.height='auto';}
     // Auto detect memory from user message
     autoDetectAndSaveMemory(text, aiMemories, setAiMemories, toast_);
@@ -3088,7 +3071,7 @@ function App() {
           }
         });
       }
-      const msgText = (webSearch ? `[Search for current info if needed] ${text}` : text) + fileContext;
+      const msgText = (webSearch ? `[WEB SEARCH MODE] Search the web for current, accurate information to answer this query. After your response, add a SOURCES section at the very end in this exact format:\n\n---SOURCES---\n[1] Title | URL\n[2] Title | URL\n(list all websites you referenced)\n---END SOURCES---\n\nQuery: ${text}` : text) + fileContext;
 
       // ── Offline cache check ──
       const cacheKey = msgText.trim().toLowerCase().slice(0,120);
@@ -3152,7 +3135,23 @@ ${cached}`,sender:'bot',model,timestamp:Date.now(),language};
         });
       }
       const botMsgId = Date.now()+1;
-      const botMsg={id:botMsgId,text:data.reply||'No response.',sender:'bot',model,persona,timestamp:Date.now(),language};
+      // Parse sources from web search reply
+      let replyText = data.reply||'No response.';
+      let parsedSources = [];
+      if(webSearch) {
+        const srcMatch = replyText.match(/---SOURCES---([\s\S]*?)---END SOURCES---/);
+        if(srcMatch) {
+          const srcBlock = srcMatch[1].trim();
+          parsedSources = srcBlock.split('\n')
+            .filter(l=>l.trim().match(/^\[\d+\]/))
+            .map(l=>{
+              const parts = l.replace(/^\[\d+\]\s*/,'').split('|');
+              return {title:(parts[0]||'').trim(), url:(parts[1]||'').trim()};
+            }).filter(s=>s.title||s.url);
+          replyText = replyText.replace(/---SOURCES---[\s\S]*?---END SOURCES---/,'').trim();
+        }
+      }
+      const botMsg={id:botMsgId,text:replyText,sender:'bot',model,persona,timestamp:Date.now(),language,webSearch:webSearch,sources:parsedSources};
       // Use flushSync to force immediate React update even in background tab
       try {
         ReactDOM.flushSync(()=>{
@@ -3639,12 +3638,6 @@ Reply: ${botText.slice(0,800)}`,
                 border:'none',background:'#DC2626',color:'#fff',fontSize:12,fontWeight:700,cursor:'pointer',flexShrink:0}}
               onMouseEnter={e=>e.currentTarget.style.background='#EF4444'}
               onMouseLeave={e=>e.currentTarget.style.background='#DC2626'}>
-              <i className="fa-solid fa-stop" style={{fontSize:10}}></i> Stop
-            </button>
-          :typewriterMsgId
-          ?<button disabled
-              style={{display:'flex',alignItems:'center',gap:5,padding:'7px 12px',borderRadius:10,
-                border:'none',background:'var(--bg3)',color:'var(--t3)',fontSize:12,fontWeight:700,cursor:'default',flexShrink:0,opacity:0.4}}>
               <i className="fa-solid fa-stop" style={{fontSize:10}}></i> Stop
             </button>
           :<button onClick={()=>send()} disabled={!input.trim()&&!file}
@@ -6766,6 +6759,39 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                         {msg.sender==='bot'&&<div className="flex items-center gap-2 mb-1.5">
                           <p className="text-[10px] font-bold tracking-widest uppercase" style={{color:'var(--t3)'}}>{msg.model?.name||model.name}</p>
                           {msg.webSearch&&<span className="text-[9px] px-1.5 py-0.5 rounded-full flex items-center gap-1 border" style={{background:'rgba(59,130,246,.1)',color:'#60A5FA',borderColor:'rgba(59,130,246,.2)'}}><i className="fa-solid fa-globe text-[8px]"></i>Web</span>}
+                          {msg.sources&&msg.sources.length>0&&(()=>{
+                            const [showSrc,setShowSrc]=React.useState(false);
+                            return(
+                              <div style={{position:'relative',display:'inline-block'}}>
+                                <button onClick={()=>setShowSrc(s=>!s)}
+                                  className="text-[9px] px-1.5 py-0.5 rounded-full flex items-center gap-1 border transition-all"
+                                  style={{background:showSrc?'rgba(52,211,153,.15)':'rgba(52,211,153,.08)',color:'#34D399',borderColor:'rgba(52,211,153,.3)',cursor:'pointer'}}>
+                                  <i className="fa-solid fa-globe text-[8px]"></i>
+                                  {msg.sources.length} source{msg.sources.length>1?'s':''}
+                                </button>
+                                {showSrc&&(
+                                  <div style={{position:'absolute',top:'100%',left:0,zIndex:999,marginTop:4,
+                                    background:'var(--bg2)',border:'1px solid var(--br)',borderRadius:10,
+                                    padding:'8px',minWidth:260,maxWidth:320,boxShadow:'0 8px 24px rgba(0,0,0,.4)'}}>
+                                    <p style={{fontSize:10,color:'var(--t3)',fontWeight:700,textTransform:'uppercase',letterSpacing:'.06em',marginBottom:6}}>Sources</p>
+                                    {msg.sources.map((s,i)=>(
+                                      <a key={i} href={s.url} target="_blank" rel="noopener noreferrer"
+                                        style={{display:'flex',alignItems:'flex-start',gap:6,padding:'5px 6px',
+                                          borderRadius:7,textDecoration:'none',transition:'background .12s'}}
+                                        onMouseEnter={e=>e.currentTarget.style.background='var(--bg3)'}
+                                        onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                                        <i className="fa-solid fa-link" style={{fontSize:9,color:'var(--t3)',marginTop:2,flexShrink:0}}></i>
+                                        <div>
+                                          <p style={{fontSize:11,color:'var(--t1)',fontWeight:500,lineHeight:1.3}}>{s.title||s.url}</p>
+                                          {s.url&&<p style={{fontSize:9,color:'var(--t3)',marginTop:1,wordBreak:'break-all'}}>{s.url.slice(0,50)}{s.url.length>50?'…':''}</p>}
+                                        </div>
+                                      </a>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })()}
                         </div>}
                         {msg.fp&&<div className="mb-3 rounded-xl overflow-hidden border max-w-[220px]" style={{borderColor:'var(--br)'}}><img src={msg.fp} className="w-full h-auto" alt=""/></div>}
                         {msg.fn&&!msg.fp&&<div className="mb-2 flex items-center gap-2 text-xs text-blue-400 w-fit px-3 py-1.5 rounded-lg border border-blue-400/20" style={{background:'rgba(59,130,246,.1)'}}><i className="fa-solid fa-paperclip"></i>{msg.fn}</div>}
@@ -6796,7 +6822,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                                     return msg.id===typewriterMsgId
                                       ? <TypewriterText
                                           text={dispText}
-                                          speed={2}
+                                          speed={10}
                                           onDone={()=>setTypewriterMsgId(null)}
                                         />
                                       : <div className="md-body" dangerouslySetInnerHTML={mkd(dispText)}/>;
