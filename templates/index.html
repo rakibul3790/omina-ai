@@ -6924,7 +6924,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                                     // When canvasMode ON: strip code blocks from inline text
                                     const rawText = getActiveText(msg);
                                     const dispText = canvasMode
-                                      ? rawText.replace(new RegExp('```[\\w]*\\n[\\s\\S]*?```','g'), '').trim()
+                                      ? rawText.replace(/```[\w]*\n?[\s\S]*?```/g, '').replace(/\n{3,}/g,'\n\n').trim()
                                       : rawText;
                                     return msg.id===typewriterMsgId
                                       ? <div className={msg.webSearch?'web-search-reply':''}><TypewriterText
@@ -6954,7 +6954,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                         {msg.sender==='bot'&&(()=>{
                           const blocks=extractCodeBlocks(msg.text);
                           if(!blocks.length) return null;
-                          // canvasMode ON: show only FileCard (no inline code block)
+                          // canvasMode ON: ALL messages show FileCard with Open button (including old messages)
                           if(canvasMode){
                             return (
                               <div style={{marginTop:6}}>
@@ -6969,7 +6969,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                               </div>
                             );
                           }
-                          // canvasMode OFF: show only FileCard without Open button (no canvas)
+                          // canvasMode OFF: show code block inline (no open button)
                           return (
                             <div style={{marginTop:6}}>
                               {blocks.map((block,i)=>(
