@@ -526,9 +526,12 @@ const MODELS = [
   {id:'omina-code', name:'Omina Code', icon:'fa-solid fa-laptop-code',color:'text-amber-400',plan:'code'},
 ];
 const MOODS = [
-  {id:'fast',     name:'Fast',     icon:'fa-solid fa-bolt',        color:'text-yellow-400', desc:'Quick & concise replies',    gradient:'linear-gradient(135deg,#F59E0B,#FBBF24)'},
-  {id:'thinking', name:'Thinking', icon:'fa-solid fa-brain',       color:'text-purple-400', desc:'Deep reasoning & detail',    gradient:'linear-gradient(135deg,#8B5CF6,#A78BFA)'},
-  {id:'pro',      name:'Pro',      icon:'fa-solid fa-star',        color:'text-blue-400',   desc:'Best quality responses',     gradient:'linear-gradient(135deg,#2563EB,#60A5FA)'},
+  {id:'fast',     name:'Fast',     icon:'fa-solid fa-bolt',   color:'text-yellow-400', desc:'Quick & direct answers',  gradient:'linear-gradient(135deg,#F59E0B,#FBBF24)',
+   prompt:'RESPONSE STYLE: Be fast and direct. No overthinking. Give short, clear, straight-to-the-point answers. Skip lengthy intros or conclusions. Prioritize speed over depth.'},
+  {id:'thinking', name:'Thinking', icon:'fa-solid fa-brain',  color:'text-purple-400', desc:'Calm & thoughtful replies', gradient:'linear-gradient(135deg,#8B5CF6,#A78BFA)',
+   prompt:'RESPONSE STYLE: Think calmly and carefully. Give balanced, well-considered answers. Explain your reasoning gently. Be thorough but not overwhelming.'},
+  {id:'pro',      name:'Pro',      icon:'fa-solid fa-star',   color:'text-blue-400',   desc:'Deep & productive output',  gradient:'linear-gradient(135deg,#2563EB,#60A5FA)',
+   prompt:'RESPONSE STYLE: Give your best, most productive response. Think deeply, cover all important angles, use structure (headers, bullets, examples where helpful). Prioritize quality, accuracy, and usefulness above all.'},
 ];
 const FC = ['#3B82F6','#8B5CF6','#10B981','#F59E0B','#EF4444','#EC4899'];
 
@@ -3234,7 +3237,7 @@ ${cached}`,sender:'bot',model,timestamp:Date.now(),language};
         xhr.send(JSON.stringify({
           message: msgText,
           file_name: fn, file_names: files.map(f=>f.name),
-          system_prompt: sysPrompt + (aiMemories.length>0 ? '\n\n[USER MEMORY — facts you know about this user, always keep in mind]:\n' + aiMemories.map((m,i)=>`${i+1}. ${m.text}`).join('\n') : ''),
+          system_prompt: sysPrompt + (aiMemories.length>0 ? '\n\n[USER MEMORY — facts you know about this user, always keep in mind]:\n' + aiMemories.map((m,i)=>`${i+1}. ${m.text}`).join('\n') : '') + '\n\n' + (MOODS.find(m=>m.id===mood.id)?.prompt||''),
           lang_instruction: langInstruction.trim(),
           persona_prompt: (PERSONAS.find(p=>p.id===persona)?.prompt||''),
           history: historyMsgs.slice(0,-1),
@@ -3709,39 +3712,48 @@ Reply: ${botText.slice(0,800)}`,
 
         {charCount>charLimit*.7&&<span style={{fontSize:10,fontFamily:'monospace',flexShrink:0,color:charCount>charLimit*.9?'#F87171':'#FBBF24'}}>{charLimit-charCount}</span>}
 
-        {/* ── MOOD ── */}
+        {/* ── MOOD / RESPONSE MODEL ── */}
         <div data-mood="1" style={{flexShrink:0}}>
           <button ref={moodBtnRef} onClick={openMood}
-            style={{display:'flex',alignItems:'center',gap:6,padding:'6px 10px',borderRadius:10,
-              border:`1px solid ${showMood?'rgba(96,165,250,.45)':'var(--br)'}`,
-              background:showMood?'rgba(96,165,250,.08)':'var(--bg3)',cursor:'pointer',
-              color:'var(--t1)',fontSize:12,fontWeight:600,whiteSpace:'nowrap',transition:'all .15s'}}>
-            <i className={mood.icon} style={{color:MC[mood.id]||'#60A5FA',fontSize:11,pointerEvents:'none'}}></i>
-            <span style={{pointerEvents:'none'}}>{mood.name}</span>
-            <i className={`fa-solid fa-chevron-${showMood?'down':'up'}`} style={{fontSize:9,color:'var(--t3)',pointerEvents:'none'}}></i>
+            style={{display:'flex',alignItems:'center',gap:5,padding:'5px 10px',borderRadius:8,
+              border:`1px solid ${showMood?'rgba(96,165,250,.4)':'var(--br)'}`,
+              background:showMood?'rgba(96,165,250,.07)':'var(--bg3)',cursor:'pointer',
+              color:'var(--t1)',fontSize:11,fontWeight:600,whiteSpace:'nowrap',transition:'all .15s'}}>
+            <i className={mood.icon} style={{color:MC[mood.id]||'#60A5FA',fontSize:10,pointerEvents:'none'}}></i>
+            <span style={{pointerEvents:'none',color:'var(--t2)'}}>{mood.name}</span>
+            <i className={`fa-solid fa-chevron-${showMood?'up':'down'}`} style={{fontSize:8,color:'var(--t3)',pointerEvents:'none'}}></i>
           </button>
           {showMood&&ReactDOM.createPortal(
-            <div data-mood="1" style={{...moodPos,...menuStyle}}>
-              <p style={menuHdr}>Response Mode</p>
-              <div style={{padding:'6px',display:'flex',flexDirection:'column',gap:3}}>
-                {MOODS.map(m=>{const active=mood.id===m.id;return(
+            <div data-mood="1" style={{...moodPos,
+              background:'var(--bg2)',border:'1px solid var(--br)',borderRadius:12,
+              boxShadow:'0 8px 32px rgba(0,0,0,.45)',padding:'6px',minWidth:210,overflow:'hidden'}}>
+              <p style={{fontSize:9,fontWeight:700,letterSpacing:'.08em',textTransform:'uppercase',
+                color:'var(--t3)',padding:'6px 8px 4px',margin:0}}>Response Model</p>
+              {MOODS.map(m=>{
+                const active=mood.id===m.id;
+                const clr={'fast':'#F59E0B','thinking':'#8B5CF6','pro':'#3B82F6'}[m.id]||'#60A5FA';
+                const bg={'fast':'245,158,11','thinking':'139,92,246','pro':'59,130,246'}[m.id]||'96,165,250';
+                return(
                   <button key={m.id} onClick={()=>{setMood(m);setShowMood(false);}}
-                    style={{display:'flex',alignItems:'center',gap:10,padding:'8px 10px',borderRadius:10,
-                      border:active?'1px solid rgba(96,165,250,.25)':'1px solid transparent',
-                      background:active?'rgba(96,165,250,.07)':'transparent',cursor:'pointer'}}
+                    style={{display:'flex',alignItems:'center',gap:9,width:'100%',
+                      padding:'7px 9px',borderRadius:8,border:'none',cursor:'pointer',
+                      background:active?`rgba(${bg},.1)`:'transparent',
+                      transition:'background .12s'}}
                     onMouseEnter={e=>{if(!active)e.currentTarget.style.background='var(--bg3)';}}
                     onMouseLeave={e=>{if(!active)e.currentTarget.style.background='transparent';}}>
-                    <div style={{width:32,height:32,borderRadius:9,background:m.gradient,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-                      <i className={m.icon} style={{color:'#fff',fontSize:12}}></i>
+                    <div style={{width:26,height:26,borderRadius:7,flexShrink:0,
+                      background:active?m.gradient:`rgba(${bg},.12)`,
+                      display:'flex',alignItems:'center',justifyContent:'center',transition:'all .15s'}}>
+                      <i className={m.icon} style={{fontSize:10,color:active?'#fff':clr}}></i>
                     </div>
                     <div style={{flex:1,textAlign:'left'}}>
-                      <p style={{margin:0,fontSize:13,fontWeight:600,color:'var(--t1)',lineHeight:1.3}}>{m.name}</p>
-                      <p style={{margin:0,fontSize:10,color:'var(--t3)',lineHeight:1.3}}>{m.desc}</p>
+                      <p style={{margin:0,fontSize:12,fontWeight:600,color:active?'var(--t1)':'var(--t2)',lineHeight:1.2}}>{m.name}</p>
+                      <p style={{margin:0,fontSize:10,color:'var(--t3)',lineHeight:1.3,marginTop:1}}>{m.desc}</p>
                     </div>
-                    {active&&<i className="fa-solid fa-check" style={{color:'#60A5FA',fontSize:11}}></i>}
+                    {active&&<div style={{width:5,height:5,borderRadius:'50%',background:clr,flexShrink:0}}></div>}
                   </button>
-                );})}
-              </div>
+                );
+              })}
             </div>,
             document.body
           )}
