@@ -2780,7 +2780,39 @@ function App() {
     recRef.current=r;r.start();setVoiceOn(true);toast_('Listening…','info');
   };
 
-  const stopGen=()=>{if(abortRef.current)abortRef.current.abort();setTyping(false);setGlobalTyping(false);};
+  const stopGen=()=>{
+    if(abortRef.current) abortRef.current.abort();
+    setTyping(false);setGlobalTyping(false);setTypingSid(null);
+    // If typewriter is running, stop it and update last bot message
+    if(typewriterMsgId){
+      setTypewriterMsgId(null);
+      setSessions(prev=>{
+        const u=[...prev];
+        const i=u.findIndex(s=>s.id===sid);
+        if(i!==-1){
+          const msgs=u[i].messages;
+          const lastBotIdx=msgs.map((m,idx)=>({m,idx})).filter(({m})=>m.sender==='bot').pop()?.idx;
+          if(lastBotIdx!==-1&&lastBotIdx!==undefined){
+            u[i].messages[lastBotIdx]={
+              ...u[i].messages[lastBotIdx],
+              text:(u[i].messages[lastBotIdx].text||'')+'  \n\n⏹ **Response stopped**'
+            };
+          }
+        }
+        return u;
+      });
+    } else {
+      // Server still processing — add stopped message
+      setSessions(prev=>{
+        const u=[...prev];
+        const i=u.findIndex(s=>s.id===sid);
+        if(i!==-1){
+          u[i].messages.push({id:Date.now()+1,text:'⏹ **Response stopped**',sender:'bot',timestamp:Date.now()});
+        }
+        return u;
+      });
+    }
+  };
 
   const newChat=(fid=null)=>{
     setSid(null);setInput('');setFile(null);setFilePreview(null);setFiles([]);setShowCanvas(false);setActiveFolderId(fid||null);setActiveTool(null);
@@ -3632,7 +3664,7 @@ Reply: ${botText.slice(0,800)}`,
         </div>
 
         {/* ── SEND / STOP ── */}
-        {typing
+        {(typing||typewriterMsgId)
           ?<button onClick={stopGen}
               style={{display:'flex',alignItems:'center',gap:5,padding:'7px 12px',borderRadius:10,
                 border:'none',background:'#DC2626',color:'#fff',fontSize:12,fontWeight:700,cursor:'pointer',flexShrink:0}}
@@ -6822,7 +6854,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                                     return msg.id===typewriterMsgId
                                       ? <TypewriterText
                                           text={dispText}
-                                          speed={10}
+                                          speed={2}
                                           onDone={()=>setTypewriterMsgId(null)}
                                         />
                                       : <div className="md-body" dangerouslySetInnerHTML={mkd(dispText)}/>;
