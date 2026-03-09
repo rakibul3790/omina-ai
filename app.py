@@ -409,6 +409,92 @@ def export_chat():
     return jsonify({"success": False, "message": "Invalid format. Use: json, txt, md"}), 400
 
 
+
+# ══════════════════════════════════════════════════════════════
+# ── Multi-Device Sync API ─────────────────────────────────────
+# ══════════════════════════════════════════════════════════════
+
+# Sync করা হবে এই keys গুলো
+SYNC_KEYS = [
+    'omina_v4',        # chat sessions
+    'omina_todos',     # to-do list
+    'omina_sticky',    # sticky notes
+    'omina_prompts',   # custom prompts
+    'omina_memories',  # AI memories
+    'omina_tabs',      # chat tabs
+    'omina_folders',   # folders
+    'omina_profiles',  # profiles
+    'omina_active_profile',
+    'omina_qa',        # quick access IDs
+    'omina_templates', # chat templates
+    'omina_imggen',    # image gen history
+    'omina_votes',     # message votes
+    'omina_ws_members','omina_ws_notes',  # workspace
+    'omina_wc_reset',  'omina_wc_ignored', # word count
+    'omina_comp_runs', # compare runs
+    'omina_reviews',   # review comments
+    'omina_avatar',    # avatar URL
+]
+
+@app.route("/api/sync/push", methods=["POST"])
+def sync_push():
+    """Device থেকে data Firestore এ save করা"""
+    user = get_current_user()
+    if not user:
+        return jsonify({"success": False, "message": "Not logged in."}), 401
+
+    data    = request.json or {}
+    payload = data.get("data", {})
+
+    if not payload:
+        return jsonify({"success": False, "message": "No data provided."}), 400
+
+    # শুধু allowed keys save করা
+    filtered = {k: v for k, v in payload.items() if k in SYNC_KEYS}
+    if not filtered:
+        return jsonify({"success": False, "message": "No valid keys."}), 400
+
+    sync_ref = db.collection("users").document(user["uid"]).collection("sync").document("appdata")
+    sync_ref.set(filtered, merge=True)  # merge=True → existing data overwrite না করে merge করে
+
+    return jsonify({"success": True, "synced": list(filtered.keys())})
+
+
+@app.route("/api/sync/pull", methods=["GET"])
+def sync_pull():
+    """Firestore থেকে data নিয়ে device এ load করা"""
+    user = get_current_user()
+    if not user:
+        return jsonify({"success": False, "message": "Not logged in."}), 401
+
+    sync_ref = db.collection("users").document(user["uid"]).collection("sync").document("appdata")
+    doc      = sync_ref.get()
+
+    if not doc.exists:
+        return jsonify({"success": True, "data": {}})  # নতুন user → empty
+
+    return jsonify({"success": True, "data": doc.to_dict()})
+
+
+@app.route("/api/sync/key", methods=["POST"])
+def sync_key():
+    """Single key update — একটা data change হলে শুধু সেটা push"""
+    user = get_current_user()
+    if not user:
+        return jsonify({"success": False, "message": "Not logged in."}), 401
+
+    data  = request.json or {}
+    key   = data.get("key", "")
+    value = data.get("value")
+
+    if key not in SYNC_KEYS:
+        return jsonify({"success": False, "message": f"Key '{key}' not allowed."}), 400
+
+    sync_ref = db.collection("users").document(user["uid"]).collection("sync").document("appdata")
+    sync_ref.set({key: value}, merge=True)
+
+    return jsonify({"success": True, "key": key})
+
 # ── Image Generation (Pollinations.ai — no API key needed) ───
 @app.route("/api/generate-image", methods=["POST"])
 def generate_image():
