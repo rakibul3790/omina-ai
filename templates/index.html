@@ -3476,6 +3476,70 @@ function App() {
   useEffect(()=>{try{localStorage.setItem('omina_cache',JSON.stringify(offlineCache))}catch{}},[offlineCache]);
   useEffect(()=>{try{localStorage.setItem('omina_folders',JSON.stringify(folders))}catch{}},[folders]);
 
+  // ══════════════════════════════════════════════════════
+  // ── Multi-Device Sync Logic ───────────────────────────
+  // ══════════════════════════════════════════════════════
+
+  // ── Pull: app load হলে Firestore থেকে data নিয়ে আসা ──
+  useEffect(()=>{
+    const pullSync = async ()=>{
+      try{
+        const res  = await fetch('/api/sync/pull');
+        const data = await res.json();
+        if(!data.success || !data.data) return;
+        const d = data.data;
+        // প্রতিটা key localStorage এ set করা এবং state update
+        if(d.omina_v4       !== undefined){ try{localStorage.setItem('omina_v4',JSON.stringify(d.omina_v4));         setSessions(d.omina_v4);}catch{} }
+        if(d.omina_todos    !== undefined){ try{localStorage.setItem('omina_todos',JSON.stringify(d.omina_todos));   setTodos(d.omina_todos);}catch{} }
+        if(d.omina_sticky   !== undefined){ try{localStorage.setItem('omina_sticky',JSON.stringify(d.omina_sticky)); setStickyNotes(d.omina_sticky);}catch{} }
+        if(d.omina_prompts  !== undefined){ try{localStorage.setItem('omina_prompts',JSON.stringify(d.omina_prompts));setCustomPrompts(d.omina_prompts);}catch{} }
+        if(d.omina_memories !== undefined){ try{localStorage.setItem('omina_memories',JSON.stringify(d.omina_memories));setAiMemories(d.omina_memories);}catch{} }
+        if(d.omina_tabs     !== undefined){ try{localStorage.setItem('omina_tabs',JSON.stringify(d.omina_tabs));     setChatTabs(d.omina_tabs);}catch{} }
+        if(d.omina_folders  !== undefined){ try{localStorage.setItem('omina_folders',JSON.stringify(d.omina_folders));setFolders(d.omina_folders);}catch{} }
+        if(d.omina_profiles !== undefined){ try{localStorage.setItem('omina_profiles',JSON.stringify(d.omina_profiles));setProfiles(d.omina_profiles);}catch{} }
+        if(d.omina_active_profile !== undefined){ try{localStorage.setItem('omina_active_profile',d.omina_active_profile);setActiveProfile(d.omina_active_profile);}catch{} }
+        if(d.omina_qa       !== undefined){ try{localStorage.setItem('omina_qa',JSON.stringify(d.omina_qa));         setQuickAccessIds(d.omina_qa);}catch{} }
+        if(d.omina_templates!== undefined){ try{localStorage.setItem('omina_templates',JSON.stringify(d.omina_templates));setChatTemplates(d.omina_templates);}catch{} }
+        if(d.omina_imggen   !== undefined){ try{localStorage.setItem('omina_imggen',JSON.stringify(d.omina_imggen)); setImgGenHistory(d.omina_imggen);}catch{} }
+        if(d.omina_votes    !== undefined){ try{localStorage.setItem('omina_votes',JSON.stringify(d.omina_votes));   setMsgVotes(d.omina_votes);}catch{} }
+        if(d.omina_ws_members!==undefined){ try{localStorage.setItem('omina_ws_members',JSON.stringify(d.omina_ws_members));setWsMembers(d.omina_ws_members);}catch{} }
+        if(d.omina_ws_notes !== undefined){ try{localStorage.setItem('omina_ws_notes',JSON.stringify(d.omina_ws_notes));setWsNotes(d.omina_ws_notes);}catch{} }
+        if(d.omina_avatar   !== undefined){ try{localStorage.setItem('omina_avatar',d.omina_avatar);                 setAvatarUrl(d.omina_avatar);}catch{} }
+      }catch(e){ console.warn('Sync pull failed:',e); }
+    };
+    pullSync();
+  },[]);
+
+  // ── Push helper: single key change হলে Firestore এ save ──
+  const syncPush = async (key, value)=>{
+    try{
+      await fetch('/api/sync/key',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({key, value})
+      });
+    }catch(e){ console.warn('Sync push failed:',e); }
+  };
+
+  // ── Push: important data change হলে auto-sync ─────────
+  useEffect(()=>{syncPush('omina_v4',       sessions);},[sessions]);
+  useEffect(()=>{syncPush('omina_todos',     todos);},[todos]);
+  useEffect(()=>{syncPush('omina_sticky',    stickyNotes);},[stickyNotes]);
+  useEffect(()=>{syncPush('omina_prompts',   customPrompts);},[customPrompts]);
+  useEffect(()=>{syncPush('omina_memories',  aiMemories);},[aiMemories]);
+  useEffect(()=>{syncPush('omina_tabs',      chatTabs);},[chatTabs]);
+  useEffect(()=>{syncPush('omina_folders',   folders);},[folders]);
+  useEffect(()=>{syncPush('omina_profiles',  profiles);},[profiles]);
+  useEffect(()=>{syncPush('omina_active_profile', activeProfile);},[activeProfile]);
+  useEffect(()=>{syncPush('omina_qa',        quickAccessIds);},[quickAccessIds]);
+  useEffect(()=>{if(chatTemplates)syncPush('omina_templates',chatTemplates);},[chatTemplates]);
+  useEffect(()=>{syncPush('omina_imggen',    imgGenHistory.slice(-50));},[imgGenHistory]);
+  useEffect(()=>{syncPush('omina_votes',     msgVotes);},[msgVotes]);
+  useEffect(()=>{syncPush('omina_ws_members',wsMembers);},[wsMembers]);
+  useEffect(()=>{syncPush('omina_ws_notes',  wsNotes);},[wsNotes]);
+  useEffect(()=>{if(avatarUrl)syncPush('omina_avatar',avatarUrl);},[avatarUrl]);
+  // ══════════════════════════════════════════════════════
+
   useEffect(()=>{
     const h=e=>{
       if(!e.target.closest('.pc'))setShowProfile(false);
