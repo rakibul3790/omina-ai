@@ -2498,101 +2498,207 @@ function StickyModal({notes,setNotes,onClose}) {
 
 /* ── AI AGENT MODAL ───────────────────────────────────── */
 function AIAgentModal({onClose,sysPrompt,language}) {
-  const [goal,setGoal]     = React.useState('');
-  const [steps,setSteps]   = React.useState([]);
-  const [running,setRunning] = React.useState(false);
-  const [done,setDone]     = React.useState(false);
-  const [result,setResult] = React.useState('');
-  const [tab,setTab]       = React.useState('run');
-  const [history,setHistory] = React.useState([]);
-  const logsRef            = React.useRef(null);
+  const [goal,setGoal]           = React.useState('');
+  const [steps,setSteps]         = React.useState([]);
+  const [running,setRunning]     = React.useState(false);
+  const [done,setDone]           = React.useState(false);
+  const [result,setResult]       = React.useState('');
+  const [tab,setTab]             = React.useState('run');
+  const [history,setHistory]     = React.useState(()=>{try{return JSON.parse(localStorage.getItem('omina_agent_hist')||'[]');}catch{return [];}});
+  const [agentMode,setAgentMode] = React.useState('standard');
+  const [selectedTask,setSelectedTask] = React.useState(null);
+  const [subResults,setSubResults]     = React.useState([]);
+  const [progress,setProgress]         = React.useState(0);
+  const [abortRef]               = React.useState({aborted:false});
+  const logsRef                  = React.useRef(null);
+  const resultRef                = React.useRef(null);
 
-  const AGENT_TASKS = [
-    {label:'Research & Summarize',icon:'fa-magnifying-glass',color:'#3b82f6',prompt:'Research this topic thoroughly and provide a well-structured summary with key insights: '},
-    {label:'Write & Refine',icon:'fa-pen-nib',color:'#8b5cf6',prompt:'Write high-quality content about: '},
-    {label:'Code & Debug',icon:'fa-code',color:'#10b981',prompt:'Write clean, well-commented code for: '},
-    {label:'Plan & Break Down',icon:'fa-sitemap',color:'#f59e0b',prompt:'Create a detailed action plan with milestones for: '},
-    {label:'Analyze & Report',icon:'fa-chart-bar',color:'#ef4444',prompt:'Analyze and generate a comprehensive report on: '},
-    {label:'Brainstorm Ideas',icon:'fa-lightbulb',color:'#ec4899',prompt:'Generate 10 creative and unique ideas for: '},
+  const MODES = [
+    {id:'standard', ic:'fa-bolt',         lbl:'Standard',  col:'#a78bfa', desc:'Fast single-pass execution'},
+    {id:'deep',     ic:'fa-layer-group',  lbl:'Deep',      col:'#3B82F6', desc:'Multi-step with research'},
+    {id:'creative', ic:'fa-wand-sparkles',lbl:'Creative',  col:'#EC4899', desc:'Imaginative & expansive'},
+    {id:'precise',  ic:'fa-crosshairs',   lbl:'Precise',   col:'#10B981', desc:'Accurate, factual output'},
   ];
 
-  React.useEffect(()=>{ if(logsRef.current) logsRef.current.scrollTop=logsRef.current.scrollHeight; },[steps]);
+  const AGENT_TASKS = [
+    {id:'research', label:'Research & Summarize', icon:'fa-magnifying-glass', color:'#3b82f6', prompt:'Research this topic thoroughly and provide a comprehensive, well-structured summary with key insights, statistics, and takeaways: ', steps:['Analyzing topic scope','Gathering key information','Cross-referencing facts','Structuring insights','Finalizing summary']},
+    {id:'write',    label:'Write & Refine',        icon:'fa-pen-nib',          color:'#8b5cf6', prompt:'Write high-quality, engaging content about: ',                          steps:['Understanding requirements','Outlining structure','Drafting content','Refining language','Polishing final draft']},
+    {id:'code',     label:'Code & Debug',          icon:'fa-code',             color:'#10b981', prompt:'Write clean, efficient, well-commented code for: ',                     steps:['Analyzing requirements','Designing architecture','Writing core logic','Adding error handling','Testing & optimizing']},
+    {id:'plan',     label:'Plan & Break Down',     icon:'fa-sitemap',          color:'#f59e0b', prompt:'Create a detailed actionable plan with milestones, timeline, and success metrics for: ', steps:['Defining objectives','Identifying milestones','Allocating resources','Setting timeline','Building roadmap']},
+    {id:'analyze',  label:'Analyze & Report',      icon:'fa-chart-bar',        color:'#ef4444', prompt:'Perform a deep analysis and generate a comprehensive report on: ',       steps:['Collecting data points','Identifying patterns','Running analysis','Drawing conclusions','Generating report']},
+    {id:'brainstorm',label:'Brainstorm Ideas',     icon:'fa-lightbulb',        color:'#ec4899', prompt:'Generate 10 highly creative, unique, and actionable ideas for: ',         steps:['Understanding context','Exploring angles','Generating concepts','Filtering best ideas','Expanding top picks']},
+    {id:'compare',  label:'Compare & Contrast',    icon:'fa-scale-balanced',   color:'#06B6D4', prompt:'Provide a thorough comparison and contrast analysis of: ',                steps:['Identifying criteria','Gathering facts','Side-by-side analysis','Scoring options','Final recommendation']},
+    {id:'explain',  label:'Explain & Teach',       icon:'fa-chalkboard',       color:'#F59E0B', prompt:'Explain this topic clearly for different levels of understanding — beginner to expert: ', steps:['Simplifying core concept','Building from basics','Adding examples','Covering edge cases','Summarizing key points']},
+  ];
+
+  React.useEffect(()=>{if(logsRef.current)logsRef.current.scrollTop=logsRef.current.scrollHeight;},[steps]);
+  React.useEffect(()=>{if(done&&resultRef.current)resultRef.current.scrollIntoView({behavior:'smooth',block:'start'});},[done]);
+
+  const curMode = MODES.find(m=>m.id===agentMode)||MODES[0];
+  const curTask = selectedTask ? AGENT_TASKS.find(t=>t.id===selectedTask) : null;
 
   const runAgent = async () => {
     if(!goal.trim()||running) return;
-    setRunning(true); setDone(false); setResult(''); setSteps([]);
-    const addStep=(text,type='thinking')=>setSteps(prev=>[...prev,{id:Date.now()+Math.random(),text,type,time:new Date().toLocaleTimeString()}]);
-    addStep('Analyzing goal...','thinking');
-    await new Promise(r=>setTimeout(r,500));
-    addStep('Planning execution steps...','thinking');
-    await new Promise(r=>setTimeout(r,400));
+    abortRef.aborted = false;
+    setRunning(true); setDone(false); setResult(''); setSteps([]); setSubResults([]); setProgress(0);
+
+    const addStep = (text,type='thinking',detail='') =>
+      setSteps(prev=>[...prev,{id:Date.now()+Math.random(),text,type,detail,time:new Date().toLocaleTimeString()}]);
+
+    const sleep = ms => new Promise(r=>setTimeout(r,ms));
+
+    const taskSteps = curTask?.steps || ['Analyzing goal','Planning approach','Executing task','Reviewing output','Finalizing result'];
+    const modePromptSuffix = agentMode==='deep' ? ' Be extremely thorough and detailed.' : agentMode==='creative' ? ' Be imaginative, bold, and expansive.' : agentMode==='precise' ? ' Be concise, accurate, and factual.' : '';
+
     try {
-      addStep('Step 1 — Breaking down the goal','step');
-      const planRes = await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:`Break this goal into 3-5 steps: "${goal}". Numbered list only.`,system_prompt:'Concise AI agent.',history:[],mood:'professional'})});
+      addStep('Initializing agent…','thinking');
+      await sleep(300);
+      addStep('Mode: '+curMode.lbl+' · Task: '+(curTask?.label||'Custom'),'info');
+      await sleep(250);
+
+      // Step 1: Plan
+      setProgress(10);
+      addStep(taskSteps[0],'step');
+      const planRes = await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'Break this goal into exactly 4 clear execution steps (numbered list only, one line each): "'+goal+'"',system_prompt:'You are an expert AI agent planner. Be concise.',mood:'professional'})});
+      if(abortRef.aborted){addStep('Aborted by user','error');setRunning(false);return;}
       const planData = await planRes.json();
-      addStep('Plan ready — '+planData.reply?.slice(0,100)+'...','result');
-      await new Promise(r=>setTimeout(r,350));
-      addStep('Step 2 — Executing the task','step');
-      const execRes = await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:`Complete this task thoroughly: "${goal}"`,system_prompt:sysPrompt||'You are a highly capable AI agent.',history:[{role:'assistant',content:planData.reply||''}],mood:'professional'})});
+      addStep('Plan ready — '+( planData.reply?.split('\n')[0]||'').slice(0,80),'result', planData.reply||'');
+      setProgress(25);
+      await sleep(200);
+
+      // Step 2: Research / gather (deep mode only)
+      if(agentMode==='deep') {
+        addStep(taskSteps[1]||'Gathering context','step');
+        const researchRes = await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'List 5 key facts or data points relevant to: "'+goal+'". Format: numbered list.',system_prompt:'You are a research AI. Be factual and specific.',mood:'professional'})});
+        if(abortRef.aborted){addStep('Aborted by user','error');setRunning(false);return;}
+        const researchData = await researchRes.json();
+        addStep('Context gathered','result',researchData.reply||'');
+        setSubResults(prev=>[...prev,{label:'Research Notes',content:researchData.reply||''}]);
+        setProgress(45);
+        await sleep(300);
+      }
+
+      // Step 3: Main execution
+      setProgress(agentMode==='deep'?55:40);
+      addStep(taskSteps[2]||'Executing main task','step');
+      const basePrompt = curTask ? curTask.prompt+goal : goal;
+      const execRes = await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:basePrompt+modePromptSuffix,system_prompt:sysPrompt||'You are a highly capable AI agent. Deliver exceptional, thorough results.',mood:agentMode==='creative'?'creative':'professional'})});
+      if(abortRef.aborted){addStep('Aborted by user','error');setRunning(false);return;}
       const execData = await execRes.json();
-      addStep('Step 3 — Polishing output','step');
-      await new Promise(r=>setTimeout(r,400));
-      addStep('Task completed successfully!','done');
-      setResult(execData.reply||'Task completed.');
-      setHistory(prev=>[{goal,result:execData.reply,time:new Date().toLocaleString()},...prev.slice(0,9)]);
+      setProgress(75);
+      addStep(taskSteps[3]||'Reviewing output','step');
+      await sleep(300);
+
+      // Step 4: Refinement (non-standard modes)
+      let finalResult = execData.reply||'';
+      if(agentMode!=='standard') {
+        addStep(taskSteps[4]||'Polishing final output','step');
+        const refineRes = await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'Improve and expand this response, making it more '+( agentMode==='precise'?'accurate and structured':agentMode==='creative'?'creative and vivid':'detailed and comprehensive')+': '+finalResult.slice(0,800),system_prompt:'You are a refinement AI. Enhance quality significantly.',mood:'professional'})});
+        if(abortRef.aborted){addStep('Aborted by user','error');setRunning(false);return;}
+        const refineData = await refineRes.json();
+        finalResult = refineData.reply||finalResult;
+        addStep('Output refined & polished','result');
+        setProgress(92);
+        await sleep(200);
+      }
+
+      setProgress(100);
+      addStep('✓ Task completed successfully!','done');
+      setResult(finalResult);
+      const newHist = [{goal,result:finalResult,mode:agentMode,task:curTask?.label||'Custom',time:new Date().toLocaleString(),steps:steps.length+3},...history.slice(0,14)];
+      setHistory(newHist);
+      try{localStorage.setItem('omina_agent_hist',JSON.stringify(newHist));}catch{}
       setDone(true);
-    } catch(e) { addStep('Error: '+e.message,'error'); }
+    } catch(e) {
+      addStep('Error: '+e.message,'error');
+    }
     setRunning(false);
   };
 
-  const STEP_COLORS = {thinking:'var(--t3)',step:'#60a5fa',result:'#a78bfa',done:'#34d399',error:'#f87171'};
-  const STEP_ICONS  = {thinking:'fa-circle-notch fa-spin',step:'fa-bolt',result:'fa-check',done:'fa-flag-checkered',error:'fa-xmark'};
+  const stopAgent = () => { abortRef.aborted=true; };
+
+  const STEP_COLORS = {thinking:'var(--t3)',step:'#60a5fa',result:'#a78bfa',done:'#34d399',error:'#f87171',info:'#fb923c'};
+  const STEP_ICONS  = {thinking:'fa-circle-notch fa-spin',step:'fa-chevron-right',result:'fa-check',done:'fa-flag-checkered',error:'fa-xmark',info:'fa-circle-info'};
+  const STEP_BG     = {thinking:'transparent',step:'rgba(96,165,250,.06)',result:'rgba(167,139,250,.06)',done:'rgba(52,211,153,.06)',error:'rgba(248,113,113,.06)',info:'rgba(251,146,60,.06)'};
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.7)',backdropFilter:'blur(6px)'}} onClick={onClose}>
-      <div className="w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col" style={{background:'var(--bg2)',border:'1px solid var(--br)',maxHeight:'88vh'}} onClick={e=>e.stopPropagation()}>
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.88)',backdropFilter:'blur(18px)'}} onClick={onClose}>
+      <div className="w-full max-w-2xl rounded-3xl shadow-2xl flex flex-col" style={{background:'var(--bg2)',border:'1px solid rgba(167,139,250,.22)',maxHeight:'92vh',boxShadow:'0 30px 80px rgba(0,0,0,.6),0 0 0 1px rgba(167,139,250,.08)'}} onClick={e=>e.stopPropagation()}>
 
         {/* ── Header ── */}
-        <div className="flex items-center justify-between px-5 py-4 border-b flex-shrink-0" style={{borderColor:'var(--br)'}}>
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{background:'rgba(167,139,250,.15)',border:'1px solid rgba(167,139,250,.25)'}}>
-              <i className="fa-solid fa-microchip" style={{color:'#a78bfa',fontSize:15}}></i>
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-sm" style={{color:'var(--t1)'}}>AI Agent</span>
-                <span className="text-[9px] px-2 py-0.5 rounded-full font-bold" style={{background:'rgba(167,139,250,.15)',color:'#a78bfa',border:'1px solid rgba(167,139,250,.2)'}}>BETA</span>
+        <div className="px-6 py-5 border-b flex-shrink-0" style={{borderColor:'rgba(167,139,250,.12)',background:'linear-gradient(135deg,rgba(167,139,250,.12),rgba(139,92,246,.07),transparent)'}}>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl flex items-center justify-center relative" style={{background:'linear-gradient(145deg,#7c3aed,#a855f7)',boxShadow:'0 6px 20px rgba(139,92,246,.45),inset 0 1px 0 rgba(255,255,255,.2)'}}>
+                <i className="fa-solid fa-microchip text-white" style={{fontSize:18}}></i>
+                {running&&<div className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full border-2 animate-pulse" style={{background:'#34d399',borderColor:'var(--bg2)'}}></div>}
               </div>
-              <p className="text-[10px]" style={{color:'var(--t3)'}}>Autonomous multi-step task executor</p>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-base" style={{color:'var(--t1)'}}>AI Agent</span>
+                  <span className="text-[9px] px-2 py-0.5 rounded-full font-black tracking-widest" style={{background:'rgba(167,139,250,.18)',color:'#a78bfa',border:'1px solid rgba(167,139,250,.3)'}}>AUTONOMOUS</span>
+                  {running&&<span className="text-[9px] px-2 py-0.5 rounded-full font-black animate-pulse" style={{background:'rgba(52,211,153,.15)',color:'#34d399',border:'1px solid rgba(52,211,153,.3)'}}>RUNNING</span>}
+                </div>
+                <p className="text-[11px] mt-0.5" style={{color:'var(--t3)'}}>Multi-step autonomous task executor · {MODES.find(m=>m.id===agentMode)?.lbl} mode</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex rounded-xl overflow-hidden border" style={{borderColor:'rgba(255,255,255,.07)'}}>
+                {[['run','fa-bolt','Run'],['history','fa-clock-rotate-left','History']].map(([t,ic,l])=>(
+                  <button key={t} onClick={()=>setTab(t)} className="px-3 py-1.5 text-[11px] font-bold transition-all flex items-center gap-1.5" style={{background:tab===t?'rgba(167,139,250,.2)':'transparent',color:tab===t?'#a78bfa':'var(--t3)',border:'none',cursor:'pointer'}}>
+                    <i className={"fa-solid "+ic} style={{fontSize:9}}></i>{l}
+                    {t==='history'&&history.length>0&&<span className="text-[9px] px-1.5 py-0.5 rounded-full" style={{background:'rgba(167,139,250,.2)',color:'#a78bfa'}}>{history.length}</span>}
+                  </button>
+                ))}
+              </div>
+              <button onClick={onClose} className="w-8 h-8 rounded-xl flex items-center justify-center transition-all" style={{color:'var(--t3)',background:'transparent'}} onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,.08)';e.currentTarget.style.color='var(--t1)';}} onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='var(--t3)';}}><i className="fa-solid fa-xmark"></i></button>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            {/* Tabs */}
-            <div className="flex rounded-xl overflow-hidden border" style={{borderColor:'var(--br)'}}>
-              {[['run','Run'],['history','History']].map(([t,l])=>(
-                <button key={t} onClick={()=>setTab(t)} className="px-3 py-1.5 text-[11px] font-semibold transition-all" style={{background:tab===t?'var(--brh)':'transparent',color:tab===t?'var(--t1)':'var(--t3)',border:'none',cursor:'pointer'}}>{l}{t==='history'&&history.length>0&&<span className="ml-1 text-[9px] px-1 py-0.5 rounded-full" style={{background:'rgba(167,139,250,.2)',color:'#a78bfa'}}>{history.length}</span>}</button>
-              ))}
+
+          {/* Progress bar */}
+          {(running||done)&&(
+            <div className="h-1.5 rounded-full overflow-hidden" style={{background:'rgba(255,255,255,.06)'}}>
+              <div className="h-full rounded-full transition-all duration-500" style={{width:progress+'%',background:done?'linear-gradient(90deg,#34d399,#10b981)':'linear-gradient(90deg,#7c3aed,#a855f7,#ec4899)',boxShadow:done?'0 0 8px rgba(52,211,153,.4)':'0 0 8px rgba(139,92,246,.4)'}}></div>
             </div>
-            <button onClick={onClose} className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/10 transition-all" style={{color:'var(--t2)',border:'none',background:'transparent'}}><i className="fa-solid fa-xmark"></i></button>
-          </div>
+          )}
         </div>
 
+        {/* ── RUN TAB ── */}
         {tab==='run'&&(
-        <div className="flex-1 overflow-y-auto p-5 space-y-5" style={{scrollbarWidth:'thin'}}>
+        <div className="flex-1 overflow-y-auto sb p-5 space-y-5" style={{minHeight:0}}>
 
-          {/* Quick task presets */}
+          {/* Mode selector */}
           {!running&&!done&&(
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest mb-2.5" style={{color:'var(--t3)'}}>Quick Tasks</p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {AGENT_TASKS.map(t=>(
-                  <button key={t.label} onClick={()=>setGoal(t.prompt)} className="p-3 rounded-xl border text-left transition-all" style={{borderColor:'var(--br)',background:'var(--bg3)'}}
-                    onMouseEnter={e=>{e.currentTarget.style.borderColor=t.color+'60';e.currentTarget.style.background=t.color+'0d';}}
-                    onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--br)';e.currentTarget.style.background='var(--bg3)';}}>
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center mb-2" style={{background:t.color+'20'}}>
-                      <i className={`fa-solid ${t.icon}`} style={{color:t.color,fontSize:12}}></i>
+              <p className="text-[10px] font-bold uppercase tracking-widest mb-2.5" style={{color:'var(--t3)'}}>Agent Mode</p>
+              <div className="grid grid-cols-4 gap-2">
+                {MODES.map(m=>(
+                  <button key={m.id} onClick={()=>setAgentMode(m.id)} className="rounded-2xl border p-3 text-center transition-all" style={{borderColor:agentMode===m.id?m.col+'55':'rgba(255,255,255,.06)',background:agentMode===m.id?m.col+'12':'rgba(255,255,255,.02)'}} onMouseEnter={e=>{if(agentMode!==m.id){e.currentTarget.style.background=m.col+'08';e.currentTarget.style.borderColor=m.col+'30';}}} onMouseLeave={e=>{if(agentMode!==m.id){e.currentTarget.style.background='rgba(255,255,255,.02)';e.currentTarget.style.borderColor='rgba(255,255,255,.06)';}}}>
+                    <div className="w-8 h-8 rounded-xl mx-auto mb-2 flex items-center justify-center" style={{background:'linear-gradient(135deg,'+m.col+'cc,'+m.col+'88)',boxShadow:agentMode===m.id?'0 4px 12px '+m.col+'40':'none'}}>
+                      <i className={"fa-solid "+m.ic+" text-white"} style={{fontSize:13}}></i>
                     </div>
-                    <p className="text-[11px] font-bold" style={{color:'var(--t1)'}}>{t.label}</p>
+                    <p className="text-[11px] font-bold" style={{color:agentMode===m.id?m.col:'var(--t1)'}}>{m.lbl}</p>
+                    <p className="text-[9px] mt-0.5 leading-tight" style={{color:'var(--t3)'}}>{m.desc}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Task presets */}
+          {!running&&!done&&(
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest mb-2.5" style={{color:'var(--t3)'}}>Task Type</p>
+              <div className="grid grid-cols-2 gap-2">
+                {AGENT_TASKS.map(t=>(
+                  <button key={t.id} onClick={()=>{setSelectedTask(t.id===selectedTask?null:t.id);if(t.id!==selectedTask)setGoal(t.prompt);}} className="p-3 rounded-2xl border text-left transition-all flex items-center gap-3" style={{borderColor:selectedTask===t.id?t.color+'55':'rgba(255,255,255,.06)',background:selectedTask===t.id?t.color+'10':'rgba(255,255,255,.02)'}} onMouseEnter={e=>{if(selectedTask!==t.id){e.currentTarget.style.borderColor=t.color+'35';e.currentTarget.style.background=t.color+'07';}}} onMouseLeave={e=>{if(selectedTask!==t.id){e.currentTarget.style.borderColor='rgba(255,255,255,.06)';e.currentTarget.style.background='rgba(255,255,255,.02)';}}} >
+                    <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{background:'linear-gradient(135deg,'+t.color+'cc,'+t.color+'77)',boxShadow:selectedTask===t.id?'0 3px 10px '+t.color+'40':'none'}}>
+                      <i className={"fa-solid "+t.icon+" text-white"} style={{fontSize:12}}></i>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[11px] font-bold truncate" style={{color:selectedTask===t.id?t.color:'var(--t1)'}}>{t.label}</p>
+                    </div>
+                    {selectedTask===t.id&&<i className="fa-solid fa-check text-[10px] ml-auto flex-shrink-0" style={{color:t.color}}></i>}
                   </button>
                 ))}
               </div>
@@ -2602,44 +2708,66 @@ function AIAgentModal({onClose,sysPrompt,language}) {
           {/* Goal input */}
           {!running&&!done&&(
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest mb-2.5" style={{color:'var(--t3)'}}>Your Goal</p>
-              <textarea value={goal} onChange={e=>setGoal(e.target.value)} placeholder="Describe what you want the AI agent to accomplish..." rows={3} className="w-full px-4 py-3 rounded-xl border outline-none resize-none text-sm" style={{background:'var(--bg3)',borderColor:'var(--brh)',color:'var(--t1)',fontFamily:"'DM Sans',sans-serif",lineHeight:1.6}}/>
-              <button onClick={runAgent} disabled={!goal.trim()} className="mt-2.5 w-full py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2" style={{background:goal.trim()?'linear-gradient(135deg,#7c3aed,#a855f7)':'var(--bg3)',color:goal.trim()?'#fff':'var(--t3)',border:'none',cursor:goal.trim()?'pointer':'default',boxShadow:goal.trim()?'0 4px 20px rgba(139,92,246,.3)':'none'}}>
-                <i className="fa-solid fa-bolt"></i> Run Agent
+              <p className="text-[10px] font-bold uppercase tracking-widest mb-2.5" style={{color:'var(--t3)'}}>Goal / Task Description</p>
+              <textarea value={goal} onChange={e=>setGoal(e.target.value)} placeholder="Describe exactly what you want the AI agent to accomplish…" rows={3} className="w-full px-4 py-3 rounded-2xl border outline-none resize-none text-sm transition-all" style={{background:'rgba(167,139,250,.06)',borderColor:'rgba(167,139,250,.2)',color:'var(--t1)',lineHeight:1.6}} onFocus={e=>e.target.style.borderColor='rgba(167,139,250,.5)'} onBlur={e=>e.target.style.borderColor='rgba(167,139,250,.2)'}/>
+              <button onClick={runAgent} disabled={!goal.trim()} className="mt-2.5 w-full py-3.5 rounded-2xl text-sm font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-30" style={{background:goal.trim()?'linear-gradient(135deg,#7c3aed,#a855f7)':'rgba(255,255,255,.05)',color:goal.trim()?'#fff':'var(--t3)',border:goal.trim()?'none':'1px solid rgba(255,255,255,.06)',boxShadow:goal.trim()?'0 6px 20px rgba(139,92,246,.4)':'none'}}>
+                <i className="fa-solid fa-bolt text-sm"></i>Launch Agent
               </button>
             </div>
           )}
 
-          {/* Live logs */}
-          {steps.length>0&&(
+          {/* Live execution */}
+          {(running||steps.length>0)&&(
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest mb-2.5" style={{color:'var(--t3)'}}>Agent Log</p>
-              <div ref={logsRef} className="rounded-xl border p-3 space-y-2.5" style={{background:'var(--bg)',borderColor:'var(--br)',maxHeight:200,overflowY:'auto',scrollbarWidth:'thin'}}>
+              <div className="flex items-center justify-between mb-2.5">
+                <p className="text-[10px] font-bold uppercase tracking-widest" style={{color:'var(--t3)'}}>Agent Log</p>
+                {running&&<button onClick={stopAgent} className="text-[10px] px-3 py-1 rounded-xl font-bold border transition-all" style={{borderColor:'rgba(248,113,113,.3)',color:'#f87171',background:'rgba(248,113,113,.06)'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(248,113,113,.12)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(248,113,113,.06)'}><i className="fa-solid fa-stop text-[9px] mr-1"></i>Stop</button>}
+              </div>
+              <div ref={logsRef} className="rounded-2xl border p-3 space-y-1.5" style={{background:'rgba(0,0,0,.3)',borderColor:'rgba(255,255,255,.07)',maxHeight:220,overflowY:'auto'}}>
                 {steps.map(s=>(
-                  <div key={s.id} className="flex items-start gap-2.5 text-[11px]">
-                    <i className={`fa-solid ${STEP_ICONS[s.type]} mt-0.5 flex-shrink-0`} style={{color:STEP_COLORS[s.type],fontSize:9,width:10}}></i>
-                    <span style={{color:STEP_COLORS[s.type],flex:1,lineHeight:1.5}}>{s.text}</span>
-                    <span className="flex-shrink-0" style={{color:'var(--t3)',fontSize:9}}>{s.time}</span>
+                  <div key={s.id} className="flex items-start gap-2.5 px-2 py-1.5 rounded-xl transition-all" style={{background:STEP_BG[s.type]}}>
+                    <i className={"fa-solid "+STEP_ICONS[s.type]+" mt-0.5 flex-shrink-0"} style={{color:STEP_COLORS[s.type],fontSize:9,width:10}}></i>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-[11px]" style={{color:STEP_COLORS[s.type],lineHeight:1.5}}>{s.text}</span>
+                      {s.detail&&<p className="text-[10px] mt-0.5 line-clamp-1" style={{color:'var(--t3)'}}>{s.detail.slice(0,80)}</p>}
+                    </div>
+                    <span className="flex-shrink-0 text-[9px]" style={{color:'var(--t3)'}}>{s.time}</span>
                   </div>
                 ))}
-                {running&&<div className="flex items-center gap-2 text-[11px]" style={{color:'#a78bfa'}}><i className="fa-solid fa-circle-notch fa-spin" style={{fontSize:9}}></i>Processing...</div>}
+                {running&&<div className="flex items-center gap-2 px-2 py-1.5 text-[11px]" style={{color:'#a78bfa'}}><i className="fa-solid fa-circle-notch fa-spin" style={{fontSize:9}}></i>Processing…</div>}
               </div>
+            </div>
+          )}
+
+          {/* Sub-results (deep mode) */}
+          {subResults.length>0&&(
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{color:'var(--t3)'}}>Research Notes</p>
+              {subResults.map((sr,i)=>(
+                <div key={i} className="rounded-2xl border p-3 text-xs" style={{background:'rgba(59,130,246,.04)',borderColor:'rgba(59,130,246,.15)',color:'var(--t2)',whiteSpace:'pre-wrap',maxHeight:120,overflowY:'auto'}}>
+                  {sr.content}
+                </div>
+              ))}
             </div>
           )}
 
           {/* Result */}
           {done&&result&&(
-            <div>
+            <div ref={resultRef}>
               <div className="flex items-center gap-2 mb-2.5">
-                <i className="fa-solid fa-flag-checkered" style={{color:'#34d399',fontSize:11}}></i>
-                <p className="text-[10px] font-bold uppercase tracking-widest" style={{color:'#34d399'}}>Result</p>
+                <div className="w-5 h-5 rounded-lg flex items-center justify-center" style={{background:'rgba(52,211,153,.2)'}}><i className="fa-solid fa-flag-checkered" style={{color:'#34d399',fontSize:9}}></i></div>
+                <p className="text-[10px] font-bold uppercase tracking-widest" style={{color:'#34d399'}}>Final Result</p>
+                <span className="text-[9px] px-2 py-0.5 rounded-full" style={{background:'rgba(52,211,153,.1)',color:'#34d399',border:'1px solid rgba(52,211,153,.2)'}}>{curMode.lbl} mode</span>
               </div>
-              <div className="rounded-xl border p-4 text-sm leading-relaxed" style={{background:'var(--bg3)',borderColor:'rgba(52,211,153,.2)',color:'var(--t1)',whiteSpace:'pre-wrap',maxHeight:260,overflowY:'auto',scrollbarWidth:'thin'}}>{result}</div>
+              <div className="rounded-2xl border p-4 text-sm leading-relaxed" style={{background:'rgba(52,211,153,.03)',borderColor:'rgba(52,211,153,.2)',color:'var(--t1)',whiteSpace:'pre-wrap',maxHeight:280,overflowY:'auto'}}>{result}</div>
               <div className="flex gap-2 mt-3">
-                <button onClick={()=>navigator.clipboard.writeText(result)} className="flex-1 py-2 rounded-xl text-[11px] font-bold border transition-all hover:bg-white/5" style={{borderColor:'var(--br)',color:'var(--t2)',background:'var(--bg3)'}}>
-                  <i className="fa-solid fa-copy mr-1.5"></i>Copy
+                <button onClick={()=>navigator.clipboard.writeText(result).then(()=>{})} className="flex-1 py-2.5 rounded-2xl text-[11px] font-bold border transition-all" style={{borderColor:'rgba(255,255,255,.08)',color:'var(--t2)',background:'rgba(255,255,255,.03)'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,.07)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(255,255,255,.03)'}>
+                  <i className="fa-regular fa-copy mr-1.5"></i>Copy Result
                 </button>
-                <button onClick={()=>{setGoal('');setSteps([]);setDone(false);setResult('');}} className="flex-1 py-2 rounded-xl text-[11px] font-bold transition-all" style={{background:'rgba(167,139,250,.12)',color:'#a78bfa',border:'1px solid rgba(167,139,250,.25)'}}>
+                <button onClick={()=>{const b=new Blob([result],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='agent-result.txt';a.click();}} className="flex-1 py-2.5 rounded-2xl text-[11px] font-bold border transition-all" style={{borderColor:'rgba(255,255,255,.08)',color:'var(--t2)',background:'rgba(255,255,255,.03)'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,.07)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(255,255,255,.03)'}>
+                  <i className="fa-solid fa-download mr-1.5"></i>Export
+                </button>
+                <button onClick={()=>{setGoal('');setSteps([]);setDone(false);setResult('');setSubResults([]);setProgress(0);setSelectedTask(null);}} className="flex-1 py-2.5 rounded-2xl text-[11px] font-bold transition-all" style={{background:'rgba(167,139,250,.12)',color:'#a78bfa',border:'1px solid rgba(167,139,250,.25)'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(167,139,250,.2)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(167,139,250,.12)'}>
                   <i className="fa-solid fa-rotate-right mr-1.5"></i>New Task
                 </button>
               </div>
@@ -2648,25 +2776,47 @@ function AIAgentModal({onClose,sysPrompt,language}) {
         </div>
         )}
 
+        {/* ── HISTORY TAB ── */}
         {tab==='history'&&(
-        <div className="flex-1 overflow-y-auto p-5" style={{scrollbarWidth:'thin'}}>
+        <div className="flex-1 overflow-y-auto sb p-5" style={{minHeight:0}}>
           {history.length===0?(
-            <div className="text-center py-16" style={{color:'var(--t3)'}}>
-              <i className="fa-solid fa-clock-rotate-left text-4xl mb-3 block" style={{opacity:.2}}></i>
-              <p className="text-sm">No task history yet</p>
+            <div className="text-center py-16">
+              <div className="w-14 h-14 rounded-2xl mx-auto mb-3 flex items-center justify-center" style={{background:'rgba(167,139,250,.08)'}}><i className="fa-solid fa-clock-rotate-left text-2xl" style={{color:'rgba(167,139,250,.3)'}}></i></div>
+              <p className="text-sm font-bold" style={{color:'var(--t2)'}}>No task history yet</p>
+              <p className="text-xs mt-1" style={{color:'var(--t3)'}}>Run your first agent task to see it here</p>
             </div>
-          ):history.map((h,i)=>(
-            <div key={i} className="mb-3 p-4 rounded-xl border" style={{background:'var(--bg3)',borderColor:'var(--br)'}}>
-              <div className="flex items-start justify-between gap-2 mb-2">
-                <p className="text-xs font-semibold" style={{color:'var(--t1)'}}>{h.goal}</p>
-                <span className="text-[9px] flex-shrink-0" style={{color:'var(--t3)'}}>{h.time}</span>
-              </div>
-              <p className="text-[11px] line-clamp-2" style={{color:'var(--t2)',lineHeight:1.5}}>{h.result?.slice(0,150)}...</p>
-              <button onClick={()=>{setGoal(h.goal);setTab('run');setSteps([]);setDone(false);setResult('');}} className="mt-2 text-[10px] font-semibold" style={{color:'#a78bfa',background:'none',border:'none',cursor:'pointer',padding:0}}>
-                <i className="fa-solid fa-rotate-right mr-1" style={{fontSize:8}}></i>Re-run
+          ):(
+            <div className="space-y-3">
+              {history.map((h,i)=>{
+                const modeData = MODES.find(m=>m.id===h.mode)||MODES[0];
+                return(
+                  <div key={i} className="rounded-2xl border p-4 transition-all" style={{background:'rgba(255,255,255,.02)',borderColor:'rgba(255,255,255,.06)'}} onMouseEnter={e=>e.currentTarget.style.borderColor='rgba(167,139,250,.25)'} onMouseLeave={e=>e.currentTarget.style.borderColor='rgba(255,255,255,.06)'}>
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <p className="text-xs font-bold line-clamp-2 flex-1" style={{color:'var(--t1)'}}>{h.goal}</p>
+                      <span className="text-[9px] flex-shrink-0" style={{color:'var(--t3)'}}>{h.time}</span>
+                    </div>
+                    <div className="flex items-center gap-2 mb-2">
+                      {h.task&&<span className="text-[9px] px-1.5 py-0.5 rounded-lg font-bold" style={{background:'rgba(167,139,250,.1)',color:'#a78bfa'}}>{h.task}</span>}
+                      {h.mode&&<span className="text-[9px] px-1.5 py-0.5 rounded-lg font-bold" style={{background:modeData.col+'15',color:modeData.col}}>{modeData.lbl}</span>}
+                      {h.steps&&<span className="text-[9px]" style={{color:'var(--t3)'}}>{h.steps} steps</span>}
+                    </div>
+                    <p className="text-[11px] line-clamp-2 mb-2.5" style={{color:'var(--t2)',lineHeight:1.5}}>{(h.result||'').slice(0,150)}…</p>
+                    <div className="flex gap-2">
+                      <button onClick={()=>{setGoal(h.goal);setTab('run');setSteps([]);setDone(false);setResult('');setSubResults([]);setProgress(0);}} className="text-[10px] font-bold px-3 py-1 rounded-xl border transition-all" style={{borderColor:'rgba(167,139,250,.25)',color:'#a78bfa',background:'rgba(167,139,250,.06)'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(167,139,250,.14)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(167,139,250,.06)'}>
+                        <i className="fa-solid fa-rotate-right mr-1 text-[9px]"></i>Re-run
+                      </button>
+                      <button onClick={()=>navigator.clipboard.writeText(h.result||'')} className="text-[10px] font-bold px-3 py-1 rounded-xl border transition-all" style={{borderColor:'rgba(255,255,255,.08)',color:'var(--t3)',background:'transparent'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,.06)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                        <i className="fa-regular fa-copy mr-1 text-[9px]"></i>Copy
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+              <button onClick={()=>{setHistory([]);try{localStorage.removeItem('omina_agent_hist');}catch{}}} className="w-full py-2 rounded-2xl text-[11px] font-bold border transition-all" style={{borderColor:'rgba(239,68,68,.2)',color:'#f87171',background:'transparent'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(239,68,68,.06)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                <i className="fa-solid fa-trash mr-1.5 text-[10px]"></i>Clear History
               </button>
             </div>
-          ))}
+          )}
         </div>
         )}
 
@@ -2674,6 +2824,7 @@ function AIAgentModal({onClose,sysPrompt,language}) {
     </div>
   );
 }
+
 
 /* ── SHARE MODAL ───────────────────────────────────────── */
 function ShareModal({session, onClose}) {
