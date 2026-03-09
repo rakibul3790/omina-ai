@@ -315,16 +315,9 @@ input:-webkit-autofill{-webkit-box-shadow:0 0 0 30px var(--bgi) inset!important;
   .feat-pin-mobile{display:flex!important}
 
   /* ── Feature grid ── */
-  .feat-grid{grid-template-columns:repeat(2,1fr)!important;gap:6px!important;}
+  .feat-grid{grid-template-columns:repeat(2,1fr)!important;gap:8px!important;}
   .feat-card:hover .feat-pin{opacity:1!important}
-  /* ── Feature card mobile polish ── */
-  .feat-card{border-radius:14px!important;}
-  .feat-card-btn{display:flex!important;flex-direction:column!important;align-items:flex-start!important;padding:10px 10px 8px 10px!important;gap:6px!important;width:100%!important;transition:background .15s;}
-  .feat-card-btn .feat-card-icon{width:34px!important;height:34px!important;border-radius:10px!important;display:flex!important;align-items:center!important;justify-content:center!important;flex-shrink:0!important;}
-  .feat-card-btn .feat-card-icon i{font-size:14px!important;}
-  .feat-card-btn .feat-card-label{font-size:11.5px!important;font-weight:600!important;line-height:1.3!important;text-align:left!important;}
-  .feat-card-btn .feat-card-arrow{display:none!important;}
-  .feat-pin-mobile{font-size:9.5px!important;padding-top:7px!important;padding-bottom:7px!important;}
+  .feat-pin-mobile{font-size:10px!important;}
 
   /* ── Settings modal — slide up from bottom ── */
   .settings-modal{
@@ -8356,16 +8349,53 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       modelcomp:()=>{setShowSettings(false);setShowModelComp(true);},
                       profiles:()=>{setShowSettings(false);setShowProfiles(true);},
                     };
+                    const isMobile=window.innerWidth<=768;
                     const FeatCard=({f,pinned,showCheck})=>(
-                      <div className="feat-card relative rounded-xl border overflow-hidden transition-all" style={{borderColor:pinned?f.col+'55':'var(--br)',background:pinned?f.col+'0e':'var(--bg3)'}}>
-                        <button onClick={launchMap[f.id]||(() =>{})} className="feat-card-btn w-full flex items-center gap-2.5 px-3 py-3 transition-all" onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,.04)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
-                          <div className="feat-card-icon w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{background:f.col+'22'}}>
-                            <i className={`fa-solid ${f.ic} text-sm`} style={{color:f.col}}></i>
+                      <div className="feat-card relative overflow-hidden transition-all" style={{
+                        borderRadius:16,
+                        border:`1.5px solid ${pinned?f.col+'60':'var(--br)'}`,
+                        background: pinned
+                          ? `linear-gradient(135deg,${f.col}18 0%,${f.col}08 100%)`
+                          : 'var(--bg3)',
+                        boxShadow: pinned ? `0 0 0 1px ${f.col}22, 0 4px 16px ${f.col}18` : '0 1px 4px rgba(0,0,0,.18)',
+                        transition:'box-shadow .18s,border-color .18s,background .18s',
+                      }}>
+                        {/* ── Main clickable area ── */}
+                        <button
+                          onClick={launchMap[f.id]||(() =>{})}
+                          style={{
+                            width:'100%', display:'flex', flexDirection: isMobile?'column':'row',
+                            alignItems: isMobile?'flex-start':'center',
+                            gap: isMobile?6:10,
+                            padding: isMobile?'12px 12px 8px 12px':'10px 12px',
+                            background:'transparent', border:'none', cursor:'pointer',
+                            transition:'background .15s',
+                          }}
+                          onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,.05)'}
+                          onMouseLeave={e=>e.currentTarget.style.background='transparent'}
+                        >
+                          {/* Icon */}
+                          <div style={{
+                            width:36, height:36, borderRadius:10, flexShrink:0,
+                            display:'flex', alignItems:'center', justifyContent:'center',
+                            background:`${f.col}22`,
+                            boxShadow:`0 0 0 1px ${f.col}33`,
+                          }}>
+                            <i className={`fa-solid ${f.ic}`} style={{color:f.col, fontSize:15}}></i>
                           </div>
-                          <span className="feat-card-label text-xs font-semibold flex-1 text-left" style={{color:'var(--t1)'}}>{f.lbl}</span>
-                          <i className="feat-card-arrow fa-solid fa-arrow-up-right-from-square text-[8px]" style={{color:'var(--t3)',opacity:.4}}></i>
+                          {/* Label */}
+                          <span style={{
+                            color:'var(--t1)', fontSize:12, fontWeight:600,
+                            lineHeight:1.35, textAlign:'left', flex:1,
+                            fontFamily:"'DM Sans',sans-serif",
+                          }}>{f.lbl}</span>
+                          {/* Arrow — desktop only */}
+                          {!isMobile && (
+                            <i className="fa-solid fa-arrow-up-right-from-square" style={{color:'var(--t3)',fontSize:8,opacity:.5,flexShrink:0}}></i>
+                          )}
                         </button>
-                        {/* Desktop only: hover checkbox */}
+
+                        {/* ── Desktop: hover checkbox ── */}
                         {showCheck && (!atMax || pinned) && (
                           <button
                             onClick={e=>{e.stopPropagation();if(pinned)setQuickAccessIds(p=>p.filter(x=>x!==f.id));else if(!atMax)setQuickAccessIds(p=>[...p,f.id]);else toast_('Maximum 12 features allowed','info');}}
@@ -8376,15 +8406,21 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                             {pinned&&<i className="fa-solid fa-check text-[7px]" style={{color:'#fff'}}></i>}
                           </button>
                         )}
-                        {/* Mobile only: pin button at bottom */}
+
+                        {/* ── Mobile: pin strip at bottom ── */}
                         {showCheck && (!atMax || pinned) && (
                           <button
                             onClick={e=>{e.stopPropagation();if(pinned)setQuickAccessIds(p=>p.filter(x=>x!==f.id));else if(!atMax)setQuickAccessIds(p=>[...p,f.id]);else toast_('Maximum 12 features allowed','info');}}
-                            className="feat-pin-mobile w-full items-center justify-center gap-1 py-1.5 border-t transition-all"
-                            style={{borderColor:pinned?f.col+'55':'var(--br)',background:pinned?f.col+'18':'transparent',color:pinned?f.col:'var(--t3)'}}
+                            className="feat-pin-mobile w-full items-center justify-center gap-1.5 border-t transition-all"
+                            style={{
+                              borderColor: pinned?f.col+'50':'var(--br)',
+                              background: pinned?f.col+'20':'transparent',
+                              color: pinned?f.col:'var(--t3)',
+                              paddingTop:7, paddingBottom:7,
+                            }}
                           >
-                            <i className={`fa-solid ${pinned?'fa-thumbtack':'fa-plus'} text-[9px]`}></i>
-                            <span style={{fontSize:9,fontWeight:600}}>{pinned?'Pinned':'Pin'}</span>
+                            <i className={`fa-solid ${pinned?'fa-thumbtack':'fa-plus'}`} style={{fontSize:9}}></i>
+                            <span style={{fontSize:10,fontWeight:700,letterSpacing:.3}}>{pinned?'Pinned':'Pin'}</span>
                           </button>
                         )}
                       </div>
