@@ -7799,7 +7799,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
             {/* Msg search */}
             <button onClick={()=>setShowMsgSearch(true)} className="hide-mobile p-2 rounded-lg transition-all hover:bg-white/5" style={{color:'var(--t2)'}} title="Message search (Ctrl+Shift+F)"><i className="fa-solid fa-magnifying-glass-dollar text-sm"></i></button>
             {/* Incognito toggle — upgraded */}
-            <button onClick={()=>{setIncognito(s=>!s);toast_(incognito?'Incognito OFF — chats will be saved':''Incognito ON — chats won\'t be saved',incognito?'info':'warning');}}
+            <button onClick={()=>{setIncognito(s=>!s);toast_(incognito?'Incognito OFF — chats will be saved':'Incognito ON — chats will not be saved',incognito?'info':'warning');}}
               title="Incognito Mode — chats won't be saved"
               style={{display:'flex',alignItems:'center',gap:6,padding:incognito?'5px 10px 5px 7px':'6px 8px',borderRadius:incognito?20:10,border:incognito?'1px solid rgba(167,139,250,.35)':'1px solid transparent',background:incognito?'rgba(167,139,250,.1)':'transparent',color:incognito?'#a78bfa':'var(--t2)',cursor:'pointer',transition:'all .2s',flexShrink:0}}
               onMouseEnter={e=>{ if(!incognito){e.currentTarget.style.background='rgba(167,139,250,.08)';e.currentTarget.style.borderColor='rgba(167,139,250,.2)';e.currentTarget.style.color='#a78bfa';} }}
