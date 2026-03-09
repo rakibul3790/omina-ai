@@ -416,24 +416,44 @@ def export_chat():
 
 # Sync করা হবে এই keys গুলো
 SYNC_KEYS = [
+    # ── Chat & Sessions ──
     'omina_v4',        # chat sessions
+    'omina_tabs',      # chat tabs
+    'omina_folders',   # folders
+    'omina_templates', # chat templates
+    'omina_votes',     # message votes
+    'omina_mc_hist',   # model compare history
+    'omina_agent_hist',# AI agent history
+
+    # ── User Data ──
     'omina_todos',     # to-do list
     'omina_sticky',    # sticky notes
     'omina_prompts',   # custom prompts
     'omina_memories',  # AI memories
-    'omina_tabs',      # chat tabs
-    'omina_folders',   # folders
-    'omina_profiles',  # profiles
-    'omina_active_profile',
-    'omina_qa',        # quick access IDs
-    'omina_templates', # chat templates
-    'omina_imggen',    # image gen history
-    'omina_votes',     # message votes
-    'omina_ws_members','omina_ws_notes',  # workspace
-    'omina_wc_reset',  'omina_wc_ignored', # word count
-    'omina_comp_runs', # compare runs
     'omina_reviews',   # review comments
-    'omina_avatar',    # avatar URL
+    'omina_tray',      # tray notifications
+
+    # ── Profile & Settings ──
+    'omina_profiles',
+    'omina_active_profile',
+    'omina_avatar',
+    'omina_settings',  # theme, fontSize, language, sound etc
+
+    # ── Features ──
+    'omina_qa',        # quick access IDs
+    'omina_imggen',    # image gen history
+    'omina_ws_members','omina_ws_notes',
+    'omina_wc_reset',  'omina_wc_ignored',
+    'omina_comp_runs',
+
+    # ── Device Preferences (sync করা হবে) ──
+    'omina_tts_on', 'omina_tts_voice', 'omina_tts_rate', 'omina_tts_pitch',
+    'omina_apikeys',
+    'omina_ratelimits',
+    'omina_chatlock',
+    'omina_splash_done',
+    'omina_onboard_done',
+    'omina_cache',
 ]
 
 @app.route("/api/sync/push", methods=["POST"])
