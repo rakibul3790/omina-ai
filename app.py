@@ -12,6 +12,12 @@ except ImportError:
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "omina-secret-2026")
 
+# ── Persistent Session — 30 দিন login থাকবে ────────────────
+app.config["PERMANENT_SESSION_LIFETIME"] = _dt.timedelta(days=30)
+app.config["SESSION_COOKIE_SECURE"]      = True   # HTTPS only
+app.config["SESSION_COOKIE_HTTPONLY"]    = True   # JS access বন্ধ (XSS protection)
+app.config["SESSION_COOKIE_SAMESITE"]    = "Lax"  # CSRF protection
+
 # ── Firebase Admin Init ──────────────────────────────────────
 # সব sensitive data environment variables থেকে নেওয়া হচ্ছে
 firebase_config = {
@@ -115,11 +121,43 @@ def set_session():
         # Avatar আপডেট
         user_ref.update({"avatar": decoded.get("picture", "")})
 
+    session.permanent     = True   # 30 দিন login থাকবে
     session["uid"]        = uid
     session["user_name"]  = user_doc.get("name") if user_doc.exists else name
     session["user_email"] = email
 
     return jsonify({"success": True, "name": session["user_name"]})
+
+# ── Session check — Firebase token দিয়ে re-verify ──────────
+@app.route("/api/verify-session", methods=["POST"])
+def verify_session():
+    """Page load এ Firebase token পাঠিয়ে session refresh করা"""
+    data     = request.json or {}
+    id_token = data.get("idToken", "")
+    if not id_token:
+        # Token নেই কিন্তু session আছে → still valid
+        if "uid" in session:
+            return jsonify({"success": True, "name": session.get("user_name", "User")})
+        return jsonify({"success": False}), 401
+
+    decoded = verify_token(id_token)
+    if not decoded:
+        session.clear()
+        return jsonify({"success": False}), 401
+
+    uid   = decoded["uid"]
+    email = decoded.get("email", "")
+
+    user_ref = db.collection("users").document(uid)
+    user_doc = user_ref.get()
+    name = user_doc.to_dict().get("name", decoded.get("name", email.split("@")[0])) if user_doc.exists else decoded.get("name", email.split("@")[0])
+
+    session.permanent     = True
+    session["uid"]        = uid
+    session["user_name"]  = name
+    session["user_email"] = email
+
+    return jsonify({"success": True, "name": name})
 
 @app.route("/logout")
 def logout():
