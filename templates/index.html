@@ -8350,86 +8350,81 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       profiles:()=>{setShowSettings(false);setShowProfiles(true);},
                     };
                     const isMobile=window.innerWidth<=768;
-                    const FeatCard=({f,pinned,showCheck})=>(
-                      <div className="feat-card relative overflow-hidden transition-all" style={{
-                        borderRadius:16,
-                        border:`1.5px solid ${pinned?f.col+'60':'var(--br)'}`,
-                        background: pinned
-                          ? `linear-gradient(135deg,${f.col}18 0%,${f.col}08 100%)`
-                          : 'var(--bg3)',
-                        boxShadow: pinned ? `0 0 0 1px ${f.col}22, 0 4px 16px ${f.col}18` : '0 1px 4px rgba(0,0,0,.18)',
-                        transition:'box-shadow .18s,border-color .18s,background .18s',
-                      }}>
-                        {/* ── Main clickable area ── */}
+                    const FeatCard=({f,pinned,showCheck})=>{
+                      const [hovered,setHovered]=React.useState(false);
+                      return(
+                      <div
+                        className="feat-card relative overflow-hidden"
+                        onMouseEnter={()=>setHovered(true)}
+                        onMouseLeave={()=>setHovered(false)}
+                        style={{
+                          borderRadius:14,
+                          border:`1.5px solid ${hovered?'var(--brh)':'var(--br)'}`,
+                          background:'var(--bg3)',
+                          transition:'border-color .18s,box-shadow .18s',
+                          boxShadow: hovered?'0 4px 18px rgba(0,0,0,.22)':'none',
+                        }}
+                      >
+                        {/* ── Pinned dot indicator — top-left corner ── */}
+                        {pinned && (
+                          <span style={{
+                            position:'absolute', top:8, left:8,
+                            width:7, height:7, borderRadius:'50%',
+                            background:f.col,
+                            boxShadow:`0 0 6px ${f.col}99`,
+                            display:'block',
+                            zIndex:2,
+                          }}/>
+                        )}
+
+                        {/* ── Main button ── */}
                         <button
                           onClick={launchMap[f.id]||(() =>{})}
                           style={{
-                            width:'100%', display:'flex', flexDirection: isMobile?'column':'row',
+                            width:'100%', display:'flex',
+                            flexDirection: isMobile?'column':'row',
                             alignItems: isMobile?'flex-start':'center',
-                            gap: isMobile?6:10,
-                            padding: isMobile?'12px 12px 8px 12px':'10px 12px',
+                            gap: isMobile?8:10,
+                            padding: isMobile?'14px 12px 12px 12px':'10px 12px',
                             background:'transparent', border:'none', cursor:'pointer',
-                            transition:'background .15s',
                           }}
-                          onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,.05)'}
-                          onMouseLeave={e=>e.currentTarget.style.background='transparent'}
                         >
-                          {/* Icon */}
                           <div style={{
                             width:36, height:36, borderRadius:10, flexShrink:0,
                             display:'flex', alignItems:'center', justifyContent:'center',
-                            background:`${f.col}22`,
-                            boxShadow:`0 0 0 1px ${f.col}33`,
+                            background:`${f.col}20`,
                           }}>
-                            <i className={`fa-solid ${f.ic}`} style={{color:f.col, fontSize:15}}></i>
+                            <i className={`fa-solid ${f.ic}`} style={{color:f.col,fontSize:15}}></i>
                           </div>
-                          {/* Label */}
                           <span style={{
                             color:'var(--t1)', fontSize:12, fontWeight:600,
-                            lineHeight:1.35, textAlign:'left', flex:1,
+                            lineHeight:1.3, textAlign:'left',
                             fontFamily:"'DM Sans',sans-serif",
                           }}>{f.lbl}</span>
-                          {/* Arrow — desktop only */}
-                          {!isMobile && (
-                            <i className="fa-solid fa-arrow-up-right-from-square" style={{color:'var(--t3)',fontSize:8,opacity:.5,flexShrink:0}}></i>
-                          )}
                         </button>
 
-                        {/* ── Desktop: hover checkbox ── */}
-                        {showCheck && (!atMax || pinned) && (
+                        {/* ── Pin button — visible on hover only ── */}
+                        {showCheck && (!atMax || pinned) && (hovered||pinned) && (
                           <button
                             onClick={e=>{e.stopPropagation();if(pinned)setQuickAccessIds(p=>p.filter(x=>x!==f.id));else if(!atMax)setQuickAccessIds(p=>[...p,f.id]);else toast_('Maximum 12 features allowed','info');}}
-                            className="feat-checkbox absolute top-2 right-2 w-5 h-5 rounded flex items-center justify-center"
-                            style={{background:pinned?f.col:'transparent',border:`1.5px solid ${pinned?f.col:'rgba(255,255,255,.35)'}`,boxShadow:pinned?`0 0 6px ${f.col}66`:'none'}}
-                            title={pinned?'Remove from Quick Access':'Add to Quick Access'}
-                          >
-                            {pinned&&<i className="fa-solid fa-check text-[7px]" style={{color:'#fff'}}></i>}
-                          </button>
-                        )}
-
-                        {/* ── Mobile: corner badge ── */}
-                        {showCheck && (!atMax || pinned) && (
-                          <button
-                            onClick={e=>{e.stopPropagation();if(pinned)setQuickAccessIds(p=>p.filter(x=>x!==f.id));else if(!atMax)setQuickAccessIds(p=>[...p,f.id]);else toast_('Maximum 12 features allowed','info');}}
-                            className="feat-pin-mobile"
                             style={{
-                              position:'absolute', top:8, right:8,
+                              position:'absolute', bottom:8, right:8,
                               display:'flex', alignItems:'center', justifyContent:'center',
-                              width:28, height:28, borderRadius:8,
-                              background: pinned ? f.col : 'rgba(255,255,255,.07)',
-                              border: `1.5px solid ${pinned ? f.col : 'rgba(255,255,255,.15)'}`,
-                              boxShadow: pinned ? `0 0 10px ${f.col}55` : 'none',
-                              color: pinned ? '#fff' : 'var(--t3)',
-                              cursor:'pointer', transition:'all .18s',
-                              padding:0,
+                              width:24, height:24, borderRadius:6,
+                              background: pinned?`${f.col}30`:'rgba(255,255,255,.06)',
+                              border:`1px solid ${pinned?f.col+'60':'rgba(255,255,255,.12)'}`,
+                              color: pinned?f.col:'var(--t3)',
+                              cursor:'pointer', transition:'all .15s', padding:0,
+                              opacity: hovered?1:0,
+                              animation:'fadeIn .15s ease',
                             }}
                             title={pinned?'Unpin':'Pin'}
                           >
-                            <i className={`fa-solid ${pinned?'fa-thumbtack':'fa-plus'}`} style={{fontSize:10}}></i>
+                            <i className={`fa-solid ${pinned?'fa-thumbtack':'fa-plus'}`} style={{fontSize:9}}></i>
                           </button>
                         )}
                       </div>
-                    );
+                    );};
                     const pinnedFeatures=ALL_QUICK_FEATURES.filter(f=>quickAccessIds.includes(f.id));
                     return(
                       <>
