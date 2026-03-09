@@ -2937,7 +2937,7 @@ function FileCard({ block, onOpen, canvasMode }) {
       onMouseLeave={()=>setHov(false)}
       style={{
         borderRadius:12, marginTop:8, overflow:'hidden',
-        border:'1px solid '+hov?'rgba(99,102,241,.5)':'var(--br)',
+        border:hov?'1px solid rgba(99,102,241,.5)':'1px solid var(--br)',
         background: hov?'rgba(99,102,241,.05)':'var(--bg3)',
         transition:'all .18s',
       }}
@@ -2966,7 +2966,7 @@ function FileCard({ block, onOpen, canvasMode }) {
           {/* Copy button */}
           <button onClick={handleCopy} title="Copy code"
             style={{display:'flex',alignItems:'center',gap:4,padding:'4px 9px',borderRadius:7,
-              border:'1px solid '+copied?'rgba(16,185,129,.4)':' rgba(255,255,255,.08)',
+              border:copied?'1px solid rgba(16,185,129,.4)':'1px solid rgba(255,255,255,.08)',
               background:copied?'rgba(16,185,129,.12)':' rgba(255,255,255,.04)',
               color:copied?'#10B981':'var(--t2)',fontSize:10,fontWeight:600,cursor:'pointer',transition:'all .15s'}}>
             <i className={`fa-solid ${copied?'fa-check':'fa-copy'}`} style={{fontSize:9}}></i>
@@ -4505,7 +4505,7 @@ Reply: ${botText.slice(0,800)}`,
         {/* ── PLUS ── */}
         <div data-plus="1" style={{flexShrink:0}}>
           <button ref={plusBtnRef} onClick={openPlus}
-            style={{width:34,height:34,borderRadius:10,border:'1px solid '+showPlus?'rgba(96,165,250,.5)':'var(--br)',
+            style={{width:34,height:34,borderRadius:10,border:showPlus?'1px solid rgba(96,165,250,.5)':'1px solid var(--br)',
               background:showPlus?'rgba(96,165,250,.12)':'var(--bg3)',color:showPlus?'#60A5FA':'var(--t2)',
               display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',transition:'all .15s'}}>
             <i className={`fa-solid ${showPlus?'fa-xmark':'fa-plus'}`} style={{fontSize:13,pointerEvents:'none'}}></i>
@@ -4535,7 +4535,7 @@ Reply: ${botText.slice(0,800)}`,
         {/* ── VOICE ── */}
         <button onClick={toggleVoice} className={voiceOn?'vp':''}
           title={voiceOn?'Stop Recording':'Start Voice Input'}
-          style={{width:34,height:34,borderRadius:10,border:'1px solid '+voiceOn?'#F87171':'var(--br)',background:voiceOn?'rgba(248,113,113,.1)':'var(--bg3)',
+          style={{width:34,height:34,borderRadius:10,border:voiceOn?'1px solid #F87171':'1px solid var(--br)',background:voiceOn?'rgba(248,113,113,.1)':'var(--bg3)',
             color:voiceOn?'#F87171':'var(--t2)',display:'flex',alignItems:'center',justifyContent:'center',
             cursor:'pointer',flexShrink:0,transition:'all .2s'}}>
           {voiceOn
@@ -5131,7 +5131,7 @@ Reply: ${botText.slice(0,800)}`,
                 </div>
 
                 {/* ── Result box ── */}
-                <div style={{borderRadius:16,border:'1px solid '+randPromptResult?curCat.color+'44':'var(--br)',background:randPromptResult?curCat.color+'06':'var(--bg3)',padding:'18px',minHeight:80,display:'flex',alignItems:'center',justifyContent:'center',marginBottom:16,transition:'all .3s',position:'relative',overflow:'hidden'}}>
+                <div style={{borderRadius:16,border:randPromptResult?'1px solid '+curCat.color+'44':'1px solid var(--br)',background:randPromptResult?curCat.color+'06':'var(--bg3)',padding:'18px',minHeight:80,display:'flex',alignItems:'center',justifyContent:'center',marginBottom:16,transition:'all .3s',position:'relative',overflow:'hidden'}}>
                   {randPromptResult && <div style={{position:'absolute',inset:0,background:'radial-gradient(ellipse at 30% 50%,'+curCat.color+'08,transparent)',pointerEvents:'none'}}></div>}
                   {randPromptResult
                     ?<p style={{margin:0,fontSize:14,fontWeight:500,lineHeight:1.6,color:'var(--t1)',textAlign:'center',position:'relative'}}>{randPromptResult}</p>
@@ -5216,7 +5216,7 @@ Reply: ${botText.slice(0,800)}`,
                   {id:'plan',  ic:'fa-map',            label:'Action Plan',   color:'#F59E0B', desc:'Goal-oriented plan'},
                 ].map(m=>{
                   const on=chainMode===m.id;
-                  return <button key={m.id} onClick={()=>setChainMode(m.id)} style={{display:'flex',alignItems:'center',gap:6,padding:'8px 14px',borderRadius:'12px 12px 0 0',border:'1px solid '+on?m.color+'40':'transparent',borderBottom:'none',background:on?'var(--bg2)':'transparent',color:on?m.color:'rgba(255,255,255,.35)',fontSize:11,fontWeight:700,cursor:'pointer',transition:'all .18s',position:'relative',bottom:-1}}>
+                  return <button key={m.id} onClick={()=>setChainMode(m.id)} style={{display:'flex',alignItems:'center',gap:6,padding:'8px 14px',borderRadius:'12px 12px 0 0',border:on?'1px solid '+m.color+'40':'1px solid transparent',borderBottom:'none',background:on?'var(--bg2)':'transparent',color:on?m.color:'rgba(255,255,255,.35)',fontSize:11,fontWeight:700,cursor:'pointer',transition:'all .18s',position:'relative',bottom:-1}}>
                     <i className={`fa-solid ${m.ic}`} style={{fontSize:9}}/>{m.label}
                   </button>;
                 })}
@@ -5420,7 +5420,7 @@ Reply: ${botText.slice(0,800)}`,
                   {id:'deep',    ic:'fa-layer-group',    label:'Deep Dive',   color:'#F59E0B'},
                 ].map(m=>{
                   const on=conceptMapMode===m.id;
-                  return <button key={m.id} onClick={()=>{setConceptMapMode(m.id);setConceptData(null);}} style={{display:'flex',alignItems:'center',gap:6,padding:'8px 14px',borderRadius:'12px 12px 0 0',border:'1px solid '+on?m.color+'40':'transparent',borderBottom:'none',background:on?'var(--bg2)':'transparent',color:on?m.color:'rgba(255,255,255,.35)',fontSize:11,fontWeight:700,cursor:'pointer',transition:'all .18s',position:'relative',bottom:-1}}>
+                  return <button key={m.id} onClick={()=>{setConceptMapMode(m.id);setConceptData(null);}} style={{display:'flex',alignItems:'center',gap:6,padding:'8px 14px',borderRadius:'12px 12px 0 0',border:on?'1px solid '+m.color+'40':'1px solid transparent',borderBottom:'none',background:on?'var(--bg2)':'transparent',color:on?m.color:'rgba(255,255,255,.35)',fontSize:11,fontWeight:700,cursor:'pointer',transition:'all .18s',position:'relative',bottom:-1}}>
                     <i className={`fa-solid ${m.ic}`} style={{fontSize:9}}/>{m.label}
                   </button>;
                 })}
@@ -5599,7 +5599,7 @@ Reply: ${botText.slice(0,800)}`,
                     {id:'western',   label:'Western',    icon:'fa-horse',            color:'#D97706'},
                   ].map(g=>{
                     const on=storyConfig.genre===g.id;
-                    return <button key={g.id} onClick={()=>setStoryConfig(c=>({...c,genre:g.id}))} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:6,padding:'11px 4px',borderRadius:13,border:'1px solid '+on?g.color+'50':'var(--br)',background:on?g.color+'12':'var(--bg3)',cursor:'pointer',transition:'all .15s'}}
+                    return <button key={g.id} onClick={()=>setStoryConfig(c=>({...c,genre:g.id}))} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:6,padding:'11px 4px',borderRadius:13,border:on?'1px solid '+g.color+'50':'1px solid var(--br)',background:on?g.color+'12':'var(--bg3)',cursor:'pointer',transition:'all .15s'}}
                       onMouseEnter={e=>{if(!on){e.currentTarget.style.borderColor=g.color+'30';e.currentTarget.style.background=g.color+'07';}}}
                       onMouseLeave={e=>{if(!on){e.currentTarget.style.borderColor='var(--br)';e.currentTarget.style.background='var(--bg3)';}}} >
                       <div style={{width:32,height:32,borderRadius:11,background:on?g.color+'24':'var(--bg2)',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:on?'0 4px 14px '+g.color+'40':'none',transition:'all .15s'}}>
@@ -5618,7 +5618,7 @@ Reply: ${botText.slice(0,800)}`,
                   <div style={{display:'flex',gap:6}}>
                     {[['flash','Flash','~100w'],['short','Short','~300w'],['medium','Medium','~600w'],['long','Long','~1000w']].map(([v,l,s])=>{
                       const on=storyConfig.length===v;
-                      return <button key={v} onClick={()=>setStoryConfig(c=>({...c,length:v}))} style={{flex:1,padding:'9px 4px',borderRadius:12,border:'1px solid '+on?'rgba(245,158,11,.5)':'var(--br)',background:on?'rgba(245,158,11,.1)':'var(--bg3)',color:on?'#F59E0B':'var(--t3)',fontSize:9,fontWeight:800,cursor:'pointer',transition:'all .15s',textAlign:'center',lineHeight:1.4}}>
+                      return <button key={v} onClick={()=>setStoryConfig(c=>({...c,length:v}))} style={{flex:1,padding:'9px 4px',borderRadius:12,border:on?'1px solid rgba(245,158,11,.5)':'1px solid var(--br)',background:on?'rgba(245,158,11,.1)':'var(--bg3)',color:on?'#F59E0B':'var(--t3)',fontSize:9,fontWeight:800,cursor:'pointer',transition:'all .15s',textAlign:'center',lineHeight:1.4}}>
                         {l}<br/><span style={{fontWeight:400,fontSize:8,opacity:.65}}>{s}</span>
                       </button>;
                     })}
@@ -5629,7 +5629,7 @@ Reply: ${botText.slice(0,800)}`,
                   <div style={{display:'flex',gap:6}}>
                     {[['first','1st Person','I/me'],['third','3rd Person','he/she'],['second','2nd Person','you']].map(([v,l,s])=>{
                       const on=(storyConfig.pov||'third')===v;
-                      return <button key={v} onClick={()=>setStoryConfig(c=>({...c,pov:v}))} style={{flex:1,padding:'9px 4px',borderRadius:12,border:'1px solid '+on?'rgba(59,130,246,.5)':'var(--br)',background:on?'rgba(59,130,246,.1)':'var(--bg3)',color:on?'#60a5fa':'var(--t3)',fontSize:9,fontWeight:800,cursor:'pointer',transition:'all .15s',textAlign:'center',lineHeight:1.4}}>
+                      return <button key={v} onClick={()=>setStoryConfig(c=>({...c,pov:v}))} style={{flex:1,padding:'9px 4px',borderRadius:12,border:on?'1px solid rgba(59,130,246,.5)':'1px solid var(--br)',background:on?'rgba(59,130,246,.1)':'var(--bg3)',color:on?'#60a5fa':'var(--t3)',fontSize:9,fontWeight:800,cursor:'pointer',transition:'all .15s',textAlign:'center',lineHeight:1.4}}>
                         {l}<br/><span style={{fontWeight:400,fontSize:8,opacity:.65}}>{s}</span>
                       </button>;
                     })}
@@ -5643,7 +5643,7 @@ Reply: ${botText.slice(0,800)}`,
                 <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
                   {[['adventurous','#F59E0B'],['dark','#6B7280'],['hopeful','#10B981'],['funny','#F97316'],['mysterious','#8B5CF6'],['romantic','#EC4899'],['tense','#EF4444'],['whimsical','#06B6D4'],['nostalgic','#A78BFA'],['epic','#3B82F6']].map(([v,col])=>{
                     const on=storyConfig.mood===v;
-                    return <button key={v} onClick={()=>setStoryConfig(c=>({...c,mood:v}))} style={{padding:'6px 13px',borderRadius:99,border:'1px solid '+on?col+'55':'var(--br)',background:on?col+'14':'var(--bg3)',color:on?col:'var(--t3)',fontSize:11,fontWeight:600,cursor:'pointer',transition:'all .15s',textTransform:'capitalize'}}
+                    return <button key={v} onClick={()=>setStoryConfig(c=>({...c,mood:v}))} style={{padding:'6px 13px',borderRadius:99,border:on?'1px solid '+col+'55':'1px solid var(--br)',background:on?col+'14':'var(--bg3)',color:on?col:'var(--t3)',fontSize:11,fontWeight:600,cursor:'pointer',transition:'all .15s',textTransform:'capitalize'}}
                       onMouseEnter={e=>{if(!on){e.currentTarget.style.borderColor=col+'35';e.currentTarget.style.color=col;}}}
                       onMouseLeave={e=>{if(!on){e.currentTarget.style.borderColor='var(--br)';e.currentTarget.style.color='var(--t3)';}}} >
                       {v}
@@ -8714,7 +8714,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
               const s=sessions.find(x=>x.id===tab.sid);
               const isActive=sid===tab.sid;
               return(
-                <div key={tab.id} className="flex items-center gap-1.5 flex-shrink-0 rounded-lg transition-all cursor-pointer group" style={{padding:'4px 10px',background:isActive?'var(--bg2)':'transparent',border:'1px solid '+isActive?'var(--brh)':'transparent',marginTop:4,marginBottom:4}} onClick={()=>{setSid(tab.sid);setActiveTab(tab.id);}}>
+                <div key={tab.id} className="flex items-center gap-1.5 flex-shrink-0 rounded-lg transition-all cursor-pointer group" style={{padding:'4px 10px',background:isActive?'var(--bg2)':'transparent',border:isActive?'1px solid var(--brh)':'1px solid transparent',marginTop:4,marginBottom:4}} onClick={()=>{setSid(tab.sid);setActiveTab(tab.id);}}>
                   <i className="fa-regular fa-message text-[9px]" style={{color:isActive?'#60a5fa':'var(--t3)'}}></i>
                   <span className="text-[11px] font-medium max-w-[100px] truncate" style={{color:isActive?'var(--t1)':'var(--t3)'}}>{s?.title?.slice(0,18)||tab.label||'Chat'}</span>
                   {s?.messages?.length>0&&<span className="text-[9px] px-1 rounded" style={{background:'rgba(99,102,241,.15)',color:'#818cf8'}}>{s.messages.length}</span>}
@@ -10123,7 +10123,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                               display:'flex',alignItems:'center',justifyContent:'center',
                               width:20,height:20,borderRadius:5,padding:0,
                               background:pinned?'rgba(239,68,68,.12)':'rgba(255,255,255,.07)',
-                              border:'1px solid '+pinned?'rgba(239,68,68,.3)':'rgba(255,255,255,.12)',
+                              border:pinned?'1px solid rgba(239,68,68,.3)':'1px solid rgba(255,255,255,.12)',
                               color:pinned?'#f87171':'var(--t3)',
                               cursor:'pointer',transition:'all .15s',
                             }}>
@@ -10161,7 +10161,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                               width:20,height:20,borderRadius:50,
                               display:'flex',alignItems:'center',justifyContent:'center',
                               background:pinned?'#ef4444':'rgba(255,255,255,.1)',
-                              border:'1.5px solid '+pinned?'#ef4444':'rgba(255,255,255,.2)'+'',
+                              border:pinned?'1.5px solid #ef4444':'1.5px solid rgba(255,255,255,.2)',
                               boxShadow:pinned?'0 0 8px rgba(239,68,68,.4)':'none',
                               transition:'all .18s',
                             }}>
@@ -10179,7 +10179,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       <button onClick={()=>setFeatEditMode(v=>!v)} style={{
                         display:'flex',alignItems:'center',gap:4,
                         padding:'3px 10px',borderRadius:7,fontSize:10,fontWeight:600,
-                        border:'1px solid '+featEditMode?'rgba(239,68,68,.4)':'rgba(255,255,255,.12)',
+                        border:featEditMode?'1px solid rgba(239,68,68,.4)':'1px solid rgba(255,255,255,.12)',
                         background:featEditMode?'rgba(239,68,68,.1)':'rgba(255,255,255,.05)',
                         color:featEditMode?'#f87171':'var(--t2)',cursor:'pointer',
                       }}>
