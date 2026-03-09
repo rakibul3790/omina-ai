@@ -2223,105 +2223,160 @@ function ImageGenModal({onClose,onGenerate,history,setHistory,initialPrompt}) {
 
 /* ── TO-DO LIST MODAL ─────────────────────────────────── */
 function TodoModal({todos,setTodos,onClose}) {
-  const [input,setInput] = React.useState('');
-  const [filter,setFilter] = React.useState('all');
-  const [editId,setEditId] = React.useState(null);
-  const [editText,setEditText] = React.useState('');
-  const priorities = [{id:'high',label:'High',color:'#ef4444'},{id:'medium',label:'Medium',color:'#f59e0b'},{id:'low',label:'Low',color:'#22c55e'}];
+  const [input,setInput]         = React.useState('');
+  const [filter,setFilter]       = React.useState('all');
+  const [editId,setEditId]       = React.useState(null);
+  const [editText,setEditText]   = React.useState('');
   const [selPriority,setSelPriority] = React.useState('medium');
+  const [selCategory,setSelCategory] = React.useState('General');
+  const [showStats,setShowStats] = React.useState(false);
+  const [sortBy,setSortBy]       = React.useState('priority');
+
+  const PRIORITIES = [{id:'high',label:'High',color:'#ef4444'},{id:'medium',label:'Medium',color:'#f59e0b'},{id:'low',label:'Low',color:'#22c55e'}];
+  const CATEGORIES = ['General','Work','Study','Personal','Shopping'];
 
   const addTodo = () => {
     if(!input.trim()) return;
-    setTodos(prev=>[...prev,{id:Date.now(),text:input.trim(),done:false,priority:selPriority,createdAt:Date.now()}]);
+    setTodos(prev=>[...prev,{id:Date.now(),text:input.trim(),done:false,priority:selPriority,category:selCategory,createdAt:Date.now(),dueDate:null}]);
     setInput('');
   };
-  const toggle = id => setTodos(prev=>prev.map(t=>t.id===id?{...t,done:!t.done}:t));
-  const remove = id => setTodos(prev=>prev.filter(t=>t.id!==id));
-  const saveEdit = id => {if(editText.trim()){setTodos(prev=>prev.map(t=>t.id===id?{...t,text:editText.trim()}:t));}setEditId(null);};
-  const clearDone = () => setTodos(prev=>prev.filter(t=>!t.done));
+  const toggle   = id => setTodos(prev=>prev.map(t=>t.id===id?{...t,done:!t.done,doneAt:Date.now()}:t));
+  const remove   = id => setTodos(prev=>prev.filter(t=>t.id!==id));
+  const saveEdit = id => { if(editText.trim()) setTodos(prev=>prev.map(t=>t.id===id?{...t,text:editText.trim()}:t)); setEditId(null); };
+  const clearDone= () => setTodos(prev=>prev.filter(t=>!t.done));
+  const clearAll = () => setTodos([]);
 
-  const filtered = todos.filter(t=> filter==='all'?true: filter==='active'?!t.done: t.done);
-  const doneCount = todos.filter(t=>t.done).length;
+  const filtered = todos
+    .filter(t=> filter==='all'?true: filter==='active'?!t.done: t.done)
+    .sort((a,b)=> sortBy==='priority'?{high:0,medium:1,low:2}[a.priority]-{high:0,medium:1,low:2}[b.priority]: sortBy==='date'?b.createdAt-a.createdAt: a.text.localeCompare(b.text));
+
+  const doneCount   = todos.filter(t=>t.done).length;
+  const activeCount = todos.filter(t=>!t.done).length;
+  const pct         = todos.length ? Math.round(doneCount/todos.length*100) : 0;
+  const byCategory  = CATEGORIES.map(c=>({cat:c,count:todos.filter(t=>t.category===c).length})).filter(x=>x.count>0);
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-0 sm:p-4" style={{background:'rgba(0,0,0,.6)'}} onClick={onClose}>
-      <div className="w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl border shadow-2xl" style={{background:'var(--bg2)',borderColor:'var(--br)',maxHeight:'85vh',display:'flex',flexDirection:'column'}} onClick={e=>e.stopPropagation()}>
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b flex-shrink-0" style={{borderColor:'var(--br)'}}>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{background:'rgba(52,211,153,.15)'}}><i className="fa-solid fa-list-check text-sm" style={{color:'#34d399'}}></i></div>
-            <span className="font-bold text-sm" style={{color:'var(--t1)'}}>To-Do List</span>
-            {todos.length>0&&<span className="text-[10px] px-2 py-0.5 rounded-full font-bold" style={{background:'rgba(52,211,153,.15)',color:'#34d399'}}>{doneCount}/{todos.length}</span>}
-          </div>
-          <div className="flex items-center gap-2">
-            {doneCount>0&&<button onClick={clearDone} className="text-[11px] px-2.5 py-1 rounded-lg border transition-all" style={{borderColor:'rgba(239,68,68,.3)',color:'#f87171',background:'rgba(239,68,68,.07)'}}>Clear done</button>}
-            <button onClick={onClose} style={{color:'var(--t2)'}} className="hover:text-white w-7 h-7 flex items-center justify-center"><i className="fa-solid fa-xmark"></i></button>
-          </div>
-        </div>
-        {/* Input */}
-        <div className="px-4 pt-4 pb-3 flex-shrink-0">
-          <div className="flex gap-2 mb-2">
-            {priorities.map(p=>(
-              <button key={p.id} onClick={()=>setSelPriority(p.id)} className="flex-1 py-1.5 rounded-lg text-[11px] font-bold border transition-all" style={{borderColor:selPriority===p.id?p.color:'var(--br)',color:selPriority===p.id?p.color:'var(--t3)',background:selPriority===p.id?p.color+'18':'transparent'}}>{p.label}</button>
-            ))}
-          </div>
-          <div className="flex gap-2">
-            <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==='Enter'&&addTodo()} placeholder="Add a task..." className="flex-1 px-3 py-2.5 rounded-xl text-sm border outline-none" style={{background:'var(--bg3)',borderColor:'var(--brh)',color:'var(--t1)'}}/>
-            <button onClick={addTodo} disabled={!input.trim()} className="px-4 py-2.5 rounded-xl text-sm font-bold transition-all" style={{background:input.trim()?'#34d399':'var(--bg3)',color:input.trim()?'#000':'var(--t3)',border:'none',cursor:input.trim()?'pointer':'default'}}>Add</button>
-          </div>
-        </div>
-        {/* Filters */}
-        <div className="flex gap-1 px-4 pb-3 flex-shrink-0">
-          {['all','active','done'].map(f=>(
-            <button key={f} onClick={()=>setFilter(f)} className="px-3 py-1 rounded-lg text-[11px] font-medium capitalize transition-all" style={{background:filter===f?'var(--brh)':'transparent',color:filter===f?'var(--t1)':'var(--t3)',border:'none',cursor:'pointer'}}>{f} {f==='all'?todos.length:f==='active'?todos.filter(t=>!t.done).length:doneCount}</button>
-          ))}
-        </div>
-        {/* List */}
-        <div className="overflow-y-auto px-4 pb-4 flex-1" style={{scrollbarWidth:'thin'}}>
-          {filtered.length===0?(
-            <div className="text-center py-10" style={{color:'var(--t3)'}}>
-              <i className="fa-solid fa-check-circle text-3xl mb-3 block" style={{color:'rgba(52,211,153,.3)'}}></i>
-              <p className="text-sm">{filter==='done'?'No completed tasks':'No tasks yet!'}</p>
+    <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-0 sm:p-4" style={{background:'rgba(0,0,0,.65)',backdropFilter:'blur(6px)'}} onClick={onClose}>
+      <div className="w-full sm:max-w-lg rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col" style={{background:'var(--bg2)',border:'1px solid var(--br)',maxHeight:'90vh'}} onClick={e=>e.stopPropagation()}>
+
+        {/* ── Header ── */}
+        <div className="flex items-center justify-between px-5 pt-5 pb-4 flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{background:'rgba(52,211,153,.15)',border:'1px solid rgba(52,211,153,.2)'}}>
+              <i className="fa-solid fa-list-check" style={{color:'#34d399',fontSize:15}}></i>
             </div>
-          ):(
-            <div className="space-y-2">
-              {filtered.sort((a,b)=>{const po={high:0,medium:1,low:2};return po[a.priority]-po[b.priority];}).map(t=>{
-                const pc = priorities.find(p=>p.id===t.priority)?.color||'#94a3b8';
-                return (
-                  <div key={t.id} className="flex items-start gap-3 p-3 rounded-xl border transition-all group" style={{background:'var(--bg3)',borderColor:'var(--br)',opacity:t.done?.7:1}}>
-                    <button onClick={()=>toggle(t.id)} className="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all" style={{borderColor:t.done?'#34d399':pc,background:t.done?'#34d399':'transparent',cursor:'pointer'}}>
-                      {t.done&&<i className="fa-solid fa-check text-black" style={{fontSize:8}}></i>}
-                    </button>
-                    <div className="flex-1 min-w-0">
-                      {editId===t.id?(
-                        <input autoFocus value={editText} onChange={e=>setEditText(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')saveEdit(t.id);if(e.key==='Escape')setEditId(null);}} onBlur={()=>saveEdit(t.id)} className="w-full text-sm bg-transparent border-b outline-none" style={{color:'var(--t1)',borderColor:'var(--brh)'}}/>
-                      ):(
-                        <p className="text-sm" style={{color:'var(--t1)',textDecoration:t.done?'line-through':'none'}}>{t.text}</p>
-                      )}
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold" style={{background:pc+'18',color:pc}}>{t.priority}</span>
-                        <span className="text-[9px]" style={{color:'var(--t3)'}}>{new Date(t.createdAt).toLocaleDateString()}</span>
-                      </div>
-                    </div>
-                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button onClick={()=>{setEditId(t.id);setEditText(t.text);}} className="w-6 h-6 flex items-center justify-center rounded-lg transition-all hover:bg-white/10" style={{color:'var(--t3)',background:'none',border:'none',cursor:'pointer'}}><i className="fa-solid fa-pen text-[9px]"></i></button>
-                      <button onClick={()=>remove(t.id)} className="w-6 h-6 flex items-center justify-center rounded-lg transition-all hover:bg-red-500/20" style={{color:'var(--t3)',background:'none',border:'none',cursor:'pointer'}}><i className="fa-solid fa-trash text-[9px]"></i></button>
-                    </div>
-                  </div>
-                );
-              })}
+            <div>
+              <p className="font-bold text-sm" style={{color:'var(--t1)'}}>To-Do List</p>
+              <p className="text-[10px]" style={{color:'var(--t3)'}}>{activeCount} remaining · {pct}% done</p>
             </div>
-          )}
+          </div>
+          <div className="flex items-center gap-2">
+            <button onClick={()=>setShowStats(s=>!s)} className="w-7 h-7 flex items-center justify-center rounded-lg transition-all" style={{background:showStats?'rgba(52,211,153,.15)':'var(--bg3)',color:showStats?'#34d399':'var(--t3)',border:'1px solid var(--br)'}} title="Stats">
+              <i className="fa-solid fa-chart-pie" style={{fontSize:11}}></i>
+            </button>
+            {doneCount>0&&<button onClick={clearDone} className="text-[11px] px-2.5 py-1 rounded-lg border transition-all" style={{borderColor:'rgba(239,68,68,.25)',color:'#f87171',background:'rgba(239,68,68,.07)'}}>Clear done</button>}
+            <button onClick={onClose} className="w-7 h-7 flex items-center justify-center rounded-lg transition-all hover:bg-white/10" style={{color:'var(--t2)',border:'none',background:'transparent'}}><i className="fa-solid fa-xmark"></i></button>
+          </div>
         </div>
-        {/* Progress bar */}
+
+        {/* ── Progress bar ── */}
         {todos.length>0&&(
-          <div className="px-4 pb-4 flex-shrink-0">
-            <div className="flex justify-between text-[10px] mb-1" style={{color:'var(--t3)'}}><span>Progress</span><span>{Math.round(doneCount/todos.length*100)}%</span></div>
-            <div className="w-full h-1.5 rounded-full" style={{background:'var(--bg3)'}}>
-              <div className="h-1.5 rounded-full transition-all" style={{width:`${doneCount/todos.length*100}%`,background:'linear-gradient(90deg,#34d399,#059669)'}}></div>
+          <div className="px-5 pb-3 flex-shrink-0">
+            <div className="w-full h-1 rounded-full overflow-hidden" style={{background:'var(--bg3)'}}>
+              <div className="h-1 rounded-full transition-all duration-500" style={{width:`${pct}%`,background:'linear-gradient(90deg,#34d399,#059669)'}}></div>
             </div>
           </div>
         )}
+
+        {/* ── Stats panel ── */}
+        {showStats&&(
+          <div className="mx-5 mb-3 rounded-xl p-4 flex-shrink-0" style={{background:'var(--bg3)',border:'1px solid var(--br)'}}>
+            <div className="grid grid-cols-3 gap-3 mb-3">
+              {[['Total',todos.length,'#94a3b8'],['Active',activeCount,'#f59e0b'],['Done',doneCount,'#34d399']].map(([l,v,c])=>(
+                <div key={l} className="rounded-xl p-2.5 text-center" style={{background:'var(--bg2)'}}>
+                  <p className="text-lg font-bold" style={{color:c}}>{v}</p>
+                  <p className="text-[10px]" style={{color:'var(--t3)'}}>{l}</p>
+                </div>
+              ))}
+            </div>
+            {byCategory.length>0&&(
+              <div className="flex flex-wrap gap-1.5">
+                {byCategory.map(({cat,count})=>(
+                  <span key={cat} className="text-[10px] px-2 py-0.5 rounded-full" style={{background:'var(--bg2)',color:'var(--t2)',border:'1px solid var(--br)'}}>{cat} ({count})</span>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── Input area ── */}
+        <div className="px-5 pb-3 flex-shrink-0">
+          <div className="rounded-xl border overflow-hidden" style={{background:'var(--bg3)',borderColor:'var(--brh)'}}>
+            <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==='Enter'&&addTodo()} placeholder="Add a new task..." className="w-full px-4 py-3 text-sm bg-transparent border-none outline-none" style={{color:'var(--t1)'}}/>
+            <div className="flex items-center gap-2 px-3 pb-2.5 pt-1 border-t" style={{borderColor:'var(--br)'}}>
+              <div className="flex gap-1 flex-1">
+                {PRIORITIES.map(p=>(
+                  <button key={p.id} onClick={()=>setSelPriority(p.id)} className="px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all" style={{background:selPriority===p.id?p.color+'22':'transparent',color:selPriority===p.id?p.color:'var(--t3)',border:`1px solid ${selPriority===p.id?p.color+'44':'transparent'}`}}>{p.label}</button>
+                ))}
+              </div>
+              <select value={selCategory} onChange={e=>setSelCategory(e.target.value)} className="text-[10px] bg-transparent border-none outline-none px-1 rounded" style={{color:'var(--t3)'}}>
+                {CATEGORIES.map(c=><option key={c} value={c}>{c}</option>)}
+              </select>
+              <button onClick={addTodo} disabled={!input.trim()} className="px-3 py-1 rounded-lg text-[11px] font-bold transition-all" style={{background:input.trim()?'#34d399':'var(--br)',color:input.trim()?'#000':'var(--t3)',border:'none',cursor:input.trim()?'pointer':'default'}}>
+                <i className="fa-solid fa-plus" style={{fontSize:9}}></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Filter & Sort bar ── */}
+        <div className="flex items-center justify-between px-5 pb-3 flex-shrink-0">
+          <div className="flex gap-1">
+            {[['all','All',todos.length],['active','Active',activeCount],['done','Done',doneCount]].map(([f,l,c])=>(
+              <button key={f} onClick={()=>setFilter(f)} className="px-3 py-1 rounded-lg text-[11px] font-medium transition-all" style={{background:filter===f?'var(--brh)':'transparent',color:filter===f?'var(--t1)':'var(--t3)',border:'none',cursor:'pointer'}}>{l} <span style={{opacity:.6}}>{c}</span></button>
+            ))}
+          </div>
+          <select value={sortBy} onChange={e=>setSortBy(e.target.value)} className="text-[10px] bg-transparent border-none outline-none px-1" style={{color:'var(--t3)'}}>
+            <option value="priority">Sort: Priority</option>
+            <option value="date">Sort: Date</option>
+            <option value="alpha">Sort: A-Z</option>
+          </select>
+        </div>
+
+        {/* ── List ── */}
+        <div className="overflow-y-auto px-5 pb-5 flex-1 space-y-2" style={{scrollbarWidth:'thin'}}>
+          {filtered.length===0?(
+            <div className="text-center py-12" style={{color:'var(--t3)'}}>
+              <i className="fa-solid fa-check-circle text-4xl mb-3 block" style={{color:'rgba(52,211,153,.25)'}}></i>
+              <p className="text-sm">{filter==='done'?'No completed tasks yet':'All clear!'}</p>
+            </div>
+          ):filtered.map(t=>{
+            const pc = PRIORITIES.find(p=>p.id===t.priority)?.color||'#94a3b8';
+            return (
+              <div key={t.id} className="flex items-start gap-3 px-3 py-3 rounded-xl border group transition-all" style={{background:'var(--bg3)',borderColor:t.done?'var(--br)':'var(--br)',opacity:t.done?.65:1}}>
+                <button onClick={()=>toggle(t.id)} className="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all" style={{borderColor:t.done?'#34d399':pc,background:t.done?'#34d399':'transparent',cursor:'pointer'}}>
+                  {t.done&&<i className="fa-solid fa-check" style={{color:'#000',fontSize:7}}></i>}
+                </button>
+                <div className="flex-1 min-w-0">
+                  {editId===t.id?(
+                    <input autoFocus value={editText} onChange={e=>setEditText(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')saveEdit(t.id);if(e.key==='Escape')setEditId(null);}} onBlur={()=>saveEdit(t.id)} className="w-full text-sm bg-transparent border-b outline-none" style={{color:'var(--t1)',borderColor:'var(--brh)'}}/>
+                  ):(
+                    <p className="text-sm" style={{color:'var(--t1)',textDecoration:t.done?'line-through':'none'}}>{t.text}</p>
+                  )}
+                  <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                    <span className="text-[9px] px-1.5 py-0.5 rounded-full font-semibold" style={{background:pc+'18',color:pc}}>{t.priority}</span>
+                    {t.category&&t.category!=='General'&&<span className="text-[9px] px-1.5 py-0.5 rounded-full" style={{background:'var(--bg2)',color:'var(--t3)',border:'1px solid var(--br)'}}>{t.category}</span>}
+                    <span className="text-[9px]" style={{color:'var(--t3)'}}>{new Date(t.createdAt).toLocaleDateString()}</span>
+                  </div>
+                </div>
+                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button onClick={()=>{setEditId(t.id);setEditText(t.text);}} className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-white/10 transition-all" style={{color:'var(--t3)',border:'none',background:'none',cursor:'pointer'}}><i className="fa-solid fa-pen" style={{fontSize:9}}></i></button>
+                  <button onClick={()=>remove(t.id)} className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-red-500/20 transition-all" style={{color:'var(--t3)',border:'none',background:'none',cursor:'pointer'}}><i className="fa-solid fa-trash" style={{fontSize:9}}></i></button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
@@ -2329,67 +2384,108 @@ function TodoModal({todos,setTodos,onClose}) {
 
 /* ── STICKY NOTES MODAL ───────────────────────────────── */
 function StickyModal({notes,setNotes,onClose}) {
-  const COLORS=['#fef08a','#bbf7d0','#bfdbfe','#f5d0fe','#fed7aa','#fecaca'];
-  const addNote=()=>setNotes(prev=>[...prev,{id:Date.now(),text:'',color:COLORS[Math.floor(Math.random()*COLORS.length)],pinned:false,createdAt:Date.now()}]);
-  const update=(id,text)=>setNotes(prev=>prev.map(n=>n.id===id?{...n,text}:n));
-  const remove=(id)=>setNotes(prev=>prev.filter(n=>n.id!==id));
-  const pin=(id)=>setNotes(prev=>prev.map(n=>n.id===id?{...n,pinned:!n.pinned}:n));
-  const recolor=(id,color)=>setNotes(prev=>prev.map(n=>n.id===id?{...n,color}:n));
-  const sorted=[...notes].sort((a,b)=>b.pinned-a.pinned||b.createdAt-a.createdAt);
+  const COLORS = ['#fef08a','#bbf7d0','#bfdbfe','#f5d0fe','#fed7aa','#fecaca','#e0e7ff','#d1fae5'];
+  const [search,setSearch]   = React.useState('');
+  const [sortBy,setSortBy]   = React.useState('date');
+  const [editId,setEditId]   = React.useState(null);
+
+  const addNote  = () => setNotes(prev=>[...prev,{id:Date.now(),text:'',color:COLORS[prev.length%COLORS.length],pinned:false,createdAt:Date.now(),title:''}]);
+  const update   = (id,field,val) => setNotes(prev=>prev.map(n=>n.id===id?{...n,[field]:val}:n));
+  const remove   = id => setNotes(prev=>prev.filter(n=>n.id!==id));
+  const pin      = id => setNotes(prev=>prev.map(n=>n.id===id?{...n,pinned:!n.pinned}:n));
+  const duplicate= id => { const n=notes.find(x=>x.id===id); if(n) setNotes(prev=>[...prev,{...n,id:Date.now(),pinned:false,createdAt:Date.now()}]); };
+
+  const sorted = [...notes]
+    .filter(n=>!search||n.text.toLowerCase().includes(search.toLowerCase())||n.title?.toLowerCase().includes(search.toLowerCase()))
+    .sort((a,b)=>b.pinned-a.pinned||(sortBy==='date'?b.createdAt-a.createdAt:a.text.localeCompare(b.text)));
 
   return (
-    <div className="fixed inset-0 z-[200]" style={{background:'rgba(0,0,0,.5)',backdropFilter:'blur(4px)'}} onClick={onClose}>
-      <div className="absolute inset-4 sm:inset-8 rounded-2xl border overflow-hidden flex flex-col" style={{background:'var(--bg)',borderColor:'var(--br)'}} onClick={e=>e.stopPropagation()}>
-        {/* Header */}
+    <div className="fixed inset-0 z-[200]" style={{background:'rgba(0,0,0,.6)',backdropFilter:'blur(6px)'}} onClick={onClose}>
+      <div className="absolute inset-4 sm:inset-6 rounded-2xl flex flex-col overflow-hidden shadow-2xl" style={{background:'var(--bg)',border:'1px solid var(--br)'}} onClick={e=>e.stopPropagation()}>
+
+        {/* ── Header ── */}
         <div className="flex items-center justify-between px-5 py-4 border-b flex-shrink-0" style={{borderColor:'var(--br)'}}>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{background:'rgba(251,191,36,.15)'}}><i className="fa-solid fa-note-sticky text-sm" style={{color:'#fbbf24'}}></i></div>
-            <span className="font-bold text-sm" style={{color:'var(--t1)'}}>Sticky Notes</span>
-            <span className="text-[10px] px-2 py-0.5 rounded-full font-bold" style={{background:'rgba(251,191,36,.15)',color:'#fbbf24'}}>{notes.length} notes</span>
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{background:'rgba(251,191,36,.15)',border:'1px solid rgba(251,191,36,.2)'}}>
+              <i className="fa-solid fa-note-sticky" style={{color:'#fbbf24',fontSize:15}}></i>
+            </div>
+            <div>
+              <p className="font-bold text-sm" style={{color:'var(--t1)'}}>Sticky Notes</p>
+              <p className="text-[10px]" style={{color:'var(--t3)'}}>{notes.length} notes · {notes.filter(n=>n.pinned).length} pinned</p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 px-3 py-1.5 rounded-xl border" style={{background:'var(--bg3)',borderColor:'var(--brh)'}}>
+              <i className="fa-solid fa-magnifying-glass" style={{color:'var(--t3)',fontSize:10}}></i>
+              <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search..." className="bg-transparent border-none outline-none text-xs w-24" style={{color:'var(--t1)'}}/>
+            </div>
+            <select value={sortBy} onChange={e=>setSortBy(e.target.value)} className="text-[10px] px-2 py-1.5 rounded-xl border bg-transparent outline-none" style={{color:'var(--t2)',borderColor:'var(--br)'}}>
+              <option value="date">Newest</option>
+              <option value="alpha">A-Z</option>
+            </select>
             <button onClick={addNote} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all" style={{background:'rgba(251,191,36,.15)',color:'#fbbf24',border:'1px solid rgba(251,191,36,.3)'}}>
-              <i className="fa-solid fa-plus text-[9px]"></i>New Note
+              <i className="fa-solid fa-plus" style={{fontSize:9}}></i>New
             </button>
-            <button onClick={onClose} style={{color:'var(--t2)'}} className="hover:text-white w-7 h-7 flex items-center justify-center"><i className="fa-solid fa-xmark"></i></button>
+            <button onClick={onClose} className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/10 transition-all" style={{color:'var(--t2)',border:'none',background:'transparent'}}><i className="fa-solid fa-xmark"></i></button>
           </div>
         </div>
-        {/* Notes grid */}
-        <div className="flex-1 overflow-y-auto p-4" style={{scrollbarWidth:'thin'}}>
-          {notes.length===0?(
+
+        {/* ── Notes grid ── */}
+        <div className="flex-1 overflow-y-auto p-5" style={{scrollbarWidth:'thin'}}>
+          {sorted.length===0?(
             <div className="flex flex-col items-center justify-center h-full" style={{color:'var(--t3)'}}>
-              <i className="fa-solid fa-note-sticky text-5xl mb-4" style={{color:'rgba(251,191,36,.3)'}}></i>
-              <p className="text-sm mb-3">No sticky notes yet</p>
-              <button onClick={addNote} className="px-4 py-2 rounded-xl text-sm font-bold" style={{background:'rgba(251,191,36,.2)',color:'#fbbf24',border:'1px solid rgba(251,191,36,.3)'}}>Create first note</button>
+              <i className="fa-solid fa-note-sticky text-5xl mb-4" style={{color:'rgba(251,191,36,.25)'}}></i>
+              <p className="text-sm mb-1">{search?'No notes match your search':'No sticky notes yet'}</p>
+              {!search&&<button onClick={addNote} className="mt-3 px-4 py-2 rounded-xl text-sm font-bold transition-all" style={{background:'rgba(251,191,36,.15)',color:'#fbbf24',border:'1px solid rgba(251,191,36,.3)'}}>Create first note</button>}
             </div>
           ):(
-            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:12}}>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(190px,1fr))',gap:14}}>
               {sorted.map(n=>(
-                <div key={n.id} className="rounded-xl p-3 flex flex-col group" style={{background:n.color,minHeight:150,boxShadow:n.pinned?'0 4px 20px rgba(0,0,0,.25)':'0 2px 8px rgba(0,0,0,.15)',transform:n.pinned?'scale(1.02)':'scale(1)',transition:'all .2s'}}>
-                  {/* Note toolbar */}
-                  <div className="flex items-center justify-between mb-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div key={n.id} className="rounded-2xl flex flex-col group relative" style={{background:n.color,minHeight:160,boxShadow:n.pinned?`0 8px 30px rgba(0,0,0,.25),0 0 0 2px rgba(0,0,0,.15)`:'0 2px 10px rgba(0,0,0,.1)',transform:n.pinned?'scale(1.02)':'scale(1)',transition:'all .2s'}}>
+
+                  {/* Note top bar */}
+                  <div className="flex items-center justify-between px-3 pt-2.5 pb-1">
+                    <input
+                      value={n.title||''}
+                      onChange={e=>update(n.id,'title',e.target.value)}
+                      placeholder="Title..."
+                      className="bg-transparent border-none outline-none text-xs font-bold w-full mr-2"
+                      style={{color:'rgba(0,0,0,.55)',fontFamily:"'DM Sans',sans-serif"}}
+                    />
+                    {n.pinned&&<i className="fa-solid fa-thumbtack text-[9px] flex-shrink-0" style={{color:'rgba(0,0,0,.45)'}}></i>}
+                  </div>
+
+                  {/* Text area */}
+                  <textarea
+                    value={n.text}
+                    onChange={e=>update(n.id,'text',e.target.value)}
+                    placeholder="Write your note..."
+                    className="flex-1 bg-transparent border-none outline-none resize-none text-sm px-3 pb-2"
+                    style={{color:'#1a1a1a',fontFamily:"'DM Sans',sans-serif",lineHeight:1.65,minHeight:90}}
+                  />
+
+                  {/* Color picker + actions */}
+                  <div className="flex items-center justify-between px-3 pb-2.5 pt-1 border-t opacity-0 group-hover:opacity-100 transition-opacity" style={{borderColor:'rgba(0,0,0,.1)'}}>
                     <div className="flex gap-1">
                       {COLORS.map(c=>(
-                        <button key={c} onClick={()=>recolor(n.id,c)} className="w-4 h-4 rounded-full border transition-all" style={{background:c,borderColor:n.color===c?'rgba(0,0,0,.4)':'transparent',transform:n.color===c?'scale(1.2)':'scale(1)'}}></button>
+                        <button key={c} onClick={()=>update(n.id,'color',c)} className="w-3.5 h-3.5 rounded-full transition-all" style={{background:c,border:n.color===c?'2px solid rgba(0,0,0,.4)':'1.5px solid rgba(0,0,0,.1)',transform:n.color===c?'scale(1.25)':'scale(1)'}}></button>
                       ))}
                     </div>
                     <div className="flex gap-1">
-                      <button onClick={()=>pin(n.id)} className="w-6 h-6 flex items-center justify-center rounded-lg transition-all" style={{background:n.pinned?'rgba(0,0,0,.2)':'transparent',border:'none',cursor:'pointer'}}>
-                        <i className="fa-solid fa-thumbtack text-[10px]" style={{color:n.pinned?'#111':'rgba(0,0,0,.5)',transform:n.pinned?'rotate(0)':'rotate(45deg)'}}></i>
+                      <button onClick={()=>duplicate(n.id)} className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-black/10 transition-all" style={{border:'none',background:'transparent',cursor:'pointer'}} title="Duplicate">
+                        <i className="fa-regular fa-copy" style={{color:'rgba(0,0,0,.45)',fontSize:9}}></i>
                       </button>
-                      <button onClick={()=>remove(n.id)} className="w-6 h-6 flex items-center justify-center rounded-lg transition-all hover:bg-black/20" style={{border:'none',cursor:'pointer'}}>
-                        <i className="fa-solid fa-xmark text-[10px]" style={{color:'rgba(0,0,0,.5)'}}></i>
+                      <button onClick={()=>pin(n.id)} className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-black/10 transition-all" style={{background:'transparent',border:'none',cursor:'pointer'}} title={n.pinned?'Unpin':'Pin'}>
+                        <i className="fa-solid fa-thumbtack" style={{color:'rgba(0,0,0,.45)',fontSize:9,transform:n.pinned?'rotate(0)':'rotate(45deg)'}}></i>
+                      </button>
+                      <button onClick={()=>remove(n.id)} className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-red-400/30 transition-all" style={{border:'none',background:'transparent',cursor:'pointer'}} title="Delete">
+                        <i className="fa-solid fa-trash" style={{color:'rgba(0,0,0,.4)',fontSize:9}}></i>
                       </button>
                     </div>
                   </div>
-                  <textarea
-                    value={n.text}
-                    onChange={e=>update(n.id,e.target.value)}
-                    placeholder="Write your note..."
-                    className="flex-1 bg-transparent border-none outline-none resize-none text-sm"
-                    style={{color:'#1e1e1e',fontFamily:"'DM Sans',sans-serif",lineHeight:1.6,minHeight:100}}
-                  />
-                  <p className="text-[9px] mt-2 text-right" style={{color:'rgba(0,0,0,.4)'}}>{new Date(n.createdAt).toLocaleDateString()}{n.pinned?' · 📌':''}</p>
+
+                  {/* Date */}
+                  <p className="text-[8px] px-3 pb-2 opacity-40" style={{color:'#000'}}>{new Date(n.createdAt).toLocaleDateString()}</p>
                 </div>
               ))}
             </div>
@@ -2402,99 +2498,101 @@ function StickyModal({notes,setNotes,onClose}) {
 
 /* ── AI AGENT MODAL ───────────────────────────────────── */
 function AIAgentModal({onClose,sysPrompt,language}) {
-  const [goal,setGoal] = React.useState('');
-  const [steps,setSteps] = React.useState([]);
+  const [goal,setGoal]     = React.useState('');
+  const [steps,setSteps]   = React.useState([]);
   const [running,setRunning] = React.useState(false);
-  const [done,setDone] = React.useState(false);
+  const [done,setDone]     = React.useState(false);
   const [result,setResult] = React.useState('');
-  const logsRef = React.useRef(null);
+  const [tab,setTab]       = React.useState('run');
+  const [history,setHistory] = React.useState([]);
+  const logsRef            = React.useRef(null);
 
   const AGENT_TASKS = [
-    {label:'Research & Summarize',icon:'fa-magnifying-glass',color:'#3b82f6',desc:'Research a topic and give a structured summary'},
-    {label:'Write & Refine',icon:'fa-pen-nib',color:'#8b5cf6',desc:'Draft content then improve it automatically'},
-    {label:'Code & Debug',icon:'fa-code',color:'#10b981',desc:'Write code, test it, and fix any issues'},
-    {label:'Plan & Break Down',icon:'fa-sitemap',color:'#f59e0b',desc:'Break a complex goal into actionable steps'},
-    {label:'Analyze & Report',icon:'fa-chart-bar',color:'#ef4444',desc:'Analyze data or content and produce a report'},
+    {label:'Research & Summarize',icon:'fa-magnifying-glass',color:'#3b82f6',prompt:'Research this topic thoroughly and provide a well-structured summary with key insights: '},
+    {label:'Write & Refine',icon:'fa-pen-nib',color:'#8b5cf6',prompt:'Write high-quality content about: '},
+    {label:'Code & Debug',icon:'fa-code',color:'#10b981',prompt:'Write clean, well-commented code for: '},
+    {label:'Plan & Break Down',icon:'fa-sitemap',color:'#f59e0b',prompt:'Create a detailed action plan with milestones for: '},
+    {label:'Analyze & Report',icon:'fa-chart-bar',color:'#ef4444',prompt:'Analyze and generate a comprehensive report on: '},
+    {label:'Brainstorm Ideas',icon:'fa-lightbulb',color:'#ec4899',prompt:'Generate 10 creative and unique ideas for: '},
   ];
 
-  React.useEffect(()=>{
-    if(logsRef.current) logsRef.current.scrollTop = logsRef.current.scrollHeight;
-  },[steps]);
+  React.useEffect(()=>{ if(logsRef.current) logsRef.current.scrollTop=logsRef.current.scrollHeight; },[steps]);
 
   const runAgent = async () => {
     if(!goal.trim()||running) return;
     setRunning(true); setDone(false); setResult(''); setSteps([]);
-
-    const addStep = (text,type='thinking') => setSteps(prev=>[...prev,{id:Date.now()+Math.random(),text,type,time:new Date().toLocaleTimeString()}]);
-
-    addStep('🎯 Analyzing goal...','thinking');
-    await new Promise(r=>setTimeout(r,600));
-    addStep('📋 Planning steps to complete the task...','thinking');
+    const addStep=(text,type='thinking')=>setSteps(prev=>[...prev,{id:Date.now()+Math.random(),text,type,time:new Date().toLocaleTimeString()}]);
+    addStep('Analyzing goal...','thinking');
     await new Promise(r=>setTimeout(r,500));
-
+    addStep('Planning execution steps...','thinking');
+    await new Promise(r=>setTimeout(r,400));
     try {
-      // Step 1: Plan
-      addStep('🔍 Step 1: Breaking down the goal','step');
-      const planRes = await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-        message:`You are an AI agent. Break this goal into 3-5 concrete steps: "${goal}". Respond with a numbered list only.`,
-        system_prompt:'You are a precise AI agent. Be concise and actionable.',
-        history:[],mood:'professional'
-      })});
+      addStep('Step 1 — Breaking down the goal','step');
+      const planRes = await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:`Break this goal into 3-5 steps: "${goal}". Numbered list only.`,system_prompt:'Concise AI agent.',history:[],mood:'professional'})});
       const planData = await planRes.json();
-      addStep('✅ Plan created: '+planData.reply?.slice(0,120)+'...','result');
-      await new Promise(r=>setTimeout(r,400));
-
-      // Step 2: Execute
-      addStep('⚡ Step 2: Executing the main task','step');
-      const execRes = await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-        message:`Execute this task completely and thoroughly: "${goal}". Provide detailed, useful output.`,
-        system_prompt: sysPrompt || 'You are a highly capable AI agent. Complete tasks thoroughly.',
-        history:[{role:'assistant',content:planData.reply||''}],mood:'professional'
-      })});
+      addStep('Plan ready — '+planData.reply?.slice(0,100)+'...','result');
+      await new Promise(r=>setTimeout(r,350));
+      addStep('Step 2 — Executing the task','step');
+      const execRes = await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:`Complete this task thoroughly: "${goal}"`,system_prompt:sysPrompt||'You are a highly capable AI agent.',history:[{role:'assistant',content:planData.reply||''}],mood:'professional'})});
       const execData = await execRes.json();
-      addStep('✅ Task executed successfully','result');
-      await new Promise(r=>setTimeout(r,300));
-
-      // Step 3: Refine
-      addStep('✨ Step 3: Refining and polishing output','step');
-      await new Promise(r=>setTimeout(r,500));
-      addStep('🎉 Agent task completed!','done');
+      addStep('Step 3 — Polishing output','step');
+      await new Promise(r=>setTimeout(r,400));
+      addStep('Task completed successfully!','done');
       setResult(execData.reply||'Task completed.');
+      setHistory(prev=>[{goal,result:execData.reply,time:new Date().toLocaleString()},...prev.slice(0,9)]);
       setDone(true);
-    } catch(e) {
-      addStep('❌ Error: '+e.message,'error');
-    }
+    } catch(e) { addStep('Error: '+e.message,'error'); }
     setRunning(false);
   };
 
+  const STEP_COLORS = {thinking:'var(--t3)',step:'#60a5fa',result:'#a78bfa',done:'#34d399',error:'#f87171'};
+  const STEP_ICONS  = {thinking:'fa-circle-notch fa-spin',step:'fa-bolt',result:'fa-check',done:'fa-flag-checkered',error:'fa-xmark'};
+
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.65)',backdropFilter:'blur(4px)'}} onClick={onClose}>
-      <div className="w-full max-w-2xl rounded-2xl border shadow-2xl flex flex-col" style={{background:'var(--bg2)',borderColor:'var(--br)',maxHeight:'85vh'}} onClick={e=>e.stopPropagation()}>
-        {/* Header */}
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.7)',backdropFilter:'blur(6px)'}} onClick={onClose}>
+      <div className="w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col" style={{background:'var(--bg2)',border:'1px solid var(--br)',maxHeight:'88vh'}} onClick={e=>e.stopPropagation()}>
+
+        {/* ── Header ── */}
         <div className="flex items-center justify-between px-5 py-4 border-b flex-shrink-0" style={{borderColor:'var(--br)'}}>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{background:'rgba(167,139,250,.15)'}}>
-              <i className="fa-solid fa-robot text-sm" style={{color:'#a78bfa'}}></i>
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{background:'rgba(167,139,250,.15)',border:'1px solid rgba(167,139,250,.25)'}}>
+              <i className="fa-solid fa-microchip" style={{color:'#a78bfa',fontSize:15}}></i>
             </div>
             <div>
-              <span className="font-bold text-sm" style={{color:'var(--t1)'}}>AI Agent</span>
-              <span className="ml-2 text-[10px] px-2 py-0.5 rounded-full font-bold" style={{background:'rgba(167,139,250,.15)',color:'#a78bfa'}}>BETA</span>
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-sm" style={{color:'var(--t1)'}}>AI Agent</span>
+                <span className="text-[9px] px-2 py-0.5 rounded-full font-bold" style={{background:'rgba(167,139,250,.15)',color:'#a78bfa',border:'1px solid rgba(167,139,250,.2)'}}>BETA</span>
+              </div>
+              <p className="text-[10px]" style={{color:'var(--t3)'}}>Autonomous multi-step task executor</p>
             </div>
           </div>
-          <button onClick={onClose} style={{color:'var(--t2)'}} className="hover:text-white w-7 h-7 flex items-center justify-center"><i className="fa-solid fa-xmark"></i></button>
+          <div className="flex items-center gap-2">
+            {/* Tabs */}
+            <div className="flex rounded-xl overflow-hidden border" style={{borderColor:'var(--br)'}}>
+              {[['run','Run'],['history','History']].map(([t,l])=>(
+                <button key={t} onClick={()=>setTab(t)} className="px-3 py-1.5 text-[11px] font-semibold transition-all" style={{background:tab===t?'var(--brh)':'transparent',color:tab===t?'var(--t1)':'var(--t3)',border:'none',cursor:'pointer'}}>{l}{t==='history'&&history.length>0&&<span className="ml-1 text-[9px] px-1 py-0.5 rounded-full" style={{background:'rgba(167,139,250,.2)',color:'#a78bfa'}}>{history.length}</span>}</button>
+              ))}
+            </div>
+            <button onClick={onClose} className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/10 transition-all" style={{color:'var(--t2)',border:'none',background:'transparent'}}><i className="fa-solid fa-xmark"></i></button>
+          </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-5 space-y-4" style={{scrollbarWidth:'thin'}}>
-          {/* Quick task buttons */}
+        {tab==='run'&&(
+        <div className="flex-1 overflow-y-auto p-5 space-y-5" style={{scrollbarWidth:'thin'}}>
+
+          {/* Quick task presets */}
           {!running&&!done&&(
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-widest mb-2" style={{color:'var(--t3)'}}>Quick Tasks</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest mb-2.5" style={{color:'var(--t3)'}}>Quick Tasks</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {AGENT_TASKS.map(t=>(
-                  <button key={t.label} onClick={()=>setGoal(t.desc)} className="p-3 rounded-xl border text-left transition-all hover:scale-[1.02]" style={{borderColor:'var(--br)',background:'var(--bg3)'}}>
-                    <i className={`fa-solid ${t.icon} text-sm mb-1.5 block`} style={{color:t.color}}></i>
+                  <button key={t.label} onClick={()=>setGoal(t.prompt)} className="p-3 rounded-xl border text-left transition-all" style={{borderColor:'var(--br)',background:'var(--bg3)'}}
+                    onMouseEnter={e=>{e.currentTarget.style.borderColor=t.color+'60';e.currentTarget.style.background=t.color+'0d';}}
+                    onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--br)';e.currentTarget.style.background='var(--bg3)';}}>
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center mb-2" style={{background:t.color+'20'}}>
+                      <i className={`fa-solid ${t.icon}`} style={{color:t.color,fontSize:12}}></i>
+                    </div>
                     <p className="text-[11px] font-bold" style={{color:'var(--t1)'}}>{t.label}</p>
-                    <p className="text-[9px] mt-0.5 leading-tight" style={{color:'var(--t3)'}}>{t.desc}</p>
                   </button>
                 ))}
               </div>
@@ -2504,26 +2602,27 @@ function AIAgentModal({onClose,sysPrompt,language}) {
           {/* Goal input */}
           {!running&&!done&&(
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-widest mb-2" style={{color:'var(--t3)'}}>Your Goal</p>
-              <textarea value={goal} onChange={e=>setGoal(e.target.value)} placeholder="Describe what you want the AI agent to accomplish..." rows={3} className="w-full px-4 py-3 rounded-xl border outline-none resize-none text-sm" style={{background:'var(--bg3)',borderColor:'var(--brh)',color:'var(--t1)',fontFamily:"'DM Sans',sans-serif"}}/>
-              <button onClick={runAgent} disabled={!goal.trim()} className="mt-3 w-full py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2" style={{background:goal.trim()?'linear-gradient(135deg,#7c3aed,#a855f7)':'var(--bg3)',color:goal.trim()?'#fff':'var(--t3)',border:'none',cursor:goal.trim()?'pointer':'default'}}>
+              <p className="text-[10px] font-bold uppercase tracking-widest mb-2.5" style={{color:'var(--t3)'}}>Your Goal</p>
+              <textarea value={goal} onChange={e=>setGoal(e.target.value)} placeholder="Describe what you want the AI agent to accomplish..." rows={3} className="w-full px-4 py-3 rounded-xl border outline-none resize-none text-sm" style={{background:'var(--bg3)',borderColor:'var(--brh)',color:'var(--t1)',fontFamily:"'DM Sans',sans-serif",lineHeight:1.6}}/>
+              <button onClick={runAgent} disabled={!goal.trim()} className="mt-2.5 w-full py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2" style={{background:goal.trim()?'linear-gradient(135deg,#7c3aed,#a855f7)':'var(--bg3)',color:goal.trim()?'#fff':'var(--t3)',border:'none',cursor:goal.trim()?'pointer':'default',boxShadow:goal.trim()?'0 4px 20px rgba(139,92,246,.3)':'none'}}>
                 <i className="fa-solid fa-bolt"></i> Run Agent
               </button>
             </div>
           )}
 
-          {/* Agent logs */}
+          {/* Live logs */}
           {steps.length>0&&(
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-widest mb-2" style={{color:'var(--t3)'}}>Agent Logs</p>
-              <div ref={logsRef} className="rounded-xl border p-3 space-y-2" style={{background:'var(--bg)',borderColor:'var(--br)',maxHeight:180,overflowY:'auto',scrollbarWidth:'thin'}}>
+              <p className="text-[10px] font-bold uppercase tracking-widest mb-2.5" style={{color:'var(--t3)'}}>Agent Log</p>
+              <div ref={logsRef} className="rounded-xl border p-3 space-y-2.5" style={{background:'var(--bg)',borderColor:'var(--br)',maxHeight:200,overflowY:'auto',scrollbarWidth:'thin'}}>
                 {steps.map(s=>(
-                  <div key={s.id} className="flex items-start gap-2 text-[11px]">
-                    <span style={{color:'var(--t3)',flexShrink:0}}>{s.time}</span>
-                    <span style={{color: s.type==='error'?'#f87171':s.type==='done'?'#34d399':s.type==='result'?'#a78bfa':'var(--t2)'}}>{s.text}</span>
+                  <div key={s.id} className="flex items-start gap-2.5 text-[11px]">
+                    <i className={`fa-solid ${STEP_ICONS[s.type]} mt-0.5 flex-shrink-0`} style={{color:STEP_COLORS[s.type],fontSize:9,width:10}}></i>
+                    <span style={{color:STEP_COLORS[s.type],flex:1,lineHeight:1.5}}>{s.text}</span>
+                    <span className="flex-shrink-0" style={{color:'var(--t3)',fontSize:9}}>{s.time}</span>
                   </div>
                 ))}
-                {running&&<div className="flex items-center gap-2 text-[11px]" style={{color:'#a78bfa'}}><i className="fa-solid fa-circle-notch fa-spin text-[9px]"></i>Processing...</div>}
+                {running&&<div className="flex items-center gap-2 text-[11px]" style={{color:'#a78bfa'}}><i className="fa-solid fa-circle-notch fa-spin" style={{fontSize:9}}></i>Processing...</div>}
               </div>
             </div>
           )}
@@ -2531,19 +2630,46 @@ function AIAgentModal({onClose,sysPrompt,language}) {
           {/* Result */}
           {done&&result&&(
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-widest mb-2" style={{color:'#34d399'}}>✅ Result</p>
-              <div className="rounded-xl border p-4 text-sm" style={{background:'var(--bg3)',borderColor:'rgba(52,211,153,.2)',color:'var(--t1)',whiteSpace:'pre-wrap',lineHeight:1.7,maxHeight:250,overflowY:'auto',scrollbarWidth:'thin'}}>{result}</div>
+              <div className="flex items-center gap-2 mb-2.5">
+                <i className="fa-solid fa-flag-checkered" style={{color:'#34d399',fontSize:11}}></i>
+                <p className="text-[10px] font-bold uppercase tracking-widest" style={{color:'#34d399'}}>Result</p>
+              </div>
+              <div className="rounded-xl border p-4 text-sm leading-relaxed" style={{background:'var(--bg3)',borderColor:'rgba(52,211,153,.2)',color:'var(--t1)',whiteSpace:'pre-wrap',maxHeight:260,overflowY:'auto',scrollbarWidth:'thin'}}>{result}</div>
               <div className="flex gap-2 mt-3">
-                <button onClick={()=>navigator.clipboard.writeText(result)} className="flex-1 py-2 rounded-xl text-[11px] font-bold border transition-all" style={{borderColor:'var(--br)',color:'var(--t2)',background:'var(--bg3)'}}>
-                  <i className="fa-solid fa-copy mr-1.5"></i>Copy Result
+                <button onClick={()=>navigator.clipboard.writeText(result)} className="flex-1 py-2 rounded-xl text-[11px] font-bold border transition-all hover:bg-white/5" style={{borderColor:'var(--br)',color:'var(--t2)',background:'var(--bg3)'}}>
+                  <i className="fa-solid fa-copy mr-1.5"></i>Copy
                 </button>
-                <button onClick={()=>{setGoal('');setSteps([]);setDone(false);setResult('');}} className="flex-1 py-2 rounded-xl text-[11px] font-bold transition-all" style={{background:'rgba(167,139,250,.15)',color:'#a78bfa',border:'1px solid rgba(167,139,250,.3)'}}>
+                <button onClick={()=>{setGoal('');setSteps([]);setDone(false);setResult('');}} className="flex-1 py-2 rounded-xl text-[11px] font-bold transition-all" style={{background:'rgba(167,139,250,.12)',color:'#a78bfa',border:'1px solid rgba(167,139,250,.25)'}}>
                   <i className="fa-solid fa-rotate-right mr-1.5"></i>New Task
                 </button>
               </div>
             </div>
           )}
         </div>
+        )}
+
+        {tab==='history'&&(
+        <div className="flex-1 overflow-y-auto p-5" style={{scrollbarWidth:'thin'}}>
+          {history.length===0?(
+            <div className="text-center py-16" style={{color:'var(--t3)'}}>
+              <i className="fa-solid fa-clock-rotate-left text-4xl mb-3 block" style={{opacity:.2}}></i>
+              <p className="text-sm">No task history yet</p>
+            </div>
+          ):history.map((h,i)=>(
+            <div key={i} className="mb-3 p-4 rounded-xl border" style={{background:'var(--bg3)',borderColor:'var(--br)'}}>
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <p className="text-xs font-semibold" style={{color:'var(--t1)'}}>{h.goal}</p>
+                <span className="text-[9px] flex-shrink-0" style={{color:'var(--t3)'}}>{h.time}</span>
+              </div>
+              <p className="text-[11px] line-clamp-2" style={{color:'var(--t2)',lineHeight:1.5}}>{h.result?.slice(0,150)}...</p>
+              <button onClick={()=>{setGoal(h.goal);setTab('run');setSteps([]);setDone(false);setResult('');}} className="mt-2 text-[10px] font-semibold" style={{color:'#a78bfa',background:'none',border:'none',cursor:'pointer',padding:0}}>
+                <i className="fa-solid fa-rotate-right mr-1" style={{fontSize:8}}></i>Re-run
+              </button>
+            </div>
+          ))}
+        </div>
+        )}
+
       </div>
     </div>
   );
