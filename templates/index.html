@@ -2,8 +2,43 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Omina AI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Omina AI — Your Intelligent Assistant</title>
+
+<!-- SEO -->
+<meta name="description" content="Omina AI — a powerful AI assistant for chat, coding, creativity, and productivity. Powered by advanced language models.">
+<meta name="keywords" content="AI assistant, chatbot, Omina AI, artificial intelligence, productivity">
+<meta name="author" content="Omina AI">
+<meta name="robots" content="index, follow">
+
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Omina AI">
+<meta name="theme-color" content="#7c3aed">
+<meta name="msapplication-TileColor" content="#7c3aed">
+
+<!-- Apple Touch Icons -->
+<link rel="apple-touch-icon" sizes="152x152" href="https://ui-avatars.com/api/?name=O&size=152&background=7c3aed&color=fff&rounded=true&bold=true">
+<link rel="apple-touch-icon" sizes="180x180" href="https://ui-avatars.com/api/?name=O&size=180&background=7c3aed&color=fff&rounded=true&bold=true">
+<link rel="icon" type="image/png" sizes="32x32" href="https://ui-avatars.com/api/?name=O&size=32&background=7c3aed&color=fff&rounded=true&bold=true">
+<link rel="icon" type="image/png" sizes="16x16" href="https://ui-avatars.com/api/?name=O&size=16&background=7c3aed&color=fff&rounded=true&bold=true">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Omina AI — Your Intelligent Assistant">
+<meta property="og:description" content="Chat, create, and explore with Omina AI. Powered by advanced language models.">
+<meta property="og:image" content="https://ui-avatars.com/api/?name=Omina+AI&size=512&background=7c3aed&color=fff&rounded=true&bold=true">
+<meta property="og:url" content="https://omina-ai.onrender.com">
+<meta property="og:site_name" content="Omina AI">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Omina AI">
+<meta name="twitter:description" content="Your intelligent AI assistant for chat, coding, and creativity.">
+<meta name="twitter:image" content="https://ui-avatars.com/api/?name=Omina+AI&size=512&background=7c3aed&color=fff&rounded=true&bold=true">
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-dark.min.css">
 <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
@@ -931,15 +966,57 @@ function PricingModal({onClose,currentPlan,onSelectPlan}) {
 
   const confirmPay=async(method)=>{
     if(!payModal)return;
-    setBuying(payModal.planId);
+    const {planId,planName,price,billing}=payModal;
+    setBuying(planId);
     setPayModal(null);
-    // Real payment এ এখানে backend call যাবে
-    // এখন সফল হলে plan activate হয়
-    setTimeout(()=>{
+
+    try{
+      if(method==='bkash'){
+        // ── bKash ──────────────────────────────────
+        const res  = await fetch('/api/payment/bkash/create',{
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({amount:price, plan_id:planId}),
+        });
+        const data = await res.json();
+        if(data.success && data.bkashURL){
+          window.location.href = data.bkashURL; // redirect to bKash payment page
+        } else {
+          toast_(data.error||'bKash payment failed','error');
+          setBuying(null);
+        }
+
+      } else if(method==='nagad'){
+        // ── Nagad ──────────────────────────────────
+        const res  = await fetch('/api/payment/nagad/create',{
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({amount:price, plan_id:planId}),
+        });
+        const data = await res.json();
+        if(data.success && data.redirectURL){
+          window.location.href = data.redirectURL;
+        } else {
+          toast_(data.error||'Nagad payment failed','error');
+          setBuying(null);
+        }
+
+      } else if(method==='card'||method==='paypal'){
+        // ── Stripe (Card / PayPal) ─────────────────
+        const res  = await fetch('/api/payment/stripe/create-session',{
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({plan_id:planId, billing:billing||'m', method}),
+        });
+        const data = await res.json();
+        if(data.success && data.url){
+          window.location.href = data.url; // redirect to Stripe checkout
+        } else {
+          toast_(data.error||'Payment setup failed','error');
+          setBuying(null);
+        }
+      }
+    } catch(e){
+      toast_('Network error — please try again','error');
       setBuying(null);
-      setBought(payModal.planId);
-      setTimeout(()=>{onSelectPlan(payModal.planId);onClose();},1600);
-    },1200);
+    }
   };
   const plans=[
     {id:'free', name:'Free',    price:{m:0,y:0},   icon:'fa-robot',       grad:'linear-gradient(135deg,#1E293B,#0F172A)', border:'#334155',   badge:null,      badgeCol:'',         btnStyle:{background:'#1E293B',color:'#94A3B8',border:'1px solid #334155'},
@@ -3231,6 +3308,9 @@ function AiPromptTab({setInput, setShowPromptLib, setCustomPrompts, toast_}) {
 
 function App() {
   const [plan,setPlan]           = useState('free');
+  const [pwaInstallable,setPwaInstallable] = useState(false);
+  const [pwaInstalled,setPwaInstalled]     = useState(false);
+  const [paymentStatus,setPaymentStatus]   = useState(null); // success|failed|cancelled
   const [model,setModel]         = useState(MODELS[0]);
   const [mood,setMood]           = useState(MOODS[0]);
   const [input,setInput]         = useState('');
@@ -3759,6 +3839,45 @@ function App() {
     window.addEventListener('online',  goOnline);
     window.addEventListener('offline', goOffline);
     return()=>{ window.removeEventListener('online',goOnline); window.removeEventListener('offline',goOffline); };
+  },[]);
+
+  // ── PWA Install events ──────────────────────────────────────
+  useEffect(()=>{
+    const onInstallable = ()=>setPwaInstallable(true);
+    const onInstalled   = ()=>{ setPwaInstallable(false); setPwaInstalled(true); toast_('Omina AI installed! 🎉','success'); };
+    window.addEventListener('pwa-installable', onInstallable);
+    window.addEventListener('pwa-installed',   onInstalled);
+    // Also check if already installable
+    if(window.__ominaInstallPrompt) setPwaInstallable(true);
+    return()=>{ window.removeEventListener('pwa-installable',onInstallable); window.removeEventListener('pwa-installed',onInstalled); };
+  },[]);
+
+  // ── Payment result handler ──────────────────────────────────
+  useEffect(()=>{
+    const status = window.__ominaPaymentStatus;
+    if(!status) return;
+    window.__ominaPaymentStatus = null;
+    if(status==='success'){
+      toast_('Payment successful! 🎉 Plan activated','success');
+      setPaymentStatus('success');
+      // Verify from server
+      fetch('/api/payment/verify',{method:'POST',headers:{'Content-Type':'application/json'}})
+        .then(r=>r.json())
+        .then(d=>{ if(d.plan) setPlan(d.plan); })
+        .catch(()=>{});
+    } else if(status==='failed'){
+      toast_('Payment failed. Please try again.','error');
+    } else if(status==='cancelled'){
+      toast_('Payment cancelled','info');
+    }
+  },[]);
+
+  // ── PWA shortcuts handler ────────────────────────────────────
+  useEffect(()=>{
+    if(window.__ominaOpenFeature==='agent') setShowAIAgent(true);
+    if(window.__ominaNewChat) newChat();
+    window.__ominaOpenFeature = null;
+    window.__ominaNewChat     = null;
   },[]);
 
   // Fix: tab switch / minimize — use global flag + direct DOM to bypass React throttling
@@ -8996,6 +9115,31 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
           <span>You are offline — AI will use cached responses when available</span>
           <span className="ml-auto px-2 py-0.5 rounded-full text-[10px] font-bold" style={{background:'rgba(234,179,8,.2)'}}>{Object.keys(offlineCache).length} cached</span>
         </div>}
+
+        {/* PWA Install Banner */}
+        {pwaInstallable&&!pwaInstalled&&(
+          <div className="flex items-center gap-3 px-4 py-2.5 text-xs flex-shrink-0 z-20 relative" style={{background:'linear-gradient(135deg,rgba(99,102,241,.15),rgba(139,92,246,.1))',borderBottom:'1px solid rgba(99,102,241,.25)'}}>
+            <div className="w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0" style={{background:'linear-gradient(135deg,#6366f1,#a855f7)'}}>
+              <i className="fa-solid fa-mobile-screen text-white" style={{fontSize:11}}></i>
+            </div>
+            <div className="flex-1 min-w-0">
+              <span className="font-semibold" style={{color:'var(--t1)'}}>Install Omina AI</span>
+              <span className="ml-2" style={{color:'var(--t3)'}}>Add to home screen for faster access</span>
+            </div>
+            <button onClick={async()=>{
+              if(window.__ominaInstallPrompt){
+                window.__ominaInstallPrompt.prompt();
+                const result = await window.__ominaInstallPrompt.userChoice;
+                if(result.outcome==='accepted') setPwaInstallable(false);
+              }
+            }} className="px-3 py-1.5 rounded-xl text-xs font-bold flex-shrink-0 transition-all" style={{background:'linear-gradient(135deg,#6366f1,#a855f7)',color:'#fff',boxShadow:'0 2px 8px rgba(99,102,241,.4)'}}>
+              <i className="fa-solid fa-download mr-1.5" style={{fontSize:9}}></i>Install
+            </button>
+            <button onClick={()=>setPwaInstallable(false)} className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0" style={{color:'var(--t3)'}}>
+              <i className="fa-solid fa-xmark" style={{fontSize:10}}></i>
+            </button>
+          </div>
+        )}
         {/* TAB BAR */}
         {chatTabs.length>0&&(
           <div className="flex items-center gap-1 px-3 border-b flex-shrink-0 overflow-x-auto" style={{background:'var(--bg3)',borderColor:'var(--br)',minHeight:38}}>
@@ -10704,6 +10848,74 @@ ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
     if(l){ l.classList.add('hide'); setTimeout(()=>{l.style.display='none';},400); }
   });
 
+})();
+</script>
+<!-- ══ SERVICE WORKER + PWA INSTALL ══ -->
+<script>
+(function(){
+  // ── Service Worker Registration ──────────────────
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', ()=>{
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => {
+          console.log('[PWA] Service Worker registered:', reg.scope);
+          // Check for updates
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            newWorker.addEventListener('statechange', () => {
+              if(newWorker.state === 'installed' && navigator.serviceWorker.controller){
+                // New version available
+                if(window.__ominaPWAUpdateToast){
+                  window.__ominaPWAUpdateToast();
+                }
+              }
+            });
+          });
+        })
+        .catch(err => console.warn('[PWA] SW registration failed:', err));
+    });
+
+    // Listen for messages from SW
+    navigator.serviceWorker.addEventListener('message', event => {
+      if(event.data?.type === 'SYNC_READY'){
+        window.dispatchEvent(new CustomEvent('omina-sync-ready'));
+      }
+    });
+  }
+
+  // ── PWA Install Prompt ───────────────────────────
+  let deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    window.__ominaInstallPrompt = deferredPrompt;
+    // Signal React app that install is available
+    window.dispatchEvent(new CustomEvent('pwa-installable'));
+    console.log('[PWA] Install prompt ready');
+  });
+
+  window.addEventListener('appinstalled', () => {
+    deferredPrompt = null;
+    window.__ominaInstallPrompt = null;
+    console.log('[PWA] Omina AI installed!');
+    window.dispatchEvent(new CustomEvent('pwa-installed'));
+  });
+
+  // ── Handle query params after payment redirect ───
+  const params = new URLSearchParams(window.location.search);
+  const payStatus = params.get('payment');
+  if(payStatus){
+    window.__ominaPaymentStatus = payStatus;
+    // Clean URL
+    const cleanUrl = window.location.pathname;
+    history.replaceState({}, document.title, cleanUrl);
+  }
+
+  // ── Handle PWA shortcuts ─────────────────────────
+  const openParam = params.get('open');
+  const newParam  = params.get('new');
+  if(openParam) window.__ominaOpenFeature = openParam;
+  if(newParam)  window.__ominaNewChat = true;
 })();
 </script>
 </body>
