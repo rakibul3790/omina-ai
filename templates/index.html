@@ -2720,7 +2720,7 @@ function AIAgentModal({onClose,sysPrompt,language}) {
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.88)',backdropFilter:'blur(18px)'}} onClick={onClose}>
-      <div className="w-full max-w-2xl rounded-none sm:rounded-3xl shadow-2xl flex flex-col" style={{background:'var(--bg2)',border:'1px solid rgba(167,139,250,.22)',maxHeight:'100dvh',height:'100dvh',sm_height:'auto',boxShadow:'0 30px 80px rgba(0,0,0,.6),0 0 0 1px rgba(167,139,250,.08)'}} onClick={e=>e.stopPropagation()}>
+      <div className="w-full max-w-2xl rounded-none sm:rounded-3xl shadow-2xl flex flex-col" style={{background:'var(--bg2)',border:'1px solid rgba(167,139,250,.22)',maxHeight:'100dvh',boxShadow:'0 30px 80px rgba(0,0,0,.6),0 0 0 1px rgba(167,139,250,.08)'}} onClick={e=>e.stopPropagation()}>
 
         {/* ── Header ── */}
         <div className="px-4 sm:px-6 py-4 sm:py-5 border-b flex-shrink-0" style={{borderColor:'rgba(167,139,250,.12)',background:'linear-gradient(135deg,rgba(167,139,250,.12),rgba(139,92,246,.07),transparent)'}}>
@@ -9185,7 +9185,6 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                                 splitview:()=>{setShowProfile(false);const other=sessions.find(s=>s.id!==sid);if(other){setSplitSid(other.id);setSplitView(true);}else toast_('Need 2 chats for split view','info');},
                                 wordcloud:()=>{setShowProfile(false);setShowWordCloud(true);},
                                 modelcomp:()=>{setShowProfile(false);setShowModelComp(true);},
-                                ,
                                 dna:()=>{setShowProfile(false);setShowDNA(true);},
                                 collider:()=>{setShowProfile(false);setShowCollider(true);},
                               };
@@ -10403,7 +10402,6 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       splitview:()=>{setShowSettings(false);const other=sessions.find(s=>s.id!==sid);if(other){setSplitSid(other.id);setSplitView(true);}else toast_('Need 2 chats','info');},
                       wordcloud:()=>{setFeatFromSettings(true);setShowSettings(false);setShowWordCloud(true);},
                       modelcomp:()=>{setFeatFromSettings(true);setShowSettings(false);setShowModelComp(true);},
-                      ,
                       dna:()=>{setFeatFromSettings(true);setShowSettings(false);setShowDNA(true);},
                       collider:()=>{setFeatFromSettings(true);setShowSettings(false);setShowCollider(true);},
                     };
