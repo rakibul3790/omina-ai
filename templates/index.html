@@ -6867,80 +6867,203 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
 
 
 {/* ═══ MULTIPLE PROFILES ═══ */}
-      {showProfiles&&(
-        <div className="fixed inset-0 z-[250] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.8)',backdropFilter:'blur(10px)'}} onClick={()=>{setShowProfiles(false);if(featFromSettings){setFeatFromSettings(false);setShowSettings(true);setSettingsTab('quickaccess');}}}>
-          <div className="w-full max-w-md rounded-2xl border shadow-2xl overflow-hidden" style={{background:'var(--bg2)',borderColor:'var(--br)'}} onClick={e=>e.stopPropagation()}>
-            <div className="px-5 py-4 border-b flex items-center justify-between" style={{borderColor:'var(--br)',background:'linear-gradient(135deg,rgba(37,99,235,.08),rgba(99,102,241,.04))'}}>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{background:'linear-gradient(135deg,#2563EB,#4F46E5)',boxShadow:'0 0 18px rgba(37,99,235,.4)'}}>
-                  <i className="fa-solid fa-user-group text-white text-sm"></i>
+      {showProfiles&&(()=>{
+        const profTab = window._profTab||'profiles';
+        const setProfTab = t=>{window._profTab=t;setShowProfiles(s=>s);};
+        const activeP = allProfiles.find(p=>p.activeProfile===activeProfile)||allProfiles.find(p=>p.id===activeProfile)||allProfiles[0];
+        const BADGES=[
+          {id:'first_chat',ic:'fa-comment',lbl:'First Chat',desc:'Sent your first message',col:'#10B981',earned:true},
+          {id:'power_user',ic:'fa-bolt',lbl:'Power User',desc:'Sent 100+ messages',col:'#F59E0B',earned:false},
+          {id:'quiz_master',ic:'fa-trophy',lbl:'Quiz Master',desc:'Completed 5 quizzes',col:'#EF4444',earned:false},
+          {id:'polyglot',ic:'fa-language',lbl:'Polyglot',desc:'Used Lang Learn feature',col:'#6366F1',earned:false},
+          {id:'night_owl',ic:'fa-moon',lbl:'Night Owl',desc:'Chatted after midnight',col:'#8B5CF6',earned:false},
+          {id:'creator',ic:'fa-wand-magic-sparkles',lbl:'Creator',desc:'Generated 10+ images',col:'#EC4899',earned:false},
+        ];
+        return(
+        <div className="fixed inset-0 z-[250] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.88)',backdropFilter:'blur(18px)'}} onClick={()=>{setShowProfiles(false);if(featFromSettings){setFeatFromSettings(false);setShowSettings(true);setSettingsTab('quickaccess');}}}>
+          <div className="w-full max-w-lg rounded-3xl border shadow-2xl overflow-hidden flex flex-col" style={{background:'var(--bg2)',borderColor:'rgba(37,99,235,.2)',maxHeight:'90vh',boxShadow:'0 30px 80px rgba(0,0,0,.55),0 0 0 1px rgba(37,99,235,.08)'}} onClick={e=>e.stopPropagation()}>
+            {/* Header */}
+            <div className="px-6 py-5 border-b flex-shrink-0" style={{borderColor:'rgba(37,99,235,.12)',background:'linear-gradient(135deg,rgba(37,99,235,.12),rgba(99,102,241,.07),transparent)'}}>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl flex items-center justify-center" style={{background:'linear-gradient(145deg,#2563EB,#4F46E5)',boxShadow:'0 6px 20px rgba(37,99,235,.4),inset 0 1px 0 rgba(255,255,255,.2)'}}>
+                    <i className="fa-solid fa-user-group text-white" style={{fontSize:17}}></i>
+                  </div>
+                  <div>
+                    <p className="font-bold text-base" style={{color:'var(--t1)'}}>Profiles</p>
+                    <p className="text-[11px] mt-0.5" style={{color:'var(--t3)'}}>{allProfiles.length} profiles · Switch AI context instantly</p>
+                  </div>
                 </div>
-                <div><p className="font-bold" style={{color:'var(--t1)'}}>Profiles</p><p className="text-[11px]" style={{color:'var(--t3)'}}>Switch between different AI contexts</p></div>
+                <button onClick={()=>{setShowProfiles(false);if(featFromSettings){setFeatFromSettings(false);setShowSettings(true);setSettingsTab('quickaccess');}}} className="w-8 h-8 rounded-xl flex items-center justify-center transition-all" style={{color:'var(--t3)'}} onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,.08)';e.currentTarget.style.color='var(--t1)';}} onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='var(--t3)';}}><i className="fa-solid fa-xmark"></i></button>
               </div>
-              <button onClick={()=>setShowProfiles(false)} className="w-8 h-8 rounded-xl flex items-center justify-center" style={{color:'var(--t2)'}} onMouseEnter={e=>e.currentTarget.style.background='var(--bg3)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><i className="fa-solid fa-xmark"></i></button>
+              {/* Tabs */}
+              <div className="flex gap-1 p-1 rounded-2xl" style={{background:'rgba(0,0,0,.25)',border:'1px solid rgba(255,255,255,.05)'}}>
+                {[['profiles','fa-users','Profiles'],['stats','fa-chart-bar','Stats'],['achievements','fa-trophy','Badges'],['preferences','fa-sliders','Prefs']].map(([t,ic,lb])=>(
+                  <button key={t} onClick={e=>{e.stopPropagation();setProfTab(t);}} className="flex-1 flex items-center justify-center gap-1 py-2 rounded-xl text-[10px] font-bold transition-all" style={{background:profTab===t?'linear-gradient(135deg,rgba(37,99,235,.22),rgba(99,102,241,.12))':'transparent',color:profTab===t?'#60a5fa':'var(--t3)',border:profTab===t?'1px solid rgba(37,99,235,.3)':'1px solid transparent'}}>
+                    <i className={"fa-solid "+ic} style={{fontSize:9}}></i>{lb}
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="p-4 space-y-2.5">
-              {allProfiles.map(p=>{
-                const isActive=activeProfile===p.id;
-                return(
-                  <button key={p.id} onClick={()=>switchProfile(p)} className="w-full flex items-center gap-3 p-4 rounded-2xl border transition-all text-left" style={{background:isActive?p.color+'12':'var(--bg3)',borderColor:isActive?p.color+'55':'var(--br)'}}>
-                    <div className="w-11 h-11 rounded-xl flex items-center justify-center text-white font-bold text-base flex-shrink-0" style={{background:`linear-gradient(135deg,${p.color},${p.color}bb)`,boxShadow:isActive?`0 0 14px ${p.color}55`:'none'}}>{p.avatar}</div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className="font-bold text-sm" style={{color:isActive?p.color:'var(--t1)'}}>{p.name}</p>
-                        {isActive&&<span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold" style={{background:p.color+'20',color:p.color}}>ACTIVE</span>}
+            {/* Body */}
+            <div className="flex-1 overflow-y-auto sb p-4 space-y-3">
+
+              {/* ── PROFILES TAB ── */}
+              {profTab==='profiles'&&(<>
+                {allProfiles.map(p=>{
+                  const isActive=activeProfile===p.id;
+                  return(
+                    <button key={p.id} onClick={()=>switchProfile(p)} className="w-full flex items-center gap-3 p-4 rounded-2xl border transition-all text-left" style={{background:isActive?p.color+'14':'rgba(255,255,255,.02)',borderColor:isActive?p.color+'50':'rgba(255,255,255,.06)'}} onMouseEnter={e=>{if(!isActive){e.currentTarget.style.background='rgba(255,255,255,.05)';e.currentTarget.style.borderColor='rgba(255,255,255,.12)'}}} onMouseLeave={e=>{if(!isActive){e.currentTarget.style.background='rgba(255,255,255,.02)';e.currentTarget.style.borderColor='rgba(255,255,255,.06)'}}}>
+                      <div className="relative flex-shrink-0">
+                        <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black text-lg" style={{background:'linear-gradient(135deg,'+p.color+','+p.color+'99)',boxShadow:isActive?'0 0 18px '+p.color+'55':'0 4px 12px rgba(0,0,0,.3)'}}>{p.avatar}</div>
+                        {isActive&&<div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 flex items-center justify-center" style={{background:'#10B981',borderColor:'var(--bg2)'}}><i className="fa-solid fa-check text-white" style={{fontSize:7}}></i></div>}
                       </div>
-                      <p className="text-[11px]" style={{color:'var(--t3)'}}>{p.desc}</p>
-                      <div className="flex items-center gap-3 mt-1">
-                        {[['fa-robot','Model: '+p.model.replace('omina-','')],['fa-language','Lang: '+p.language],['fa-palette','Theme: '+p.theme]].map(([ic,txt])=>(
-                          <span key={ic} className="text-[9px] flex items-center gap-1" style={{color:'var(--t3)'}}><i className={`fa-solid ${ic} text-[8px]`}></i>{txt}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <p className="font-bold text-sm" style={{color:isActive?p.color:'var(--t1)'}}>{p.name}</p>
+                          {isActive&&<span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold" style={{background:p.color+'20',color:p.color,border:'1px solid '+p.color+'40'}}>ACTIVE</span>}
+                        </div>
+                        <p className="text-[11px] mb-1.5" style={{color:'var(--t3)'}}>{p.desc}</p>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {[['fa-robot',p.model.replace('omina-',''),p.color],['fa-language',p.language,'#10B981'],['fa-palette',p.theme,'#8B5CF6']].map(([ic,txt,cl])=>(
+                            <span key={ic} className="text-[9px] flex items-center gap-1 px-1.5 py-0.5 rounded-md" style={{background:cl+'12',color:cl}}><i className={"fa-solid "+ic} style={{fontSize:8}}></i>{txt}</span>
+                          ))}
+                        </div>
+                      </div>
+                      <i className={"fa-solid "+(isActive?'fa-circle-check':'fa-chevron-right')+" text-sm"} style={{color:isActive?p.color:'var(--t3)'}}></i>
+                    </button>
+                  );
+                })}
+                <button onClick={()=>{const name=prompt('New profile name:');if(!name)return;const colors=['#3B82F6','#8B5CF6','#10B981','#F59E0B','#EF4444','#EC4899','#06B6D4'];const np={id:'p'+Date.now(),name,avatar:name[0].toUpperCase(),color:colors[Math.floor(Math.random()*colors.length)],persona:'default',language:'auto',theme:'dark',model:'omina-basic',desc:'Custom profile'};setProfiles(prev=>[...(prev||DEFAULT_PROFILES),np]);toast_('Profile created!','success');}} className="w-full py-3 rounded-2xl text-sm border transition-all flex items-center justify-center gap-2" style={{borderColor:'rgba(37,99,235,.25)',color:'#60a5fa',background:'rgba(37,99,235,.05)'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(37,99,235,.1)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(37,99,235,.05)'}>
+                  <i className="fa-solid fa-plus text-xs"></i>New Profile
+                </button>
+              </>)}
+
+              {/* ── STATS TAB ── */}
+              {profTab==='stats'&&(
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      {ic:'fa-comments',lbl:'Total Sessions',val:sessions.length,col:'#3B82F6'},
+                      {ic:'fa-paper-plane',lbl:'Messages Sent',val:sessions.reduce((a,s)=>(a+(s.messages||[]).filter(m=>m.sender==='user').length),0),col:'#10B981'},
+                      {ic:'fa-star',lbl:'Fav Feature',val:'Chat',col:'#F59E0B'},
+                      {ic:'fa-fire',lbl:'Active Days',val:'Today',col:'#EF4444'},
+                    ].map(s=>(
+                      <div key={s.lbl} className="rounded-2xl border p-4" style={{borderColor:s.col+'25',background:s.col+'08'}}>
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{background:'linear-gradient(135deg,'+s.col+'cc,'+s.col+'88)',boxShadow:'0 3px 10px '+s.col+'40'}}>
+                            <i className={"fa-solid "+s.ic+" text-white"} style={{fontSize:13}}></i>
+                          </div>
+                          <p className="text-[10px] font-bold uppercase tracking-widest" style={{color:'var(--t3)'}}>{s.lbl}</p>
+                        </div>
+                        <p className="text-2xl font-black" style={{color:s.col}}>{s.val}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="rounded-2xl border p-4" style={{borderColor:'rgba(99,102,241,.2)',background:'rgba(99,102,241,.04)'}}>
+                    <p className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{color:'var(--t3)'}}>Active Profile</p>
+                    {(()=>{const ap=allProfiles.find(p=>p.id===activeProfile)||allProfiles[0];return ap?(
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-black" style={{background:'linear-gradient(135deg,'+ap.color+','+ap.color+'99)'}}>{ap.avatar}</div>
+                        <div><p className="font-bold text-sm" style={{color:'var(--t1)'}}>{ap.name}</p><p className="text-[11px]" style={{color:'var(--t3)'}}>{ap.desc}</p></div>
+                      </div>
+                    ):null;})()}
+                  </div>
+                </div>
+              )}
+
+              {/* ── ACHIEVEMENTS TAB ── */}
+              {profTab==='achievements'&&(
+                <div className="space-y-3">
+                  <p className="text-xs" style={{color:'var(--t3)'}}>Earn badges by using different features</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {BADGES.map(b=>(
+                      <div key={b.id} className="rounded-2xl border p-3.5 transition-all" style={{borderColor:b.earned?b.col+'35':'rgba(255,255,255,.05)',background:b.earned?b.col+'0a':'rgba(255,255,255,.02)',opacity:b.earned?1:.5}}>
+                        <div className="flex items-center gap-2.5 mb-2">
+                          <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{background:b.earned?'linear-gradient(135deg,'+b.col+'cc,'+b.col+'88)':'rgba(255,255,255,.06)',boxShadow:b.earned?'0 3px 10px '+b.col+'40':'none'}}>
+                            <i className={"fa-solid "+b.ic+" text-white"} style={{fontSize:14,opacity:b.earned?1:.4}}></i>
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-xs font-bold" style={{color:b.earned?'var(--t1)':'var(--t3)'}}>{b.lbl}</p>
+                            {b.earned&&<span className="text-[9px] font-bold" style={{color:b.col}}>EARNED ✓</span>}
+                          </div>
+                        </div>
+                        <p className="text-[10px]" style={{color:'var(--t3)'}}>{b.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="rounded-2xl border p-3 text-center" style={{borderColor:'rgba(245,158,11,.2)',background:'rgba(245,158,11,.04)'}}>
+                    <p className="text-xs font-bold" style={{color:'#F59E0B'}}>{BADGES.filter(b=>b.earned).length} / {BADGES.length} badges earned</p>
+                    <div className="w-full h-1.5 rounded-full mt-2 overflow-hidden" style={{background:'rgba(255,255,255,.06)'}}>
+                      <div className="h-full rounded-full" style={{width:(BADGES.filter(b=>b.earned).length/BADGES.length*100)+'%',background:'linear-gradient(90deg,#F59E0B,#EF4444)'}}></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ── PREFERENCES TAB ── */}
+              {profTab==='preferences'&&(
+                <div className="space-y-4">
+                  {[{lbl:'Default Language',ic:'fa-language',col:'#6366F1',opts:['auto','en','bn','ja','ko'],val:'auto'},{lbl:'Default Mood',ic:'fa-face-smile',col:'#10B981',opts:['friendly','professional','creative','funny','serious'],val:'friendly'},{lbl:'Default Theme',ic:'fa-palette',col:'#8B5CF6',opts:['dark','light','catppuccin','nord','dracula'],val:'dark'}].map(pref=>(
+                    <div key={pref.lbl} className="rounded-2xl border p-4" style={{borderColor:pref.col+'22',background:pref.col+'06'}}>
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{background:'linear-gradient(135deg,'+pref.col+'cc,'+pref.col+'88)'}}><i className={"fa-solid "+pref.ic+" text-white"} style={{fontSize:13}}></i></div>
+                        <p className="text-sm font-bold" style={{color:'var(--t1)'}}>{pref.lbl}</p>
+                      </div>
+                      <div className="flex gap-2 flex-wrap">
+                        {pref.opts.map(opt=>(
+                          <button key={opt} onClick={()=>toast_(pref.lbl+' set to '+opt,'success')} className="px-3 py-1.5 rounded-xl text-[11px] font-bold border transition-all capitalize" style={{borderColor:opt===pref.val?pref.col+'50':'rgba(255,255,255,.06)',background:opt===pref.val?pref.col+'18':'rgba(255,255,255,.03)',color:opt===pref.val?pref.col:'var(--t3)'}}>{opt}</button>
                         ))}
                       </div>
                     </div>
-                    <i className={`fa-solid ${isActive?'fa-circle-check':'fa-chevron-right'} text-sm`} style={{color:isActive?p.color:'var(--t3)'}}></i>
-                  </button>
-                );
-              })}
-              <div className="pt-2 border-t" style={{borderColor:'var(--br)'}}>
-                <button onClick={()=>{
-                  const name=prompt('New profile name:');
-                  if(!name)return;
-                  const colors=['#3B82F6','#8B5CF6','#10B981','#F59E0B','#EF4444','#EC4899','#06B6D4'];
-                  const np={id:'p'+Date.now(),name,avatar:name[0].toUpperCase(),color:colors[Math.floor(Math.random()*colors.length)],persona:'default',language:'auto',theme:'dark',model:'omina-basic',desc:'Custom profile'};
-                  setProfiles(prev=>[...(prev||DEFAULT_PROFILES),np]);
-                  toast_('Profile created!','success');
-                }} className="w-full py-2.5 rounded-xl text-sm border transition-all flex items-center justify-center gap-2" style={{borderColor:'rgba(59,130,246,.25)',color:'#60a5fa',background:'rgba(59,130,246,.05)'}}>
-                  <i className="fa-solid fa-plus text-xs"></i>New Profile
-                </button>
-              </div>
+                  ))}
+                  <div className="rounded-2xl border p-4" style={{borderColor:'rgba(239,68,68,.2)',background:'rgba(239,68,68,.04)'}}>
+                    <p className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{color:'#f87171'}}>⚠️ Danger Zone</p>
+                    <button onClick={()=>{if(confirm('Delete all custom profiles? This cannot be undone.')){setProfiles(DEFAULT_PROFILES);toast_('Profiles reset','info');}}} className="w-full py-2.5 rounded-xl text-xs font-bold border transition-all" style={{borderColor:'rgba(239,68,68,.3)',color:'#f87171',background:'transparent'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(239,68,68,.08)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                      <i className="fa-solid fa-trash mr-1.5 text-[10px]"></i>Reset All Profiles
+                    </button>
+                  </div>
+                </div>
+              )}
+
             </div>
           </div>
         </div>
-      )}
+        );
+      })()}
 
       {/* ═══ WORD CLOUD ═══ */}
       {showWordCloud&&(()=>{
-        // Only user messages — filtered by reset date
         const resetTs = wcResetDate ? new Date(wcResetDate).getTime() : 0;
         const allMsgs = sessions.flatMap(s=>
           (s.messages||[]).filter(m=>m.sender==='user' && (!resetTs || ((m.timestamp||m.ts||0)>resetTs)))
         );
         const allText = allMsgs.map(m=>m.text||'').join(' ');
         const stopwords=new Set(['the','a','an','and','or','but','in','on','at','to','for','of','with','is','are','was','were','be','been','have','has','had','do','does','did','will','would','could','should','may','might','can','i','you','he','she','it','we','they','me','him','her','us','them','my','your','his','its','our','their','this','that','these','those','what','which','who','when','where','why','how','all','each','every','some','no','not','only','so','than','too','very','just','if','then','there','here','also','about','more','like','get','dont','use','want','need','make','know','think','tell','give','take','come','see','look','let','say','good','new','first','last','long','great','little','own','right','big','high','different','small','large','next','early','young','important','few','public','bad','same','able','please','write','create','help','using','code','sure','okay','thanks','thank','yes','yeah','nope','hi','hello','hey','koro','kore','kora','korbe','hobe','thakbe','dau','dao','amr','tumi','tomar','amar','ami','apni','apnar','ekta','kono','ache','acche','hoy','hoye','theke']);
+        const wcMinFreq = window._wcMinFreq||2;
+        const wcColorTheme = window._wcColorTheme||'violet';
+        const wcShape = window._wcShape||'cloud';
+        const setWcMinFreq = v=>{window._wcMinFreq=v;setShowWordCloud(s=>s);};
+        const setWcColorTheme = v=>{window._wcColorTheme=v;setShowWordCloud(s=>s);};
+        const setWcShape = v=>{window._wcShape=v;setShowWordCloud(s=>s);};
+        const COLOR_THEMES = {
+          violet:['#6366f1','#8b5cf6','#a78bfa','#c4b5fd','#7c3aed','#4f46e5','#818cf8','#ddd6fe'],
+          ocean: ['#06B6D4','#0891b2','#38bdf8','#0284c7','#0ea5e9','#7dd3fc','#0369a1','#bae6fd'],
+          fire:  ['#EF4444','#F97316','#F59E0B','#ef4444','#dc2626','#fb923c','#fbbf24','#fca5a5'],
+          forest:['#10B981','#059669','#34d399','#6ee7b7','#065f46','#047857','#a7f3d0','#d1fae5'],
+          rose:  ['#EC4899','#db2777','#f472b6','#fbcfe8','#be185d','#f9a8d4','#9d174d','#fce7f3'],
+          mono:  ['#e2e8f0','#cbd5e1','#94a3b8','#64748b','#475569','#334155','#f1f5f9','#b0bec5'],
+        };
+        const palette = COLOR_THEMES[wcColorTheme]||COLOR_THEMES.violet;
         const words = allText.toLowerCase().replace(/[^a-z\u0980-\u09ff\s]/g,' ').split(/\s+/).filter(w=>w.length>3&&!stopwords.has(w)&&!wcIgnored.includes(w));
         const freq={};
         words.forEach(w=>{freq[w]=(freq[w]||0)+1;});
-        // Show words used MORE than 2 times (was 50 — too high, nothing showed)
-        const MIN_COUNT = 2;
         const all_sorted = Object.entries(freq).sort((a,b)=>b[1]-a[1]);
-        const sorted = all_sorted.filter(([,c])=>c>MIN_COUNT);
+        const sorted = all_sorted.filter(([,c])=>c>wcMinFreq);
         const top10 = sorted.slice(0,10);
         const maxF = sorted[0]?.[1]||1;
-        const palette=['#6366f1','#8b5cf6','#a78bfa','#38bdf8','#34d399','#fb923c','#f472b6','#facc15','#4ade80','#60a5fa'];
         const totalWords = words.length;
         const uniqueWords = Object.keys(freq).length;
-
-        // Timeline — top word per day
         const dayMap={};
         allMsgs.forEach(m=>{
           if(!m.ts&&!m.timestamp) return;
@@ -6952,57 +7075,55 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
           const top=Object.entries(wmap).sort((a,b)=>b[1]-a[1])[0];
           return {day,word:top?.[0]||'—',count:top?.[1]||0};
         });
-
-        const handleReset=()=>{
-          const now=new Date().toISOString();
-          setWcResetDate(now);
-          try{localStorage.setItem('omina_wc_reset',now);}catch{}
+        const handleReset=()=>{const now=new Date().toISOString();setWcResetDate(now);try{localStorage.setItem('omina_wc_reset',now);}catch{}};
+        const ignoreWord=w=>{const upd=[...wcIgnored,w];setWcIgnored(upd);try{localStorage.setItem('omina_wc_ignored',JSON.stringify(upd));}catch{}};
+        const unignoreWord=w=>{const upd=wcIgnored.filter(x=>x!==w);setWcIgnored(upd);try{localStorage.setItem('omina_wc_ignored',JSON.stringify(upd));}catch{}};
+        const exportCloud=()=>{
+          const data=sorted.map(([w,c])=>w+':'+c).join('\n');
+          const b=new Blob([data],{type:'text/plain'});
+          const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='wordcloud.txt';a.click();
+          toast_('Exported!','success');
         };
-        const ignoreWord=(w)=>{
-          const upd=[...wcIgnored,w];
-          setWcIgnored(upd);
-          try{localStorage.setItem('omina_wc_ignored',JSON.stringify(upd));}catch{}
+        const copyAllWords=()=>{
+          navigator.clipboard.writeText(sorted.map(([w])=>w).join(', '));
+          toast_('Copied '+sorted.length+' words!','success');
         };
-        const unignoreWord=(w)=>{
-          const upd=wcIgnored.filter(x=>x!==w);
-          setWcIgnored(upd);
-          try{localStorage.setItem('omina_wc_ignored',JSON.stringify(upd));}catch{}
-        };
-
         const tabs=[
           {id:'cloud',icon:'fa-cloud',label:'Cloud'},
           {id:'chart',icon:'fa-chart-bar',label:'Chart'},
           {id:'timeline',icon:'fa-calendar-days',label:'Timeline'},
+          {id:'settings',icon:'fa-sliders',label:'Settings'},
           {id:'ignored',icon:'fa-ban',label:'Ignored'},
         ];
-
         return(
-          <div className="fixed inset-0 z-[250] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.82)',backdropFilter:'blur(18px)'}} onClick={()=>{setShowWordCloud(false);if(featFromSettings){setFeatFromSettings(false);setShowSettings(true);setSettingsTab('quickaccess');}}}>
-            <div className="w-full max-w-2xl rounded-2xl border shadow-2xl flex flex-col overflow-hidden" style={{background:'var(--bg2)',borderColor:'rgba(255,255,255,.08)',maxHeight:'90vh'}} onClick={e=>e.stopPropagation()}>
+          <div className="fixed inset-0 z-[250] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.88)',backdropFilter:'blur(18px)'}} onClick={()=>{setShowWordCloud(false);if(featFromSettings){setFeatFromSettings(false);setShowSettings(true);setSettingsTab('quickaccess');}}}>
+            <div className="w-full max-w-2xl rounded-3xl border shadow-2xl flex flex-col overflow-hidden" style={{background:'var(--bg2)',borderColor:'rgba(99,102,241,.2)',maxHeight:'90vh',boxShadow:'0 30px 80px rgba(0,0,0,.55),0 0 0 1px rgba(99,102,241,.07)'}} onClick={e=>e.stopPropagation()}>
 
-              {/* ── Header ── */}
-              <div className="px-5 py-4 flex items-center justify-between flex-shrink-0" style={{borderBottom:'1px solid rgba(255,255,255,.07)',background:'linear-gradient(135deg,rgba(99,102,241,.1),rgba(139,92,246,.05))'}}>
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{background:'linear-gradient(135deg,#6366f1,#8b5cf6)',boxShadow:'0 0 20px rgba(99,102,241,.4)'}}>
-                    <i className="fa-solid fa-cloud text-white" style={{fontSize:13}}></i>
+              {/* Header */}
+              <div className="px-6 py-5 border-b flex-shrink-0" style={{borderColor:'rgba(99,102,241,.12)',background:'linear-gradient(135deg,rgba(99,102,241,.12),rgba(139,92,246,.07),transparent)'}}>
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-3">
+                    <div className="w-11 h-11 rounded-2xl flex items-center justify-center" style={{background:'linear-gradient(145deg,#6366f1,#8b5cf6)',boxShadow:'0 6px 20px rgba(99,102,241,.4),inset 0 1px 0 rgba(255,255,255,.2)'}}>
+                      <i className="fa-solid fa-cloud text-white" style={{fontSize:18}}></i>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className="font-bold text-base" style={{color:'var(--t1)'}}>Word Cloud</p>
+                        <span className="text-[9px] px-2 py-0.5 rounded-full font-black tracking-widest" style={{background:'rgba(99,102,241,.2)',color:'#a78bfa',border:'1px solid rgba(99,102,241,.3)'}}>LIVE</span>
+                      </div>
+                      <p className="text-[11px] mt-0.5" style={{color:'var(--t3)'}}>Visualize your most-used words · {sorted.length} qualifying</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-bold text-sm" style={{color:'var(--t1)'}}>Word Cloud</p>
-                    <p className="text-[11px]" style={{color:'var(--t3)'}}>
-                      Words used 3+ times · {sorted.length} qualifying words
-                      {wcResetDate&&<span className="ml-1.5 px-1.5 py-0.5 rounded-full text-[9px]" style={{background:'rgba(99,102,241,.15)',color:'#a78bfa'}}>Reset: {new Date(wcResetDate).toLocaleDateString()}</span>}
-                    </p>
+                  <div className="flex items-center gap-2">
+                    <button onClick={exportCloud} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold border transition-all" style={{borderColor:'rgba(99,102,241,.3)',color:'#a78bfa',background:'rgba(99,102,241,.08)'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(99,102,241,.16)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(99,102,241,.08)'}>
+                      <i className="fa-solid fa-download text-[10px]"></i>Export
+                    </button>
+                    <button onClick={()=>{setShowWordCloud(false);if(featFromSettings){setFeatFromSettings(false);setShowSettings(true);setSettingsTab('quickaccess');}}} className="w-8 h-8 rounded-xl flex items-center justify-center transition-all" style={{color:'var(--t3)'}} onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,.08)';e.currentTarget.style.color='var(--t1)';}} onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='var(--t3)';}}><i className="fa-solid fa-xmark text-sm"></i></button>
                   </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button onClick={handleReset} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-medium border transition-all" style={{borderColor:'rgba(239,68,68,.25)',color:'#f87171',background:'rgba(239,68,68,.06)'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(239,68,68,.14)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(239,68,68,.06)'} title="Reset word tracking from now">
-                    <i className="fa-solid fa-rotate-left text-[10px]"></i>Reset
-                  </button>
-                  <button onClick={()=>setShowWordCloud(false)} className="w-8 h-8 rounded-xl flex items-center justify-center transition-all" style={{color:'var(--t3)'}} onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,.08)';e.currentTarget.style.color='var(--t1)'}} onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='var(--t3)'}}><i className="fa-solid fa-xmark text-sm"></i></button>
                 </div>
               </div>
 
-              {/* ── Stats ── */}
+              {/* Stats strip */}
               <div className="grid grid-cols-4 gap-px flex-shrink-0" style={{background:'rgba(255,255,255,.04)'}}>
                 {[
                   {label:'Total Words',val:totalWords.toLocaleString(),icon:'fa-align-left',col:'#6366f1'},
@@ -7012,7 +7133,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                 ].map(s=>(
                   <div key={s.label} className="flex flex-col gap-1 px-4 py-3" style={{background:'var(--bg2)'}}>
                     <div className="flex items-center gap-1.5">
-                      <i className={`fa-solid ${s.icon} text-[9px]`} style={{color:s.col}}></i>
+                      <i className={"fa-solid "+s.icon+" text-[9px]"} style={{color:s.col}}></i>
                       <span className="text-[10px]" style={{color:'var(--t3)'}}>{s.label}</span>
                     </div>
                     <p className="text-sm font-bold truncate" style={{color:'var(--t1)'}}>{s.val}</p>
@@ -7020,117 +7141,83 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                 ))}
               </div>
 
-              {/* ── Tabs ── */}
-              <div className="flex border-b flex-shrink-0" style={{borderColor:'rgba(255,255,255,.06)'}}>
+              {/* Tabs */}
+              <div className="flex border-b flex-shrink-0 px-2" style={{borderColor:'rgba(255,255,255,.06)'}}>
                 {tabs.map(t=>(
                   <button key={t.id} onClick={()=>setWcTab(t.id)} className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[11px] font-semibold transition-all" style={{color:wcTab===t.id?'#a78bfa':'var(--t3)',borderBottom:wcTab===t.id?'2px solid #8b5cf6':'2px solid transparent',background:wcTab===t.id?'rgba(99,102,241,.06)':'transparent'}}>
-                    <i className={`fa-solid ${t.icon} text-[10px]`}></i>{t.label}
+                    <i className={"fa-solid "+t.icon+" text-[10px]"}></i>{t.label}
                     {t.id==='ignored'&&wcIgnored.length>0&&<span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold" style={{background:'rgba(239,68,68,.15)',color:'#f87171'}}>{wcIgnored.length}</span>}
                   </button>
                 ))}
               </div>
 
-              {/* ── Content ── */}
-              <div className="overflow-y-auto sb flex-1" style={{minHeight:0}}>
-                {sorted.length===0&&wcTab!=='ignored'?(
-                  <div className="flex flex-col items-center justify-center py-16 gap-3" style={{color:'var(--t3)'}}>
+              {/* Content */}
+              <div className="overflow-y-auto sb flex-1 p-5" style={{minHeight:0}}>
+                {sorted.length===0&&wcTab!=='ignored'&&wcTab!=='settings'?(
+                  <div className="flex flex-col items-center justify-center py-16 gap-3">
                     <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{background:'rgba(99,102,241,.1)'}}><i className="fa-solid fa-cloud text-2xl" style={{color:'rgba(99,102,241,.3)'}}></i></div>
-                    <p className="text-sm font-medium" style={{color:'var(--t2)'}}>No words used 50+ times yet</p>
-                    <p className="text-xs text-center px-8" style={{color:'var(--t3)'}}>Keep chatting! Words will appear here once you've used them more than 50 times.</p>
+                    <p className="text-sm font-medium" style={{color:'var(--t2)'}}>No words yet</p>
+                    <p className="text-xs text-center px-8" style={{color:'var(--t3)'}}>Keep chatting — words used {wcMinFreq+1}+ times appear here</p>
                   </div>
                 ):(
-                  <div className="p-5">
-
-                    {/* ── CLOUD TAB ── */}
+                  <div>
+                    {/* CLOUD TAB */}
                     {wcTab==='cloud'&&(
-                      <div className="rounded-2xl p-5 flex flex-wrap gap-2 justify-center items-center" style={{background:'linear-gradient(135deg,rgba(99,102,241,.06),rgba(139,92,246,.03))',border:'1px solid rgba(255,255,255,.05)',minHeight:180}}>
-                        {sorted.map(([word,count],i)=>{
-                          const ratio=count/maxF;
-                          const size=12+Math.round(ratio*26);
-                          const col=palette[i%palette.length];
-                          const weight=ratio>0.5?700:ratio>0.25?600:500;
-                          const opacity=0.5+ratio*0.5;
-                          return(
-                            <span key={word}
-                              title={`"${word}" — used ${count} times`}
-                              className="cursor-pointer inline-block select-none"
-                              style={{fontSize:size,color:col,fontWeight:weight,opacity,lineHeight:1.3,transition:'transform .15s,opacity .15s'}}
-                              onMouseEnter={e=>{e.currentTarget.style.transform='scale(1.18)';e.currentTarget.style.opacity='1';}}
-                              onMouseLeave={e=>{e.currentTarget.style.transform='scale(1)';e.currentTarget.style.opacity=String(opacity);}}
-                              onDoubleClick={()=>ignoreWord(word)}
-                            >{word}</span>
-                          );
-                        })}
-                        <p className="w-full text-center text-[10px] mt-3" style={{color:'var(--t3)'}}>Double-click a word to ignore it</p>
+                      <div>
+                        <div className="rounded-2xl p-5 flex flex-wrap gap-2 justify-center items-center mb-4" style={{background:'linear-gradient(135deg,rgba(99,102,241,.06),rgba(139,92,246,.03))',border:'1px solid rgba(255,255,255,.05)',minHeight:180}}>
+                          {sorted.slice(0,60).map(([word,count],i)=>{
+                            const ratio=count/maxF;
+                            const size=11+Math.round(ratio*30);
+                            const col=palette[i%palette.length];
+                            return(
+                              <button key={word} onClick={()=>ignoreWord(word)} title={'Used '+count+'x — click to hide'} className="transition-all hover:opacity-60 active:scale-95" style={{fontSize:size,fontWeight:300+Math.round(ratio*500),color:col,lineHeight:1.4,padding:'2px 4px',borderRadius:6,background:'transparent',border:'none',cursor:'pointer'}}>
+                                {word}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <p className="text-[10px]" style={{color:'var(--t3)'}}>Click any word to hide it · Showing top {Math.min(sorted.length,60)}</p>
+                          <button onClick={copyAllWords} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold border transition-all" style={{borderColor:'rgba(99,102,241,.25)',color:'#a78bfa',background:'rgba(99,102,241,.06)'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(99,102,241,.14)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(99,102,241,.06)'}>
+                            <i className="fa-regular fa-copy text-[10px]"></i>Copy All
+                          </button>
+                        </div>
                       </div>
                     )}
 
-                    {/* ── CHART TAB ── */}
+                    {/* CHART TAB */}
                     {wcTab==='chart'&&(
-                      <div className="space-y-2.5">
-                        <p className="text-[11px] font-bold uppercase tracking-widest mb-3 flex items-center gap-2" style={{color:'var(--t3)'}}>
-                          <i className="fa-solid fa-chart-bar text-[10px]"></i>Top Words (50+ uses)
-                        </p>
-                        {sorted.slice(0,15).map(([word,count],i)=>{
+                      <div className="space-y-2">
+                        {top10.map(([word,count],i)=>{
+                          const pct=Math.round(count/maxF*100);
                           const col=palette[i%palette.length];
-                          const pct=(count/maxF*100).toFixed(1);
                           return(
-                            <div key={word} className="flex items-center gap-3 group">
-                              <span className="text-[10px] font-mono w-5 text-right flex-shrink-0" style={{color:'var(--t3)'}}>{i+1}</span>
-                              <span className="text-xs font-semibold w-24 truncate flex-shrink-0" style={{color:col}}>{word}</span>
-                              <div className="flex-1 rounded-full overflow-hidden" style={{background:'rgba(255,255,255,.06)',height:6}}>
-                                <div className="h-full rounded-full" style={{width:pct+'%',background:`linear-gradient(90deg,${col},${palette[(i+1)%palette.length]})`,boxShadow:`0 0 8px ${col}44`,transition:'width .4s ease'}}/>
+                            <div key={word} className="flex items-center gap-3">
+                              <span className="text-[10px] font-bold w-20 text-right truncate" style={{color:'var(--t2)'}}>{word}</span>
+                              <div className="flex-1 h-7 rounded-xl overflow-hidden relative" style={{background:'rgba(255,255,255,.04)',border:'1px solid rgba(255,255,255,.05)'}}>
+                                <div className="h-full rounded-xl transition-all" style={{width:pct+'%',background:'linear-gradient(90deg,'+col+'cc,'+col+'55)',boxShadow:'0 0 10px '+col+'30'}}></div>
+                                <span className="absolute inset-0 flex items-center px-3 text-[10px] font-black" style={{color:'var(--t1)'}}>{count}x</span>
                               </div>
-                              <span className="text-[10px] font-bold w-10 text-right flex-shrink-0" style={{color:col}}>{count}x</span>
-                              <button onClick={()=>ignoreWord(word)} className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded" style={{color:'var(--t3)'}} title="Ignore word"><i className="fa-solid fa-ban text-[9px]"></i></button>
+                              <span className="text-[10px] w-8 text-right font-bold" style={{color:col}}>{pct}%</span>
                             </div>
                           );
                         })}
                       </div>
                     )}
 
-                    {/* ── TIMELINE TAB ── */}
+                    {/* TIMELINE TAB */}
                     {wcTab==='timeline'&&(
                       <div>
-                        <p className="text-[11px] font-bold uppercase tracking-widest mb-4 flex items-center gap-2" style={{color:'var(--t3)'}}>
-                          <i className="fa-solid fa-calendar-days text-[10px]"></i>Top Word Per Day (last 7 days)
-                        </p>
                         {timeline.length===0?(
-                          <p className="text-xs text-center py-8" style={{color:'var(--t3)'}}>No data yet — messages need timestamps</p>
+                          <p className="text-center py-8 text-sm" style={{color:'var(--t3)'}}>No timeline data yet</p>
                         ):(
                           <div className="space-y-3">
-                            {timeline.map(({day,word,count},i)=>{
-                              const col=palette[i%palette.length];
-                              return(
-                                <div key={day} className="flex items-center gap-4 p-3 rounded-xl" style={{background:'var(--bg3)',border:'1px solid rgba(255,255,255,.04)'}}>
-                                  <div className="text-[11px] font-bold w-16 flex-shrink-0" style={{color:'var(--t3)'}}>{day}</div>
-                                  <div className="w-1.5 h-8 rounded-full flex-shrink-0" style={{background:`linear-gradient(180deg,${col},${palette[(i+1)%palette.length]})`}}/>
-                                  <div className="flex-1">
-                                    <p className="text-sm font-bold" style={{color:col}}>{word}</p>
-                                    <p className="text-[10px]" style={{color:'var(--t3)'}}>{count} uses this day</p>
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* ── IGNORED TAB ── */}
-                    {wcTab==='ignored'&&(
-                      <div>
-                        <p className="text-[11px] font-bold uppercase tracking-widest mb-4 flex items-center gap-2" style={{color:'var(--t3)'}}>
-                          <i className="fa-solid fa-ban text-[10px]"></i>Ignored Words
-                        </p>
-                        {wcIgnored.length===0?(
-                          <p className="text-xs text-center py-8" style={{color:'var(--t3)'}}>No ignored words yet. Double-click any word in Cloud view to ignore it.</p>
-                        ):(
-                          <div className="flex flex-wrap gap-2">
-                            {wcIgnored.map(w=>(
-                              <div key={w} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border" style={{background:'rgba(239,68,68,.06)',borderColor:'rgba(239,68,68,.2)'}}>
-                                <span className="text-xs font-medium" style={{color:'#f87171'}}>{w}</span>
-                                <button onClick={()=>unignoreWord(w)} className="text-[9px] transition-all hover:text-white" style={{color:'rgba(248,113,113,.6)'}} title="Restore word"><i className="fa-solid fa-xmark"></i></button>
+                            <p className="text-xs font-bold mb-3" style={{color:'var(--t3)'}}>Top word per day (last 7 days)</p>
+                            {timeline.map((t,i)=>(
+                              <div key={t.day} className="flex items-center gap-3 p-3 rounded-2xl border" style={{borderColor:'rgba(255,255,255,.06)',background:'rgba(255,255,255,.02)'}}>
+                                <div className="w-16 flex-shrink-0 text-[10px] font-bold" style={{color:'var(--t3)'}}>{t.day}</div>
+                                <div className="flex-1 px-3 py-1.5 rounded-xl text-sm font-black" style={{background:palette[i%palette.length]+'15',color:palette[i%palette.length]}}>{t.word}</div>
+                                <span className="text-[10px] font-bold flex-shrink-0" style={{color:'var(--t3)'}}>{t.count}x</span>
                               </div>
                             ))}
                           </div>
@@ -7138,6 +7225,66 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       </div>
                     )}
 
+                    {/* SETTINGS TAB */}
+                    {wcTab==='settings'&&(
+                      <div className="space-y-5">
+                        {/* Min frequency */}
+                        <div className="rounded-2xl border p-4" style={{borderColor:'rgba(99,102,241,.2)',background:'rgba(99,102,241,.04)'}}>
+                          <div className="flex items-center justify-between mb-3">
+                            <p className="text-sm font-bold" style={{color:'var(--t1)'}}>Minimum Frequency</p>
+                            <span className="text-sm font-black px-3 py-1 rounded-xl" style={{background:'rgba(99,102,241,.2)',color:'#a78bfa'}}>{wcMinFreq+1}+</span>
+                          </div>
+                          <input type="range" min="1" max="10" value={wcMinFreq} onChange={e=>setWcMinFreq(+e.target.value)} className="w-full accent-violet-500" style={{height:4,cursor:'pointer'}}/>
+                          <div className="flex justify-between mt-1">
+                            <span className="text-[10px]" style={{color:'var(--t3)'}}>Show more words</span>
+                            <span className="text-[10px]" style={{color:'var(--t3)'}}>Only top words</span>
+                          </div>
+                        </div>
+                        {/* Color theme */}
+                        <div className="rounded-2xl border p-4" style={{borderColor:'rgba(139,92,246,.2)',background:'rgba(139,92,246,.04)'}}>
+                          <p className="text-sm font-bold mb-3" style={{color:'var(--t1)'}}>Color Theme</p>
+                          <div className="grid grid-cols-3 gap-2">
+                            {Object.entries(COLOR_THEMES).map(([name,cols])=>(
+                              <button key={name} onClick={()=>setWcColorTheme(name)} className="rounded-xl p-2.5 border transition-all" style={{borderColor:wcColorTheme===name?cols[0]+'70':'rgba(255,255,255,.06)',background:wcColorTheme===name?cols[0]+'14':'rgba(255,255,255,.02)'}}>
+                                <div className="flex gap-1 mb-1.5 justify-center">
+                                  {cols.slice(0,4).map((c,i)=><div key={i} className="w-4 h-4 rounded-full" style={{background:c}}></div>)}
+                                </div>
+                                <p className="text-[10px] font-bold capitalize" style={{color:wcColorTheme===name?cols[0]:'var(--t3)'}}>{name}</p>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        {/* Actions */}
+                        <div className="rounded-2xl border p-4" style={{borderColor:'rgba(239,68,68,.18)',background:'rgba(239,68,68,.04)'}}>
+                          <p className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{color:'#f87171'}}>Actions</p>
+                          <div className="flex gap-2">
+                            <button onClick={handleReset} className="flex-1 py-2.5 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1.5" style={{borderColor:'rgba(239,68,68,.3)',color:'#f87171',background:'transparent'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(239,68,68,.08)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                              <i className="fa-solid fa-rotate-left text-[10px]"></i>Reset Stats
+                            </button>
+                            <button onClick={exportCloud} className="flex-1 py-2.5 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1.5" style={{borderColor:'rgba(99,102,241,.3)',color:'#a78bfa',background:'transparent'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(99,102,241,.08)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                              <i className="fa-solid fa-download text-[10px]"></i>Export TXT
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* IGNORED TAB */}
+                    {wcTab==='ignored'&&(
+                      <div>
+                        {wcIgnored.length===0?(
+                          <p className="text-center py-8 text-sm" style={{color:'var(--t3)'}}>No ignored words</p>
+                        ):(
+                          <div className="flex flex-wrap gap-2">
+                            {wcIgnored.map(w=>(
+                              <button key={w} onClick={()=>unignoreWord(w)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all" style={{borderColor:'rgba(239,68,68,.25)',color:'#f87171',background:'rgba(239,68,68,.06)'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(239,68,68,.14)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(239,68,68,.06)'}>
+                                {w}<i className="fa-solid fa-rotate-left text-[9px]"></i>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -7146,88 +7293,254 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
         );
       })()}
       {/* ═══ MODEL COMPARISON ═══ */}
-      {showModelComp&&(
-        <div className="fixed inset-0 z-[250] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.85)',backdropFilter:'blur(12px)'}} onClick={()=>{setShowModelComp(false);if(featFromSettings){setFeatFromSettings(false);setShowSettings(true);setSettingsTab('quickaccess');}}}>
-          <div className="w-full max-w-4xl rounded-2xl border shadow-2xl overflow-hidden flex flex-col" style={{background:'var(--bg2)',borderColor:'var(--br)',maxHeight:'88vh'}} onClick={e=>e.stopPropagation()}>
-            <div className="px-5 py-4 border-b flex items-center justify-between flex-shrink-0" style={{borderColor:'var(--br)',background:'linear-gradient(135deg,rgba(5,150,105,.08),rgba(6,182,212,.04))'}}>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{background:'linear-gradient(135deg,#059669,#0891B2)',boxShadow:'0 0 18px rgba(5,150,105,.4)'}}>
-                  <i className="fa-solid fa-code-compare text-white text-sm"></i>
+      {showModelComp&&(()=>{
+        const mcTab = window._mcTab||'compare';
+        const setMcTab = t=>{window._mcTab=t;setShowModelComp(s=>s);};
+        const mcHistory = JSON.parse(localStorage.getItem('omina_mc_hist')||'[]');
+        const TEMPLATES = [
+          {ic:'fa-code',lbl:'Debug Code',col:'#3B82F6',prompt:'Review this code and find any bugs or improvements:\n\nfunction factorial(n) { return n * factorial(n-1); }'},
+          {ic:'fa-pen-nib',lbl:'Creative Writing',col:'#8B5CF6',prompt:'Write a short story opening about a robot who discovers emotions.'},
+          {ic:'fa-brain',lbl:'Explain Concept',col:'#10B981',prompt:'Explain quantum entanglement to a 10-year-old in 3 sentences.'},
+          {ic:'fa-list-check',lbl:'Productivity Tips',col:'#F59E0B',prompt:'Give me 5 unconventional productivity tips that actually work.'},
+          {ic:'fa-chart-line',lbl:'Business Idea',col:'#EF4444',prompt:'Evaluate this startup idea: An AI that reads your emails and auto-schedules your calendar.'},
+          {ic:'fa-globe',lbl:'Translate & Explain',col:'#06B6D4',prompt:'Translate "The early bird catches the worm" to Bengali and explain its cultural meaning.'},
+        ];
+        const calcMetrics = txt=>{
+          if(!txt) return null;
+          const words = txt.trim().split(/\s+/).length;
+          const sentences = (txt.match(/[.!?]+/g)||[]).length||1;
+          const avgWPS = Math.round(words/sentences);
+          const readability = avgWPS < 15 ? 'Easy' : avgWPS < 25 ? 'Medium' : 'Complex';
+          const tone = txt.match(/\b(please|thank|sorry|kindly)\b/i) ? 'Formal' : txt.match(/\b(cool|awesome|hey|wow)\b/i) ? 'Casual' : 'Neutral';
+          return {words, sentences, readability, tone};
+        };
+        const winners = Object.keys(compResults).length >= 2 ? (()=>{
+          const scores = MODELS.slice(0,3).map(m=>({id:m.id,name:m.name,score:(compResults[m.id]||'').length}));
+          scores.sort((a,b)=>b.score-a.score);
+          return scores[0];
+        })() : null;
+        return(
+        <div className="fixed inset-0 z-[250] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.88)',backdropFilter:'blur(18px)'}} onClick={()=>{setShowModelComp(false);if(featFromSettings){setFeatFromSettings(false);setShowSettings(true);setSettingsTab('quickaccess');}}}>
+          <div className="w-full max-w-5xl rounded-3xl border shadow-2xl overflow-hidden flex flex-col" style={{background:'var(--bg2)',borderColor:'rgba(5,150,105,.2)',maxHeight:'92vh',boxShadow:'0 30px 80px rgba(0,0,0,.55),0 0 0 1px rgba(5,150,105,.07)'}} onClick={e=>e.stopPropagation()}>
+
+            {/* Header */}
+            <div className="px-6 py-5 border-b flex-shrink-0" style={{borderColor:'rgba(5,150,105,.12)',background:'linear-gradient(135deg,rgba(5,150,105,.12),rgba(6,182,212,.07),transparent)'}}>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl flex items-center justify-center" style={{background:'linear-gradient(145deg,#059669,#0891B2)',boxShadow:'0 6px 20px rgba(5,150,105,.4),inset 0 1px 0 rgba(255,255,255,.2)'}}>
+                    <i className="fa-solid fa-code-compare text-white" style={{fontSize:17}}></i>
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="font-bold text-base" style={{color:'var(--t1)'}}>Model Comparison</p>
+                      <span className="text-[9px] px-2 py-0.5 rounded-full font-black tracking-widest" style={{background:'rgba(5,150,105,.2)',color:'#34d399',border:'1px solid rgba(5,150,105,.3)'}}>{compRunCount}/{MAX_COMP_RUNS} RUNS</span>
+                    </div>
+                    <p className="text-[11px] mt-0.5" style={{color:'var(--t3)'}}>Compare AI models side by side in real-time</p>
+                  </div>
                 </div>
-                <div><p className="font-bold" style={{color:'var(--t1)'}}>Model Comparison</p><p className="text-[11px]" style={{color:'var(--t3)'}}>Compare responses from different AI models side by side</p></div>
+                <button onClick={()=>{setShowModelComp(false);if(featFromSettings){setFeatFromSettings(false);setShowSettings(true);setSettingsTab('quickaccess');}}} className="w-8 h-8 rounded-xl flex items-center justify-center transition-all" style={{color:'var(--t3)'}} onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,.08)';e.currentTarget.style.color='var(--t1)';}} onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='var(--t3)';}}><i className="fa-solid fa-xmark"></i></button>
               </div>
-              <button onClick={()=>setShowModelComp(false)} className="w-8 h-8 rounded-xl flex items-center justify-center" style={{color:'var(--t2)'}} onMouseEnter={e=>e.currentTarget.style.background='var(--bg3)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><i className="fa-solid fa-xmark"></i></button>
-            </div>
-            <div className="p-4 border-b flex-shrink-0" style={{borderColor:'var(--br)'}}>
-              {/* Run count indicator */}
-              <div className="flex items-center justify-between mb-2.5">
-                <div className="flex items-center gap-1.5">
-                  {[...Array(MAX_COMP_RUNS)].map((_,i)=>(
-                    <div key={i} className="w-6 h-1.5 rounded-full transition-all" style={{background:i<compRunCount?'linear-gradient(90deg,#059669,#0891B2)':'var(--bg3)',border:'1px solid',borderColor:i<compRunCount?'transparent':'var(--br)'}}/>
-                  ))}
-                  <span className="text-[10px] ml-1 font-medium" style={{color:compRunCount>=MAX_COMP_RUNS?'#f87171':'var(--t3)'}}>{compRunCount}/{MAX_COMP_RUNS} runs used</span>
-                </div>
-                {compRunCount>=MAX_COMP_RUNS&&(
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{background:'rgba(239,68,68,.12)',color:'#f87171',border:'1px solid rgba(239,68,68,.2)'}}>Limit reached</span>
-                )}
-              </div>
-              <div className="flex gap-2">
-                <input value={compPrompt} onChange={e=>setCompPrompt(e.target.value)} onKeyDown={e=>e.key==='Enter'&&!e.shiftKey&&!Object.values(compLoading).some(Boolean)&&compRunCount<MAX_COMP_RUNS&&runModelComp(compPrompt)} placeholder="Enter a prompt to compare across all models..." className="flex-1 px-4 py-3 rounded-xl text-sm outline-none border transition-all" style={{background:'var(--bg3)',borderColor:'var(--br)',color:'var(--t1)'}} disabled={compRunCount>=MAX_COMP_RUNS}/>
-                {Object.values(compLoading).some(Boolean)?(
-                  <button onClick={stopModelComp} className="px-5 py-3 rounded-xl text-sm font-bold text-white transition-all flex items-center gap-2" style={{background:'linear-gradient(135deg,#dc2626,#b91c1c)',minWidth:90,boxShadow:'0 0 16px rgba(220,38,38,.35)'}}>
-                    <i className="fa-solid fa-stop text-xs"></i>Stop
+              {/* Tabs */}
+              <div className="flex gap-1 p-1 rounded-2xl" style={{background:'rgba(0,0,0,.25)',border:'1px solid rgba(255,255,255,.05)'}}>
+                {[['compare','fa-code-compare','Compare'],['templates','fa-wand-magic-sparkles','Templates'],['history','fa-clock-rotate-left','History'],['metrics','fa-chart-bar','Metrics']].map(([t,ic,lb])=>(
+                  <button key={t} onClick={()=>setMcTab(t)} className="flex-1 flex items-center justify-center gap-1 py-2 rounded-xl text-[10px] font-bold transition-all" style={{background:mcTab===t?'linear-gradient(135deg,rgba(5,150,105,.22),rgba(6,182,212,.12))':'transparent',color:mcTab===t?'#34d399':'var(--t3)',border:mcTab===t?'1px solid rgba(5,150,105,.3)':'1px solid transparent'}}>
+                    <i className={"fa-solid "+ic} style={{fontSize:9}}></i>{lb}
                   </button>
-                ):(
-                  <button onClick={()=>runModelComp(compPrompt)} disabled={!compPrompt.trim()||compRunCount>=MAX_COMP_RUNS} className="px-5 py-3 rounded-xl text-sm font-bold text-white disabled:opacity-40 transition-all flex items-center gap-2" style={{background:'linear-gradient(135deg,#059669,#0891B2)',minWidth:90}}>
-                    <i className="fa-solid fa-play text-xs"></i>Run
-                  </button>
-                )}
-              </div>
-              {compStopped&&<p className="text-[11px] mt-2 flex items-center gap-1.5" style={{color:'#fb923c'}}><i className="fa-solid fa-circle-stop text-[10px]"></i>Stopped — this run was not counted.</p>}
-              <div className="flex gap-2 mt-2 flex-wrap">
-                {['What is machine learning?','Write a haiku about coding','Explain recursion simply','5 productivity tips'].map(s=>(
-                  <button key={s} onClick={()=>setCompPrompt(s)} disabled={compRunCount>=MAX_COMP_RUNS} className="text-[10px] px-2.5 py-1 rounded-lg border transition-all disabled:opacity-30" style={{borderColor:'var(--br)',color:'var(--t3)',background:'var(--bg3)'}} onMouseEnter={e=>e.currentTarget.style.borderColor='rgba(5,150,105,.4)'} onMouseLeave={e=>e.currentTarget.style.borderColor='var(--br)'}>{s}</button>
                 ))}
               </div>
             </div>
-            <div className="flex-1 overflow-y-auto sb p-4">
-              {Object.keys(compResults).length===0&&!Object.values(compLoading).some(Boolean)&&(
-                <div className="text-center py-16" style={{color:'var(--t3)'}}>
-                  <div className="text-5xl mb-4">🧪</div>
-                  <p className="text-sm font-medium" style={{color:'var(--t2)'}}>Enter a prompt above to compare models</p>
-                  <p className="text-xs mt-1">All models will respond to the same prompt simultaneously</p>
-                </div>
-              )}
-              {(Object.keys(compResults).length>0||Object.values(compLoading).some(Boolean))&&(
-                <div className="grid gap-3" style={{gridTemplateColumns:`repeat(${Math.min(MODELS.length,3)},1fr)`}}>
-                  {MODELS.slice(0,3).map(m=>{
-                    const loading=compLoading[m.id];const result=compResults[m.id];
-                    return(
-                      <div key={m.id} className="rounded-2xl border overflow-hidden" style={{borderColor:'var(--br)',background:'var(--bg3)'}}>
-                        <div className="px-3 py-2.5 border-b flex items-center gap-2" style={{borderColor:'var(--br)',background:'var(--bg)'}}>
-                          <i className={`fa-solid ${m.icon} text-xs ${m.color}`}></i>
-                          <span className="text-xs font-bold flex-1" style={{color:'var(--t1)'}}>{m.name}</span>
-                          {loading&&<i className="fa-solid fa-spinner fa-spin text-xs" style={{color:'var(--t3)'}}></i>}
-                          {result&&!loading&&<i className="fa-solid fa-check text-[10px] text-emerald-400"></i>}
-                        </div>
-                        <div className="p-3 text-xs leading-relaxed" style={{color:'var(--t2)',minHeight:120}}>
-                          {loading&&<div className="space-y-2">{[80,60,90,50].map((w,i)=><div key={i} className="h-2 rounded-full animate-pulse" style={{width:w+'%',background:'var(--bg2)'}}/>)}</div>}
-                          {result&&!loading&&<div dangerouslySetInnerHTML={{__html:result.replace(/\n/g,'<br/>')}}/>}
-                          {!result&&!loading&&<span style={{color:'var(--t3)'}}>Waiting...</span>}
-                        </div>
-                        {result&&<div className="px-3 py-2 border-t flex items-center justify-between" style={{borderColor:'var(--br)'}}>
-                          <span className="text-[9px]" style={{color:'var(--t3)'}}>{result.split(/\s+/).length} words</span>
-                          <button onClick={()=>{navigator.clipboard.writeText(result);toast_('Copied!','success');}} className="text-[9px] px-2 py-0.5 rounded border" style={{borderColor:'var(--br)',color:'var(--t3)'}}><i className="fa-regular fa-copy mr-1"></i>Copy</button>
-                        </div>}
+
+            {/* Body */}
+            <div className="flex-1 overflow-y-auto sb" style={{minHeight:0}}>
+
+              {/* COMPARE TAB */}
+              {mcTab==='compare'&&(
+                <div className="flex flex-col h-full">
+                  {/* Prompt input */}
+                  <div className="p-4 border-b flex-shrink-0" style={{borderColor:'rgba(255,255,255,.06)'}}>
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="flex gap-1">
+                        {[...Array(MAX_COMP_RUNS)].map((_,i)=>(
+                          <div key={i} className="w-6 h-1.5 rounded-full transition-all" style={{background:i<compRunCount?'linear-gradient(90deg,#059669,#0891B2)':'var(--bg3)',border:'1px solid',borderColor:i<compRunCount?'transparent':'var(--br)'}}/>
+                        ))}
                       </div>
-                    );
-                  })}
+                      <span className="text-[10px] font-medium" style={{color:compRunCount>=MAX_COMP_RUNS?'#f87171':'var(--t3)'}}>{compRunCount}/{MAX_COMP_RUNS} runs</span>
+                      {compRunCount>=MAX_COMP_RUNS&&<span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{background:'rgba(239,68,68,.12)',color:'#f87171',border:'1px solid rgba(239,68,68,.2)'}}>Limit reached</span>}
+                    </div>
+                    <div className="flex gap-2">
+                      <textarea value={compPrompt} onChange={e=>setCompPrompt(e.target.value)} onKeyDown={e=>e.key==='Enter'&&!e.shiftKey&&!Object.values(compLoading).some(Boolean)&&compRunCount<MAX_COMP_RUNS&&runModelComp(compPrompt)} placeholder="Enter a prompt to compare all models simultaneously..." className="flex-1 px-4 py-3 rounded-2xl text-sm outline-none border transition-all resize-none" style={{background:'rgba(255,255,255,.04)',borderColor:'rgba(5,150,105,.2)',color:'var(--t1)',minHeight:52,maxHeight:100}} disabled={compRunCount>=MAX_COMP_RUNS} onFocus={e=>e.target.style.borderColor='rgba(5,150,105,.5)'} onBlur={e=>e.target.style.borderColor='rgba(5,150,105,.2)'}/>
+                      {Object.values(compLoading).some(Boolean)?(
+                        <button onClick={stopModelComp} className="px-5 rounded-2xl text-sm font-bold text-white transition-all flex items-center gap-2 flex-shrink-0" style={{background:'linear-gradient(135deg,#dc2626,#b91c1c)',boxShadow:'0 0 16px rgba(220,38,38,.35)'}}>
+                          <i className="fa-solid fa-stop text-xs"></i>Stop
+                        </button>
+                      ):(
+                        <button onClick={()=>runModelComp(compPrompt)} disabled={!compPrompt.trim()||compRunCount>=MAX_COMP_RUNS} className="px-6 rounded-2xl text-sm font-bold text-white disabled:opacity-40 transition-all flex items-center gap-2 flex-shrink-0" style={{background:'linear-gradient(135deg,#059669,#0891B2)',boxShadow:'0 4px 16px rgba(5,150,105,.3)'}}>
+                          <i className="fa-solid fa-play text-xs"></i>Run
+                        </button>
+                      )}
+                    </div>
+                    {compStopped&&<p className="text-[11px] mt-2 flex items-center gap-1.5" style={{color:'#fb923c'}}><i className="fa-solid fa-circle-stop text-[10px]"></i>Stopped — not counted</p>}
+                  </div>
+
+                  {/* Winner badge */}
+                  {winners&&!Object.values(compLoading).some(Boolean)&&(
+                    <div className="mx-4 mt-3 px-4 py-2.5 rounded-2xl flex items-center gap-2 flex-shrink-0" style={{background:'rgba(245,158,11,.08)',border:'1px solid rgba(245,158,11,.2)'}}>
+                      <i className="fa-solid fa-trophy" style={{color:'#F59E0B',fontSize:13}}></i>
+                      <span className="text-xs font-bold" style={{color:'#F59E0B'}}>Longest response: {winners.name}</span>
+                      <span className="text-[10px] ml-1" style={{color:'var(--t3)'}}>· Tip: longer ≠ better — check quality!</span>
+                    </div>
+                  )}
+
+                  {/* Results grid */}
+                  <div className="p-4 flex-1">
+                    {Object.keys(compResults).length===0&&!Object.values(compLoading).some(Boolean)?(
+                      <div className="text-center py-12">
+                        <div className="text-5xl mb-4">🧪</div>
+                        <p className="text-sm font-bold" style={{color:'var(--t2)'}}>Enter a prompt above to compare models</p>
+                        <p className="text-xs mt-1" style={{color:'var(--t3)'}}>All models respond to the same prompt simultaneously</p>
+                      </div>
+                    ):(
+                      <div className="grid gap-3" style={{gridTemplateColumns:'repeat('+Math.min(MODELS.length,3)+',1fr)'}}>
+                        {MODELS.slice(0,3).map(m=>{
+                          const loading=compLoading[m.id];const result=compResults[m.id];
+                          const metrics=calcMetrics(result);
+                          const isWinner=winners&&winners.id===m.id;
+                          return(
+                            <div key={m.id} className="rounded-2xl border overflow-hidden flex flex-col" style={{borderColor:isWinner?'rgba(245,158,11,.4)':'rgba(255,255,255,.07)',background:isWinner?'rgba(245,158,11,.04)':'rgba(255,255,255,.02)'}}>
+                              <div className="px-3 py-2.5 border-b flex items-center gap-2" style={{borderColor:'rgba(255,255,255,.06)',background:'rgba(255,255,255,.03)'}}>
+                                <i className={"fa-solid "+m.icon+" text-xs "+m.color}></i>
+                                <span className="text-xs font-bold flex-1" style={{color:'var(--t1)'}}>{m.name}</span>
+                                {isWinner&&<span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold" style={{background:'rgba(245,158,11,.15)',color:'#F59E0B'}}>🏆 TOP</span>}
+                                {loading&&<i className="fa-solid fa-spinner fa-spin text-xs" style={{color:'var(--t3)'}}></i>}
+                                {result&&!loading&&<i className="fa-solid fa-check text-[10px] text-emerald-400"></i>}
+                              </div>
+                              <div className="p-3 text-xs leading-relaxed flex-1" style={{color:'var(--t2)',minHeight:120}}>
+                                {loading&&<div className="space-y-2">{[80,60,90,50,70].map((w,i)=><div key={i} className="h-2 rounded-full animate-pulse" style={{width:w+'%',background:'rgba(255,255,255,.06)'}}/>)}</div>}
+                                {result&&!loading&&<div dangerouslySetInnerHTML={{__html:result.replace(/\n/g,'<br/>')}}/>}
+                                {!result&&!loading&&<span style={{color:'var(--t3)'}}>Waiting…</span>}
+                              </div>
+                              {result&&metrics&&(
+                                <div className="px-3 py-2 border-t flex items-center justify-between gap-2 flex-wrap" style={{borderColor:'rgba(255,255,255,.06)'}}>
+                                  <div className="flex gap-2">
+                                    <span className="text-[9px] px-1.5 py-0.5 rounded-lg" style={{background:'rgba(255,255,255,.05)',color:'var(--t3)'}}>{metrics.words}w</span>
+                                    <span className="text-[9px] px-1.5 py-0.5 rounded-lg" style={{background:'rgba(255,255,255,.05)',color:'var(--t3)'}}>{metrics.readability}</span>
+                                    <span className="text-[9px] px-1.5 py-0.5 rounded-lg" style={{background:'rgba(255,255,255,.05)',color:'var(--t3)'}}>{metrics.tone}</span>
+                                  </div>
+                                  <button onClick={()=>{navigator.clipboard.writeText(result);toast_('Copied!','success');}} className="text-[9px] px-2 py-0.5 rounded-lg border transition-all" style={{borderColor:'rgba(5,150,105,.25)',color:'#34d399',background:'rgba(5,150,105,.06)'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(5,150,105,.14)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(5,150,105,.06)'}>
+                                    <i className="fa-regular fa-copy mr-1"></i>Copy
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
+
+              {/* TEMPLATES TAB */}
+              {mcTab==='templates'&&(
+                <div className="p-4">
+                  <p className="text-xs mb-4" style={{color:'var(--t3)'}}>Pre-built prompts to quickly test model differences</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {TEMPLATES.map(t=>(
+                      <button key={t.lbl} onClick={()=>{setCompPrompt(t.prompt);setMcTab('compare');toast_('Prompt loaded!','success');}} className="rounded-2xl border p-4 text-left transition-all" style={{borderColor:t.col+'25',background:t.col+'06'}} onMouseEnter={e=>{e.currentTarget.style.background=t.col+'12';e.currentTarget.style.borderColor=t.col+'45';}} onMouseLeave={e=>{e.currentTarget.style.background=t.col+'06';e.currentTarget.style.borderColor=t.col+'25';}}>
+                        <div className="flex items-center gap-2.5 mb-2">
+                          <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{background:'linear-gradient(135deg,'+t.col+'cc,'+t.col+'88)',boxShadow:'0 3px 10px '+t.col+'35'}}>
+                            <i className={"fa-solid "+t.ic+" text-white"} style={{fontSize:13}}></i>
+                          </div>
+                          <p className="text-sm font-bold" style={{color:'var(--t1)'}}>{t.lbl}</p>
+                        </div>
+                        <p className="text-[10px] leading-relaxed line-clamp-2" style={{color:'var(--t3)'}}>{t.prompt.slice(0,80)}…</p>
+                        <div className="mt-2 flex items-center gap-1" style={{color:t.col}}>
+                          <i className="fa-solid fa-arrow-right text-[9px]"></i>
+                          <span className="text-[10px] font-bold">Use this prompt</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* HISTORY TAB */}
+              {mcTab==='history'&&(
+                <div className="p-4">
+                  {mcHistory.length===0?(
+                    <div className="text-center py-12">
+                      <div className="text-4xl mb-3">📭</div>
+                      <p className="text-sm font-bold" style={{color:'var(--t2)'}}>No history yet</p>
+                      <p className="text-xs mt-1" style={{color:'var(--t3)'}}>Run a comparison to see it here</p>
+                    </div>
+                  ):(
+                    <div className="space-y-3">
+                      {mcHistory.slice(0,10).map((h,i)=>(
+                        <div key={i} className="rounded-2xl border p-3.5 cursor-pointer transition-all" style={{borderColor:'rgba(255,255,255,.06)',background:'rgba(255,255,255,.02)'}} onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,.04)';e.currentTarget.style.borderColor='rgba(5,150,105,.25)';}} onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,.02)';e.currentTarget.style.borderColor='rgba(255,255,255,.06)';}}>
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="text-xs font-bold line-clamp-1 flex-1" style={{color:'var(--t1)'}}>{h.prompt}</p>
+                            <span className="text-[9px] flex-shrink-0" style={{color:'var(--t3)'}}>{h.date}</span>
+                          </div>
+                          <div className="flex gap-2 mt-2">
+                            {h.models&&h.models.map(m=>(
+                              <span key={m} className="text-[9px] px-1.5 py-0.5 rounded-lg font-bold" style={{background:'rgba(5,150,105,.1)',color:'#34d399'}}>{m}</span>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* METRICS TAB */}
+              {mcTab==='metrics'&&(
+                <div className="p-4">
+                  {Object.keys(compResults).length===0?(
+                    <div className="text-center py-12">
+                      <div className="text-4xl mb-3">📊</div>
+                      <p className="text-sm font-bold" style={{color:'var(--t2)'}}>Run a comparison first</p>
+                      <p className="text-xs mt-1" style={{color:'var(--t3)'}}>Metrics will appear here after comparing models</p>
+                    </div>
+                  ):(
+                    <div className="space-y-4">
+                      <p className="text-xs font-bold mb-2" style={{color:'var(--t3)'}}>Response metrics for last comparison</p>
+                      {MODELS.slice(0,3).map(m=>{
+                        const result=compResults[m.id];
+                        const met=calcMetrics(result);
+                        if(!met) return null;
+                        return(
+                          <div key={m.id} className="rounded-2xl border p-4" style={{borderColor:'rgba(255,255,255,.07)',background:'rgba(255,255,255,.02)'}}>
+                            <div className="flex items-center gap-2 mb-3">
+                              <i className={"fa-solid "+m.icon+" text-sm "+m.color}></i>
+                              <p className="font-bold text-sm" style={{color:'var(--t1)'}}>{m.name}</p>
+                            </div>
+                            <div className="grid grid-cols-4 gap-2">
+                              {[
+                                {lbl:'Words',val:met.words,col:'#3B82F6'},
+                                {lbl:'Sentences',val:met.sentences,col:'#8B5CF6'},
+                                {lbl:'Readability',val:met.readability,col:'#10B981'},
+                                {lbl:'Tone',val:met.tone,col:'#F59E0B'},
+                              ].map(mm=>(
+                                <div key={mm.lbl} className="rounded-xl p-2.5 text-center" style={{background:mm.col+'0e',border:'1px solid '+mm.col+'22'}}>
+                                  <p className="text-sm font-black" style={{color:mm.col}}>{mm.val}</p>
+                                  <p className="text-[9px] mt-0.5" style={{color:'var(--t3)'}}>{mm.lbl}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
             </div>
           </div>
         </div>
-      )}
+        );
+      })()}
       {showImgGen&&<ImageGenModal onClose={()=>{setShowImgGen(false);setImgGenPrompt('');}} onGenerate={handleImgGen} history={imgGenHistory} setHistory={setImgGenHistory} initialPrompt={imgGenPrompt}/>}
       {showShare&&<ShareModal session={curSession} onClose={()=>setShowShare(false)}/>}
       {showTodo&&<TodoModal todos={todos} setTodos={setTodos} onClose={()=>{setShowTodo(false);if(featFromSettings){setFeatFromSettings(false);setShowSettings(true);setSettingsTab('quickaccess');}}}/>}
