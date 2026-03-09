@@ -4894,164 +4894,203 @@ Reply: ${botText.slice(0,800)}`,
       })()}
 
       {/* ═══ CHAIN OF THOUGHT VIEWER ═══ */}
-
       {showChainViewer&&(
-        <div style={{position:'fixed',inset:0,zIndex:200,display:'flex',alignItems:'center',justifyContent:'center',padding:16,background:'rgba(0,0,0,.88)',backdropFilter:'blur(18px)'}} onClick={()=>setShowChainViewer(false)}>
-          <div style={{width:'100%',maxWidth:680,background:'var(--bg2)',border:'1px solid var(--br)',borderRadius:24,boxShadow:'0 32px 80px rgba(0,0,0,.6)',display:'flex',flexDirection:'column',maxHeight:'92vh',animation:'mIn .32s cubic-bezier(.16,1,.3,1)',overflow:'hidden'}} onClick={e=>e.stopPropagation()}>
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.92)',backdropFilter:'blur(24px)'}} onClick={()=>setShowChainViewer(false)}>
+          <div className="w-full max-w-2xl flex flex-col rounded-3xl" style={{background:'var(--bg2)',border:'1px solid rgba(255,255,255,.07)',maxHeight:'90vh',boxShadow:'0 32px 80px rgba(0,0,0,.6)',animation:'mIn .28s cubic-bezier(.16,1,.3,1)'}} onClick={e=>e.stopPropagation()}>
 
             {/* ── Hero Header ── */}
-            <div style={{background:'linear-gradient(135deg,#05160e 0%,#0a2418 50%,#05160e 100%)',padding:'22px 22px 18px',flexShrink:0,position:'relative',overflow:'hidden'}}>
-              <div style={{position:'absolute',inset:0,background:'radial-gradient(ellipse at 20% 50%,rgba(16,185,129,.2) 0%,transparent 60%)',pointerEvents:'none'}}></div>
-              <div style={{position:'absolute',right:20,top:10,opacity:.04,fontSize:90,lineHeight:1,fontFamily:'monospace'}}>{'{ }'}</div>
-              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',position:'relative'}}>
-                <div style={{display:'flex',alignItems:'center',gap:14}}>
-                  <div style={{width:50,height:50,borderRadius:16,background:'linear-gradient(135deg,#10B981,#06B6D4)',boxShadow:'0 8px 24px rgba(16,185,129,.4)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-                    <i className="fa-solid fa-brain" style={{color:'#fff',fontSize:20}}></i>
+            <div style={{background:'linear-gradient(145deg,#071912 0%,#0d2a1d 50%,#071912 100%)',borderRadius:'24px 24px 0 0',padding:'24px 26px 0',flexShrink:0,position:'relative',overflow:'hidden'}}>
+              <div style={{position:'absolute',inset:0,background:'radial-gradient(ellipse at 20% 60%,rgba(16,185,129,.18) 0%,transparent 60%)',pointerEvents:'none'}}/>
+              <div style={{position:'absolute',right:24,top:14,fontSize:96,opacity:.03,color:'#10B981',fontFamily:'monospace',lineHeight:1,userSelect:'none'}}>⛓</div>
+
+              <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',position:'relative'}}>
+                <div style={{display:'flex',alignItems:'center',gap:16}}>
+                  <div style={{width:52,height:52,borderRadius:18,background:'linear-gradient(135deg,#10B981,#06B6D4)',boxShadow:'0 8px 32px rgba(16,185,129,.5)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                    <i className="fa-solid fa-brain" style={{color:'#fff',fontSize:22}}/>
                   </div>
                   <div>
-                    <p style={{margin:0,fontSize:11,fontWeight:700,letterSpacing:'.12em',textTransform:'uppercase',color:'rgba(16,185,129,.7)'}}>Reasoning Engine</p>
-                    <p style={{margin:'2px 0 0',fontSize:20,fontWeight:800,color:'#fff',lineHeight:1.1}}>Chain of Thought</p>
-                    <p style={{margin:'4px 0 0',fontSize:11,color:'rgba(255,255,255,.35)'}}>AI step-by-step problem decomposition</p>
+                    <div style={{fontSize:10,fontWeight:700,letterSpacing:'.16em',textTransform:'uppercase',color:'rgba(16,185,129,.6)',marginBottom:3}}>Reasoning Engine</div>
+                    <div style={{fontSize:22,fontWeight:900,color:'#fff',lineHeight:1,letterSpacing:'-.4px'}}>Chain of Thought</div>
+                    <div style={{fontSize:11,color:'rgba(255,255,255,.3)',marginTop:5}}>Break any problem into structured reasoning steps</div>
                   </div>
                 </div>
-                <button onClick={()=>setShowChainViewer(false)} style={{width:32,height:32,borderRadius:10,border:'1px solid rgba(255,255,255,.12)',background:'rgba(255,255,255,.06)',color:'rgba(255,255,255,.5)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,transition:'all .15s'}}
+                <button onClick={()=>setShowChainViewer(false)} style={{width:34,height:34,borderRadius:10,border:'1px solid rgba(255,255,255,.1)',background:'rgba(255,255,255,.05)',color:'rgba(255,255,255,.4)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',transition:'all .15s',flexShrink:0}}
                   onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,.12)'}
-                  onMouseLeave={e=>e.currentTarget.style.background='rgba(255,255,255,.06)'}>
-                  <i className="fa-solid fa-xmark" style={{fontSize:12}}></i>
+                  onMouseLeave={e=>e.currentTarget.style.background='rgba(255,255,255,.05)'}>
+                  <i className="fa-solid fa-xmark" style={{fontSize:13}}/>
                 </button>
               </div>
-              {/* Step type legend */}
-              <div style={{display:'flex',gap:8,marginTop:16,position:'relative',flexWrap:'wrap'}}>
-                {[{t:'analyze',c:'#3B82F6',ic:'fa-magnifying-glass',lbl:'Analyze'},{t:'plan',c:'#F59E0B',ic:'fa-map',lbl:'Plan'},{t:'execute',c:'#10B981',ic:'fa-bolt',lbl:'Execute'},{t:'verify',c:'#8B5CF6',ic:'fa-check-double',lbl:'Verify'},{t:'conclude',c:'#EC4899',ic:'fa-flag-checkered',lbl:'Conclude'}].map(x=>(
-                  <div key={x.t} style={{display:'flex',alignItems:'center',gap:5,padding:'4px 10px',borderRadius:99,background:'rgba(255,255,255,.05)',border:`1px solid ${x.c}30`}}>
-                    <i className={`fa-solid ${x.ic}`} style={{color:x.c,fontSize:9}}></i>
-                    <span style={{fontSize:10,color:'rgba(255,255,255,.5)',fontWeight:600}}>{x.lbl}</span>
-                  </div>
-                ))}
+
+              {/* Mode tabs */}
+              <div style={{display:'flex',gap:2,marginTop:20,position:'relative'}}>
+                {[
+                  {id:'steps', ic:'fa-list-ol',       label:'Step-by-Step',  color:'#10B981', desc:'Structured breakdown'},
+                  {id:'pros',  ic:'fa-scale-balanced', label:'Pros & Cons',   color:'#3B82F6', desc:'Weigh decisions'},
+                  {id:'debug', ic:'fa-bug',            label:'Debug Mode',    color:'#EF4444', desc:'Root cause analysis'},
+                  {id:'plan',  ic:'fa-map',            label:'Action Plan',   color:'#F59E0B', desc:'Goal-oriented plan'},
+                ].map(m=>{
+                  const on=chainMode===m.id;
+                  return <button key={m.id} onClick={()=>setChainMode(m.id)} style={{display:'flex',alignItems:'center',gap:6,padding:'8px 14px',borderRadius:'12px 12px 0 0',border:`1px solid ${on?m.color+'40':'transparent'}`,borderBottom:'none',background:on?'var(--bg2)':'transparent',color:on?m.color:'rgba(255,255,255,.35)',fontSize:11,fontWeight:700,cursor:'pointer',transition:'all .18s',position:'relative',bottom:-1}}>
+                    <i className={`fa-solid ${m.ic}`} style={{fontSize:9}}/>{m.label}
+                  </button>;
+                })}
               </div>
             </div>
 
             {/* ── Input area ── */}
-            <div style={{padding:'16px 20px 12px',flexShrink:0,borderBottom:'1px solid var(--br)',background:'var(--bg3)'}}>
+            <div style={{padding:'18px 26px 14px',borderBottom:'1px solid var(--br)',flexShrink:0,background:'var(--bg2)'}}>
               <div style={{display:'flex',gap:10}}>
-                <textarea value={chainInput} onChange={e=>setChainInput(e.target.value)} placeholder="Describe any problem or question... e.g. 'How should I architect a microservices app?'" rows={2}
-                  style={{flex:1,borderRadius:14,padding:'11px 14px',fontSize:13,background:'var(--bg2)',border:'1px solid var(--br)',color:'var(--t1)',resize:'none',outline:'none',fontFamily:'inherit',transition:'border-color .15s'}}
-                  onFocus={e=>e.target.style.borderColor='rgba(16,185,129,.5)'}
+                <textarea value={chainInput} onChange={e=>setChainInput(e.target.value)}
+                  placeholder={chainMode==='steps'?'Enter any problem or question to break down step by step...':chainMode==='pros'?'What would you like to weigh? e.g. Remote Work vs Office Work':chainMode==='debug'?'Describe your bug or paste error message...':'What goal do you want to achieve? e.g. Build a SaaS app'}
+                  rows={2} style={{flex:1,borderRadius:14,padding:'12px 16px',fontSize:13,outline:'none',resize:'none',border:'1px solid var(--br)',background:'var(--bg3)',color:'var(--t1)',fontFamily:'inherit',lineHeight:1.5,transition:'border-color .2s'}}
+                  onFocus={e=>e.target.style.borderColor=chainMode==='steps'?'rgba(16,185,129,.5)':chainMode==='pros'?'rgba(59,130,246,.5)':chainMode==='debug'?'rgba(239,68,68,.5)':'rgba(245,158,11,.5)'}
                   onBlur={e=>e.target.style.borderColor='var(--br)'}/>
-                {chainLoading?(
-                  <button onClick={()=>{if(chainAbortRef.current)chainAbortRef.current.abort();setChainLoading(false);}}
-                    style={{padding:'0 18px',borderRadius:14,fontSize:13,fontWeight:700,background:'rgba(239,68,68,.12)',color:'#f87171',border:'1px solid rgba(239,68,68,.3)',cursor:'pointer',display:'flex',alignItems:'center',gap:8,flexShrink:0,whiteSpace:'nowrap'}}>
-                    <i className="fa-solid fa-stop" style={{fontSize:10}}></i>Stop
-                  </button>
-                ):(
-                  <button onClick={async()=>{
-                    if(!chainInput.trim()) return;
-                    const ctrl=new AbortController(); chainAbortRef.current=ctrl;
-                    setChainLoading(true); setChainSteps([]);
+                {chainLoading
+                  ?<button onClick={()=>{if(chainAbortRef.current)chainAbortRef.current.abort();setChainLoading(false);}} style={{padding:'0 18px',borderRadius:14,border:'1px solid rgba(239,68,68,.35)',background:'rgba(239,68,68,.1)',color:'#f87171',fontSize:12,fontWeight:700,cursor:'pointer',flexShrink:0,display:'flex',alignItems:'center',gap:7,transition:'all .15s'}}>
+                      <i className="fa-solid fa-stop" style={{fontSize:10}}/>Stop
+                    </button>
+                  :<button onClick={async()=>{
+                    if(!chainInput.trim())return;
+                    const prompts={
+                      steps:`Analyze this problem with clear reasoning steps. Return ONLY a JSON array: [{"step":1,"title":"short title","detail":"full explanation","type":"analyze|plan|execute|verify"}]\n\nProblem: ${chainInput}`,
+                      pros:`Analyze pros and cons. Return ONLY JSON: {"topic":"...","pros":[{"point":"...","weight":"high|medium|low"}],"cons":[{"point":"...","weight":"high|medium|low"}],"verdict":"one sentence conclusion"}\n\nTopic: ${chainInput}`,
+                      debug:`Debug this issue step by step. Return ONLY a JSON array: [{"step":1,"title":"...","detail":"...","type":"identify|diagnose|fix|test"}]\n\nIssue: ${chainInput}`,
+                      plan:`Create a detailed action plan. Return ONLY a JSON array: [{"step":1,"title":"...","detail":"...","type":"plan|execute|verify","timeline":"e.g. Day 1-3"}]\n\nGoal: ${chainInput}`,
+                    };
+                    const ctrl=new AbortController();chainAbortRef.current=ctrl;
+                    setChainLoading(true);setChainSteps([]);
                     try{
-                      const res=await fetch('/chat',{method:'POST',signal:ctrl.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({message:`Break this problem into clear reasoning steps. Return a JSON array ONLY with no extra text: [{"step":1,"title":"...","detail":"...","type":"analyze|plan|execute|verify|conclude","insight":"one key takeaway"}]\n\nProblem: ${chainInput}\n\nReturn ONLY valid JSON array, 4-7 steps.`,system_prompt:'You are a logical reasoning assistant. Respond ONLY with a valid JSON array.'})});
-                      const data=await res.json();
-                      const clean=(data.reply||'[]').replace(/```json|```/g,'').trim();
-                      setChainSteps(JSON.parse(clean));
-                    }catch(e){if(e.name!=='AbortError')setChainSteps([{step:1,title:'Parse Error',detail:'Could not parse response. Try rephrasing.',type:'verify',insight:'Simplify the problem statement'}]);}
+                      const r=await fetch('/chat',{method:'POST',signal:ctrl.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({message:prompts[chainMode],system_prompt:'You are a logical reasoning assistant. Always respond with valid JSON only, no markdown, no explanation.'})});
+                      const d=await r.json();
+                      const clean=(d.reply||'[]').replace(/```json|```/g,'').trim();
+                      const parsed=JSON.parse(clean);
+                      if(chainMode==='pros')setChainSteps([{_pc:parsed}]);
+                      else setChainSteps(Array.isArray(parsed)?parsed:[]);
+                    }catch(e){if(e.name!=='AbortError')setChainSteps([{step:1,title:'Parse Error',detail:'AI returned unexpected format. Try rephrasing your input.',type:'verify'}]);}
                     finally{setChainLoading(false);chainAbortRef.current=null;}
-                  }} disabled={!chainInput.trim()}
-                    style={{padding:'0 20px',borderRadius:14,fontSize:13,fontWeight:700,color:'#fff',background:chainInput.trim()?'linear-gradient(135deg,#10B981,#06B6D4)':'var(--bg2)',border:'none',cursor:chainInput.trim()?'pointer':'default',display:'flex',alignItems:'center',gap:8,flexShrink:0,opacity:chainInput.trim()?1:.5,transition:'all .15s',whiteSpace:'nowrap',boxShadow:chainInput.trim()?'0 4px 14px rgba(16,185,129,.35)':'none'}}
-                    onMouseEnter={e=>{if(chainInput.trim())e.currentTarget.style.transform='translateY(-1px)';}}
-                    onMouseLeave={e=>e.currentTarget.style.transform='translateY(0)'}>
-                    <i className="fa-solid fa-play" style={{fontSize:10}}></i>Analyze
+                  }} disabled={!chainInput.trim()} style={{padding:'0 22px',borderRadius:14,border:'none',background:chainInput.trim()?chainMode==='steps'?'linear-gradient(135deg,#10B981,#059669)':chainMode==='pros'?'linear-gradient(135deg,#3B82F6,#2563EB)':chainMode==='debug'?'linear-gradient(135deg,#EF4444,#DC2626)':'linear-gradient(135deg,#F59E0B,#D97706)':'var(--bg3)',color:chainInput.trim()?'#fff':'var(--t3)',fontSize:13,fontWeight:800,cursor:chainInput.trim()?'pointer':'default',flexShrink:0,display:'flex',alignItems:'center',gap:8,transition:'all .2s',boxShadow:chainInput.trim()?'0 4px 18px rgba(16,185,129,.35)':'none'}}
+                    onMouseEnter={e=>{if(chainInput.trim()){e.currentTarget.style.transform='translateY(-1px)';e.currentTarget.style.filter='brightness(1.1)';}}}
+                    onMouseLeave={e=>{e.currentTarget.style.transform='';e.currentTarget.style.filter='';}}>
+                    <i className="fa-solid fa-play" style={{fontSize:10}}/>Analyze
                   </button>
-                )}
+                }
               </div>
-              {/* Example prompts */}
+              {/* Quick examples */}
               <div style={{display:'flex',gap:6,marginTop:10,flexWrap:'wrap'}}>
-                <span style={{fontSize:10,color:'var(--t3)',alignSelf:'center',marginRight:2}}>Try:</span>
-                {['Design a scalable API','Plan a product launch','Debug a memory leak','Break down machine learning','How to negotiate a raise'].map(ex=>(
-                  <button key={ex} onClick={()=>setChainInput(ex)}
-                    style={{padding:'4px 10px',borderRadius:99,fontSize:10,fontWeight:600,border:'1px solid rgba(16,185,129,.25)',color:'#34d399',background:'rgba(16,185,129,.07)',cursor:'pointer',transition:'all .12s',whiteSpace:'nowrap'}}
-                    onMouseEnter={e=>e.currentTarget.style.background='rgba(16,185,129,.15)'}
-                    onMouseLeave={e=>e.currentTarget.style.background='rgba(16,185,129,.07)'}>{ex}</button>
+                <span style={{fontSize:10,color:'var(--t3)',fontWeight:600,alignSelf:'center',marginRight:2}}>Try:</span>
+                {(chainMode==='steps'?['How to scale a startup','Learn a new language fast','Build a REST API']:chainMode==='pros'?['Remote work vs Office','Freelance vs Full-time','React vs Vue']:chainMode==='debug'?['API returning 500 errors','React infinite re-render loop','CSS layout breaking on mobile']:['Launch a product in 30 days','Master machine learning','Build a portfolio site']).map(ex=>(
+                  <button key={ex} onClick={()=>setChainInput(ex)} style={{padding:'3px 10px',borderRadius:20,border:'1px solid var(--br)',color:'var(--t3)',background:'var(--bg3)',fontSize:10,fontWeight:500,cursor:'pointer',transition:'all .12s'}}
+                    onMouseEnter={e=>{e.currentTarget.style.borderColor=chainMode==='steps'?'rgba(16,185,129,.4)':chainMode==='pros'?'rgba(59,130,246,.4)':chainMode==='debug'?'rgba(239,68,68,.4)':'rgba(245,158,11,.4)';e.currentTarget.style.color='var(--t1)';}}
+                    onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--br)';e.currentTarget.style.color='var(--t3)';}}>
+                    {ex}
+                  </button>
                 ))}
               </div>
             </div>
 
-            {/* ── Steps output ── */}
-            <div style={{flex:1,overflowY:'auto',padding:'20px',scrollbarWidth:'thin'}} className="sb">
-              {chainLoading&&(
-                <div style={{display:'flex',flexDirection:'column',gap:12}}>
-                  <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:4}}>
-                    <div style={{width:7,height:7,borderRadius:'50%',background:'#10B981',animation:'pulse 1s infinite'}}></div>
-                    <span style={{fontSize:12,color:'#34d399',fontWeight:600}}>AI is reasoning through your problem…</span>
-                  </div>
-                  {[1,2,3,4,5].map(i=>(
-                    <div key={i} style={{display:'flex',gap:12,animationDelay:`${i*.1}s`}}>
-                      <div style={{width:36,height:36,borderRadius:'50%',background:'var(--bg3)',flexShrink:0,animation:'pulse 1.2s infinite'}}></div>
-                      <div style={{flex:1,borderRadius:14,padding:16,border:'1px solid var(--br)',background:'var(--bg3)',animation:'pulse 1.2s infinite'}}>
-                        <div style={{height:10,borderRadius:6,width:'35%',background:'var(--br)',marginBottom:10}}></div>
-                        <div style={{height:8,borderRadius:4,width:'90%',background:'var(--br)',marginBottom:6}}></div>
-                        <div style={{height:8,borderRadius:4,width:'70%',background:'var(--br)'}}></div>
-                      </div>
+            {/* ── Results ── */}
+            <div className="sb" style={{flex:1,overflowY:'auto',padding:'20px 26px 24px'}}>
+
+              {/* Loading skeleton */}
+              {chainLoading&&<div style={{display:'flex',flexDirection:'column',gap:12}}>
+                {[100,85,90,75].map((w,i)=>(
+                  <div key={i} style={{display:'flex',gap:14,animationDelay:`${i*.07}s`}}>
+                    <div style={{width:36,height:36,borderRadius:'50%',background:'var(--bg3)',flexShrink:0,animation:'pulse 1.6s ease-in-out infinite'}}/>
+                    <div style={{flex:1}}>
+                      <div style={{height:11,borderRadius:6,background:'var(--bg3)',width:'32%',marginBottom:10,animation:'pulse 1.6s ease-in-out infinite'}}/>
+                      <div style={{height:8,borderRadius:5,background:'var(--bg3)',width:w+'%',marginBottom:6,animation:'pulse 1.6s ease-in-out infinite',animationDelay:`${i*.05}s`}}/>
+                      <div style={{height:8,borderRadius:5,background:'var(--bg3)',width:'60%',animation:'pulse 1.6s ease-in-out infinite',animationDelay:`${i*.08}s`}}/>
                     </div>
-                  ))}
-                </div>
-              )}
-              {!chainLoading&&chainSteps.length>0&&(
-                <div>
-                  <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
-                    <p style={{margin:0,fontSize:11,fontWeight:700,letterSpacing:'.08em',textTransform:'uppercase',color:'var(--t3)'}}>{chainSteps.length} reasoning steps</p>
-                    <button onClick={()=>navigator.clipboard.writeText(chainSteps.map(s=>`Step ${s.step} [${s.type}]: ${s.title}\n${s.detail}${s.insight?'\n→ Insight: '+s.insight:''}`).join('\n\n')).then(()=>toast_('Copied!','success'))}
-                      style={{display:'flex',alignItems:'center',gap:6,padding:'5px 12px',borderRadius:8,border:'1px solid rgba(16,185,129,.25)',color:'#34d399',background:'rgba(16,185,129,.07)',fontSize:11,fontWeight:600,cursor:'pointer',transition:'all .12s'}}
-                      onMouseEnter={e=>e.currentTarget.style.background='rgba(16,185,129,.15)'}
-                      onMouseLeave={e=>e.currentTarget.style.background='rgba(16,185,129,.07)'}>
-                      <i className="fa-solid fa-copy" style={{fontSize:10}}></i>Copy All
+                  </div>
+                ))}
+              </div>}
+
+              {/* Pros/Cons layout */}
+              {!chainLoading&&chainSteps.length>0&&chainSteps[0]?._pc&&(()=>{
+                const d=chainSteps[0]._pc;
+                const wc={high:'#10B981',medium:'#F59E0B',low:'#6B7280'};
+                return <div>
+                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:14}}>
+                    {[{key:'pros',label:'Pros',ic:'fa-thumbs-up',col:'#10B981'},{key:'cons',label:'Cons',ic:'fa-thumbs-down',col:'#EF4444'}].map(side=>(
+                      <div key={side.key} style={{borderRadius:18,border:`1px solid ${side.col}28`,overflow:'hidden'}}>
+                        <div style={{padding:'11px 16px',background:`${side.col}12`,borderBottom:`1px solid ${side.col}20`,display:'flex',alignItems:'center',gap:8}}>
+                          <i className={`fa-solid ${side.ic}`} style={{color:side.col,fontSize:12}}/>
+                          <span style={{fontSize:12,fontWeight:800,color:side.col}}>{side.label}</span>
+                          <span style={{marginLeft:'auto',fontSize:10,color:side.col+'88',fontWeight:600}}>{(d[side.key]||[]).length} points</span>
+                        </div>
+                        <div style={{padding:'12px 14px',display:'flex',flexDirection:'column',gap:8}}>
+                          {(d[side.key]||[]).map((p,i)=>(
+                            <div key={i} style={{display:'flex',gap:9,alignItems:'flex-start'}}>
+                              <div style={{width:8,height:8,borderRadius:'50%',background:wc[p.weight]||side.col,marginTop:4,flexShrink:0,boxShadow:`0 0 6px ${wc[p.weight]||side.col}60`}}/>
+                              <span style={{fontSize:12,color:'var(--t2)',lineHeight:1.55,flex:1}}>{p.point||p}</span>
+                              {p.weight==='high'&&<span style={{fontSize:8,padding:'2px 6px',borderRadius:6,background:'rgba(16,185,129,.12)',color:'#10B981',fontWeight:700,flexShrink:0,alignSelf:'flex-start',marginTop:2}}>KEY</span>}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {d.verdict&&<div style={{borderRadius:14,border:'1px solid rgba(99,102,241,.3)',background:'rgba(99,102,241,.08)',padding:'14px 18px',display:'flex',gap:12,marginBottom:14}}>
+                    <i className="fa-solid fa-gavel" style={{color:'#818CF8',fontSize:14,marginTop:2,flexShrink:0}}/>
+                    <div><div style={{fontSize:10,fontWeight:800,color:'#818CF8',textTransform:'uppercase',letterSpacing:'.1em',marginBottom:5}}>Verdict</div>
+                    <div style={{fontSize:13,color:'var(--t1)',lineHeight:1.65}}>{d.verdict}</div></div>
+                  </div>}
+                  <div style={{display:'flex',gap:8}}>
+                    <button onClick={()=>navigator.clipboard.writeText(`${d.topic||''}\n\nPros:\n${(d.pros||[]).map(p=>'+ '+p.point).join('\n')}\n\nCons:\n${(d.cons||[]).map(c=>'- '+c.point).join('\n')}\n\nVerdict: ${d.verdict||''}`).then(()=>toast_('Copied!','success'))} style={{flex:1,padding:'10px',borderRadius:12,border:'1px solid rgba(99,102,241,.25)',background:'rgba(99,102,241,.07)',color:'#818CF8',fontSize:12,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:7,transition:'all .15s'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(99,102,241,.14)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(99,102,241,.07)'}>
+                      <i className="fa-solid fa-copy" style={{fontSize:10}}/>Copy Analysis
+                    </button>
+                    <button onClick={()=>{const t=`I need help deciding: ${chainInput}\n\nPros: ${(d.pros||[]).map(p=>p.point).join(', ')}\nCons: ${(d.cons||[]).map(c=>c.point).join(', ')}\n\nWhat would you recommend?`;setShowChainViewer(false);setTimeout(()=>setInput(t),100);}} style={{flex:1,padding:'10px',borderRadius:12,border:'1px solid rgba(59,130,246,.25)',background:'rgba(59,130,246,.07)',color:'#60a5fa',fontSize:12,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:7,transition:'all .15s'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(59,130,246,.14)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(59,130,246,.07)'}>
+                      <i className="fa-solid fa-comments" style={{fontSize:10}}/>Discuss in Chat
                     </button>
                   </div>
+                </div>;
+              })()}
+
+              {/* Steps layout */}
+              {!chainLoading&&chainSteps.length>0&&!chainSteps[0]?._pc&&(()=>{
+                const TYPE={analyze:{c:'#3B82F6',ic:'fa-magnifying-glass',bg:'rgba(59,130,246,.08)'},plan:{c:'#F59E0B',ic:'fa-map',bg:'rgba(245,158,11,.08)'},execute:{c:'#10B981',ic:'fa-bolt',bg:'rgba(16,185,129,.08)'},verify:{c:'#8B5CF6',ic:'fa-check-double',bg:'rgba(139,92,246,.08)'},identify:{c:'#EF4444',ic:'fa-crosshairs',bg:'rgba(239,68,68,.08)'},diagnose:{c:'#F97316',ic:'fa-stethoscope',bg:'rgba(249,115,22,.08)'},fix:{c:'#10B981',ic:'fa-wrench',bg:'rgba(16,185,129,.08)'},test:{c:'#06B6D4',ic:'fa-vial',bg:'rgba(6,182,212,.08)'}};
+                return <div>
                   <div style={{position:'relative'}}>
-                    <div style={{position:'absolute',left:17,top:18,bottom:18,width:2,background:'linear-gradient(180deg,#10B981,#06B6D4,#8B5CF6,#EC4899)',borderRadius:2,opacity:.5}}></div>
-                    <div style={{display:'flex',flexDirection:'column',gap:10}}>
+                    {/* Timeline line */}
+                    <div style={{position:'absolute',left:18,top:20,bottom:20,width:2,background:`linear-gradient(180deg,${chainMode==='debug'?'#EF4444':chainMode==='plan'?'#F59E0B':'#10B981'},#8B5CF6,rgba(139,92,246,.05))`,borderRadius:2}}/>
+                    <div style={{display:'flex',flexDirection:'column',gap:10,paddingLeft:2}}>
                       {chainSteps.map((s,i)=>{
-                        const T={analyze:{c:'#3B82F6',ic:'fa-magnifying-glass',bg:'rgba(59,130,246,.08)',br:'rgba(59,130,246,.2)'},plan:{c:'#F59E0B',ic:'fa-map',bg:'rgba(245,158,11,.08)',br:'rgba(245,158,11,.2)'},execute:{c:'#10B981',ic:'fa-bolt',bg:'rgba(16,185,129,.08)',br:'rgba(16,185,129,.2)'},verify:{c:'#8B5CF6',ic:'fa-check-double',bg:'rgba(139,92,246,.08)',br:'rgba(139,92,246,.2)'},conclude:{c:'#EC4899',ic:'fa-flag-checkered',bg:'rgba(236,72,153,.08)',br:'rgba(236,72,153,.2)'}}[s.type||'analyze']||{c:'#10B981',ic:'fa-circle',bg:'rgba(16,185,129,.08)',br:'rgba(16,185,129,.2)'};
-                        return(
-                          <div key={i} style={{display:'flex',gap:14,animation:`fUp .3s ease ${i*.06}s both`}}>
-                            <div style={{width:36,height:36,borderRadius:'50%',border:`2px solid ${T.c}`,background:'var(--bg2)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,zIndex:1,boxShadow:`0 0 16px ${T.c}30`}}>
-                              <i className={`fa-solid ${T.ic}`} style={{color:T.c,fontSize:10}}></i>
-                            </div>
-                            <div style={{flex:1,borderRadius:16,padding:'14px 16px',background:T.bg,border:`1px solid ${T.br}`}}>
-                              <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
-                                <span style={{fontSize:9,fontWeight:800,padding:'3px 8px',borderRadius:99,background:`${T.c}20`,color:T.c,textTransform:'uppercase',letterSpacing:'.08em'}}>{s.type||'step'}</span>
-                                <span style={{fontSize:13,fontWeight:700,color:'var(--t1)'}}>Step {s.step}: {s.title}</span>
-                              </div>
-                              <p style={{margin:0,fontSize:13,lineHeight:1.65,color:'var(--t2)'}}>{s.detail}</p>
-                              {s.insight&&(
-                                <div style={{marginTop:10,display:'flex',alignItems:'flex-start',gap:8,padding:'8px 12px',borderRadius:10,background:'rgba(255,255,255,.04)',border:'1px solid rgba(255,255,255,.06)'}}>
-                                  <i className="fa-solid fa-lightbulb" style={{color:'#FBBF24',fontSize:10,marginTop:2,flexShrink:0}}></i>
-                                  <span style={{fontSize:11,color:'rgba(255,255,255,.5)',lineHeight:1.5}}><b style={{color:'#FBBF24',fontWeight:700}}>Insight:</b> {s.insight}</span>
-                                </div>
-                              )}
-                            </div>
+                        const T=TYPE[s.type]||{c:'#10B981',ic:'fa-circle-dot',bg:'rgba(16,185,129,.08)'};
+                        return <div key={i} style={{display:'flex',gap:14}}>
+                          <div style={{width:36,height:36,borderRadius:'50%',border:`2px solid ${T.c}`,background:'var(--bg2)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,zIndex:1,boxShadow:`0 0 0 3px var(--bg2),0 0 16px ${T.c}30`}}>
+                            <i className={`fa-solid ${T.ic}`} style={{color:T.c,fontSize:11}}/>
                           </div>
-                        );
+                          <div style={{flex:1,borderRadius:16,padding:'14px 18px',border:`1px solid ${T.c}20`,background:T.bg,marginTop:2}}>
+                            <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:8,flexWrap:'wrap'}}>
+                              <span style={{fontSize:9,fontWeight:800,padding:'3px 10px',borderRadius:20,background:`${T.c}20`,color:T.c,textTransform:'uppercase',letterSpacing:'.1em'}}>{s.type||'step'}</span>
+                              <span style={{fontSize:14,fontWeight:700,color:'var(--t1)'}}>Step {s.step}: {s.title}</span>
+                              {s.timeline&&<span style={{marginLeft:'auto',fontSize:10,color:'var(--t3)',background:'var(--bg3)',padding:'3px 9px',borderRadius:8,border:'1px solid var(--br)',flexShrink:0}}>{s.timeline}</span>}
+                            </div>
+                            <p style={{margin:0,fontSize:13,color:'var(--t2)',lineHeight:1.7}}>{s.detail}</p>
+                          </div>
+                        </div>;
                       })}
                     </div>
                   </div>
-                  {/* Use in chat button */}
-                  <button onClick={()=>{setChainInput('');setShowChainViewer(false);setTimeout(()=>{const el=document.querySelector('textarea');if(el){el.value=`Based on this reasoning:\n${chainSteps.map(s=>`${s.step}. ${s.title}`).join('\n')}\n\nNow help me implement this:`;el.dispatchEvent(new Event('input',{bubbles:true}));}},100);}}
-                    style={{width:'100%',marginTop:16,padding:'12px',borderRadius:14,background:'linear-gradient(135deg,rgba(16,185,129,.15),rgba(6,182,212,.1))',border:'1px solid rgba(16,185,129,.3)',color:'#34d399',fontSize:13,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8,transition:'all .15s'}}
-                    onMouseEnter={e=>e.currentTarget.style.background='linear-gradient(135deg,rgba(16,185,129,.25),rgba(6,182,212,.18))'}
-                    onMouseLeave={e=>e.currentTarget.style.background='linear-gradient(135deg,rgba(16,185,129,.15),rgba(6,182,212,.1))'}>
-                    <i className="fa-solid fa-paper-plane" style={{fontSize:11}}></i>Continue in Chat with this Reasoning
-                  </button>
-                </div>
-              )}
-              {!chainLoading&&chainSteps.length===0&&(
-                <div style={{textAlign:'center',padding:'48px 0'}}>
-                  <div style={{width:64,height:64,borderRadius:20,background:'rgba(16,185,129,.08)',border:'1px solid rgba(16,185,129,.15)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px'}}>
-                    <i className="fa-solid fa-brain" style={{color:'rgba(16,185,129,.4)',fontSize:26}}></i>
+                  <div style={{display:'flex',gap:8,marginTop:18}}>
+                    <button onClick={()=>navigator.clipboard.writeText(chainSteps.map(s=>`Step ${s.step} [${s.type}]: ${s.title}\n${s.detail}`).join('\n\n')).then(()=>toast_('Copied!','success'))} style={{flex:1,padding:'11px',borderRadius:13,border:'1px solid rgba(16,185,129,.3)',background:'rgba(16,185,129,.07)',color:'#34d399',fontSize:12,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:7,transition:'all .15s'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(16,185,129,.14)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(16,185,129,.07)'}>
+                      <i className="fa-solid fa-copy" style={{fontSize:10}}/>Copy All Steps
+                    </button>
+                    <button onClick={()=>{const t=chainSteps.map(s=>`Step ${s.step}: ${s.title} — ${s.detail}`).join('\n');setShowChainViewer(false);setTimeout(()=>setInput(t),100);}} style={{flex:1,padding:'11px',borderRadius:13,border:'1px solid rgba(59,130,246,.3)',background:'rgba(59,130,246,.07)',color:'#60a5fa',fontSize:12,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:7,transition:'all .15s'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(59,130,246,.14)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(59,130,246,.07)'}>
+                      <i className="fa-solid fa-paper-plane" style={{fontSize:10}}/>Send to Chat
+                    </button>
                   </div>
-                  <p style={{margin:0,fontSize:15,fontWeight:700,color:'var(--t2)'}}>Ready to reason</p>
-                  <p style={{margin:'6px 0 0',fontSize:12,color:'var(--t3)'}}>Enter any problem above and click Analyze</p>
+                </div>;
+              })()}
+
+              {/* Empty state */}
+              {!chainLoading&&chainSteps.length===0&&<div style={{textAlign:'center',padding:'50px 20px'}}>
+                <div style={{width:70,height:70,borderRadius:24,background:'rgba(16,185,129,.06)',border:'1px solid rgba(16,185,129,.12)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 18px'}}>
+                  <i className="fa-solid fa-brain" style={{color:'rgba(16,185,129,.3)',fontSize:30}}/>
                 </div>
-              )}
+                <div style={{fontSize:15,fontWeight:700,color:'var(--t2)',marginBottom:6}}>Ready to reason</div>
+                <div style={{fontSize:12,color:'var(--t3)'}}>Select a mode above, then enter your problem</div>
+              </div>}
             </div>
           </div>
         </div>
@@ -5059,174 +5098,165 @@ Reply: ${botText.slice(0,800)}`,
 
       {/* ═══ CONCEPT MAP ═══ */}
       {showConceptMap&&(
-        <div style={{position:'fixed',inset:0,zIndex:200,display:'flex',alignItems:'center',justifyContent:'center',padding:16,background:'rgba(0,0,0,.88)',backdropFilter:'blur(18px)'}} onClick={()=>setShowConceptMap(false)}>
-          <div style={{width:'100%',maxWidth:720,background:'var(--bg2)',border:'1px solid var(--br)',borderRadius:24,boxShadow:'0 32px 80px rgba(0,0,0,.6)',display:'flex',flexDirection:'column',maxHeight:'92vh',animation:'mIn .32s cubic-bezier(.16,1,.3,1)',overflow:'hidden'}} onClick={e=>e.stopPropagation()}>
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.92)',backdropFilter:'blur(24px)'}} onClick={()=>setShowConceptMap(false)}>
+          <div className="w-full max-w-2xl flex flex-col rounded-3xl" style={{background:'var(--bg2)',border:'1px solid rgba(255,255,255,.07)',maxHeight:'90vh',boxShadow:'0 32px 80px rgba(0,0,0,.6)',animation:'mIn .28s cubic-bezier(.16,1,.3,1)'}} onClick={e=>e.stopPropagation()}>
 
             {/* ── Hero Header ── */}
-            <div style={{background:'linear-gradient(135deg,#0e0820 0%,#1a0e38 50%,#0e0820 100%)',padding:'22px 22px 18px',flexShrink:0,position:'relative',overflow:'hidden'}}>
-              <div style={{position:'absolute',inset:0,background:'radial-gradient(ellipse at 70% 40%,rgba(139,92,246,.22) 0%,transparent 60%)',pointerEvents:'none'}}></div>
-              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',position:'relative'}}>
-                <div style={{display:'flex',alignItems:'center',gap:14}}>
-                  <div style={{width:50,height:50,borderRadius:16,background:'linear-gradient(135deg,#8B5CF6,#EC4899)',boxShadow:'0 8px 24px rgba(139,92,246,.45)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-                    <i className="fa-solid fa-diagram-project" style={{color:'#fff',fontSize:20}}></i>
+            <div style={{background:'linear-gradient(145deg,#0c071f 0%,#180e38 50%,#0c071f 100%)',borderRadius:'24px 24px 0 0',padding:'24px 26px 0',flexShrink:0,position:'relative',overflow:'hidden'}}>
+              <div style={{position:'absolute',inset:0,background:'radial-gradient(ellipse at 30% 60%,rgba(139,92,246,.2) 0%,transparent 60%)',pointerEvents:'none'}}/>
+              <div style={{position:'absolute',right:20,top:14,fontSize:96,opacity:.03,color:'#8B5CF6',lineHeight:1,userSelect:'none'}}>⬡</div>
+
+              <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',position:'relative'}}>
+                <div style={{display:'flex',alignItems:'center',gap:16}}>
+                  <div style={{width:52,height:52,borderRadius:18,background:'linear-gradient(135deg,#8B5CF6,#EC4899)',boxShadow:'0 8px 32px rgba(139,92,246,.5)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                    <i className="fa-solid fa-diagram-project" style={{color:'#fff',fontSize:22}}/>
                   </div>
                   <div>
-                    <p style={{margin:0,fontSize:11,fontWeight:700,letterSpacing:'.12em',textTransform:'uppercase',color:'rgba(139,92,246,.7)'}}>Knowledge Mapper</p>
-                    <p style={{margin:'2px 0 0',fontSize:20,fontWeight:800,color:'#fff',lineHeight:1.1}}>Concept Map</p>
-                    <p style={{margin:'4px 0 0',fontSize:11,color:'rgba(255,255,255,.35)'}}>AI-generated visual knowledge structures</p>
+                    <div style={{fontSize:10,fontWeight:700,letterSpacing:'.16em',textTransform:'uppercase',color:'rgba(139,92,246,.6)',marginBottom:3}}>Knowledge Mapper</div>
+                    <div style={{fontSize:22,fontWeight:900,color:'#fff',lineHeight:1,letterSpacing:'-.4px'}}>Concept Map</div>
+                    <div style={{fontSize:11,color:'rgba(255,255,255,.3)',marginTop:5}}>Visualize ideas, timelines, and comparisons</div>
                   </div>
                 </div>
-                <div style={{display:'flex',gap:8,alignItems:'center'}}>
-                  {conceptData&&(
-                    <button onClick={()=>{setConceptData(null);setConceptTopic('');}}
-                      style={{padding:'6px 12px',borderRadius:9,border:'1px solid rgba(255,255,255,.12)',background:'rgba(255,255,255,.06)',color:'rgba(255,255,255,.55)',fontSize:11,fontWeight:600,cursor:'pointer',display:'flex',alignItems:'center',gap:6,transition:'all .15s'}}
-                      onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,.12)'}
-                      onMouseLeave={e=>e.currentTarget.style.background='rgba(255,255,255,.06)'}>
-                      <i className="fa-solid fa-plus" style={{fontSize:9}}></i>New Map
-                    </button>
-                  )}
-                  <button onClick={()=>setShowConceptMap(false)} style={{width:32,height:32,borderRadius:10,border:'1px solid rgba(255,255,255,.12)',background:'rgba(255,255,255,.06)',color:'rgba(255,255,255,.5)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,transition:'all .15s'}}
-                    onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,.12)'}
-                    onMouseLeave={e=>e.currentTarget.style.background='rgba(255,255,255,.06)'}>
-                    <i className="fa-solid fa-xmark" style={{fontSize:12}}></i>
+                <div style={{display:'flex',gap:8}}>
+                  {conceptData&&<button onClick={()=>setConceptData(null)} style={{padding:'7px 13px',borderRadius:10,border:'1px solid rgba(255,255,255,.1)',background:'rgba(255,255,255,.05)',color:'rgba(255,255,255,.5)',fontSize:11,fontWeight:600,cursor:'pointer',transition:'all .15s'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,.11)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(255,255,255,.05)'}><i className="fa-solid fa-rotate-right" style={{marginRight:5,fontSize:10}}/>Reset</button>}
+                  <button onClick={()=>setShowConceptMap(false)} style={{width:34,height:34,borderRadius:10,border:'1px solid rgba(255,255,255,.1)',background:'rgba(255,255,255,.05)',color:'rgba(255,255,255,.4)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',transition:'all .15s'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,.12)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(255,255,255,.05)'}>
+                    <i className="fa-solid fa-xmark" style={{fontSize:13}}/>
                   </button>
                 </div>
+              </div>
+
+              {/* Mode tabs */}
+              <div style={{display:'flex',gap:2,marginTop:20,position:'relative'}}>
+                {[
+                  {id:'branches',ic:'fa-diagram-project',label:'Mind Map',    color:'#8B5CF6'},
+                  {id:'timeline',ic:'fa-timeline',       label:'Timeline',    color:'#3B82F6'},
+                  {id:'compare', ic:'fa-table-columns',  label:'Compare',     color:'#10B981'},
+                  {id:'deep',    ic:'fa-layer-group',    label:'Deep Dive',   color:'#F59E0B'},
+                ].map(m=>{
+                  const on=conceptMapMode===m.id;
+                  return <button key={m.id} onClick={()=>{setConceptMapMode(m.id);setConceptData(null);}} style={{display:'flex',alignItems:'center',gap:6,padding:'8px 14px',borderRadius:'12px 12px 0 0',border:`1px solid ${on?m.color+'40':'transparent'}`,borderBottom:'none',background:on?'var(--bg2)':'transparent',color:on?m.color:'rgba(255,255,255,.35)',fontSize:11,fontWeight:700,cursor:'pointer',transition:'all .18s',position:'relative',bottom:-1}}>
+                    <i className={`fa-solid ${m.ic}`} style={{fontSize:9}}/>{m.label}
+                  </button>;
+                })}
               </div>
             </div>
 
             {/* ── Input ── */}
-            <div style={{padding:'14px 20px 12px',flexShrink:0,borderBottom:'1px solid var(--br)',background:'var(--bg3)'}}>
+            <div style={{padding:'18px 26px 14px',borderBottom:'1px solid var(--br)',flexShrink:0,background:'var(--bg2)'}}>
               <div style={{display:'flex',gap:10}}>
                 <input value={conceptTopic} onChange={e=>setConceptTopic(e.target.value)}
-                  onKeyDown={e=>e.key==='Enter'&&conceptTopic.trim()&&!conceptLoading&&document.getElementById('concept-gen-btn').click()}
-                  placeholder="Enter any topic... e.g. Machine Learning, React, Climate Change"
-                  style={{flex:1,borderRadius:12,padding:'10px 14px',fontSize:13,background:'var(--bg2)',border:'1px solid var(--br)',color:'var(--t1)',outline:'none',fontFamily:'inherit',transition:'border-color .15s'}}
+                  onKeyDown={e=>e.key==='Enter'&&conceptTopic.trim()&&!conceptLoading&&document.getElementById('cmap-btn').click()}
+                  placeholder={conceptMapMode==='branches'?'Topic to map... e.g. Machine Learning, Photosynthesis':conceptMapMode==='timeline'?'Topic for timeline... e.g. History of the Internet':conceptMapMode==='compare'?'Two things to compare... e.g. React vs Vue':'Topic for deep dive... e.g. Quantum Computing'}
+                  style={{flex:1,borderRadius:14,padding:'12px 16px',fontSize:13,outline:'none',border:'1px solid var(--br)',background:'var(--bg3)',color:'var(--t1)',fontFamily:'inherit',transition:'border-color .2s'}}
                   onFocus={e=>e.target.style.borderColor='rgba(139,92,246,.5)'}
                   onBlur={e=>e.target.style.borderColor='var(--br)'}/>
-                {conceptLoading?(
-                  <button onClick={()=>{if(conceptAbortRef.current)conceptAbortRef.current.abort();setConceptLoading(false);}}
-                    style={{padding:'0 16px',borderRadius:12,fontSize:13,fontWeight:700,background:'rgba(239,68,68,.12)',color:'#f87171',border:'1px solid rgba(239,68,68,.3)',cursor:'pointer',flexShrink:0,display:'flex',alignItems:'center',gap:7,whiteSpace:'nowrap'}}>
-                    <i className="fa-solid fa-stop" style={{fontSize:10}}></i>Stop
-                  </button>
-                ):(
-                  <button id="concept-gen-btn" onClick={async()=>{
-                    if(!conceptTopic.trim()) return;
-                    const ctrl=new AbortController(); conceptAbortRef.current=ctrl;
-                    setConceptLoading(true); setConceptData(null);
+                {conceptLoading
+                  ?<button onClick={()=>{if(conceptAbortRef.current)conceptAbortRef.current.abort();setConceptLoading(false);}} style={{padding:'0 18px',borderRadius:14,border:'1px solid rgba(239,68,68,.35)',background:'rgba(239,68,68,.1)',color:'#f87171',fontSize:12,fontWeight:700,cursor:'pointer',flexShrink:0,display:'flex',alignItems:'center',gap:7}}>
+                      <i className="fa-solid fa-stop" style={{fontSize:10}}/>Stop
+                    </button>
+                  :<button id="cmap-btn" onClick={async()=>{
+                    if(!conceptTopic.trim())return;
+                    const ps={
+                      branches:`Create a detailed mind map for "${conceptTopic}". Return ONLY JSON: {"center":"${conceptTopic}","branches":[{"label":"Branch Name","color":"#hexcolor","icon":"fa-icon-name","nodes":["node1","node2","node3","node4"]}]} Include 5-7 branches with 3-5 nodes each. Use varied hex colors.`,
+                      timeline:`Create a chronological timeline for "${conceptTopic}". Return ONLY JSON: {"center":"${conceptTopic}","branches":[{"label":"Time Period","color":"#hexcolor","icon":"fa-clock","nodes":["event1","event2","event3"]}]} Include 5-6 time periods chronologically.`,
+                      compare:`Compare "${conceptTopic}" from multiple angles. Return ONLY JSON: {"center":"${conceptTopic}","branches":[{"label":"Aspect Name","color":"#hexcolor","icon":"fa-icon","nodes":["item A description","item B description"]}]} Include 5-6 comparison aspects.`,
+                      deep:`Deep dive into "${conceptTopic}". Return ONLY JSON: {"center":"${conceptTopic}","branches":[{"label":"Definition","color":"#3B82F6","icon":"fa-book","nodes":[]},{"label":"Core Concepts","color":"#8B5CF6","icon":"fa-key","nodes":[]},{"label":"How It Works","color":"#10B981","icon":"fa-gears","nodes":[]},{"label":"Real-World Uses","color":"#F59E0B","icon":"fa-rocket","nodes":[]},{"label":"Challenges","color":"#EF4444","icon":"fa-triangle-exclamation","nodes":[]},{"label":"Future Trends","color":"#06B6D4","icon":"fa-forward","nodes":[]}]}`,
+                    };
+                    const ctrl=new AbortController();conceptAbortRef.current=ctrl;
+                    setConceptLoading(true);setConceptData(null);
                     try{
-                      const res=await fetch('/chat',{method:'POST',signal:ctrl.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({message:`Create a detailed concept map for "${conceptTopic}". Return ONLY valid JSON (no markdown): {"center":"${conceptTopic}","summary":"one sentence description","branches":[{"label":"Branch Name","color":"#hexcolor","icon":"fa-icon-name","nodes":[{"name":"concept","desc":"brief description"}]}]} with 5-7 branches, 3-5 nodes each. Use different colors per branch.`,system_prompt:'Knowledge mapping expert. Respond ONLY with valid JSON.'})});
-                      const data=await res.json();
-                      const clean=(data.reply||'{}').replace(/```json|```/g,'').trim();
+                      const r=await fetch('/chat',{method:'POST',signal:ctrl.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({message:ps[conceptMapMode],system_prompt:'You are a knowledge mapping assistant. Always respond with valid JSON only, no markdown fences.'})});
+                      const d=await r.json();
+                      const clean=(d.reply||'{}').replace(/```json|```/g,'').trim();
                       setConceptData(JSON.parse(clean));
-                    }catch(e){if(e.name!=='AbortError')setConceptData({center:conceptTopic,summary:'Concept map for '+conceptTopic,branches:[{label:'Error',color:'#EF4444',icon:'fa-circle-exclamation',nodes:[{name:'Try again',desc:'Simplify your topic'}]}]});}
+                    }catch(e){if(e.name!=='AbortError')setConceptData({center:conceptTopic,branches:[{label:'Error',color:'#EF4444',icon:'fa-circle-xmark',nodes:['Could not parse response','Try rephrasing your topic','Use a simpler term']}]});}
                     finally{setConceptLoading(false);conceptAbortRef.current=null;}
-                  }} disabled={!conceptTopic.trim()}
-                    style={{padding:'0 18px',borderRadius:12,fontSize:13,fontWeight:700,color:'#fff',background:conceptTopic.trim()?'linear-gradient(135deg,#8B5CF6,#EC4899)':'var(--bg2)',border:'none',cursor:conceptTopic.trim()?'pointer':'default',display:'flex',alignItems:'center',gap:7,flexShrink:0,opacity:conceptTopic.trim()?1:.5,transition:'all .15s',boxShadow:conceptTopic.trim()?'0 4px 14px rgba(139,92,246,.35)':'none',whiteSpace:'nowrap'}}
-                    onMouseEnter={e=>{if(conceptTopic.trim())e.currentTarget.style.transform='translateY(-1px)';}}
-                    onMouseLeave={e=>e.currentTarget.style.transform='translateY(0)'}>
-                    <i className="fa-solid fa-wand-magic-sparkles" style={{fontSize:11}}></i>Generate
+                  }} disabled={!conceptTopic.trim()} style={{padding:'0 22px',borderRadius:14,border:'none',background:conceptTopic.trim()?'linear-gradient(135deg,#8B5CF6,#EC4899)':'var(--bg3)',color:conceptTopic.trim()?'#fff':'var(--t3)',fontSize:13,fontWeight:800,cursor:conceptTopic.trim()?'pointer':'default',flexShrink:0,display:'flex',alignItems:'center',gap:8,transition:'all .2s',boxShadow:conceptTopic.trim()?'0 4px 18px rgba(139,92,246,.4)':'none'}}
+                    onMouseEnter={e=>{if(conceptTopic.trim()){e.currentTarget.style.transform='translateY(-1px)';e.currentTarget.style.filter='brightness(1.1)';}}}
+                    onMouseLeave={e=>{e.currentTarget.style.transform='';e.currentTarget.style.filter='';}}>
+                    <i className="fa-solid fa-diagram-project" style={{fontSize:10}}/>Generate
                   </button>
-                )}
+                }
               </div>
               <div style={{display:'flex',gap:6,marginTop:10,flexWrap:'wrap'}}>
-                <span style={{fontSize:10,color:'var(--t3)',alignSelf:'center',marginRight:2}}>Topics:</span>
-                {['Machine Learning','React Hooks','Blockchain','Human Brain','Solar System','Climate Change','Entrepreneurship','Quantum Physics'].map(ex=>(
-                  <button key={ex} onClick={()=>setConceptTopic(ex)}
-                    style={{padding:'4px 10px',borderRadius:99,fontSize:10,fontWeight:600,border:'1px solid rgba(139,92,246,.25)',color:'#a78bfa',background:'rgba(139,92,246,.07)',cursor:'pointer',transition:'all .12s',whiteSpace:'nowrap'}}
-                    onMouseEnter={e=>e.currentTarget.style.background='rgba(139,92,246,.15)'}
-                    onMouseLeave={e=>e.currentTarget.style.background='rgba(139,92,246,.07)'}>{ex}</button>
+                <span style={{fontSize:10,color:'var(--t3)',fontWeight:600,alignSelf:'center',marginRight:2}}>Try:</span>
+                {(conceptMapMode==='branches'?['Machine Learning','Human Brain','Climate Change']:conceptMapMode==='timeline'?['History of AI','Space Exploration','Evolution of Computers']:conceptMapMode==='compare'?['React vs Vue','SQL vs NoSQL','iOS vs Android']:['Neural Networks','Quantum Computing','Docker & Kubernetes']).map(ex=>(
+                  <button key={ex} onClick={()=>setConceptTopic(ex)} style={{padding:'3px 10px',borderRadius:20,border:'1px solid var(--br)',color:'var(--t3)',background:'var(--bg3)',fontSize:10,fontWeight:500,cursor:'pointer',transition:'all .12s'}}
+                    onMouseEnter={e=>{e.currentTarget.style.borderColor='rgba(139,92,246,.4)';e.currentTarget.style.color='var(--t1)';}}
+                    onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--br)';e.currentTarget.style.color='var(--t3)';}}>
+                    {ex}
+                  </button>
                 ))}
               </div>
             </div>
 
             {/* ── Map output ── */}
-            <div style={{flex:1,overflowY:'auto',padding:'20px',scrollbarWidth:'thin'}} className="sb">
-              {conceptLoading&&(
-                <div>
-                  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:16}}>
-                    <div style={{width:7,height:7,borderRadius:'50%',background:'#8B5CF6',animation:'pulse 1s infinite'}}></div>
-                    <span style={{fontSize:12,color:'#a78bfa',fontWeight:600}}>Building your concept map…</span>
-                  </div>
-                  <div style={{display:'flex',justifyContent:'center',marginBottom:20}}>
-                    <div style={{height:36,width:160,borderRadius:20,background:'var(--bg3)',animation:'pulse 1.2s infinite'}}></div>
-                  </div>
-                  <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:12}}>
-                    {[1,2,3,4,5,6].map(i=>(
-                      <div key={i} style={{borderRadius:16,border:'1px solid var(--br)',background:'var(--bg3)',padding:14,animation:'pulse 1.2s infinite',animationDelay:`${i*.08}s`}}>
-                        <div style={{height:10,borderRadius:5,width:'50%',background:'var(--br)',marginBottom:10}}></div>
-                        <div style={{display:'flex',flexDirection:'column',gap:6}}>{[1,2,3].map(j=><div key={j} style={{height:28,borderRadius:8,background:'var(--br)'}}></div>)}</div>
-                      </div>
-                    ))}
+            <div className="sb" style={{flex:1,overflowY:'auto',padding:'20px 26px 24px'}}>
+
+              {conceptLoading&&<div style={{display:'flex',flexDirection:'column',gap:10}}>
+                <div style={{display:'flex',justifyContent:'center',marginBottom:10}}><div style={{height:38,width:180,borderRadius:99,background:'var(--bg3)',animation:'pulse 1.6s ease-in-out infinite'}}/></div>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10}}>
+                  {[1,2,3,4,5,6].map(i=><div key={i} style={{borderRadius:16,border:'1px solid var(--br)',background:'var(--bg3)',padding:14,animation:'pulse 1.6s ease-in-out infinite',animationDelay:`${i*.1}s`}}>
+                    <div style={{height:10,borderRadius:6,background:'var(--br)',width:'60%',marginBottom:10}}/>
+                    {[1,2,3].map(j=><div key={j} style={{height:8,borderRadius:5,background:'var(--br)',marginBottom:6,width:(50+j*15)+'%'}}/>)}
+                  </div>)}
+                </div>
+              </div>}
+
+              {!conceptLoading&&conceptData&&<div>
+                {/* Center pill */}
+                <div style={{display:'flex',justifyContent:'center',marginBottom:22}}>
+                  <div style={{padding:'11px 28px',borderRadius:99,fontWeight:900,color:'#fff',fontSize:16,background:'linear-gradient(135deg,#8B5CF6,#EC4899)',boxShadow:'0 6px 28px rgba(139,92,246,.45)',display:'flex',alignItems:'center',gap:10,letterSpacing:'-.2px'}}>
+                    <i className="fa-solid fa-circle-dot" style={{fontSize:12}}/>{conceptData.center}
                   </div>
                 </div>
-              )}
-              {!conceptLoading&&conceptData&&(
-                <div>
-                  {/* Center node */}
-                  <div style={{display:'flex',flexDirection:'column',alignItems:'center',marginBottom:20}}>
-                    <div style={{padding:'10px 24px',borderRadius:99,fontWeight:800,fontSize:16,color:'#fff',background:'linear-gradient(135deg,#8B5CF6,#EC4899)',boxShadow:'0 6px 24px rgba(139,92,246,.4)',display:'flex',alignItems:'center',gap:10}}>
-                      <i className="fa-solid fa-circle-dot" style={{fontSize:12,opacity:.8}}></i>{conceptData.center}
-                    </div>
-                    {conceptData.summary&&<p style={{margin:'10px 0 0',fontSize:12,color:'var(--t3)',textAlign:'center',maxWidth:400}}>{conceptData.summary}</p>}
-                  </div>
-                  {/* Branch grid */}
-                  <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:12,marginBottom:16}}>
-                    {(conceptData.branches||[]).map((branch,bi)=>(
-                      <div key={bi} style={{borderRadius:16,border:`1px solid ${branch.color}35`,background:`${branch.color}06`,overflow:'hidden',transition:'all .15s'}}
-                        onMouseEnter={e=>{e.currentTarget.style.borderColor=branch.color+'60';e.currentTarget.style.boxShadow=`0 6px 20px ${branch.color}18`;}}
-                        onMouseLeave={e=>{e.currentTarget.style.borderColor=branch.color+'35';e.currentTarget.style.boxShadow='none';}}>
-                        <div style={{padding:'10px 14px',background:`${branch.color}14`,borderBottom:`1px solid ${branch.color}25`,display:'flex',alignItems:'center',gap:8}}>
-                          <div style={{width:26,height:26,borderRadius:8,background:branch.color+'25',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-                            <i className={`fa-solid ${branch.icon||'fa-circle-dot'}`} style={{color:branch.color,fontSize:11}}></i>
+                {/* Branch grid */}
+                <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(190px,1fr))',gap:12}}>
+                  {(conceptData.branches||[]).map((br,bi)=>(
+                    <div key={bi} style={{borderRadius:18,border:`1px solid ${br.color}30`,background:`${br.color}06`,overflow:'hidden',transition:'transform .2s,box-shadow .2s,border-color .2s'}}
+                      onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-4px)';e.currentTarget.style.boxShadow=`0 12px 28px ${br.color}25`;e.currentTarget.style.borderColor=br.color+'55';}}
+                      onMouseLeave={e=>{e.currentTarget.style.transform='';e.currentTarget.style.boxShadow='';e.currentTarget.style.borderColor=br.color+'30';}}>
+                      <div style={{padding:'11px 15px',background:`${br.color}14`,borderBottom:`1px solid ${br.color}22`,display:'flex',alignItems:'center',gap:9}}>
+                        <div style={{width:28,height:28,borderRadius:9,background:`${br.color}22`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                          <i className={`fa-solid ${br.icon||'fa-circle-dot'}`} style={{color:br.color,fontSize:11}}/>
+                        </div>
+                        <span style={{fontSize:12,fontWeight:800,color:br.color,flex:1,lineHeight:1.2}}>{br.label}</span>
+                        <span style={{fontSize:9,color:br.color+'88',background:br.color+'18',padding:'2px 7px',borderRadius:8,fontWeight:700}}>{(br.nodes||[]).length}</span>
+                      </div>
+                      <div style={{padding:'11px 13px',display:'flex',flexDirection:'column',gap:5}}>
+                        {(br.nodes||[]).map((node,ni)=>(
+                          <div key={ni} style={{display:'flex',alignItems:'flex-start',gap:8,padding:'6px 10px',borderRadius:10,background:'var(--bg3)',cursor:'default',transition:'background .12s'}}
+                            onMouseEnter={e=>e.currentTarget.style.background=br.color+'14'}
+                            onMouseLeave={e=>e.currentTarget.style.background='var(--bg3)'}>
+                            <div style={{width:5,height:5,borderRadius:'50%',background:br.color+'80',flexShrink:0,marginTop:4}}/>
+                            <span style={{fontSize:12,color:'var(--t1)',lineHeight:1.4}}>{node}</span>
                           </div>
-                          <span style={{fontSize:12,fontWeight:800,color:branch.color}}>{branch.label}</span>
-                        </div>
-                        <div style={{padding:'10px 12px',display:'flex',flexDirection:'column',gap:6}}>
-                          {(branch.nodes||[]).map((node,ni)=>{
-                            const nm = typeof node==='string'?node:node.name;
-                            const desc = typeof node==='object'?node.desc:null;
-                            return(
-                              <div key={ni} style={{display:'flex',alignItems:'flex-start',gap:8,padding:'7px 10px',borderRadius:10,background:'var(--bg3)',cursor:'default',transition:'background .12s'}}
-                                onMouseEnter={e=>e.currentTarget.style.background=branch.color+'0f'}
-                                onMouseLeave={e=>e.currentTarget.style.background='var(--bg3)'}>
-                                <div style={{width:6,height:6,borderRadius:'50%',background:branch.color,flexShrink:0,marginTop:5}}></div>
-                                <div>
-                                  <p style={{margin:0,fontSize:12,fontWeight:600,color:'var(--t1)',lineHeight:1.3}}>{nm}</p>
-                                  {desc&&<p style={{margin:'3px 0 0',fontSize:10,color:'var(--t3)',lineHeight:1.4}}>{desc}</p>}
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                  {/* Action buttons */}
-                  <div style={{display:'flex',gap:10}}>
-                    <button onClick={()=>{const txt='# '+conceptData.center+'\n'+(conceptData.summary?conceptData.summary+'\n':'')+'\n'+(conceptData.branches||[]).map(br=>'## '+br.label+'\n'+(br.nodes||[]).map(nd=>typeof nd==='string'?'- '+nd:'- **'+nd.name+'**: '+nd.desc).join('\n')).join('\n\n');navigator.clipboard.writeText(txt).then(()=>toast_('Copied!','success'));}}
-                      style={{flex:1,padding:'11px',borderRadius:12,border:'1px solid rgba(139,92,246,.3)',color:'#a78bfa',background:'rgba(139,92,246,.08)',fontSize:13,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:7,transition:'all .15s'}}
-                      onMouseEnter={e=>e.currentTarget.style.background='rgba(139,92,246,.16)'}
-                      onMouseLeave={e=>e.currentTarget.style.background='rgba(139,92,246,.08)'}>
-                      <i className="fa-solid fa-copy" style={{fontSize:11}}></i>Copy as Markdown
-                    </button>
-                    <button onClick={()=>{setShowConceptMap(false);setTimeout(()=>{const el=document.querySelector('textarea');if(el){el.value='Explain each branch of this concept map in detail:\n\n'+conceptData.center+'\n\nBranches: '+(conceptData.branches||[]).map(b=>b.label).join(', ');el.dispatchEvent(new Event('input',{bubbles:true}));}},100);}}
-                      style={{flex:1,padding:'11px',borderRadius:12,border:'1px solid rgba(236,72,153,.3)',color:'#f472b6',background:'rgba(236,72,153,.08)',fontSize:13,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:7,transition:'all .15s'}}
-                      onMouseEnter={e=>e.currentTarget.style.background='rgba(236,72,153,.16)'}
-                      onMouseLeave={e=>e.currentTarget.style.background='rgba(236,72,153,.08)'}>
-                      <i className="fa-solid fa-expand" style={{fontSize:11}}></i>Deep Dive in Chat
-                    </button>
-                  </div>
+                    </div>
+                  ))}
                 </div>
-              )}
-              {!conceptLoading&&!conceptData&&(
-                <div style={{textAlign:'center',padding:'48px 0'}}>
-                  <div style={{width:64,height:64,borderRadius:20,background:'rgba(139,92,246,.08)',border:'1px solid rgba(139,92,246,.15)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px'}}>
-                    <i className="fa-solid fa-diagram-project" style={{color:'rgba(139,92,246,.4)',fontSize:26}}></i>
-                  </div>
-                  <p style={{margin:0,fontSize:15,fontWeight:700,color:'var(--t2)'}}>Map any knowledge</p>
-                  <p style={{margin:'6px 0 0',fontSize:12,color:'var(--t3)'}}>Enter a topic and watch it become a structured visual map</p>
+                {/* Actions */}
+                <div style={{display:'flex',gap:8,marginTop:18}}>
+                  <button onClick={()=>{const md='# '+conceptData.center+'\n\n'+(conceptData.branches||[]).map(b=>'## '+b.label+'\n'+(b.nodes||[]).map(n=>'- '+n).join('\n')).join('\n\n');navigator.clipboard.writeText(md).then(()=>toast_('Copied as Markdown!','success'));}} style={{flex:1,padding:'11px',borderRadius:13,border:'1px solid rgba(139,92,246,.3)',background:'rgba(139,92,246,.07)',color:'#a78bfa',fontSize:12,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:7,transition:'all .15s'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(139,92,246,.14)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(139,92,246,.07)'}>
+                    <i className="fa-solid fa-copy" style={{fontSize:10}}/>Markdown
+                  </button>
+                  <button onClick={()=>navigator.clipboard.writeText(JSON.stringify(conceptData,null,2)).then(()=>toast_('Copied as JSON!','success'))} style={{flex:1,padding:'11px',borderRadius:13,border:'1px solid rgba(245,158,11,.3)',background:'rgba(245,158,11,.07)',color:'#fbbf24',fontSize:12,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:7,transition:'all .15s'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(245,158,11,.14)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(245,158,11,.07)'}>
+                    <i className="fa-solid fa-code" style={{fontSize:10}}/>JSON
+                  </button>
+                  <button onClick={()=>{const t='Explain the concept map of "'+conceptData.center+'" in detail. Cover: '+(conceptData.branches||[]).map(b=>b.label).join(', ');setShowConceptMap(false);setTimeout(()=>setInput(t),100);}} style={{flex:1,padding:'11px',borderRadius:13,border:'1px solid rgba(59,130,246,.3)',background:'rgba(59,130,246,.07)',color:'#60a5fa',fontSize:12,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:7,transition:'all .15s'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(59,130,246,.14)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(59,130,246,.07)'}>
+                    <i className="fa-solid fa-paper-plane" style={{fontSize:10}}/>Discuss
+                  </button>
                 </div>
-              )}
+              </div>}
+
+              {!conceptLoading&&!conceptData&&<div style={{textAlign:'center',padding:'50px 20px'}}>
+                <div style={{width:70,height:70,borderRadius:24,background:'rgba(139,92,246,.06)',border:'1px solid rgba(139,92,246,.12)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 18px'}}>
+                  <i className="fa-solid fa-diagram-project" style={{color:'rgba(139,92,246,.3)',fontSize:30}}/>
+                </div>
+                <div style={{fontSize:15,fontWeight:700,color:'var(--t2)',marginBottom:6}}>Map any topic</div>
+                <div style={{fontSize:12,color:'var(--t3)'}}>Choose a map style and enter your topic above</div>
+              </div>}
             </div>
           </div>
         </div>
@@ -5234,220 +5264,190 @@ Reply: ${botText.slice(0,800)}`,
 
       {/* ═══ STORY GENERATOR ═══ */}
       {showStoryGen&&(
-        <div style={{position:'fixed',inset:0,zIndex:200,display:'flex',alignItems:'center',justifyContent:'center',padding:16,background:'rgba(0,0,0,.88)',backdropFilter:'blur(18px)'}} onClick={()=>setShowStoryGen(false)}>
-          <div style={{width:'100%',maxWidth:680,background:'var(--bg2)',border:'1px solid var(--br)',borderRadius:24,boxShadow:'0 32px 80px rgba(0,0,0,.6)',display:'flex',flexDirection:'column',maxHeight:'92vh',animation:'mIn .32s cubic-bezier(.16,1,.3,1)',overflow:'hidden'}} onClick={e=>e.stopPropagation()}>
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.92)',backdropFilter:'blur(24px)'}} onClick={()=>setShowStoryGen(false)}>
+          <div className="w-full max-w-2xl flex flex-col rounded-3xl" style={{background:'var(--bg2)',border:'1px solid rgba(255,255,255,.07)',maxHeight:'90vh',boxShadow:'0 32px 80px rgba(0,0,0,.6)',animation:'mIn .28s cubic-bezier(.16,1,.3,1)'}} onClick={e=>e.stopPropagation()}>
 
             {/* ── Hero Header ── */}
-            <div style={{background:'linear-gradient(135deg,#150a00 0%,#2a1400 50%,#150a00 100%)',padding:'22px 22px 18px',flexShrink:0,position:'relative',overflow:'hidden'}}>
-              <div style={{position:'absolute',inset:0,background:'radial-gradient(ellipse at 40% 60%,rgba(245,158,11,.2) 0%,transparent 60%)',pointerEvents:'none'}}></div>
-              <div style={{position:'absolute',right:16,top:8,opacity:.05,fontSize:80,lineHeight:1}}>✍</div>
+            <div style={{background:'linear-gradient(145deg,#180b00 0%,#2d1600 50%,#180b00 100%)',borderRadius:'24px 24px 0 0',padding:'24px 26px 20px',flexShrink:0,position:'relative',overflow:'hidden'}}>
+              <div style={{position:'absolute',inset:0,background:'radial-gradient(ellipse at 75% 50%,rgba(245,158,11,.18) 0%,transparent 60%)',pointerEvents:'none'}}/>
+              <div style={{position:'absolute',right:22,top:10,fontSize:90,opacity:.04,color:'#F59E0B',lineHeight:1,userSelect:'none'}}>✍</div>
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',position:'relative'}}>
-                <div style={{display:'flex',alignItems:'center',gap:14}}>
-                  <div style={{width:50,height:50,borderRadius:16,background:'linear-gradient(135deg,#F59E0B,#EF4444)',boxShadow:'0 8px 24px rgba(245,158,11,.4)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-                    <i className="fa-solid fa-feather-pointed" style={{color:'#fff',fontSize:20}}></i>
+                <div style={{display:'flex',alignItems:'center',gap:16}}>
+                  <div style={{width:52,height:52,borderRadius:18,background:'linear-gradient(135deg,#F59E0B,#EF4444)',boxShadow:'0 8px 32px rgba(245,158,11,.5)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                    <i className="fa-solid fa-feather-pointed" style={{color:'#fff',fontSize:22}}/>
                   </div>
                   <div>
-                    <p style={{margin:0,fontSize:11,fontWeight:700,letterSpacing:'.12em',textTransform:'uppercase',color:'rgba(245,158,11,.7)'}}>Creative Writing</p>
-                    <p style={{margin:'2px 0 0',fontSize:20,fontWeight:800,color:'#fff',lineHeight:1.1}}>Story Generator</p>
-                    <p style={{margin:'4px 0 0',fontSize:11,color:'rgba(255,255,255,.35)'}}>AI-crafted original stories with your settings</p>
+                    <div style={{fontSize:10,fontWeight:700,letterSpacing:'.16em',textTransform:'uppercase',color:'rgba(245,158,11,.6)',marginBottom:3}}>Creative Writer</div>
+                    <div style={{fontSize:22,fontWeight:900,color:'#fff',lineHeight:1,letterSpacing:'-.4px'}}>Story Generator</div>
+                    <div style={{fontSize:11,color:'rgba(255,255,255,.3)',marginTop:5}}>Create original AI-powered stories with full control</div>
                   </div>
                 </div>
-                <div style={{display:'flex',gap:8,alignItems:'center'}}>
-                  {storyResult&&(
-                    <button onClick={()=>{setStoryResult('');setStoryStep(0);}}
-                      style={{padding:'6px 12px',borderRadius:9,border:'1px solid rgba(255,255,255,.12)',background:'rgba(255,255,255,.06)',color:'rgba(255,255,255,.55)',fontSize:11,fontWeight:600,cursor:'pointer',display:'flex',alignItems:'center',gap:6,transition:'all .15s'}}
-                      onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,.12)'}
-                      onMouseLeave={e=>e.currentTarget.style.background='rgba(255,255,255,.06)'}>
-                      <i className="fa-solid fa-plus" style={{fontSize:9}}></i>New Story
-                    </button>
-                  )}
-                  <button onClick={()=>setShowStoryGen(false)} style={{width:32,height:32,borderRadius:10,border:'1px solid rgba(255,255,255,.12)',background:'rgba(255,255,255,.06)',color:'rgba(255,255,255,.5)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,transition:'all .15s'}}
-                    onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,.12)'}
-                    onMouseLeave={e=>e.currentTarget.style.background='rgba(255,255,255,.06)'}>
-                    <i className="fa-solid fa-xmark" style={{fontSize:12}}></i>
+                <div style={{display:'flex',gap:8}}>
+                  {storyResult&&<button onClick={()=>{setStoryResult('');setStoryStep(0);}} style={{padding:'7px 13px',borderRadius:10,border:'1px solid rgba(255,255,255,.1)',background:'rgba(255,255,255,.05)',color:'rgba(255,255,255,.5)',fontSize:11,fontWeight:600,cursor:'pointer',transition:'all .15s'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,.11)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(255,255,255,.05)'}><i className="fa-solid fa-rotate-right" style={{marginRight:5,fontSize:10}}/>New Story</button>}
+                  <button onClick={()=>setShowStoryGen(false)} style={{width:34,height:34,borderRadius:10,border:'1px solid rgba(255,255,255,.1)',background:'rgba(255,255,255,.05)',color:'rgba(255,255,255,.4)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',transition:'all .15s'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,.12)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(255,255,255,.05)'}>
+                    <i className="fa-solid fa-xmark" style={{fontSize:13}}/>
                   </button>
                 </div>
               </div>
             </div>
 
             {!storyResult?(
-            <div style={{flex:1,overflowY:'auto',padding:'20px',scrollbarWidth:'thin'}} className="sb">
+            <div className="sb" style={{flex:1,overflowY:'auto',padding:'20px 26px 24px'}}>
 
-              {/* ── Genre grid ── */}
-              <div style={{marginBottom:18}}>
-                <p style={{margin:'0 0 10px',fontSize:10,fontWeight:700,letterSpacing:'.1em',textTransform:'uppercase',color:'var(--t3)'}}>Genre</p>
+              {/* Genre */}
+              <div style={{marginBottom:20}}>
+                <div style={{fontSize:10,fontWeight:800,letterSpacing:'.14em',textTransform:'uppercase',color:'var(--t3)',marginBottom:10}}>Genre</div>
                 <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8}}>
                   {[
-                    {id:'fantasy',label:'Fantasy',icon:'fa-wand-sparkles',color:'#8B5CF6'},
-                    {id:'scifi',label:'Sci-Fi',icon:'fa-rocket',color:'#3B82F6'},
-                    {id:'horror',label:'Horror',icon:'fa-skull',color:'#EF4444'},
-                    {id:'romance',label:'Romance',icon:'fa-heart',color:'#EC4899'},
-                    {id:'mystery',label:'Mystery',icon:'fa-magnifying-glass',color:'#F59E0B'},
-                    {id:'adventure',label:'Adventure',icon:'fa-compass',color:'#10B981'},
-                    {id:'comedy',label:'Comedy',icon:'fa-face-laugh',color:'#F97316'},
-                    {id:'thriller',label:'Thriller',icon:'fa-bolt',color:'#06B6D4'},
-                    {id:'historical',label:'Historical',icon:'fa-landmark',color:'#D97706'},
-                    {id:'dystopia',label:'Dystopia',icon:'fa-city',color:'#64748B'},
-                    {id:'mythology',label:'Myth',icon:'fa-fire-flame-curved',color:'#DC2626'},
-                    {id:'cyberpunk',label:'Cyberpunk',icon:'fa-microchip',color:'#A855F7'},
-                  ].map(g=>(
-                    <button key={g.id} onClick={()=>setStoryConfig(c=>({...c,genre:g.id}))}
-                      style={{display:'flex',flexDirection:'column',alignItems:'center',gap:5,padding:'10px 4px',borderRadius:12,border:`1px solid ${storyConfig.genre===g.id?g.color+'55':'var(--br)'}`,background:storyConfig.genre===g.id?`${g.color}14`:'var(--bg3)',cursor:'pointer',transition:'all .15s'}}
-                      onMouseEnter={e=>{if(storyConfig.genre!==g.id){e.currentTarget.style.borderColor=g.color+'33';e.currentTarget.style.background=g.color+'08';}}}
-                      onMouseLeave={e=>{if(storyConfig.genre!==g.id){e.currentTarget.style.borderColor='var(--br)';e.currentTarget.style.background='var(--bg3)';}}}> 
-                      <div style={{width:28,height:28,borderRadius:9,background:storyConfig.genre===g.id?`${g.color}28`:'var(--bg2)',display:'flex',alignItems:'center',justifyContent:'center',transition:'all .15s'}}>
-                        <i className={`fa-solid ${g.icon}`} style={{color:storyConfig.genre===g.id?g.color:'var(--t3)',fontSize:11}}></i>
+                    {id:'fantasy',   label:'Fantasy',    icon:'fa-wand-sparkles',    color:'#8B5CF6'},
+                    {id:'scifi',     label:'Sci-Fi',     icon:'fa-rocket',           color:'#3B82F6'},
+                    {id:'horror',    label:'Horror',     icon:'fa-skull',            color:'#EF4444'},
+                    {id:'romance',   label:'Romance',    icon:'fa-heart',            color:'#EC4899'},
+                    {id:'mystery',   label:'Mystery',    icon:'fa-magnifying-glass', color:'#F59E0B'},
+                    {id:'adventure', label:'Adventure',  icon:'fa-compass',          color:'#10B981'},
+                    {id:'thriller',  label:'Thriller',   icon:'fa-bolt',             color:'#06B6D4'},
+                    {id:'comedy',    label:'Comedy',     icon:'fa-face-laugh',       color:'#F97316'},
+                    {id:'historical',label:'Historical', icon:'fa-landmark',         color:'#84CC16'},
+                    {id:'dystopia',  label:'Dystopia',   icon:'fa-city',             color:'#94A3B8'},
+                    {id:'mythology', label:'Mythology',  icon:'fa-khanda',           color:'#A78BFA'},
+                    {id:'western',   label:'Western',    icon:'fa-horse',            color:'#D97706'},
+                  ].map(g=>{
+                    const on=storyConfig.genre===g.id;
+                    return <button key={g.id} onClick={()=>setStoryConfig(c=>({...c,genre:g.id}))} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:6,padding:'11px 4px',borderRadius:13,border:`1px solid ${on?g.color+'50':'var(--br)'}`,background:on?g.color+'12':'var(--bg3)',cursor:'pointer',transition:'all .15s'}}
+                      onMouseEnter={e=>{if(!on){e.currentTarget.style.borderColor=g.color+'30';e.currentTarget.style.background=g.color+'07';}}}
+                      onMouseLeave={e=>{if(!on){e.currentTarget.style.borderColor='var(--br)';e.currentTarget.style.background='var(--bg3)';}}} >
+                      <div style={{width:32,height:32,borderRadius:11,background:on?g.color+'24':'var(--bg2)',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:on?`0 4px 14px ${g.color}40`:'none',transition:'all .15s'}}>
+                        <i className={`fa-solid ${g.icon}`} style={{color:on?g.color:'var(--t3)',fontSize:12,transition:'color .15s'}}/>
                       </div>
-                      <span style={{fontSize:9,fontWeight:700,color:storyConfig.genre===g.id?g.color:'var(--t3)',textTransform:'uppercase',letterSpacing:'.04em'}}>{g.label}</span>
-                    </button>
-                  ))}
+                      <span style={{fontSize:9,fontWeight:800,color:on?g.color:'var(--t3)',textTransform:'uppercase',letterSpacing:'.05em'}}>{g.label}</span>
+                    </button>;
+                  })}
                 </div>
               </div>
 
-              {/* ── Length + Mood row ── */}
-              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14,marginBottom:18}}>
+              {/* Length + POV row */}
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:18}}>
                 <div>
-                  <p style={{margin:'0 0 8px',fontSize:10,fontWeight:700,letterSpacing:'.1em',textTransform:'uppercase',color:'var(--t3)'}}>Length</p>
+                  <div style={{fontSize:10,fontWeight:800,letterSpacing:'.14em',textTransform:'uppercase',color:'var(--t3)',marginBottom:8}}>Length</div>
                   <div style={{display:'flex',gap:6}}>
-                    {[['short','Flash','~200w'],['medium','Short','~500w'],['long','Full','~800w'],['epic','Epic','~1200w']].map(([v,lbl,wc])=>(
-                      <button key={v} onClick={()=>setStoryConfig(c=>({...c,length:v}))}
-                        style={{flex:1,padding:'8px 4px',borderRadius:10,fontSize:10,fontWeight:700,border:`1px solid ${storyConfig.length===v?'rgba(245,158,11,.5)':'var(--br)'}`,background:storyConfig.length===v?'rgba(245,158,11,.15)':'var(--bg3)',color:storyConfig.length===v?'#F59E0B':'var(--t3)',cursor:'pointer',transition:'all .15s',textAlign:'center'}}>
-                        {lbl}<br/><span style={{fontSize:8,opacity:.7,fontWeight:400}}>{wc}</span>
-                      </button>
-                    ))}
+                    {[['flash','Flash','~100w'],['short','Short','~300w'],['medium','Medium','~600w'],['long','Long','~1000w']].map(([v,l,s])=>{
+                      const on=storyConfig.length===v;
+                      return <button key={v} onClick={()=>setStoryConfig(c=>({...c,length:v}))} style={{flex:1,padding:'9px 4px',borderRadius:12,border:`1px solid ${on?'rgba(245,158,11,.5)':'var(--br)'}`,background:on?'rgba(245,158,11,.1)':'var(--bg3)',color:on?'#F59E0B':'var(--t3)',fontSize:9,fontWeight:800,cursor:'pointer',transition:'all .15s',textAlign:'center',lineHeight:1.4}}>
+                        {l}<br/><span style={{fontWeight:400,fontSize:8,opacity:.65}}>{s}</span>
+                      </button>;
+                    })}
                   </div>
                 </div>
                 <div>
-                  <p style={{margin:'0 0 8px',fontSize:10,fontWeight:700,letterSpacing:'.1em',textTransform:'uppercase',color:'var(--t3)'}}>Point of View</p>
+                  <div style={{fontSize:10,fontWeight:800,letterSpacing:'.14em',textTransform:'uppercase',color:'var(--t3)',marginBottom:8}}>Point of View</div>
                   <div style={{display:'flex',gap:6}}>
-                    {[['first','1st Person'],['third','3rd Person'],['second','2nd Person']].map(([v,lbl])=>(
-                      <button key={v} onClick={()=>setStoryConfig(c=>({...c,pov:v}))}
-                        style={{flex:1,padding:'8px 4px',borderRadius:10,fontSize:10,fontWeight:700,border:`1px solid ${storyConfig.pov===v?'rgba(59,130,246,.5)':'var(--br)'}`,background:storyConfig.pov===v?'rgba(59,130,246,.15)':'var(--bg3)',color:storyConfig.pov===v?'#60a5fa':'var(--t3)',cursor:'pointer',transition:'all .15s',textAlign:'center',lineHeight:1.3}}>
-                        {lbl}
-                      </button>
-                    ))}
+                    {[['first','1st Person','I/me'],['third','3rd Person','he/she'],['second','2nd Person','you']].map(([v,l,s])=>{
+                      const on=(storyConfig.pov||'third')===v;
+                      return <button key={v} onClick={()=>setStoryConfig(c=>({...c,pov:v}))} style={{flex:1,padding:'9px 4px',borderRadius:12,border:`1px solid ${on?'rgba(59,130,246,.5)':'var(--br)'}`,background:on?'rgba(59,130,246,.1)':'var(--bg3)',color:on?'#60a5fa':'var(--t3)',fontSize:9,fontWeight:800,cursor:'pointer',transition:'all .15s',textAlign:'center',lineHeight:1.4}}>
+                        {l}<br/><span style={{fontWeight:400,fontSize:8,opacity:.65}}>{s}</span>
+                      </button>;
+                    })}
                   </div>
                 </div>
               </div>
 
-              {/* ── Mood row ── */}
+              {/* Mood + Tone */}
               <div style={{marginBottom:18}}>
-                <p style={{margin:'0 0 8px',fontSize:10,fontWeight:700,letterSpacing:'.1em',textTransform:'uppercase',color:'var(--t3)'}}>Mood & Tone</p>
+                <div style={{fontSize:10,fontWeight:800,letterSpacing:'.14em',textTransform:'uppercase',color:'var(--t3)',marginBottom:8}}>Mood</div>
                 <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
-                  {[['adventurous','⚔️','#10B981'],['dark','🌑','#6B7280'],['hopeful','🌅','#F59E0B'],['funny','😄','#F97316'],['mysterious','🌫️','#8B5CF6'],['romantic','💗','#EC4899'],['tense','⚡','#EF4444'],['philosophical','🌀','#06B6D4']].map(([v,e,col])=>(
-                    <button key={v} onClick={()=>setStoryConfig(c=>({...c,mood:v}))}
-                      style={{padding:'5px 12px',borderRadius:99,fontSize:11,fontWeight:600,border:`1px solid ${storyConfig.mood===v?col+'55':'var(--br)'}`,background:storyConfig.mood===v?col+'15':'var(--bg3)',color:storyConfig.mood===v?col:'var(--t3)',cursor:'pointer',transition:'all .15s',display:'flex',alignItems:'center',gap:5}}>
-                      {e}<span style={{textTransform:'capitalize'}}>{v}</span>
-                    </button>
-                  ))}
+                  {[['adventurous','#F59E0B'],['dark','#6B7280'],['hopeful','#10B981'],['funny','#F97316'],['mysterious','#8B5CF6'],['romantic','#EC4899'],['tense','#EF4444'],['whimsical','#06B6D4'],['nostalgic','#A78BFA'],['epic','#3B82F6']].map(([v,col])=>{
+                    const on=storyConfig.mood===v;
+                    return <button key={v} onClick={()=>setStoryConfig(c=>({...c,mood:v}))} style={{padding:'6px 13px',borderRadius:99,border:`1px solid ${on?col+'55':'var(--br)'}`,background:on?col+'14':'var(--bg3)',color:on?col:'var(--t3)',fontSize:11,fontWeight:600,cursor:'pointer',transition:'all .15s',textTransform:'capitalize'}}
+                      onMouseEnter={e=>{if(!on){e.currentTarget.style.borderColor=col+'35';e.currentTarget.style.color=col;}}}
+                      onMouseLeave={e=>{if(!on){e.currentTarget.style.borderColor='var(--br)';e.currentTarget.style.color='var(--t3)';}}} >
+                      {v}
+                    </button>;
+                  })}
                 </div>
               </div>
 
-              {/* ── Custom inputs ── */}
-              <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:20}}>
-                <p style={{margin:0,fontSize:10,fontWeight:700,letterSpacing:'.1em',textTransform:'uppercase',color:'var(--t3)'}}>Story Details <span style={{fontWeight:400,opacity:.5,textTransform:'none',letterSpacing:'normal'}}>(optional)</span></p>
+              {/* Story details */}
+              <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:22}}>
+                <div style={{fontSize:10,fontWeight:800,letterSpacing:'.14em',textTransform:'uppercase',color:'var(--t3)',marginBottom:2}}>Story Details <span style={{fontSize:9,fontWeight:400,opacity:.5,textTransform:'none',letterSpacing:'normal'}}>(optional)</span></div>
                 {[
-                  ['char','fa-user','Main Character','e.g. A lonely astronaut, A teenage wizard'],
-                  ['setting','fa-map-pin','Setting / World','e.g. Post-apocalyptic Earth, Ancient Japan, Underwater city'],
-                  ['twist','fa-shuffle','Plot Twist','e.g. The hero was the villain, Time loops, Everyone is a simulation'],
-                  ['theme','fa-heart-pulse','Central Theme','e.g. Redemption, Betrayal, Found family, AI vs humanity'],
-                ].map(([key,ic,label,ph])=>(
-                  <div key={key} style={{position:'relative'}}>
-                    <div style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',pointerEvents:'none'}}>
-                      <i className={`fa-solid ${ic}`} style={{color:'var(--t3)',fontSize:11}}></i>
-                    </div>
-                    <input value={storyConfig[key]||''} onChange={e=>setStoryConfig(c=>({...c,[key]:e.target.value}))} placeholder={ph}
-                      style={{width:'100%',borderRadius:12,padding:'10px 12px 10px 34px',fontSize:13,background:'var(--bg3)',border:'1px solid var(--br)',color:'var(--t1)',outline:'none',fontFamily:'inherit',transition:'border-color .15s',boxSizing:'border-box'}}
+                  {k:'char',   label:'Main Character', ph:'e.g. A lonely astronaut, A teenage witch, An aging detective'},
+                  {k:'setting',label:'World / Setting',  ph:'e.g. Post-apocalyptic Mars, Victorian London, Underwater city'},
+                  {k:'twist',  label:'Plot Twist',      ph:'e.g. The hero is actually the villain, Everyone was a dream'},
+                  {k:'theme',  label:'Core Theme',      ph:'e.g. Redemption, Love vs duty, The cost of ambition'},
+                ].map(({k,label,ph})=>(
+                  <div key={k} style={{display:'flex',alignItems:'center',gap:10}}>
+                    <div style={{width:90,fontSize:11,fontWeight:600,color:'var(--t3)',flexShrink:0}}>{label}</div>
+                    <input value={storyConfig[k]||''} onChange={e=>setStoryConfig(c=>({...c,[k]:e.target.value}))} placeholder={ph}
+                      style={{flex:1,borderRadius:12,padding:'9px 14px',fontSize:12,outline:'none',border:'1px solid var(--br)',background:'var(--bg3)',color:'var(--t1)',fontFamily:'inherit',transition:'border-color .2s'}}
                       onFocus={e=>e.target.style.borderColor='rgba(245,158,11,.4)'}
                       onBlur={e=>e.target.style.borderColor='var(--br)'}/>
                   </div>
                 ))}
               </div>
 
-              {storyLoading?(
-                <button onClick={()=>{if(storyAbortRef.current)storyAbortRef.current.abort();setStoryLoading(false);}}
-                  style={{width:'100%',padding:'14px',borderRadius:14,fontSize:14,fontWeight:700,background:'rgba(239,68,68,.12)',color:'#f87171',border:'1px solid rgba(239,68,68,.3)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
-                  <i className="fa-solid fa-stop" style={{fontSize:11}}></i>Stop Writing
-                </button>
-              ):(
-                <button onClick={async()=>{
-                  const ctrl=new AbortController(); storyAbortRef.current=ctrl;
-                  setStoryLoading(true); setStoryResult('');
-                  const cfg=storyConfig;
-                  const wordCount=cfg.length==='short'?200:cfg.length==='medium'?500:cfg.length==='long'?800:1200;
-                  const prompt=`Write a ${cfg.mood||'adventurous'} ${cfg.genre||'fantasy'} story${cfg.char?' featuring '+cfg.char:''}${cfg.setting?' set in '+cfg.setting:''}${cfg.twist?' with this plot twist: '+cfg.twist:''}${cfg.theme?' exploring the theme of '+cfg.theme:''}. Write in ${cfg.pov==='first'?'first':'cfg.pov==='second'?'second':'third'} person. Target ~${wordCount} words. Include: vivid descriptions, compelling dialogue, a strong opening hook, rising tension, and a satisfying ending. Start with a title on the first line.`;
+              {/* Generate button */}
+              {storyLoading
+                ?<button onClick={()=>{if(storyAbortRef.current)storyAbortRef.current.abort();setStoryLoading(false);}} style={{width:'100%',padding:'14px',borderRadius:16,fontSize:14,fontWeight:700,border:'1px solid rgba(239,68,68,.3)',background:'rgba(239,68,68,.1)',color:'#f87171',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:9}}>
+                    <i className="fa-solid fa-stop" style={{fontSize:11}}/>Stop Writing
+                  </button>
+                :<button onClick={async()=>{
+                  const ctrl=new AbortController();storyAbortRef.current=ctrl;
+                  setStoryLoading(true);setStoryResult('');
+                  const wc={flash:100,short:300,medium:600,long:1000};
+                  const pov=storyConfig.pov||'third';
+                  const prompt=`Write a ${storyConfig.mood} ${storyConfig.genre} story in ${pov}-person perspective${storyConfig.char?' with main character: '+storyConfig.char:''}${storyConfig.setting?' set in: '+storyConfig.setting:''}${storyConfig.twist?' plot twist: '+storyConfig.twist:''}${storyConfig.theme?' core theme: '+storyConfig.theme:''}. Target length: approximately ${wc[storyConfig.length]||300} words. Start with a compelling title on its own line. Write with vivid prose, authentic dialogue, and a satisfying narrative arc.`;
                   try{
-                    const res=await fetch('/chat',{method:'POST',signal:ctrl.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({message:prompt,system_prompt:'You are a master creative fiction writer. Write original, vivid, emotionally engaging stories.'})});
-                    const data=await res.json();
-                    setStoryResult(data.reply||'Could not generate story. Please try again.');
-                  }catch(e){if(e.name!=='AbortError')setStoryResult('Error generating story. Please try again.');}
+                    const r=await fetch('/chat',{method:'POST',signal:ctrl.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({message:prompt,system_prompt:'You are an award-winning creative fiction writer. Write immersive, original stories with rich characters and compelling narratives.'})});
+                    const d=await r.json();
+                    setStoryResult(d.reply||'Could not generate story. Please try again.');
+                  }catch(e){if(e.name!=='AbortError')setStoryResult('Error generating story. Please check your connection.');}
                   finally{setStoryLoading(false);storyAbortRef.current=null;}
-                }}
-                  style={{width:'100%',padding:'14px',borderRadius:16,fontSize:14,fontWeight:800,color:'#fff',background:'linear-gradient(135deg,#F59E0B,#EF4444)',border:'none',boxShadow:'0 6px 24px rgba(245,158,11,.35)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8,transition:'all .15s'}}
-                  onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-2px)';e.currentTarget.style.boxShadow='0 10px 32px rgba(245,158,11,.5)';}}
-                  onMouseLeave={e=>{e.currentTarget.style.transform='translateY(0)';e.currentTarget.style.boxShadow='0 6px 24px rgba(245,158,11,.35)';}}>
-                  <i className="fa-solid fa-feather-pointed" style={{fontSize:13}}></i>Write My Story
+                }} style={{width:'100%',padding:'14px',borderRadius:16,fontSize:14,fontWeight:900,color:'#fff',background:'linear-gradient(135deg,#F59E0B 0%,#EF4444 100%)',border:'none',boxShadow:'0 6px 24px rgba(245,158,11,.35)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:9,transition:'all .2s',letterSpacing:'-.1px'}}
+                  onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-2px)';e.currentTarget.style.boxShadow='0 12px 32px rgba(245,158,11,.45)';}}
+                  onMouseLeave={e=>{e.currentTarget.style.transform='';e.currentTarget.style.boxShadow='0 6px 24px rgba(245,158,11,.35)';}}>
+                  <i className="fa-solid fa-feather-pointed" style={{fontSize:13}}/>Generate Story
                 </button>
-              )}
+              }
             </div>
             ):(
-            <div style={{flex:1,overflowY:'auto',padding:'20px',scrollbarWidth:'thin'}} className="sb">
-              {storyLoading&&(
-                <div style={{display:'flex',flexDirection:'column',gap:12}}>
-                  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:4}}>
-                    <div style={{width:7,height:7,borderRadius:'50%',background:'#F59E0B',animation:'pulse 1s infinite'}}></div>
-                    <span style={{fontSize:12,color:'#F59E0B',fontWeight:600}}>AI is crafting your story…</span>
-                  </div>
-                  {[1,2,3,4].map(i=><div key={i} style={{borderRadius:12,border:'1px solid var(--br)',background:'var(--bg3)',padding:16,animation:'pulse 1.2s infinite',animationDelay:`${i*.1}s`}}><div style={{height:11,borderRadius:5,width:'45%',background:'var(--br)',marginBottom:12}}></div><div style={{display:'flex',flexDirection:'column',gap:7}}>{[1,2,3].map(j=><div key={j} style={{height:8,borderRadius:4,background:'var(--br)',width:`${60+j*12}%`}}></div>)}</div></div>)}
+            <div className="sb" style={{flex:1,overflowY:'auto',padding:'20px 26px 24px'}}>
+              {storyLoading&&<div style={{display:'flex',flexDirection:'column',gap:12}}>
+                {[1,2,3].map(i=><div key={i} style={{borderRadius:14,border:'1px solid var(--br)',background:'var(--bg3)',padding:18,animation:'pulse 1.6s ease-in-out infinite',animationDelay:`${i*.1}s`}}>
+                  <div style={{height:14,borderRadius:7,background:'var(--br)',width:'45%',marginBottom:14}}/>
+                  {[95,85,90,70,80].map((w,j)=><div key={j} style={{height:8,borderRadius:5,background:'var(--br)',marginBottom:8,width:w+'%'}}/>)}
+                </div>)}
+              </div>}
+              {!storyLoading&&<div>
+                {/* Tags */}
+                <div style={{display:'flex',gap:7,flexWrap:'wrap',marginBottom:16}}>
+                  {[{v:storyConfig.genre,c:'#F59E0B'},{v:storyConfig.mood,c:'#EF4444'},{v:storyConfig.length,c:'#3B82F6'},{v:(storyConfig.pov||'third')+' person',c:'#8B5CF6'}].map((b,i)=>(
+                    <span key={i} style={{fontSize:10,padding:'4px 12px',borderRadius:99,fontWeight:700,textTransform:'capitalize',background:b.c+'18',color:b.c,border:`1px solid ${b.c}30`}}>{b.v}</span>
+                  ))}
                 </div>
-              )}
-              {!storyLoading&&(
-                <div>
-                  {/* Story tags */}
-                  <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:14}}>
-                    {[
-                      {val:storyConfig.genre,bg:'rgba(245,158,11,.15)',col:'#F59E0B'},
-                      {val:storyConfig.mood,bg:'rgba(239,68,68,.12)',col:'#EF4444'},
-                      {val:storyConfig.length==='short'?'Flash':storyConfig.length==='medium'?'Short Story':storyConfig.length==='long'?'Full Story':'Epic',bg:'rgba(59,130,246,.12)',col:'#60a5fa'},
-                      {val:storyConfig.pov==='first'?'1st Person POV':storyConfig.pov==='second'?'2nd Person POV':'3rd Person POV',bg:'rgba(139,92,246,.12)',col:'#a78bfa'},
-                    ].filter(t=>t.val).map((t,i)=>(
-                      <span key={i} style={{fontSize:10,fontWeight:700,padding:'4px 10px',borderRadius:99,background:t.bg,color:t.col,textTransform:'capitalize'}}>{t.val}</span>
-                    ))}
-                  </div>
-                  {/* Story content */}
-                  <div style={{borderRadius:16,border:'1px solid rgba(245,158,11,.2)',background:'linear-gradient(135deg,rgba(245,158,11,.04),rgba(239,68,68,.02))',padding:'20px 22px',fontSize:14,lineHeight:1.85,color:'var(--t1)',whiteSpace:'pre-wrap',fontFamily:"'DM Sans',sans-serif",marginBottom:14}}>
-                    {storyResult}
-                  </div>
-                  {/* Actions */}
-                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8}}>
-                    <button onClick={()=>navigator.clipboard.writeText(storyResult).then(()=>toast_('Story copied!','success'))}
-                      style={{padding:'10px',borderRadius:12,border:'1px solid rgba(245,158,11,.3)',color:'#F59E0B',background:'rgba(245,158,11,.08)',fontSize:12,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:6,transition:'all .15s'}}
-                      onMouseEnter={e=>e.currentTarget.style.background='rgba(245,158,11,.15)'}
-                      onMouseLeave={e=>e.currentTarget.style.background='rgba(245,158,11,.08)'}>
-                      <i className="fa-solid fa-copy" style={{fontSize:10}}></i>Copy
-                    </button>
-                    <button onClick={()=>{send(storyResult.slice(0,300)+'...\n\nContinue this story:');setShowStoryGen(false);}}
-                      style={{padding:'10px',borderRadius:12,border:'1px solid rgba(59,130,246,.3)',color:'#60a5fa',background:'rgba(59,130,246,.08)',fontSize:12,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:6,transition:'all .15s'}}
-                      onMouseEnter={e=>e.currentTarget.style.background='rgba(59,130,246,.15)'}
-                      onMouseLeave={e=>e.currentTarget.style.background='rgba(59,130,246,.08)'}>
-                      <i className="fa-solid fa-arrow-right" style={{fontSize:10}}></i>Continue
-                    </button>
-                    <button onClick={async()=>{
-                      setStoryLoading(true);
-                      try{
-                        const res=await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'Write a sequel to this story in the same style and length:\n\n'+storyResult.slice(0,600),system_prompt:'You are a creative fiction writer. Write a compelling sequel.'})});
-                        const data=await res.json();
-                        setStoryResult(data.reply||storyResult);
-                      }catch{}finally{setStoryLoading(false);}
-                    }}
-                      style={{padding:'10px',borderRadius:12,border:'1px solid rgba(16,185,129,.3)',color:'#34d399',background:'rgba(16,185,129,.08)',fontSize:12,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:6,transition:'all .15s'}}
-                      onMouseEnter={e=>e.currentTarget.style.background='rgba(16,185,129,.15)'}
-                      onMouseLeave={e=>e.currentTarget.style.background='rgba(16,185,129,.08)'}>
-                      <i className="fa-solid fa-rotate" style={{fontSize:10}}></i>Sequel
-                    </button>
-                  </div>
+                {/* Story text */}
+                <div style={{borderRadius:20,border:'1px solid rgba(245,158,11,.18)',background:'rgba(245,158,11,.02)',padding:'22px 24px',fontSize:14,lineHeight:1.95,color:'var(--t1)',whiteSpace:'pre-wrap',fontFamily:"'DM Sans',sans-serif",marginBottom:16,letterSpacing:'.01em'}}>{storyResult}</div>
+                {/* Actions */}
+                <div style={{display:'flex',gap:8}}>
+                  <button onClick={()=>navigator.clipboard.writeText(storyResult).then(()=>toast_('Story copied!','success'))} style={{flex:1,padding:'11px',borderRadius:13,border:'1px solid rgba(245,158,11,.3)',background:'rgba(245,158,11,.07)',color:'#F59E0B',fontSize:12,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:7,transition:'all .15s'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(245,158,11,.14)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(245,158,11,.07)'}>
+                    <i className="fa-solid fa-copy" style={{fontSize:10}}/>Copy Story
+                  </button>
+                  <button onClick={()=>{const snippet=storyResult.slice(0,300).trim();const t='Continue this story from where it ends:\n\n'+snippet+'...\n\nKeep the same characters, tone, and world. Write the next part.';setShowStoryGen(false);setTimeout(()=>setInput(t),100);}} style={{flex:1,padding:'11px',borderRadius:13,border:'1px solid rgba(59,130,246,.3)',background:'rgba(59,130,246,.07)',color:'#60a5fa',fontSize:12,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:7,transition:'all .15s'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(59,130,246,.14)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(59,130,246,.07)'}>
+                    <i className="fa-solid fa-arrow-right" style={{fontSize:10}}/>Continue
+                  </button>
+                  <button onClick={async()=>{
+                    setStoryResult('');setStoryLoading(true);
+                    const ctrl=new AbortController();storyAbortRef.current=ctrl;
+                    const wc={flash:100,short:300,medium:600,long:1000};
+                    const pov=storyConfig.pov||'third';
+                    const p=`Write a completely different ${storyConfig.mood} ${storyConfig.genre} story in ${pov}-person perspective${storyConfig.char?' with: '+storyConfig.char:''}. ~${wc[storyConfig.length]||300} words. Include a title.`;
+                    try{const r=await fetch('/chat',{method:'POST',signal:ctrl.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({message:p,system_prompt:'Award-winning creative fiction writer.'})});const d=await r.json();setStoryResult(d.reply||'Error');}
+                    catch(e){if(e.name!=='AbortError')setStoryResult('Error.');}
+                    finally{setStoryLoading(false);storyAbortRef.current=null;}
+                  }} style={{padding:'11px 15px',borderRadius:13,border:'1px solid rgba(16,185,129,.3)',background:'rgba(16,185,129,.07)',color:'#34d399',fontSize:12,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:7,transition:'all .15s'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(16,185,129,.14)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(16,185,129,.07)'}>
+                    <i className="fa-solid fa-dice" style={{fontSize:10}}/>Regen
+                  </button>
                 </div>
-              )}
+              </div>}
             </div>
             )}
           </div>
