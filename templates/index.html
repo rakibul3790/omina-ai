@@ -964,7 +964,7 @@ function PricingModal({onClose,currentPlan,onSelectPlan}) {
           {plans.map(p=>{
             const price=p.price[bill];const isCurr=currentPlan===p.id;const isBuying=buying===p.id;const isBought=bought===p.id;
             return(
-              <div key={p.id} style={{borderRadius:20,padding:24,display:'flex',flexDirection:'column',background:p.grad,border:`1px solid ${p.border}`,position:'relative',transition:'transform .2s'}}
+              <div key={p.id} style={{borderRadius:20,padding:24,display:'flex',flexDirection:'column',background:p.grad,border:'1px solid '+p.border,position:'relative',transition:'transform .2s'}}
                 onMouseEnter={e=>e.currentTarget.style.transform='translateY(-4px)'}
                 onMouseLeave={e=>e.currentTarget.style.transform='translateY(0)'}>
                 {p.badge&&<div style={{position:'absolute',top:-12,left:'50%',transform:'translateX(-50%)',background:p.badgeCol,color:'#fff',fontSize:10,fontWeight:800,padding:'4px 12px',borderRadius:99,letterSpacing:'.05em',whiteSpace:'nowrap'}}>{p.badge}</div>}
@@ -2316,7 +2316,7 @@ function TodoModal({todos,setTodos,onClose}) {
             <div className="flex items-center gap-2 px-3 pb-2.5 pt-1 border-t" style={{borderColor:'var(--br)'}}>
               <div className="flex gap-1 flex-1">
                 {PRIORITIES.map(p=>(
-                  <button key={p.id} onClick={()=>setSelPriority(p.id)} className="px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all" style={{background:selPriority===p.id?p.color+'22':'transparent',color:selPriority===p.id?p.color:'var(--t3)',border:`1px solid ${selPriority===p.id?p.color+'44':'transparent'}`}}>{p.label}</button>
+                  <button key={p.id} onClick={()=>setSelPriority(p.id)} className="px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all" style={{background:selPriority===p.id?p.color+'22':'transparent',color:selPriority===p.id?p.color:'var(--t3)',border:'1px solid '+selPriority===p.id?p.color+'44':'transparent'}}>{p.label}</button>
                 ))}
               </div>
               <select value={selCategory} onChange={e=>setSelCategory(e.target.value)} className="text-[10px] bg-transparent border-none outline-none px-1 rounded" style={{color:'var(--t3)'}}>
@@ -2786,7 +2786,7 @@ function FileCard({ block, onOpen, canvasMode }) {
       onMouseLeave={()=>setHov(false)}
       style={{
         borderRadius:12, marginTop:8, overflow:'hidden',
-        border:`1px solid ${hov?'rgba(99,102,241,.5)':'var(--br)'}`,
+        border:'1px solid '+hov?'rgba(99,102,241,.5)':'var(--br)',
         background: hov?'rgba(99,102,241,.05)':'var(--bg3)',
         transition:'all .18s',
       }}
@@ -2797,7 +2797,7 @@ function FileCard({ block, onOpen, canvasMode }) {
           <div style={{
             width:32,height:32,borderRadius:8,flexShrink:0,
             background:`${block.meta.color}18`,
-            border:`1px solid ${block.meta.color}30`,
+            border:'1px solid '+block.meta.color+('30',
             display:'flex',alignItems:'center',justifyContent:'center',
           }}>
             <i className={block.meta.icon} style={{fontSize:14,color:block.meta.color}}></i>
@@ -2815,7 +2815,7 @@ function FileCard({ block, onOpen, canvasMode }) {
           {/* Copy button */}
           <button onClick={handleCopy} title="Copy code"
             style={{display:'flex',alignItems:'center',gap:4,padding:'4px 9px',borderRadius:7,
-              border:`1px solid ${copied?'rgba(16,185,129,.4)':' rgba(255,255,255,.08)'}`,
+              border:'1px solid '+copied?'rgba(16,185,129,.4)':' rgba(255,255,255,.08)',
               background:copied?'rgba(16,185,129,.12)':' rgba(255,255,255,.04)',
               color:copied?'#10B981':'var(--t2)',fontSize:10,fontWeight:600,cursor:'pointer',transition:'all .15s'}}>
             <i className={`fa-solid ${copied?'fa-check':'fa-copy'}`} style={{fontSize:9}}></i>
@@ -3120,7 +3120,6 @@ function App() {
     {id:'commands',  ic:'fa-terminal',          lbl:'Commands',       col:'#34d399', fn:'commands'},
     {id:'digest',    ic:'fa-sun',               lbl:'Daily Digest',   col:'#F59E0B', fn:'digest'},
     {id:'randprompt',ic:'fa-dice',              lbl:'Rand Prompt',    col:'#EC4899', fn:'randprompt'},
-    {id:'incognito', ic:'fa-mask',       lbl:'Incognito',      col:'#a78bfa', fn:'incognito'},
     {id:'chain',     ic:'fa-brain',             lbl:'Chain of Thought',col:'#10B981',fn:'chain'},
     {id:'conceptmap',ic:'fa-diagram-project',   lbl:'Concept Map',    col:'#8B5CF6', fn:'conceptmap'},
     {id:'storygen',  ic:'fa-feather-pointed',   lbl:'Story Gen',      col:'#F59E0B', fn:'storygen'},
@@ -3129,7 +3128,8 @@ function App() {
     {id:'langlearn', ic:'fa-language',          lbl:'Lang Learn',     col:'#6366F1', fn:'langlearn'},
     {id:'wordcloud', ic:'fa-cloud',             lbl:'Word Cloud',     col:'#818cf8', fn:'wordcloud'},
     {id:'modelcomp', ic:'fa-code-compare',      lbl:'Model Compare',  col:'#10B981', fn:'modelcomp'},
-    {id:'profiles',  ic:'fa-users-gear',        lbl:'Profiles',       col:'#a78bfa', fn:'profiles'},
+    {id:'dna',       ic:'fa-dna',               lbl:'DNA of Chat',    col:'#EC4899', fn:'dna'},
+    {id:'collider',  ic:'fa-atom',              lbl:'Idea Collider',  col:'#F97316', fn:'collider'},
   ];
   const [quickAccessIds,setQuickAccessIds] = useState(()=>{
     try{const saved=localStorage.getItem('omina_qa');return saved?JSON.parse(saved):['todo','sticky','aiagent','imageai','prompts','commands'];}catch{return['todo','sticky','aiagent','imageai','prompts','commands'];}
@@ -3146,6 +3146,14 @@ function App() {
   // ── Language Learning Mode ──
   const [showLangLearn,setShowLangLearn]     = useState(false);
   const [featFromSettings,setFeatFromSettings] = useState(false);
+  const [showDNA,setShowDNA]                   = useState(false);
+  const [dnaTab,setDnaTab]                     = useState('overview');
+  const [showCollider,setShowCollider]         = useState(false);
+  const [colliderA,setColliderA]               = useState('');
+  const [colliderB,setColliderB]               = useState('');
+  const [colliderResults,setColliderResults]   = useState([]);
+  const [colliderLoading,setColliderLoading]   = useState(false);
+  const [colliderSaved,setColliderSaved]       = useState([]);
   const [llTab,setLlTab]                     = useState('flashcard');
   const [llLang,setLlLang]                   = useState('japanese');
   const [llLevel,setLlLevel]                 = useState('beginner');
@@ -3331,7 +3339,7 @@ function App() {
       if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();setShowSearch(s=>!s);}
       if((e.ctrlKey||e.metaKey)&&e.key==='n'){e.preventDefault();newChat();}
       if((e.ctrlKey||e.metaKey)&&e.key==='p'){e.preventDefault();setShowSysPrompt(s=>!s);}
-      if(e.key==='Escape'){setShowSearch(false);setShowPricing(false);setShowSettings(false);setShowProfile(false);setShowModels(false);setShowImgGen(false);setShowFolderModal(false);setShowSysPrompt(false);setEditMsgId(null);setShowShare(false);setShowMsgSearch(false);setShowShortcuts(false);setShowSummary(false);setShowTodo(false);setShowSticky(false);setShowAIAgent(false);}
+      if(e.key==='Escape'){setShowSearch(false);setShowPricing(false);setShowSettings(false);setShowProfile(false);setShowModels(false);setShowImgGen(false);setShowFolderModal(false);setShowSysPrompt(false);setEditMsgId(null);setShowShare(false);setShowMsgSearch(false);setShowShortcuts(false);setShowSummary(false);setShowTodo(false);setShowSticky(false);setShowAIAgent(false);setShowDNA(false);setShowCollider(false);}
       if((e.ctrlKey||e.metaKey)&&e.key=='/'){e.preventDefault();setShowShortcuts(s=>!s);}
       if((e.ctrlKey||e.metaKey)&&e.shiftKey&&e.key==='T'){e.preventDefault();setShowTodo(s=>!s);}
       if((e.ctrlKey||e.metaKey)&&e.shiftKey&&e.key==='N'){e.preventDefault();setShowSticky(s=>!s);}
@@ -3390,7 +3398,7 @@ function App() {
   useEffect(()=>{endRef.current?.scrollIntoView({behavior:'smooth'});},[sessions,typing,sid]);
 
   // ── Save scroll pos when any modal opens, restore when all close ──
-  const anyModalOpen = showSettings||showTodo||showSticky||showAIAgent||showImgGen||showPromptLib||showCmdPalette||showDigest||showRandPrompt||showChainViewer||showConceptMap||showStoryGen||showWorkspace||showQuiz||showLangLearn||showWordCloud||showModelComp||showProfiles;
+  const anyModalOpen = showSettings||showTodo||showSticky||showAIAgent||showImgGen||showPromptLib||showCmdPalette||showDigest||showRandPrompt||showChainViewer||showConceptMap||showStoryGen||showWorkspace||showQuiz||showLangLearn||showWordCloud||showModelComp||showProfiles||showDNA||showCollider;
   useEffect(()=>{
     if(anyModalOpen){
       // Save current scroll position
@@ -4346,7 +4354,7 @@ Reply: ${botText.slice(0,800)}`,
         {/* ── PLUS ── */}
         <div data-plus="1" style={{flexShrink:0}}>
           <button ref={plusBtnRef} onClick={openPlus}
-            style={{width:34,height:34,borderRadius:10,border:`1px solid ${showPlus?'rgba(96,165,250,.5)':'var(--br)'}`,
+            style={{width:34,height:34,borderRadius:10,border:'1px solid '+showPlus?'rgba(96,165,250,.5)':'var(--br)',
               background:showPlus?'rgba(96,165,250,.12)':'var(--bg3)',color:showPlus?'#60A5FA':'var(--t2)',
               display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',transition:'all .15s'}}>
             <i className={`fa-solid ${showPlus?'fa-xmark':'fa-plus'}`} style={{fontSize:13,pointerEvents:'none'}}></i>
@@ -4376,7 +4384,7 @@ Reply: ${botText.slice(0,800)}`,
         {/* ── VOICE ── */}
         <button onClick={toggleVoice} className={voiceOn?'vp':''}
           title={voiceOn?'Stop Recording':'Start Voice Input'}
-          style={{width:34,height:34,borderRadius:10,border:`1px solid ${voiceOn?'#F87171':'var(--br)'}`,background:voiceOn?'rgba(248,113,113,.1)':'var(--bg3)',
+          style={{width:34,height:34,borderRadius:10,border:'1px solid '+voiceOn?'#F87171':'var(--br)',background:voiceOn?'rgba(248,113,113,.1)':'var(--bg3)',
             color:voiceOn?'#F87171':'var(--t2)',display:'flex',alignItems:'center',justifyContent:'center',
             cursor:'pointer',flexShrink:0,transition:'all .2s'}}>
           {voiceOn
@@ -4689,7 +4697,7 @@ Reply: ${botText.slice(0,800)}`,
                 <button onClick={()=>{
                   if(isLast){setShowOnboard(false);setOnboardDone(true);localStorage.setItem('omina_onboard_done','1');toast_('🚀 Welcome to Omina AI!','success');}
                   else setOnboardStep(s=>s+1);
-                }} className="flex-2 px-6 py-2.5 rounded-xl text-sm font-bold text-white transition-all" style={{background:`linear-gradient(135deg,${step.color},${step.color}aa)`,boxShadow:`0 4px 14px ${step.color}44`,flex:2}}>
+                }} className="flex-2 px-6 py-2.5 rounded-xl text-sm font-bold text-white transition-all" style={{background:'linear-gradient(135deg,'+step.color+','+step.color+'aa)',boxShadow:'0 4px 14px '+step.color+'44',flex:2}}>
                   {isLast?'Get Started 🚀':`Next →`}
                 </button>
               </div>
@@ -4734,7 +4742,7 @@ Reply: ${botText.slice(0,800)}`,
                     {filtered.map(tmpl=>(
                       <button key={tmpl.id} onClick={()=>{setInput(tmpl.prompt);setShowTemplates(false);setTimeout(()=>inputRef.current?.focus(),100);toast_('Template loaded! Edit and send ✨','success');}} className="group text-left p-4 rounded-2xl border transition-all" style={{background:'var(--bg3)',borderColor:'var(--br)'}} onMouseEnter={e=>{e.currentTarget.style.borderColor=tmpl.color+'88';e.currentTarget.style.background='var(--bg)';}} onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--br)';e.currentTarget.style.background='var(--bg3)';}}>
                         <div className="flex items-start gap-3">
-                          <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{background:tmpl.color+'18',border:`1px solid ${tmpl.color}33`}}>
+                          <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{background:tmpl.color+'18',border:'1px solid '+tmpl.color+('33'}}>
                             <span style={{fontSize:17}}>{tmpl.icon}</span>
                           </div>
                           <div className="flex-1 min-w-0">
@@ -4836,7 +4844,7 @@ Reply: ${botText.slice(0,800)}`,
                     {icon:'fa-user',color:'#8B5CF6',label:'You Sent',val:userMsgs},
                     {icon:'fa-robot',color:'#F59E0B',label:'AI Replies',val:botMsgs},
                   ].map(s=>(
-                    <div key={s.label} style={{borderRadius:14,padding:'12px 8px',textAlign:'center',background:s.color+'0d',border:`1px solid ${s.color}28`}}>
+                    <div key={s.label} style={{borderRadius:14,padding:'12px 8px',textAlign:'center',background:s.color+'0d',border:'1px solid '+s.color+('28'}}>
                       <div style={{width:30,height:30,borderRadius:10,background:s.color+'22',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 7px'}}>
                         <i className={`fa-solid ${s.icon}`} style={{color:s.color,fontSize:11}}></i>
                       </div>
@@ -4938,7 +4946,7 @@ Reply: ${botText.slice(0,800)}`,
                 <div style={{position:'absolute',inset:0,background:'radial-gradient(ellipse at 70% 50%,rgba(236,72,153,.2) 0%,transparent 60%)',pointerEvents:'none'}}></div>
                 <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',position:'relative',marginBottom:6}}>
                   <div style={{display:'flex',alignItems:'center',gap:12}}>
-                    <div style={{width:46,height:46,borderRadius:16,background:curCat.gradient,boxShadow:`0 8px 20px ${curCat.color}55`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,transition:'all .3s'}}>
+                    <div style={{width:46,height:46,borderRadius:16,background:curCat.gradient,boxShadow:'0 8px 20px '+curCat.color+'55',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,transition:'all .3s'}}>
                       <i className={`fa-solid ${curCat.icon}`} style={{color:'#fff',fontSize:18}}></i>
                     </div>
                     <div>
@@ -4960,7 +4968,7 @@ Reply: ${botText.slice(0,800)}`,
                 <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:7,marginBottom:18}}>
                   {RAND_CATS.map(c=>(
                     <button key={c.id} onClick={()=>{setRCat(c.id);setRandPromptResult('');}}
-                      style={{display:'flex',flexDirection:'column',alignItems:'center',gap:5,padding:'10px 4px',borderRadius:12,border:`1px solid ${rCat===c.id?c.color+'55':'var(--br)'}`,background:rCat===c.id?c.color+'12':'var(--bg3)',cursor:'pointer',transition:'all .15s'}}
+                      style={{display:'flex',flexDirection:'column',alignItems:'center',gap:5,padding:'10px 4px',borderRadius:12,border:'1px solid '+rCat===c.id?c.color+'55':'var(--br)',background:rCat===c.id?c.color+'12':'var(--bg3)',cursor:'pointer',transition:'all .15s'}}
                       onMouseEnter={e=>{ if(rCat!==c.id){e.currentTarget.style.borderColor=c.color+'33';e.currentTarget.style.background=c.color+'08';} }}
                       onMouseLeave={e=>{ if(rCat!==c.id){e.currentTarget.style.borderColor='var(--br)';e.currentTarget.style.background='var(--bg3)';} }}>
                       <div style={{width:28,height:28,borderRadius:9,background:c.color+(rCat===c.id?'28':'18'),display:'flex',alignItems:'center',justifyContent:'center',transition:'all .15s'}}>
@@ -4972,7 +4980,7 @@ Reply: ${botText.slice(0,800)}`,
                 </div>
 
                 {/* ── Result box ── */}
-                <div style={{borderRadius:16,border:`1px solid ${randPromptResult?curCat.color+'44':'var(--br)'}`,background:randPromptResult?curCat.color+'06':'var(--bg3)',padding:'18px',minHeight:80,display:'flex',alignItems:'center',justifyContent:'center',marginBottom:16,transition:'all .3s',position:'relative',overflow:'hidden'}}>
+                <div style={{borderRadius:16,border:'1px solid '+randPromptResult?curCat.color+'44':'var(--br)',background:randPromptResult?curCat.color+'06':'var(--bg3)',padding:'18px',minHeight:80,display:'flex',alignItems:'center',justifyContent:'center',marginBottom:16,transition:'all .3s',position:'relative',overflow:'hidden'}}>
                   {randPromptResult && <div style={{position:'absolute',inset:0,background:`radial-gradient(ellipse at 30% 50%,${curCat.color}08,transparent)`,pointerEvents:'none'}}></div>}
                   {randPromptResult
                     ?<p style={{margin:0,fontSize:14,fontWeight:500,lineHeight:1.6,color:'var(--t1)',textAlign:'center',position:'relative'}}>{randPromptResult}</p>
@@ -4983,14 +4991,14 @@ Reply: ${botText.slice(0,800)}`,
                 {/* ── Actions ── */}
                 <div style={{display:'flex',gap:10,marginBottom:randPromptResult?12:0}}>
                   <button onClick={spin}
-                    style={{flex:1,padding:'13px',borderRadius:14,fontSize:14,fontWeight:800,color:'#fff',background:curCat.gradient,boxShadow:`0 6px 20px ${curCat.color}44`,cursor:'pointer',border:'none',display:'flex',alignItems:'center',justifyContent:'center',gap:8,transition:'all .15s'}}
-                    onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-2px)';e.currentTarget.style.boxShadow=`0 10px 28px ${curCat.color}55`;}}
-                    onMouseLeave={e=>{e.currentTarget.style.transform='translateY(0)';e.currentTarget.style.boxShadow=`0 6px 20px ${curCat.color}44`;}}>
+                    style={{flex:1,padding:'13px',borderRadius:14,fontSize:14,fontWeight:800,color:'#fff',background:curCat.gradient,boxShadow:'0 6px 20px '+curCat.color+'44',cursor:'pointer',border:'none',display:'flex',alignItems:'center',justifyContent:'center',gap:8,transition:'all .15s'}}
+                    onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-2px)';e.currentTarget.style.boxShadow='0 10px 28px '+curCat.color+'55';}}
+                    onMouseLeave={e=>{e.currentTarget.style.transform='translateY(0)';e.currentTarget.style.boxShadow='0 6px 20px '+curCat.color+'44';}}>
                     <i className="fa-solid fa-dice" style={{fontSize:15}}></i>Spin!
                   </button>
                   {randPromptResult&&(
                     <button onClick={()=>{setShowRandPrompt(false);setTimeout(()=>{const el=document.querySelector('textarea');if(el){el.value=randPromptResult;el.dispatchEvent(new Event('input',{bubbles:true}));}},100);}}
-                      style={{flex:1,padding:'13px',borderRadius:14,fontSize:14,fontWeight:800,border:`1px solid ${curCat.color}55`,color:curCat.color,background:curCat.color+'10',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8,transition:'all .15s'}}
+                      style={{flex:1,padding:'13px',borderRadius:14,fontSize:14,fontWeight:800,border:'1px solid '+curCat.color+('55',color:curCat.color,background:curCat.color+'10',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8,transition:'all .15s'}}
                       onMouseEnter={e=>{e.currentTarget.style.background=curCat.color+'20';e.currentTarget.style.transform='translateY(-1px)';}}
                       onMouseLeave={e=>{e.currentTarget.style.background=curCat.color+'10';e.currentTarget.style.transform='translateY(0)';}}>
                       <i className="fa-solid fa-paper-plane" style={{fontSize:13}}></i>Use This
@@ -5057,7 +5065,7 @@ Reply: ${botText.slice(0,800)}`,
                   {id:'plan',  ic:'fa-map',            label:'Action Plan',   color:'#F59E0B', desc:'Goal-oriented plan'},
                 ].map(m=>{
                   const on=chainMode===m.id;
-                  return <button key={m.id} onClick={()=>setChainMode(m.id)} style={{display:'flex',alignItems:'center',gap:6,padding:'8px 14px',borderRadius:'12px 12px 0 0',border:`1px solid ${on?m.color+'40':'transparent'}`,borderBottom:'none',background:on?'var(--bg2)':'transparent',color:on?m.color:'rgba(255,255,255,.35)',fontSize:11,fontWeight:700,cursor:'pointer',transition:'all .18s',position:'relative',bottom:-1}}>
+                  return <button key={m.id} onClick={()=>setChainMode(m.id)} style={{display:'flex',alignItems:'center',gap:6,padding:'8px 14px',borderRadius:'12px 12px 0 0',border:'1px solid '+on?m.color+'40':'transparent',borderBottom:'none',background:on?'var(--bg2)':'transparent',color:on?m.color:'rgba(255,255,255,.35)',fontSize:11,fontWeight:700,cursor:'pointer',transition:'all .18s',position:'relative',bottom:-1}}>
                     <i className={`fa-solid ${m.ic}`} style={{fontSize:9}}/>{m.label}
                   </button>;
                 })}
@@ -5139,8 +5147,8 @@ Reply: ${botText.slice(0,800)}`,
                 return <div>
                   <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:14}}>
                     {[{key:'pros',label:'Pros',ic:'fa-thumbs-up',col:'#10B981'},{key:'cons',label:'Cons',ic:'fa-thumbs-down',col:'#EF4444'}].map(side=>(
-                      <div key={side.key} style={{borderRadius:18,border:`1px solid ${side.col}28`,overflow:'hidden'}}>
-                        <div style={{padding:'11px 16px',background:`${side.col}12`,borderBottom:`1px solid ${side.col}20`,display:'flex',alignItems:'center',gap:8}}>
+                      <div key={side.key} style={{borderRadius:18,border:'1px solid '+side.col+('28',overflow:'hidden'}}>
+                        <div style={{padding:'11px 16px',background:`${side.col}12`,borderBottom:'1px solid '+side.col+('20',display:'flex',alignItems:'center',gap:8}}>
                           <i className={`fa-solid ${side.ic}`} style={{color:side.col,fontSize:12}}/>
                           <span style={{fontSize:12,fontWeight:800,color:side.col}}>{side.label}</span>
                           <span style={{marginLeft:'auto',fontSize:10,color:side.col+'88',fontWeight:600}}>{(d[side.key]||[]).length} points</span>
@@ -5187,7 +5195,7 @@ Reply: ${botText.slice(0,800)}`,
                           <div style={{width:36,height:36,borderRadius:'50%',border:`2px solid ${T.c}`,background:'var(--bg2)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,zIndex:1,boxShadow:`0 0 0 3px var(--bg2),0 0 16px ${T.c}30`}}>
                             <i className={`fa-solid ${T.ic}`} style={{color:T.c,fontSize:11}}/>
                           </div>
-                          <div style={{flex:1,borderRadius:16,padding:'14px 18px',border:`1px solid ${T.c}20`,background:T.bg,marginTop:2}}>
+                          <div style={{flex:1,borderRadius:16,padding:'14px 18px',border:'1px solid '+T.c+('20',background:T.bg,marginTop:2}}>
                             <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:8,flexWrap:'wrap'}}>
                               <span style={{fontSize:9,fontWeight:800,padding:'3px 10px',borderRadius:20,background:`${T.c}20`,color:T.c,textTransform:'uppercase',letterSpacing:'.1em'}}>{s.type||'step'}</span>
                               <span style={{fontSize:14,fontWeight:700,color:'var(--t1)'}}>Step {s.step}: {s.title}</span>
@@ -5261,7 +5269,7 @@ Reply: ${botText.slice(0,800)}`,
                   {id:'deep',    ic:'fa-layer-group',    label:'Deep Dive',   color:'#F59E0B'},
                 ].map(m=>{
                   const on=conceptMapMode===m.id;
-                  return <button key={m.id} onClick={()=>{setConceptMapMode(m.id);setConceptData(null);}} style={{display:'flex',alignItems:'center',gap:6,padding:'8px 14px',borderRadius:'12px 12px 0 0',border:`1px solid ${on?m.color+'40':'transparent'}`,borderBottom:'none',background:on?'var(--bg2)':'transparent',color:on?m.color:'rgba(255,255,255,.35)',fontSize:11,fontWeight:700,cursor:'pointer',transition:'all .18s',position:'relative',bottom:-1}}>
+                  return <button key={m.id} onClick={()=>{setConceptMapMode(m.id);setConceptData(null);}} style={{display:'flex',alignItems:'center',gap:6,padding:'8px 14px',borderRadius:'12px 12px 0 0',border:'1px solid '+on?m.color+'40':'transparent',borderBottom:'none',background:on?'var(--bg2)':'transparent',color:on?m.color:'rgba(255,255,255,.35)',fontSize:11,fontWeight:700,cursor:'pointer',transition:'all .18s',position:'relative',bottom:-1}}>
                     <i className={`fa-solid ${m.ic}`} style={{fontSize:9}}/>{m.label}
                   </button>;
                 })}
@@ -5340,10 +5348,10 @@ Reply: ${botText.slice(0,800)}`,
                 {/* Branch grid */}
                 <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(190px,1fr))',gap:12}}>
                   {(conceptData.branches||[]).map((br,bi)=>(
-                    <div key={bi} style={{borderRadius:18,border:`1px solid ${br.color}30`,background:`${br.color}06`,overflow:'hidden',transition:'transform .2s,box-shadow .2s,border-color .2s'}}
-                      onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-4px)';e.currentTarget.style.boxShadow=`0 12px 28px ${br.color}25`;e.currentTarget.style.borderColor=br.color+'55';}}
+                    <div key={bi} style={{borderRadius:18,border:'1px solid '+br.color+('30',background:`${br.color}06`,overflow:'hidden',transition:'transform .2s,box-shadow .2s,border-color .2s'}}
+                      onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-4px)';e.currentTarget.style.boxShadow='0 12px 28px '+br.color+'25';e.currentTarget.style.borderColor=br.color+'55';}}
                       onMouseLeave={e=>{e.currentTarget.style.transform='';e.currentTarget.style.boxShadow='';e.currentTarget.style.borderColor=br.color+'30';}}>
-                      <div style={{padding:'11px 15px',background:`${br.color}14`,borderBottom:`1px solid ${br.color}22`,display:'flex',alignItems:'center',gap:9}}>
+                      <div style={{padding:'11px 15px',background:`${br.color}14`,borderBottom:'1px solid '+br.color+('22',display:'flex',alignItems:'center',gap:9}}>
                         <div style={{width:28,height:28,borderRadius:9,background:`${br.color}22`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
                           <i className={`fa-solid ${br.icon||'fa-circle-dot'}`} style={{color:br.color,fontSize:11}}/>
                         </div>
@@ -5440,10 +5448,10 @@ Reply: ${botText.slice(0,800)}`,
                     {id:'western',   label:'Western',    icon:'fa-horse',            color:'#D97706'},
                   ].map(g=>{
                     const on=storyConfig.genre===g.id;
-                    return <button key={g.id} onClick={()=>setStoryConfig(c=>({...c,genre:g.id}))} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:6,padding:'11px 4px',borderRadius:13,border:`1px solid ${on?g.color+'50':'var(--br)'}`,background:on?g.color+'12':'var(--bg3)',cursor:'pointer',transition:'all .15s'}}
+                    return <button key={g.id} onClick={()=>setStoryConfig(c=>({...c,genre:g.id}))} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:6,padding:'11px 4px',borderRadius:13,border:'1px solid '+on?g.color+'50':'var(--br)',background:on?g.color+'12':'var(--bg3)',cursor:'pointer',transition:'all .15s'}}
                       onMouseEnter={e=>{if(!on){e.currentTarget.style.borderColor=g.color+'30';e.currentTarget.style.background=g.color+'07';}}}
                       onMouseLeave={e=>{if(!on){e.currentTarget.style.borderColor='var(--br)';e.currentTarget.style.background='var(--bg3)';}}} >
-                      <div style={{width:32,height:32,borderRadius:11,background:on?g.color+'24':'var(--bg2)',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:on?`0 4px 14px ${g.color}40`:'none',transition:'all .15s'}}>
+                      <div style={{width:32,height:32,borderRadius:11,background:on?g.color+'24':'var(--bg2)',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:on?'0 4px 14px '+g.color+'40':'none',transition:'all .15s'}}>
                         <i className={`fa-solid ${g.icon}`} style={{color:on?g.color:'var(--t3)',fontSize:12,transition:'color .15s'}}/>
                       </div>
                       <span style={{fontSize:9,fontWeight:800,color:on?g.color:'var(--t3)',textTransform:'uppercase',letterSpacing:'.05em'}}>{g.label}</span>
@@ -5459,7 +5467,7 @@ Reply: ${botText.slice(0,800)}`,
                   <div style={{display:'flex',gap:6}}>
                     {[['flash','Flash','~100w'],['short','Short','~300w'],['medium','Medium','~600w'],['long','Long','~1000w']].map(([v,l,s])=>{
                       const on=storyConfig.length===v;
-                      return <button key={v} onClick={()=>setStoryConfig(c=>({...c,length:v}))} style={{flex:1,padding:'9px 4px',borderRadius:12,border:`1px solid ${on?'rgba(245,158,11,.5)':'var(--br)'}`,background:on?'rgba(245,158,11,.1)':'var(--bg3)',color:on?'#F59E0B':'var(--t3)',fontSize:9,fontWeight:800,cursor:'pointer',transition:'all .15s',textAlign:'center',lineHeight:1.4}}>
+                      return <button key={v} onClick={()=>setStoryConfig(c=>({...c,length:v}))} style={{flex:1,padding:'9px 4px',borderRadius:12,border:'1px solid '+on?'rgba(245,158,11,.5)':'var(--br)',background:on?'rgba(245,158,11,.1)':'var(--bg3)',color:on?'#F59E0B':'var(--t3)',fontSize:9,fontWeight:800,cursor:'pointer',transition:'all .15s',textAlign:'center',lineHeight:1.4}}>
                         {l}<br/><span style={{fontWeight:400,fontSize:8,opacity:.65}}>{s}</span>
                       </button>;
                     })}
@@ -5470,7 +5478,7 @@ Reply: ${botText.slice(0,800)}`,
                   <div style={{display:'flex',gap:6}}>
                     {[['first','1st Person','I/me'],['third','3rd Person','he/she'],['second','2nd Person','you']].map(([v,l,s])=>{
                       const on=(storyConfig.pov||'third')===v;
-                      return <button key={v} onClick={()=>setStoryConfig(c=>({...c,pov:v}))} style={{flex:1,padding:'9px 4px',borderRadius:12,border:`1px solid ${on?'rgba(59,130,246,.5)':'var(--br)'}`,background:on?'rgba(59,130,246,.1)':'var(--bg3)',color:on?'#60a5fa':'var(--t3)',fontSize:9,fontWeight:800,cursor:'pointer',transition:'all .15s',textAlign:'center',lineHeight:1.4}}>
+                      return <button key={v} onClick={()=>setStoryConfig(c=>({...c,pov:v}))} style={{flex:1,padding:'9px 4px',borderRadius:12,border:'1px solid '+on?'rgba(59,130,246,.5)':'var(--br)',background:on?'rgba(59,130,246,.1)':'var(--bg3)',color:on?'#60a5fa':'var(--t3)',fontSize:9,fontWeight:800,cursor:'pointer',transition:'all .15s',textAlign:'center',lineHeight:1.4}}>
                         {l}<br/><span style={{fontWeight:400,fontSize:8,opacity:.65}}>{s}</span>
                       </button>;
                     })}
@@ -5484,7 +5492,7 @@ Reply: ${botText.slice(0,800)}`,
                 <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
                   {[['adventurous','#F59E0B'],['dark','#6B7280'],['hopeful','#10B981'],['funny','#F97316'],['mysterious','#8B5CF6'],['romantic','#EC4899'],['tense','#EF4444'],['whimsical','#06B6D4'],['nostalgic','#A78BFA'],['epic','#3B82F6']].map(([v,col])=>{
                     const on=storyConfig.mood===v;
-                    return <button key={v} onClick={()=>setStoryConfig(c=>({...c,mood:v}))} style={{padding:'6px 13px',borderRadius:99,border:`1px solid ${on?col+'55':'var(--br)'}`,background:on?col+'14':'var(--bg3)',color:on?col:'var(--t3)',fontSize:11,fontWeight:600,cursor:'pointer',transition:'all .15s',textTransform:'capitalize'}}
+                    return <button key={v} onClick={()=>setStoryConfig(c=>({...c,mood:v}))} style={{padding:'6px 13px',borderRadius:99,border:'1px solid '+on?col+'55':'var(--br)',background:on?col+'14':'var(--bg3)',color:on?col:'var(--t3)',fontSize:11,fontWeight:600,cursor:'pointer',transition:'all .15s',textTransform:'capitalize'}}
                       onMouseEnter={e=>{if(!on){e.currentTarget.style.borderColor=col+'35';e.currentTarget.style.color=col;}}}
                       onMouseLeave={e=>{if(!on){e.currentTarget.style.borderColor='var(--br)';e.currentTarget.style.color='var(--t3)';}}} >
                       {v}
@@ -5548,7 +5556,7 @@ Reply: ${botText.slice(0,800)}`,
                 {/* Tags */}
                 <div style={{display:'flex',gap:7,flexWrap:'wrap',marginBottom:16}}>
                   {[{v:storyConfig.genre,c:'#F59E0B'},{v:storyConfig.mood,c:'#EF4444'},{v:storyConfig.length,c:'#3B82F6'},{v:(storyConfig.pov||'third')+' person',c:'#8B5CF6'}].map((b,i)=>(
-                    <span key={i} style={{fontSize:10,padding:'4px 12px',borderRadius:99,fontWeight:700,textTransform:'capitalize',background:b.c+'18',color:b.c,border:`1px solid ${b.c}30`}}>{b.v}</span>
+                    <span key={i} style={{fontSize:10,padding:'4px 12px',borderRadius:99,fontWeight:700,textTransform:'capitalize',background:b.c+'18',color:b.c,border:'1px solid '+b.c+('30'}}>{b.v}</span>
                   ))}
                 </div>
                 {/* Story text */}
@@ -5632,7 +5640,7 @@ Reply: ${botText.slice(0,800)}`,
                     {[{ic:'fa-file-code',lbl:'Code Snippets',col:'#3B82F6',desc:'Shared code library'},{ic:'fa-link',lbl:'Links',col:'#10B981',desc:'Useful references'},{ic:'fa-file-image',lbl:'Assets',col:'#F59E0B',desc:'Images & media'},{ic:'fa-bookmark',lbl:'Bookmarks',col:'#8B5CF6',desc:'Saved pages'}].map((r,i)=>(
                       <div key={i} className="rounded-2xl border p-4 cursor-pointer transition-all" style={{borderColor:r.col+'30',background:r.col+'08'}} onMouseEnter={e=>{e.currentTarget.style.background=r.col+'14';e.currentTarget.style.borderColor=r.col+'50';}} onMouseLeave={e=>{e.currentTarget.style.background=r.col+'08';e.currentTarget.style.borderColor=r.col+'30';}}>
                         <div className="flex items-center gap-3 mb-3">
-                          <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{background:`linear-gradient(135deg,${r.col}dd,${r.col}88)`,boxShadow:`0 4px 12px ${r.col}40`}}>
+                          <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{background:'linear-gradient(135deg,'+r.col+'dd,'+r.col+'88)',boxShadow:'0 4px 12px '+r.col+'40'}}>
                             <i className={`fa-solid ${r.ic} text-white`} style={{fontSize:15}}></i>
                           </div>
                           <div>
@@ -5830,7 +5838,7 @@ Reply: ${botText.slice(0,800)}`,
               {quizSubmitted?(
                 <div className="flex gap-2">
                   {[{lbl:'Score',val:quizScore+'%',col:quizScore>=70?'#10B981':'#EF4444'},{lbl:'Correct',val:Object.values(quizAnswers).filter((a,i)=>a===quizQuestions[i]?.answer).length+'/'+quizQuestions.length,col:'#F59E0B'},{lbl:'Grade',val:quizScore===100?'A+':quizScore>=80?'A':quizScore>=70?'B':quizScore>=60?'C':'D',col:'#818cf8'},{lbl:'Result',val:quizScore>=70?'Pass 🎉':'Retry 📚',col:quizScore>=70?'#10B981':'#EF4444'}].map(s=>(
-                    <div key={s.lbl} className="flex-1 text-center py-2.5 rounded-2xl" style={{background:s.col+'10',border:`1px solid ${s.col}28`}}>
+                    <div key={s.lbl} className="flex-1 text-center py-2.5 rounded-2xl" style={{background:s.col+'10',border:'1px solid '+s.col+('28'}}>
                       <p className="text-base font-black" style={{color:s.col}}>{s.val}</p>
                       <p className="text-[9px] font-bold uppercase tracking-widest mt-0.5" style={{color:'var(--t3)'}}>{s.lbl}</p>
                     </div>
@@ -6035,7 +6043,7 @@ Reply: ${botText.slice(0,800)}`,
                     <button key={v} onClick={()=>setLlLevel(v)}
                       style={{padding:'5px 10px',borderRadius:9,fontSize:10,fontWeight:700,cursor:'pointer',
                         background:llLevel===v?clr+'20':'rgba(255,255,255,.04)',color:llLevel===v?clr:'var(--t3)',
-                        border:llLevel===v?`1px solid ${clr}44`:'1px solid rgba(255,255,255,.06)',transition:'all .15s'}}>
+                        border:llLevel===v?'1px solid '+clr+('44':'1px solid rgba(255,255,255,.06)',transition:'all .15s'}}>
                       {em} {v.charAt(0).toUpperCase()+v.slice(1)}
                     </button>
                   ))}
@@ -6867,6 +6875,337 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
 
 
 {/* ═══ MULTIPLE PROFILES ═══ */}
+      {/* ═══ DNA OF CONVERSATION ═══ */}
+      {showDNA&&(()=>{
+        const allMsgs = sessions.flatMap(s=>(s.messages||[]));
+        const userMsgs = allMsgs.filter(m=>m.sender==='user');
+        const botMsgs = allMsgs.filter(m=>m.sender==='bot'||m.sender==='assistant');
+        const allText = userMsgs.map(m=>m.text||'').join(' ');
+        const totalChars = allText.length;
+        const avgMsgLen = userMsgs.length ? Math.round(totalChars/userMsgs.length) : 0;
+        const questions = userMsgs.filter(m=>(m.text||'').includes('?')).length;
+        const questionPct = userMsgs.length ? Math.round(questions/userMsgs.length*100) : 0;
+        const longMsgs = userMsgs.filter(m=>(m.text||'').length>200).length;
+        const shortMsgs = userMsgs.filter(m=>(m.text||'').length<30).length;
+        const style = avgMsgLen > 150 ? 'Deep Thinker' : avgMsgLen > 60 ? 'Balanced Communicator' : 'Quick Responder';
+        const styleDesc = avgMsgLen > 150 ? 'You prefer detailed, thorough explanations' : avgMsgLen > 60 ? 'You balance detail with brevity well' : 'You prefer concise, to-the-point messages';
+        const styleIcon = avgMsgLen > 150 ? 'fa-brain' : avgMsgLen > 60 ? 'fa-scale-balanced' : 'fa-bolt';
+        const styleCol = avgMsgLen > 150 ? '#8B5CF6' : avgMsgLen > 60 ? '#10B981' : '#F59E0B';
+        // Topic clusters - count keyword groups
+        const topicMap = {
+          'Tech & Code': ['code','function','error','bug','javascript','python','api','html','css','react','database','server','git'],
+          'Creative': ['story','write','poem','creative','imagine','design','art','character','plot'],
+          'Learning': ['explain','what is','how does','why','learn','understand','teach','concept'],
+          'Personal': ['feel','think','believe','opinion','advice','help me','should i','decision'],
+          'Business': ['business','startup','marketing','product','strategy','customer','revenue','growth'],
+        };
+        const topicScores = {};
+        Object.entries(topicMap).forEach(([topic,kws])=>{
+          topicScores[topic]=kws.reduce((a,kw)=>a+(allText.toLowerCase().split(kw).length-1),0);
+        });
+        const sortedTopics = Object.entries(topicScores).sort((a,b)=>b[1]-a[1]);
+        const topTopic = sortedTopics[0];
+        const maxTopicScore = topTopic?.[1]||1;
+        // Time pattern
+        const hours = userMsgs.map(m=>m.timestamp||m.ts).filter(Boolean).map(t=>new Date(t).getHours());
+        const hourCounts = Array(24).fill(0);
+        hours.forEach(h=>hourCounts[h]++);
+        const peakHour = hourCounts.indexOf(Math.max(...hourCounts));
+        const timeLabel = peakHour>=5&&peakHour<12 ? '🌅 Morning Person' : peakHour>=12&&peakHour<17 ? '☀️ Afternoon Explorer' : peakHour>=17&&peakHour<22 ? '🌆 Evening Thinker' : '🌙 Night Owl';
+        // Vocabulary richness
+        const wordSet = new Set(allText.toLowerCase().split(/\s+/).filter(w=>w.length>3));
+        const vocabScore = Math.min(100,Math.round(wordSet.size/10));
+        // Unique fingerprint color based on stats
+        const fpColor = '#'+Math.floor((avgMsgLen*questionPct*sessions.length)%16777215).toString(16).padStart(6,'0').replace(/[^0-9a-f]/g,'a');
+
+        return(
+        <div className="fixed inset-0 z-[250] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.88)',backdropFilter:'blur(18px)'}} onClick={()=>{setShowDNA(false);if(featFromSettings){setFeatFromSettings(false);setShowSettings(true);setSettingsTab('quickaccess');}}}>
+          <div className="w-full max-w-2xl rounded-3xl border shadow-2xl flex flex-col overflow-hidden" style={{background:'var(--bg2)',borderColor:'rgba(236,72,153,.22)',maxHeight:'90vh',boxShadow:'0 30px 80px rgba(0,0,0,.55),0 0 0 1px rgba(236,72,153,.08)'}} onClick={e=>e.stopPropagation()}>
+
+            {/* Header */}
+            <div className="px-6 py-5 border-b flex-shrink-0" style={{borderColor:'rgba(236,72,153,.12)',background:'linear-gradient(135deg,rgba(236,72,153,.12),rgba(139,92,246,.07),transparent)'}}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl flex items-center justify-center" style={{background:'linear-gradient(145deg,#EC4899,#8B5CF6)',boxShadow:'0 6px 20px rgba(236,72,153,.4),inset 0 1px 0 rgba(255,255,255,.2)'}}>
+                    <i className="fa-solid fa-dna text-white" style={{fontSize:18}}></i>
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="font-bold text-base" style={{color:'var(--t1)'}}>DNA of Conversation</p>
+                      <span className="text-[9px] px-2 py-0.5 rounded-full font-black tracking-widest" style={{background:'rgba(236,72,153,.2)',color:'#f472b6',border:'1px solid rgba(236,72,153,.3)'}}>YOUR AI FINGERPRINT</span>
+                    </div>
+                    <p className="text-[11px] mt-0.5" style={{color:'var(--t3)'}}>Analyzed {userMsgs.length} messages across {sessions.length} sessions</p>
+                  </div>
+                </div>
+                <button onClick={()=>{setShowDNA(false);if(featFromSettings){setFeatFromSettings(false);setShowSettings(true);setSettingsTab('quickaccess');}}} className="w-8 h-8 rounded-xl flex items-center justify-center transition-all" style={{color:'var(--t3)'}} onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,.08)';e.currentTarget.style.color='var(--t1)';}} onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='var(--t3)';}}><i className="fa-solid fa-xmark"></i></button>
+              </div>
+            </div>
+
+            {/* Tabs */}
+            <div className="flex border-b flex-shrink-0 px-2" style={{borderColor:'rgba(255,255,255,.06)'}}>
+              {[['overview','fa-chart-pie','Overview'],['style','fa-fingerprint','Style'],['topics','fa-tags','Topics'],['time','fa-clock','Time Pattern']].map(([t,ic,lb])=>(
+                <button key={t} onClick={()=>setDnaTab(t)} className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[11px] font-semibold transition-all" style={{color:dnaTab===t?'#f472b6':'var(--t3)',borderBottom:dnaTab===t?'2px solid #EC4899':'2px solid transparent',background:dnaTab===t?'rgba(236,72,153,.06)':'transparent'}}>
+                  <i className={"fa-solid "+ic+" text-[10px]"}></i>{lb}
+                </button>
+              ))}
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto sb p-5" style={{minHeight:0}}>
+              {userMsgs.length===0?(
+                <div className="text-center py-16">
+                  <div className="text-5xl mb-4">🧬</div>
+                  <p className="text-sm font-bold" style={{color:'var(--t2)'}}>No data yet</p>
+                  <p className="text-xs mt-1" style={{color:'var(--t3)'}}>Start chatting to build your DNA profile</p>
+                </div>
+              ):(
+                <div>
+                  {/* OVERVIEW TAB */}
+                  {dnaTab==='overview'&&(
+                    <div className="space-y-4">
+                      {/* Fingerprint card */}
+                      <div className="rounded-2xl p-5 text-center" style={{background:'linear-gradient(135deg,rgba(236,72,153,.1),rgba(139,92,246,.08))',border:'1px solid rgba(236,72,153,.2)'}}>
+                        <div className="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center" style={{background:'linear-gradient(135deg,#EC4899,#8B5CF6)',boxShadow:'0 8px 24px rgba(236,72,153,.4)'}}>
+                          <i className="fa-solid fa-fingerprint text-white" style={{fontSize:28}}></i>
+                        </div>
+                        <p className="font-black text-lg" style={{color:'var(--t1)'}}>{style}</p>
+                        <p className="text-xs mt-1" style={{color:'var(--t3)'}}>{styleDesc}</p>
+                        <p className="text-[10px] mt-2 px-3 py-1 rounded-full inline-block" style={{background:'rgba(236,72,153,.12)',color:'#f472b6'}}>#{sessions.length}{avgMsgLen}{questionPct} · Unique to you</p>
+                      </div>
+                      {/* Stats grid */}
+                      <div className="grid grid-cols-2 gap-3">
+                        {[
+                          {ic:'fa-paper-plane',lbl:'Messages Sent',val:userMsgs.length,col:'#EC4899'},
+                          {ic:'fa-align-left',lbl:'Avg Msg Length',val:avgMsgLen+' chars',col:'#8B5CF6'},
+                          {ic:'fa-circle-question',lbl:'Questions Asked',val:questions+' ('+questionPct+'%)',col:'#F59E0B'},
+                          {ic:'fa-book-open',lbl:'Vocab Richness',val:vocabScore+'/100',col:'#10B981'},
+                        ].map(s=>(
+                          <div key={s.lbl} className="rounded-2xl border p-4" style={{borderColor:s.col+'25',background:s.col+'08'}}>
+                            <div className="flex items-center gap-2 mb-2">
+                              <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{background:'linear-gradient(135deg,'+s.col+'cc,'+s.col+'88)'}}><i className={"fa-solid "+s.ic+" text-white"} style={{fontSize:12}}></i></div>
+                              <p className="text-[10px] font-bold uppercase tracking-widest" style={{color:'var(--t3)'}}>{s.lbl}</p>
+                            </div>
+                            <p className="text-xl font-black" style={{color:s.col}}>{s.val}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* STYLE TAB */}
+                  {dnaTab==='style'&&(
+                    <div className="space-y-4">
+                      <div className="rounded-2xl p-4" style={{background:'rgba(255,255,255,.03)',border:'1px solid rgba(255,255,255,.07)'}}>
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{background:'linear-gradient(135deg,'+styleCol+'cc,'+styleCol+'88)'}}><i className={"fa-solid "+styleIcon+" text-white"} style={{fontSize:16}}></i></div>
+                          <div><p className="font-black text-base" style={{color:'var(--t1)'}}>{style}</p><p className="text-[11px]" style={{color:'var(--t3)'}}>{styleDesc}</p></div>
+                        </div>
+                        {[
+                          {lbl:'Short messages (<30 chars)',val:shortMsgs,total:userMsgs.length,col:'#F59E0B'},
+                          {lbl:'Medium messages (30-200)',val:userMsgs.length-shortMsgs-longMsgs,total:userMsgs.length,col:'#10B981'},
+                          {lbl:'Long messages (>200 chars)',val:longMsgs,total:userMsgs.length,col:'#8B5CF6'},
+                          {lbl:'Questions asked',val:questions,total:userMsgs.length,col:'#EC4899'},
+                        ].map(s=>{
+                          const pct=s.total?Math.round(s.val/s.total*100):0;
+                          return(
+                            <div key={s.lbl} className="mb-3">
+                              <div className="flex justify-between mb-1">
+                                <span className="text-[11px]" style={{color:'var(--t2)'}}>{s.lbl}</span>
+                                <span className="text-[11px] font-bold" style={{color:s.col}}>{s.val} ({pct}%)</span>
+                              </div>
+                              <div className="h-2 rounded-full overflow-hidden" style={{background:'rgba(255,255,255,.06)'}}>
+                                <div className="h-full rounded-full transition-all" style={{width:pct+'%',background:'linear-gradient(90deg,'+s.col+','+s.col+'88)'}}></div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TOPICS TAB */}
+                  {dnaTab==='topics'&&(
+                    <div className="space-y-3">
+                      <p className="text-xs" style={{color:'var(--t3)'}}>Based on keyword frequency across all your messages</p>
+                      {sortedTopics.map(([topic,score],i)=>{
+                        const pct = Math.round(score/maxTopicScore*100)||2;
+                        const cols=['#EC4899','#8B5CF6','#10B981','#F59E0B','#3B82F6'];
+                        const col=cols[i];
+                        return(
+                          <div key={topic} className="rounded-2xl border p-4" style={{borderColor:col+'25',background:col+'06'}}>
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                {i===0&&<span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold" style={{background:col+'20',color:col}}>TOP TOPIC</span>}
+                                <p className="text-sm font-bold" style={{color:'var(--t1)'}}>{topic}</p>
+                              </div>
+                              <span className="text-xs font-black" style={{color:col}}>{score} hits</span>
+                            </div>
+                            <div className="h-2 rounded-full overflow-hidden" style={{background:'rgba(255,255,255,.06)'}}>
+                              <div className="h-full rounded-full" style={{width:pct+'%',background:'linear-gradient(90deg,'+col+','+col+'66)'}}></div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* TIME PATTERN TAB */}
+                  {dnaTab==='time'&&(
+                    <div className="space-y-4">
+                      <div className="rounded-2xl p-4 text-center" style={{background:'rgba(139,92,246,.08)',border:'1px solid rgba(139,92,246,.2)'}}>
+                        <p className="text-3xl mb-2">{timeLabel.split(' ')[0]}</p>
+                        <p className="font-black text-base" style={{color:'var(--t1)'}}>{timeLabel.split(' ').slice(1).join(' ')}</p>
+                        <p className="text-[11px] mt-1" style={{color:'var(--t3)'}}>Most active around {peakHour}:00 - {(peakHour+1)%24}:00</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold mb-2 uppercase tracking-widest" style={{color:'var(--t3)'}}>Activity by hour</p>
+                        <div className="flex items-end gap-0.5 h-16">
+                          {hourCounts.map((c,h)=>{
+                            const maxH=Math.max(...hourCounts)||1;
+                            const pct=Math.round(c/maxH*100);
+                            const isPeak=h===peakHour;
+                            return(
+                              <div key={h} className="flex-1 flex flex-col items-center gap-0.5" title={h+':00 — '+c+' msgs'}>
+                                <div className="w-full rounded-sm transition-all" style={{height:Math.max(2,pct*0.56)+'px',background:isPeak?'linear-gradient(0deg,#EC4899,#f472b6)':'rgba(255,255,255,.12)',boxShadow:isPeak?'0 0 8px rgba(236,72,153,.5)':'none'}}></div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <div className="flex justify-between mt-1">
+                          <span className="text-[9px]" style={{color:'var(--t3)'}}>0h</span>
+                          <span className="text-[9px]" style={{color:'var(--t3)'}}>12h</span>
+                          <span className="text-[9px]" style={{color:'var(--t3)'}}>23h</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+        );
+      })()}
+
+      {/* ═══ IDEA COLLIDER ═══ */}
+      {showCollider&&(
+        <div className="fixed inset-0 z-[250] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.88)',backdropFilter:'blur(18px)'}} onClick={()=>{setShowCollider(false);if(featFromSettings){setFeatFromSettings(false);setShowSettings(true);setSettingsTab('quickaccess');}}}>
+          <div className="w-full max-w-2xl rounded-3xl border shadow-2xl flex flex-col overflow-hidden" style={{background:'var(--bg2)',borderColor:'rgba(249,115,22,.22)',maxHeight:'90vh',boxShadow:'0 30px 80px rgba(0,0,0,.55),0 0 0 1px rgba(249,115,22,.08)'}} onClick={e=>e.stopPropagation()}>
+
+            {/* Header */}
+            <div className="px-6 py-5 border-b flex-shrink-0" style={{borderColor:'rgba(249,115,22,.12)',background:'linear-gradient(135deg,rgba(249,115,22,.12),rgba(234,179,8,.07),transparent)'}}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl flex items-center justify-center" style={{background:'linear-gradient(145deg,#F97316,#EAB308)',boxShadow:'0 6px 20px rgba(249,115,22,.4),inset 0 1px 0 rgba(255,255,255,.2)'}}>
+                    <i className="fa-solid fa-atom text-white" style={{fontSize:18}}></i>
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="font-bold text-base" style={{color:'var(--t1)'}}>Idea Collider</p>
+                      <span className="text-[9px] px-2 py-0.5 rounded-full font-black tracking-widest" style={{background:'rgba(249,115,22,.2)',color:'#fb923c',border:'1px solid rgba(249,115,22,.3)'}}>⚡ SPARK IDEAS</span>
+                    </div>
+                    <p className="text-[11px] mt-0.5" style={{color:'var(--t3)'}}>Collide 2 unrelated concepts → generate breakthrough ideas</p>
+                  </div>
+                </div>
+                <button onClick={()=>{setShowCollider(false);if(featFromSettings){setFeatFromSettings(false);setShowSettings(true);setSettingsTab('quickaccess');}}} className="w-8 h-8 rounded-xl flex items-center justify-center transition-all" style={{color:'var(--t3)'}} onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,.08)';e.currentTarget.style.color='var(--t1)';}} onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='var(--t3)';}}><i className="fa-solid fa-xmark"></i></button>
+              </div>
+            </div>
+
+            {/* Input area */}
+            <div className="p-5 border-b flex-shrink-0" style={{borderColor:'rgba(255,255,255,.06)'}}>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex-1">
+                  <p className="text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{color:'#fb923c'}}>Concept A</p>
+                  <input value={colliderA} onChange={e=>setColliderA(e.target.value)} placeholder="e.g. Blockchain" className="w-full px-4 py-3 rounded-2xl text-sm outline-none border transition-all" style={{background:'rgba(249,115,22,.06)',borderColor:'rgba(249,115,22,.2)',color:'var(--t1)'}} onFocus={e=>e.target.style.borderColor='rgba(249,115,22,.5)'} onBlur={e=>e.target.style.borderColor='rgba(249,115,22,.2)'}/>
+                </div>
+                <div className="flex-shrink-0 mt-5">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{background:'linear-gradient(135deg,#F97316,#EAB308)',boxShadow:'0 4px 14px rgba(249,115,22,.4)'}}>
+                    <i className="fa-solid fa-atom text-white" style={{fontSize:16}}></i>
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <p className="text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{color:'#EAB308'}}>Concept B</p>
+                  <input value={colliderB} onChange={e=>setColliderB(e.target.value)} placeholder="e.g. Cooking" className="w-full px-4 py-3 rounded-2xl text-sm outline-none border transition-all" style={{background:'rgba(234,179,8,.06)',borderColor:'rgba(234,179,8,.2)',color:'var(--t1)'}} onFocus={e=>e.target.style.borderColor='rgba(234,179,8,.5)'} onBlur={e=>e.target.style.borderColor='rgba(234,179,8,.2)'}/>
+                </div>
+              </div>
+              {/* Random pair suggestions */}
+              <div className="flex gap-2 flex-wrap mb-3">
+                {[['AI','Farming'],['Music','Medicine'],['Gaming','Education'],['Space','Fashion'],['Chess','Marketing']].map(([a,b])=>(
+                  <button key={a+b} onClick={()=>{setColliderA(a);setColliderB(b);}} className="text-[10px] px-2.5 py-1 rounded-xl border transition-all" style={{borderColor:'rgba(249,115,22,.2)',color:'var(--t3)',background:'rgba(249,115,22,.04)'}} onMouseEnter={e=>e.currentTarget.style.borderColor='rgba(249,115,22,.45)'} onMouseLeave={e=>e.currentTarget.style.borderColor='rgba(249,115,22,.2)'}>
+                    ⚡ {a} + {b}
+                  </button>
+                ))}
+              </div>
+              <button onClick={async()=>{
+                if(!colliderA.trim()||!colliderB.trim()){toast_('Enter both concepts!','warning');return;}
+                setColliderLoading(true);setColliderResults([]);
+                try{
+                  const res=await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'You are a creative idea generator. Collide these two unrelated concepts and generate 5 breakthrough ideas: "'+colliderA+'" + "'+colliderB+'". For each idea: give it a catchy name, one-line description, and one potential use case. Format as JSON array: [{"name":"...","desc":"...","use":"..."}]. Return ONLY the JSON array, nothing else.',system_prompt:'Respond only with a valid JSON array.'})});
+                  const data=await res.json();
+                  const txt=(data.reply||'').replace(/```json|```/g,'').trim();
+                  try{const ideas=JSON.parse(txt);setColliderResults(ideas);toast_('5 ideas generated!','success');}
+                  catch{setColliderResults([{name:'Raw Ideas',desc:data.reply||'No response',use:'See above'}]);}
+                }catch{toast_('Error generating ideas','error');}
+                setColliderLoading(false);
+              }} disabled={!colliderA.trim()||!colliderB.trim()||colliderLoading} className="w-full py-3 rounded-2xl text-sm font-bold text-white transition-all flex items-center justify-center gap-2 disabled:opacity-40" style={{background:'linear-gradient(135deg,#F97316,#EAB308)',boxShadow:'0 4px 16px rgba(249,115,22,.3)'}}>
+                {colliderLoading?<><i className="fa-solid fa-spinner fa-spin text-xs"></i>Colliding...</>:<><i className="fa-solid fa-atom text-xs"></i>Collide Ideas!</>}
+              </button>
+            </div>
+
+            {/* Results */}
+            <div className="flex-1 overflow-y-auto sb p-4">
+              {colliderResults.length===0&&!colliderLoading&&(
+                <div className="text-center py-10">
+                  <div className="text-5xl mb-3">⚡</div>
+                  <p className="text-sm font-bold" style={{color:'var(--t2)'}}>Enter two concepts and collide them</p>
+                  <p className="text-xs mt-1" style={{color:'var(--t3)'}}>The more unrelated, the more creative the ideas</p>
+                </div>
+              )}
+              {colliderLoading&&(
+                <div className="space-y-3">
+                  {[1,2,3,4,5].map(i=>(
+                    <div key={i} className="rounded-2xl border p-4 animate-pulse" style={{borderColor:'rgba(249,115,22,.12)',background:'rgba(249,115,22,.04)'}}>
+                      <div className="h-4 rounded-full mb-2" style={{width:'60%',background:'rgba(255,255,255,.06)'}}></div>
+                      <div className="h-3 rounded-full mb-1" style={{width:'90%',background:'rgba(255,255,255,.04)'}}></div>
+                      <div className="h-3 rounded-full" style={{width:'75%',background:'rgba(255,255,255,.04)'}}></div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {colliderResults.length>0&&(
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-xs font-bold" style={{color:'var(--t3)'}}>{colliderA} ⚡ {colliderB} → {colliderResults.length} ideas</p>
+                    <button onClick={()=>{const saved=[...colliderSaved,{a:colliderA,b:colliderB,ideas:colliderResults,date:new Date().toLocaleDateString()}];setColliderSaved(saved);toast_('Saved!','success');}} className="text-[10px] px-2.5 py-1 rounded-xl border font-bold transition-all" style={{borderColor:'rgba(249,115,22,.3)',color:'#fb923c',background:'rgba(249,115,22,.06)'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(249,115,22,.14)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(249,115,22,.06)'}>
+                      <i className="fa-solid fa-bookmark mr-1 text-[9px]"></i>Save All
+                    </button>
+                  </div>
+                  {colliderResults.map((idea,i)=>{
+                    const cols=['#F97316','#EAB308','#EC4899','#8B5CF6','#10B981'];
+                    const col=cols[i%cols.length];
+                    return(
+                      <div key={i} className="rounded-2xl border p-4 transition-all" style={{borderColor:col+'28',background:col+'07'}} onMouseEnter={e=>{e.currentTarget.style.background=col+'12';e.currentTarget.style.borderColor=col+'45';}} onMouseLeave={e=>{e.currentTarget.style.background=col+'07';e.currentTarget.style.borderColor=col+'28';}}>
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-black px-2 py-0.5 rounded-lg" style={{background:col+'20',color:col}}>IDEA {i+1}</span>
+                            <p className="font-bold text-sm" style={{color:'var(--t1)'}}>{idea.name}</p>
+                          </div>
+                          <button onClick={()=>{setInput(idea.desc+' — tell me more about this idea');setShowCollider(false);}} className="text-[10px] px-2 py-0.5 rounded-lg border flex-shrink-0 transition-all" style={{borderColor:col+'35',color:col,background:'transparent'}} onMouseEnter={e=>e.currentTarget.style.background=col+'18'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                            Explore →
+                          </button>
+                        </div>
+                        <p className="text-xs mb-1.5" style={{color:'var(--t2)'}}>{idea.desc}</p>
+                        <p className="text-[10px] flex items-center gap-1" style={{color:'var(--t3)'}}><i className="fa-solid fa-lightbulb text-[9px]" style={{color:col}}></i>{idea.use}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {showProfiles&&(()=>{
         const profTab = window._profTab||'profiles';
         const setProfTab = t=>{window._profTab=t;setShowProfiles(s=>s);};
@@ -7565,7 +7904,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
               {/* Search modes */}
               <div className="flex items-center gap-1">
                 {[['normal','fa-magnifying-glass','Normal'],['semantic','fa-brain','Semantic'],['regex','fa-code','Regex']].map(([m,ic,lb])=>(
-                  <button key={m} onClick={()=>setSearchMode(m)} className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all" style={{background:searchMode===m?'rgba(99,102,241,.2)':'transparent',color:searchMode===m?'#818cf8':'var(--t3)',border:`1px solid ${searchMode===m?'rgba(99,102,241,.4)':'transparent'}`}}>
+                  <button key={m} onClick={()=>setSearchMode(m)} className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all" style={{background:searchMode===m?'rgba(99,102,241,.2)':'transparent',color:searchMode===m?'#818cf8':'var(--t3)',border:'1px solid '+searchMode===m?'rgba(99,102,241,.4)':'transparent'}}>
                     <i className={`fa-solid ${ic} text-[9px]`}></i>{lb}
                   </button>
                 ))}
@@ -8224,7 +8563,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
               const s=sessions.find(x=>x.id===tab.sid);
               const isActive=sid===tab.sid;
               return(
-                <div key={tab.id} className="flex items-center gap-1.5 flex-shrink-0 rounded-lg transition-all cursor-pointer group" style={{padding:'4px 10px',background:isActive?'var(--bg2)':'transparent',border:`1px solid ${isActive?'var(--brh)':'transparent'}`,marginTop:4,marginBottom:4}} onClick={()=>{setSid(tab.sid);setActiveTab(tab.id);}}>
+                <div key={tab.id} className="flex items-center gap-1.5 flex-shrink-0 rounded-lg transition-all cursor-pointer group" style={{padding:'4px 10px',background:isActive?'var(--bg2)':'transparent',border:'1px solid '+isActive?'var(--brh)':'transparent',marginTop:4,marginBottom:4}} onClick={()=>{setSid(tab.sid);setActiveTab(tab.id);}}>
                   <i className="fa-regular fa-message text-[9px]" style={{color:isActive?'#60a5fa':'var(--t3)'}}></i>
                   <span className="text-[11px] font-medium max-w-[100px] truncate" style={{color:isActive?'var(--t1)':'var(--t3)'}}>{s?.title?.slice(0,18)||tab.label||'Chat'}</span>
                   {s?.messages?.length>0&&<span className="text-[9px] px-1 rounded" style={{background:'rgba(99,102,241,.15)',color:'#818cf8'}}>{s.messages.length}</span>}
@@ -8358,7 +8697,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                                 className="w-full flex items-center gap-2.5 px-3 py-2.5 transition-all text-left"
                                 style={{background:persona===p.id?p.color+'12':'transparent',borderBottom:'1px solid var(--br)',cursor:'pointer'}}
                                 onMouseEnter={e=>e.currentTarget.style.background=p.color+'18'} onMouseLeave={e=>e.currentTarget.style.background=persona===p.id?p.color+'12':'transparent'}>
-                                <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{background:p.color+'20',border:`1px solid ${p.color}33`}}>
+                                <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{background:p.color+'20',border:'1px solid '+p.color+('33'}}>
                                   <i className={`fa-solid ${p.icon}`} style={{fontSize:11,color:p.color}}></i>
                                 </div>
                                 <div className="flex-1 min-w-0">
@@ -8419,11 +8758,11 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                               const bdr=isActive?'rgba(167,139,250,.4)':'var(--br)';
                               return(
                                 <button key={f.id} onClick={getFn(f.id)}
-                                  style={{display:'flex',flexDirection:'column',alignItems:'center',gap:6,padding:'12px 4px 10px',borderRadius:14,border:`1px solid ${bdr}`,background:bg,cursor:'pointer',position:'relative',transition:'all .18s',minWidth:0}}
-                                  onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-2px) scale(1.03)';e.currentTarget.style.boxShadow=`0 6px 16px ${displayCol}28`;}}
+                                  style={{display:'flex',flexDirection:'column',alignItems:'center',gap:6,padding:'12px 4px 10px',borderRadius:14,border:'1px solid '+bdr,background:bg,cursor:'pointer',position:'relative',transition:'all .18s',minWidth:0}}
+                                  onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-2px) scale(1.03)';e.currentTarget.style.boxShadow='0 6px 16px '+displayCol+'28';}}
                                   onMouseLeave={e=>{e.currentTarget.style.transform='translateY(0) scale(1)';e.currentTarget.style.boxShadow='none';}}>
                                   {isActive&&<div style={{position:'absolute',top:6,right:6,width:6,height:6,borderRadius:'50%',background:'#a78bfa',boxShadow:'0 0 6px rgba(167,139,250,.8)'}}></div>}
-                                  <div style={{width:34,height:34,borderRadius:11,background:`linear-gradient(135deg,${displayCol}22,${displayCol}0e)`,border:`1px solid ${displayCol}28`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,boxShadow:isActive?`0 4px 12px ${displayCol}40`:'none'}}>
+                                  <div style={{width:34,height:34,borderRadius:11,background:'linear-gradient(135deg,'+displayCol+'22,'+displayCol+'0e)',border:'1px solid '+displayCol+('28',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,boxShadow:isActive?'0 4px 12px '+displayCol+'40':'none'}}>
                                     <i className={`fa-solid ${f.ic}`} style={{color:displayCol,fontSize:13,filter:isActive?'drop-shadow(0 0 4px rgba(167,139,250,.8))':''}}></i>
                                   </div>
                                   <span style={{fontSize:9,color:'rgba(255,255,255,.88)',fontWeight:600,textAlign:'center',lineHeight:1.2,maxWidth:64,letterSpacing:'.01em'}}>{f.id==='incognito'&&incognito?'ON':f.lbl}</span>
@@ -8553,7 +8892,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                     {LANGS.slice(0,10).map(l=>(
                       <button key={l.id} onClick={()=>setLanguage(l.id)}
                         style={{display:'flex',alignItems:'center',gap:4,padding:'4px 9px',borderRadius:20,
-                          border:`1px solid ${language===l.id?'rgba(99,102,241,.45)':'var(--br)'}`,
+                          border:'1px solid '+language===l.id?'rgba(99,102,241,.45)':'var(--br)',
                           background:language===l.id?'rgba(99,102,241,.1)':'transparent',
                           cursor:'pointer',fontSize:11,fontWeight:language===l.id?700:400,transition:'all .15s',
                           color:language===l.id?'#a5b4fc':'var(--t3)'}}>
@@ -8896,7 +9235,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                   {LANGS.filter(l=>l.label.toLowerCase().includes(langSearch.toLowerCase())||l.id.includes(langSearch.toLowerCase())).map(l=>(
                     <button key={l.id} onClick={()=>setLanguage(l.id)}
                       style={{display:'flex',alignItems:'center',gap:8,padding:'9px 12px',borderRadius:11,
-                        border:`1px solid ${language===l.id?'rgba(99,102,241,.6)':'var(--br)'}`,
+                        border:'1px solid '+language===l.id?'rgba(99,102,241,.6)':'var(--br)',
                         background:language===l.id?'rgba(99,102,241,.15)':'var(--bg3)',
                         cursor:'pointer',transition:'all .15s',textAlign:'left'}}>
                       <span style={{fontSize:18,flexShrink:0,lineHeight:1}}>{l.flag}</span>
@@ -9203,9 +9542,9 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                         <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{background:'rgba(124,58,237,.15)'}}><i className="fa-solid fa-book-open text-purple-400"></i></div>
                         <div className="text-center"><p className="text-sm font-semibold" style={{color:'var(--t1)'}}>Prompts</p><p className="text-[10px]" style={{color:'var(--t3)'}}>{allPrompts.length} prompts</p></div>
                       </button>
-                      <button onClick={()=>setShowProfiles(true)} className="flex flex-col items-center gap-2 p-4 rounded-xl border transition-all hover:border-blue-500/50" style={{background:'rgba(37,99,235,.06)',borderColor:'rgba(37,99,235,.2)'}}>
-                        <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{background:'rgba(37,99,235,.15)'}}><i className="fa-solid fa-user-group text-blue-400"></i></div>
-                        <div className="text-center"><p className="text-sm font-semibold" style={{color:'var(--t1)'}}>Profiles</p><p className="text-[10px]" style={{color:'var(--t3)'}}>{allProfiles.length} profiles</p></div>
+                      <button onClick={()=>setShowDNA(true)} className="flex flex-col items-center gap-2 p-4 rounded-xl border transition-all" style={{background:'rgba(236,72,153,.06)',borderColor:'rgba(236,72,153,.2)'}} onMouseEnter={e=>e.currentTarget.style.borderColor='rgba(236,72,153,.5)'} onMouseLeave={e=>e.currentTarget.style.borderColor='rgba(236,72,153,.2)'}>
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{background:'rgba(236,72,153,.15)'}}><i className="fa-solid fa-dna" style={{color:'#EC4899'}}></i></div>
+                        <div className="text-center"><p className="text-sm font-semibold" style={{color:'var(--t1)'}}>DNA of Chat</p><p className="text-[10px]" style={{color:'var(--t3)'}}>Your AI fingerprint</p></div>
                       </button>
                       <button onClick={()=>setShowCmdPalette(true)} className="flex flex-col items-center gap-2 p-4 rounded-xl border transition-all hover:border-emerald-500/50" style={{background:'rgba(5,150,105,.06)',borderColor:'rgba(5,150,105,.2)'}}>
                         <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{background:'rgba(5,150,105,.15)'}}><i className="fa-solid fa-terminal text-emerald-400"></i></div>
@@ -9485,7 +9824,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                             </div>
                           </div>
                           <div className="h-1.5 rounded-full overflow-hidden" style={{background:'var(--bg3)'}}>
-                            <div className="h-full rounded-full transition-all duration-500" style={{width:`${pct}%`,background:`linear-gradient(90deg,${barColor}aa,${barColor})`}}/>
+                            <div className="h-full rounded-full transition-all duration-500" style={{width:`${pct}%`,background:'linear-gradient(90deg,'+barColor+'aa,'+barColor+')'}}/>
                           </div>
                         </div>
                         );
@@ -9598,7 +9937,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       commands:()=>{setFeatFromSettings(true);setShowSettings(false);setShowCmdPalette(true);},
                       digest:()=>{setFeatFromSettings(true);setShowSettings(false);setShowDigest(true);},
                       randprompt:()=>{setFeatFromSettings(true);setShowSettings(false);setShowRandPrompt(true);},
-                      incognito:()=>{setShowSettings(false);setIncognito(s=>!s);toast_(incognito?'Incognito OFF':'Incognito ON','info');},
+                      incognito:()=>{},
                       chain:()=>{setFeatFromSettings(true);setShowSettings(false);setShowChainViewer(true);},
                       conceptmap:()=>{setFeatFromSettings(true);setShowSettings(false);setShowConceptMap(true);},
                       storygen:()=>{setFeatFromSettings(true);setShowSettings(false);setShowStoryGen(true);},
@@ -9633,7 +9972,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                               display:'flex',alignItems:'center',justifyContent:'center',
                               width:20,height:20,borderRadius:5,padding:0,
                               background:pinned?'rgba(239,68,68,.12)':'rgba(255,255,255,.07)',
-                              border:`1px solid ${pinned?'rgba(239,68,68,.3)':'rgba(255,255,255,.12)'}`,
+                              border:'1px solid '+pinned?'rgba(239,68,68,.3)':'rgba(255,255,255,.12)',
                               color:pinned?'#f87171':'var(--t3)',
                               cursor:'pointer',transition:'all .15s',
                             }}>
@@ -9650,7 +9989,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       return(
                         <div onClick={editMode?toggle:(launchMap[f.id]||(()=>{}))} style={{
                           position:'relative',borderRadius:12,overflow:'hidden',
-                          border:`1px solid ${editMode&&pinned?`${f.col}70`:editMode?'rgba(255,255,255,.15)':'var(--br)'}`,
+                          border:'1px solid '+editMode&&pinned?`${f.col+('70':editMode?'rgba(255,255,255,.15)':'var(--br)'}`,
                           background: editMode&&pinned?`${f.col}12`:'var(--bg3)',
                           cursor:'pointer',transition:'all .18s',
                           boxShadow: editMode&&pinned?`0 0 0 1px ${f.col}30`:'none',
@@ -9689,7 +10028,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       <button onClick={()=>setFeatEditMode(v=>!v)} style={{
                         display:'flex',alignItems:'center',gap:4,
                         padding:'3px 10px',borderRadius:7,fontSize:10,fontWeight:600,
-                        border:`1px solid ${featEditMode?'rgba(239,68,68,.4)':'rgba(255,255,255,.12)'}`,
+                        border:'1px solid '+featEditMode?'rgba(239,68,68,.4)':'rgba(255,255,255,.12)',
                         background:featEditMode?'rgba(239,68,68,.1)':'rgba(255,255,255,.05)',
                         color:featEditMode?'#f87171':'var(--t2)',cursor:'pointer',
                       }}>
