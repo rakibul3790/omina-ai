@@ -3123,6 +3123,12 @@ function App() {
   const [offlineCache,setOfflineCache] = useState(()=>{try{const c=localStorage.getItem('omina_cache');return c?JSON.parse(c):{}}catch{return{}}});
   const [autoCanvas,setAutoCanvas]   = useState(true);
   const [canvasMode,setCanvasMode]   = useState(false); // sticky: stays ON until user turns off
+  // ── Follow-up suggestions state ──
+  const [followUps,setFollowUps]         = useState([]);
+  const [followUpMsgId,setFollowUpMsgId] = useState(null);
+  // ── Per-message summarize state ──
+  const [msgSummary,setMsgSummary]       = useState({});
+  const [summarizing,setSummarizing]     = useState(null);
 
   const fileRef   = useRef(null);
   const endRef    = useRef(null);
@@ -4026,14 +4032,6 @@ ${cached}`,sender:'bot',model,timestamp:Date.now(),language};
   const react=(msgId,emoji)=>setReactions(p=>({...p,[msgId]:p[msgId]===emoji?null:emoji}));
   const toggleStar=msgId=>{setStarred(p=>({...p,[msgId]:!p[msgId]}));};
 
-  // ── Follow-up suggestions state ──
-  const [followUps,setFollowUps]         = useState([]); // array of suggestion strings
-  const [followUpMsgId,setFollowUpMsgId] = useState(null);
-
-  // ── Per-message summarize state ──
-  const [msgSummary,setMsgSummary]       = useState({}); // {msgId: text}
-  const [summarizing,setSummarizing]     = useState(null); // msgId being summarized
-
   // ── Text selection context menu handler ──
   const handleTextMouseUp = e => {
     const sel = window.getSelection();
@@ -4641,78 +4639,142 @@ Reply: ${botText.slice(0,800)}`,
         });
         const totalMsgs = todaySessions.reduce((a,s)=>a+(s.messages?.length||0),0);
         const userMsgs = todaySessions.reduce((a,s)=>a+(s.messages?.filter(m=>m.sender==='user').length||0),0);
+        const botMsgs = totalMsgs - userMsgs;
         const modelsUsed = [...new Set(todaySessions.flatMap(s=>s.messages?.map(m=>m.model?.name).filter(Boolean)||[]))];
         const longestChat = todaySessions.reduce((a,s)=>s.messages?.length>a?s.messages.length:a,0);
         const avgLen = userMsgs>0?Math.round(todaySessions.flatMap(s=>s.messages?.filter(m=>m.sender==='user').map(m=>m.text?.length||0)||[]).reduce((a,b)=>a+b,0)/userMsgs):0;
+        const allSessions = sessions || [];
+        const totalAllTime = allSessions.reduce((a,s)=>a+(s.messages?.length||0),0);
+        const streakDays = (()=>{
+          const days = new Set(allSessions.map(s=>new Date(s.createdAt||s.messages?.[0]?.timestamp||0).toDateString()));
+          let streak=0; const d=new Date();
+          while(days.has(d.toDateString())){streak++;d.setDate(d.getDate()-1);}
+          return streak;
+        })();
+        const hour = today.getHours();
+        const greeting = hour<12?'Good Morning':hour<17?'Good Afternoon':'Good Evening';
         return(
-          <div className="feat-modal-wrap fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.8)'}} onClick={()=>setShowDigest(false)}>
-            <div className="w-full max-w-md rounded-2xl border shadow-2xl overflow-hidden" style={{background:'var(--bg2)',borderColor:'var(--br)'}} onClick={e=>e.stopPropagation()}>
-              {/* Header */}
-              <div className="px-5 py-4 border-b" style={{borderColor:'var(--br)',background:'linear-gradient(135deg,rgba(245,158,11,.1),rgba(239,68,68,.06))'}}>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{background:'linear-gradient(135deg,#F59E0B,#EF4444)',boxShadow:'0 0 16px rgba(245,158,11,.3)'}}>
-                      <i className="fa-solid fa-sun text-white text-sm"></i>
+          <div className="feat-modal-wrap fixed inset-0 z-[200] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.85)',backdropFilter:'blur(16px)'}} onClick={()=>setShowDigest(false)}>
+            <div className="w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden" style={{background:'var(--bg2)',border:'1px solid var(--br)',animation:'mIn .32s cubic-bezier(.16,1,.3,1)'}} onClick={e=>e.stopPropagation()}>
+
+              {/* ── Hero Header ── */}
+              <div style={{background:'linear-gradient(135deg,#1a1200 0%,#2d1f00 50%,#1a1200 100%)',padding:'28px 24px 20px',position:'relative',overflow:'hidden'}}>
+                <div style={{position:'absolute',inset:0,background:'radial-gradient(ellipse at 30% 50%,rgba(245,158,11,.18) 0%,transparent 60%)',pointerEvents:'none'}}></div>
+                <div style={{position:'absolute',top:16,right:20,opacity:.06,fontSize:80,lineHeight:1}}>☀</div>
+                <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',position:'relative'}}>
+                  <div style={{display:'flex',alignItems:'center',gap:14}}>
+                    <div style={{width:52,height:52,borderRadius:18,background:'linear-gradient(135deg,#F59E0B,#F97316)',boxShadow:'0 8px 24px rgba(245,158,11,.4)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                      <i className="fa-solid fa-sun" style={{color:'#fff',fontSize:22}}></i>
                     </div>
                     <div>
-                      <p className="font-bold text-base" style={{color:'var(--t1)'}}>Daily Digest</p>
-                      <p className="text-[11px]" style={{color:'var(--t3)'}}>{today.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})}</p>
+                      <p style={{margin:0,fontSize:11,fontWeight:700,letterSpacing:'.12em',textTransform:'uppercase',color:'rgba(245,158,11,.7)',marginBottom:4}}>Daily Digest</p>
+                      <p style={{margin:0,fontSize:22,fontWeight:800,color:'#fff',lineHeight:1.1}}>{greeting}!</p>
+                      <p style={{margin:'4px 0 0',fontSize:12,color:'rgba(255,255,255,.45)'}}>{today.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})}</p>
                     </div>
                   </div>
-                  <button onClick={()=>setShowDigest(false)} className="w-8 h-8 rounded-xl flex items-center justify-center" style={{color:'var(--t2)'}} onMouseEnter={e=>e.currentTarget.style.background='var(--bg3)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><i className="fa-solid fa-xmark"></i></button>
+                  <button onClick={()=>setShowDigest(false)} style={{width:32,height:32,borderRadius:10,border:'1px solid rgba(255,255,255,.12)',background:'rgba(255,255,255,.06)',color:'rgba(255,255,255,.5)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,transition:'all .15s'}}
+                    onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,.12)'}
+                    onMouseLeave={e=>e.currentTarget.style.background='rgba(255,255,255,.06)'}>
+                    <i className="fa-solid fa-xmark" style={{fontSize:12}}></i>
+                  </button>
+                </div>
+                {/* Streak + alltime row */}
+                <div style={{display:'flex',gap:8,marginTop:18,position:'relative'}}>
+                  {[
+                    {icon:'fa-fire',color:'#F97316',label:'Day Streak',val:streakDays},
+                    {icon:'fa-database',color:'#60A5FA',label:'All-time msgs',val:totalAllTime},
+                    {icon:'fa-brain',color:'#A78BFA',label:'Models used',val:modelsUsed.length||'—'},
+                  ].map(s=>(
+                    <div key={s.label} style={{flex:1,background:'rgba(255,255,255,.05)',border:'1px solid rgba(255,255,255,.08)',borderRadius:12,padding:'10px 8px',textAlign:'center'}}>
+                      <i className={`fa-solid ${s.icon}`} style={{color:s.color,fontSize:13,marginBottom:5,display:'block'}}></i>
+                      <p style={{margin:0,fontSize:18,fontWeight:800,color:'#fff',lineHeight:1}}>{s.val}</p>
+                      <p style={{margin:'3px 0 0',fontSize:9,color:'rgba(255,255,255,.35)',fontWeight:600,textTransform:'uppercase',letterSpacing:'.06em'}}>{s.label}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <div className="p-5 space-y-4">
-                {/* Stats grid */}
-                <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10}}>
+
+              {/* ── Body ── */}
+              <div style={{padding:'20px 24px',overflowY:'auto',maxHeight:420}} className="sb">
+
+                {/* Today's stats */}
+                <p style={{margin:'0 0 10px',fontSize:10,fontWeight:700,letterSpacing:'.1em',textTransform:'uppercase',color:'var(--t3)'}}>Today's Activity</p>
+                <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8,marginBottom:16}}>
                   {[
                     {icon:'fa-comments',color:'#3B82F6',label:'Sessions',val:todaySessions.length},
-                    {icon:'fa-message',color:'#10B981',label:'Messages',val:totalMsgs},
-                    {icon:'fa-user',color:'#8B5CF6',label:'You sent',val:userMsgs},
+                    {icon:'fa-messages',color:'#10B981',label:'Total Msgs',val:totalMsgs},
+                    {icon:'fa-user',color:'#8B5CF6',label:'You Sent',val:userMsgs},
+                    {icon:'fa-robot',color:'#F59E0B',label:'AI Replies',val:botMsgs},
                   ].map(s=>(
-                    <div key={s.label} className="rounded-xl p-3 text-center border" style={{background:s.color+'0d',borderColor:s.color+'30'}}>
-                      <div className="w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-2" style={{background:s.color+'20'}}>
-                        <i className={`fa-solid ${s.icon} text-xs`} style={{color:s.color}}></i>
+                    <div key={s.label} style={{borderRadius:14,padding:'12px 8px',textAlign:'center',background:s.color+'0d',border:`1px solid ${s.color}28`}}>
+                      <div style={{width:30,height:30,borderRadius:10,background:s.color+'22',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 7px'}}>
+                        <i className={`fa-solid ${s.icon}`} style={{color:s.color,fontSize:11}}></i>
                       </div>
-                      <p className="text-lg font-bold" style={{color:s.color}}>{s.val}</p>
-                      <p className="text-[10px]" style={{color:'var(--t3)'}}>{s.label}</p>
+                      <p style={{margin:0,fontSize:20,fontWeight:800,color:s.color,lineHeight:1}}>{s.val}</p>
+                      <p style={{margin:'3px 0 0',fontSize:9,color:'var(--t3)',fontWeight:600,textTransform:'uppercase',letterSpacing:'.06em'}}>{s.label}</p>
                     </div>
                   ))}
                 </div>
-                {/* Extra stats */}
-                <div className="rounded-xl p-3 border space-y-2.5" style={{borderColor:'var(--br)',background:'var(--bg3)'}}>
+
+                {/* Insights row */}
+                <div style={{borderRadius:14,border:'1px solid var(--br)',background:'var(--bg3)',padding:'12px 14px',marginBottom:16,display:'flex',flexDirection:'column',gap:10}}>
+                  <p style={{margin:0,fontSize:10,fontWeight:700,letterSpacing:'.1em',textTransform:'uppercase',color:'var(--t3)',marginBottom:2}}>Insights</p>
                   {[
-                    {icon:'fa-trophy',color:'#F59E0B',label:'Longest chat',val:longestChat+' msgs'},
-                    {icon:'fa-ruler',color:'#06B6D4',label:'Avg message length',val:avgLen+' chars'},
-                    {icon:'fa-robot',color:'#A78BFA',label:'Models used',val:modelsUsed.length>0?modelsUsed.join(', '):'—'},
+                    {icon:'fa-trophy',color:'#F59E0B',label:'Longest chat today',val:longestChat?longestChat+' messages':'—'},
+                    {icon:'fa-ruler-horizontal',color:'#06B6D4',label:'Avg message length',val:avgLen?avgLen+' characters':'—'},
+                    {icon:'fa-clock',color:'#A78BFA',label:'Most active hour',val:hour+':00 — '+((hour+1)%24)+':00'},
+                    {icon:'fa-wand-magic-sparkles',color:'#EC4899',label:'AI models used today',val:modelsUsed.length>0?modelsUsed.join(', '):'None yet'},
                   ].map(r=>(
-                    <div key={r.label} className="flex items-center justify-between">
-                      <div className="flex items-center gap-2"><div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{background:r.color+'18'}}><i className={`fa-solid ${r.icon} text-[10px]`} style={{color:r.color}}></i></div><span className="text-xs" style={{color:'var(--t2)'}}>{r.label}</span></div>
-                      <span className="text-xs font-bold" style={{color:'var(--t1)'}}>{r.val}</span>
+                    <div key={r.label} style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8}}>
+                      <div style={{display:'flex',alignItems:'center',gap:8}}>
+                        <div style={{width:26,height:26,borderRadius:8,background:r.color+'18',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                          <i className={`fa-solid ${r.icon}`} style={{color:r.color,fontSize:10}}></i>
+                        </div>
+                        <span style={{fontSize:12,color:'var(--t2)'}}>{r.label}</span>
+                      </div>
+                      <span style={{fontSize:11,fontWeight:700,color:'var(--t1)',textAlign:'right',maxWidth:140,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{r.val}</span>
                     </div>
                   ))}
                 </div>
-                {/* Today's chats list */}
+
+                {/* Today's chats */}
                 {todaySessions.length>0?(
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{color:'var(--t3)'}}>Today's Conversations</p>
-                    <div className="space-y-1.5 max-h-36 overflow-y-auto sb">
+                    <p style={{margin:'0 0 8px',fontSize:10,fontWeight:700,letterSpacing:'.1em',textTransform:'uppercase',color:'var(--t3)'}}>Today's Conversations</p>
+                    <div style={{display:'flex',flexDirection:'column',gap:6,maxHeight:180,overflowY:'auto'}} className="sb">
                       {todaySessions.map(s=>(
-                        <button key={s.id} onClick={()=>{setSid(s.id);setShowDigest(false);}} className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl border text-left transition-all" style={{borderColor:'var(--br)',background:'var(--bg3)'}} onMouseEnter={e=>e.currentTarget.style.borderColor='rgba(245,158,11,.4)'} onMouseLeave={e=>e.currentTarget.style.borderColor='var(--br)'}>
-                          <i className="fa-regular fa-message text-xs flex-shrink-0" style={{color:'var(--t3)'}}></i>
-                          <span className="text-xs truncate flex-1" style={{color:'var(--t1)'}}>{s.title||'Untitled'}</span>
-                          <span className="text-[10px] flex-shrink-0" style={{color:'var(--t3)'}}>{s.messages?.length||0} msgs</span>
+                        <button key={s.id} onClick={()=>{setSid(s.id);setShowDigest(false);}}
+                          style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',borderRadius:12,border:'1px solid var(--br)',background:'var(--bg3)',cursor:'pointer',textAlign:'left',transition:'all .15s',width:'100%'}}
+                          onMouseEnter={e=>{ e.currentTarget.style.borderColor='rgba(245,158,11,.45)'; e.currentTarget.style.background='rgba(245,158,11,.04)'; }}
+                          onMouseLeave={e=>{ e.currentTarget.style.borderColor='var(--br)'; e.currentTarget.style.background='var(--bg3)'; }}>
+                          <div style={{width:28,height:28,borderRadius:8,background:'rgba(245,158,11,.12)',border:'1px solid rgba(245,158,11,.2)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                            <i className="fa-regular fa-message" style={{color:'#F59E0B',fontSize:10}}></i>
+                          </div>
+                          <span style={{fontSize:12,color:'var(--t1)',flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{s.title||'Untitled Chat'}</span>
+                          <div style={{display:'flex',alignItems:'center',gap:6,flexShrink:0}}>
+                            <span style={{fontSize:10,color:'var(--t3)',background:'var(--bg2)',padding:'2px 7px',borderRadius:6}}>{s.messages?.length||0} msgs</span>
+                            <i className="fa-solid fa-chevron-right" style={{color:'var(--t3)',fontSize:9}}></i>
+                          </div>
                         </button>
                       ))}
                     </div>
                   </div>
                 ):(
-                  <div className="text-center py-6" style={{color:'var(--t3)'}}>
-                    <i className="fa-solid fa-moon text-3xl mb-2 block" style={{color:'rgba(245,158,11,.3)'}}></i>
-                    <p className="text-sm" style={{color:'var(--t2)'}}>No chats today yet</p>
-                    <p className="text-xs mt-1">Start a conversation!</p>
+                  <div style={{textAlign:'center',padding:'28px 0'}}>
+                    <div style={{width:52,height:52,borderRadius:18,background:'rgba(245,158,11,.08)',border:'1px solid rgba(245,158,11,.15)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 12px'}}>
+                      <i className="fa-solid fa-moon" style={{color:'rgba(245,158,11,.4)',fontSize:22}}></i>
+                    </div>
+                    <p style={{margin:0,fontSize:14,fontWeight:600,color:'var(--t2)'}}>No chats today yet</p>
+                    <p style={{margin:'6px 0 0',fontSize:12,color:'var(--t3)'}}>Start a conversation to see your digest</p>
                   </div>
                 )}
+
+                {/* Quick action */}
+                <button onClick={()=>setShowDigest(false)} style={{width:'100%',marginTop:16,padding:'11px',borderRadius:14,border:'1px solid rgba(245,158,11,.3)',background:'linear-gradient(135deg,rgba(245,158,11,.12),rgba(249,115,22,.08))',color:'#F59E0B',fontSize:13,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8,transition:'all .15s'}}
+                  onMouseEnter={e=>e.currentTarget.style.background='linear-gradient(135deg,rgba(245,158,11,.2),rgba(249,115,22,.14))'}
+                  onMouseLeave={e=>e.currentTarget.style.background='linear-gradient(135deg,rgba(245,158,11,.12),rgba(249,115,22,.08))'}>
+                  <i className="fa-solid fa-plus" style={{fontSize:11}}></i>Start New Chat
+                </button>
               </div>
             </div>
           </div>
@@ -4720,14 +4782,17 @@ Reply: ${botText.slice(0,800)}`,
       })()}
 
       {/* ═══ RANDOM PROMPT GENERATOR ═══ */}
+
       {showRandPrompt&&(()=>{
         const RAND_CATS = [
-          {id:'creative', label:'Creative', icon:'fa-paintbrush', color:'#EC4899', prompts:['Write a short story about a robot who discovers emotions','Describe a world where music is illegal','Create a poem about the last library on Earth','Write a dialogue between the Sun and Moon','Imagine a city built entirely underwater']},
-          {id:'coding',   label:'Coding',   icon:'fa-code',       color:'#10B981', prompts:['Build a CLI todo app in Python','Explain how async/await works with a real example','Write a recursive function to flatten nested arrays','Create a REST API endpoint for user authentication','Design a simple rate limiter algorithm']},
-          {id:'learning', label:'Learning', icon:'fa-graduation-cap', color:'#3B82F6', prompts:['Explain quantum computing like I\'m 10','What are the key differences between ML and AI?','Teach me the basics of blockchain in 5 points','How does the internet actually work?','Explain Big O notation with simple examples']},
-          {id:'business', label:'Business', icon:'fa-briefcase',  color:'#F59E0B', prompts:['Write a cold email pitch for a SaaS product','Create a SWOT analysis template','Generate 10 startup ideas for 2025','Write a product launch announcement','Create a weekly standup template']},
-          {id:'fun',      label:'Fun',      icon:'fa-face-laugh', color:'#F97316', prompts:['Tell me a programming joke I haven\'t heard','Roast my productivity habits','Write a haiku about debugging code','Create a fun quiz about space','What would happen if gravity stopped for 1 second?']},
-          {id:'analysis', label:'Analysis', icon:'fa-chart-bar',  color:'#8B5CF6', prompts:['Analyze the pros and cons of remote work','Compare SQL vs NoSQL databases','Break down the psychology of procrastination','Analyze why most startups fail','Compare different programming paradigms']},
+          {id:'creative', label:'Creative',  icon:'fa-paintbrush',    color:'#EC4899', gradient:'linear-gradient(135deg,#EC4899,#F43F5E)', prompts:['Write a short story about a robot who discovers emotions','Describe a world where music is illegal','Create a poem about the last library on Earth','Write a dialogue between the Sun and Moon','Imagine a city built entirely underwater','Write a letter from the future to the past']},
+          {id:'coding',   label:'Coding',    icon:'fa-code',          color:'#10B981', gradient:'linear-gradient(135deg,#10B981,#059669)', prompts:['Build a CLI todo app in Python','Explain how async/await works with a real example','Write a recursive function to flatten nested arrays','Create a REST API endpoint for user authentication','Design a simple rate limiter algorithm','Build a real-time chat with WebSockets']},
+          {id:'learning', label:'Learning',  icon:'fa-graduation-cap',color:'#3B82F6', gradient:'linear-gradient(135deg,#3B82F6,#2563EB)', prompts:['Explain quantum computing like I'm 10','What are the key differences between ML and AI?','Teach me blockchain in 5 simple points','How does the internet actually work?','Explain Big O notation with simple examples','What is the Feynman Technique?']},
+          {id:'business', label:'Business',  icon:'fa-briefcase',     color:'#F59E0B', gradient:'linear-gradient(135deg,#F59E0B,#D97706)', prompts:['Write a cold email pitch for a SaaS product','Create a SWOT analysis template','Generate 10 startup ideas for 2025','Write a product launch announcement','Create a weekly standup template','Draft a VC pitch deck outline']},
+          {id:'fun',      label:'Fun',       icon:'fa-face-laugh',    color:'#F97316', gradient:'linear-gradient(135deg,#F97316,#EA580C)', prompts:['Tell me a programming joke I haven't heard','Roast my productivity habits','Write a haiku about debugging code','Create a fun quiz about space','What would happen if gravity stopped for 1 second?','Describe a zombie apocalypse but everyone codes']},
+          {id:'analysis', label:'Analysis',  icon:'fa-chart-bar',     color:'#8B5CF6', gradient:'linear-gradient(135deg,#8B5CF6,#7C3AED)', prompts:['Analyze the pros and cons of remote work','Compare SQL vs NoSQL databases','Break down the psychology of procrastination','Analyze why most startups fail','Compare different programming paradigms','Analyze the future of AI in 2030']},
+          {id:'design',   label:'Design',    icon:'fa-swatchbook',    color:'#06B6D4', gradient:'linear-gradient(135deg,#06B6D4,#0891B2)', prompts:['Design a color palette for a fintech app','Describe the perfect mobile UX for elderly users','Create a design system naming convention','Write a UI critique of a popular website','Suggest icons for a productivity dashboard','What makes a landing page convert?']},
+          {id:'mindset',  label:'Mindset',   icon:'fa-brain',         color:'#A78BFA', gradient:'linear-gradient(135deg,#A78BFA,#8B5CF6)', prompts:['How do I beat perfectionism?','Explain the growth mindset with examples','What are the best habits for deep focus?','How do successful people start their mornings?','Overcome impostor syndrome as a developer','Build mental resilience under pressure']},
         ];
         const curCat = RAND_CATS.find(c=>c.id===rCat)||RAND_CATS[0];
         const spin = ()=>{
@@ -4735,60 +4800,88 @@ Reply: ${botText.slice(0,800)}`,
           setRandPromptResult(p);
         };
         return(
-          <div className="feat-modal-wrap fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.8)'}} onClick={()=>setShowRandPrompt(false)}>
-            <div className="w-full max-w-lg rounded-2xl border shadow-2xl overflow-hidden" style={{background:'var(--bg2)',borderColor:'var(--br)'}} onClick={e=>e.stopPropagation()}>
-              {/* Header */}
-              <div className="px-5 py-4 border-b" style={{borderColor:'var(--br)',background:'linear-gradient(135deg,rgba(236,72,153,.1),rgba(139,92,246,.06))'}}>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{background:'linear-gradient(135deg,#EC4899,#8B5CF6)',boxShadow:'0 0 16px rgba(236,72,153,.3)'}}>
-                      <i className="fa-solid fa-dice text-white text-sm"></i>
+          <div className="feat-modal-wrap fixed inset-0 z-[200] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.85)',backdropFilter:'blur(16px)'}} onClick={()=>setShowRandPrompt(false)}>
+            <div className="w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden" style={{background:'var(--bg2)',border:'1px solid var(--br)',animation:'mIn .32s cubic-bezier(.16,1,.3,1)'}} onClick={e=>e.stopPropagation()}>
+
+              {/* ── Hero Header ── */}
+              <div style={{background:'linear-gradient(135deg,#1a0828 0%,#2d1040 50%,#1a0828 100%)',padding:'24px 24px 20px',position:'relative',overflow:'hidden'}}>
+                <div style={{position:'absolute',inset:0,background:'radial-gradient(ellipse at 70% 50%,rgba(236,72,153,.2) 0%,transparent 60%)',pointerEvents:'none'}}></div>
+                <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',position:'relative',marginBottom:6}}>
+                  <div style={{display:'flex',alignItems:'center',gap:12}}>
+                    <div style={{width:46,height:46,borderRadius:16,background:curCat.gradient,boxShadow:`0 8px 20px ${curCat.color}55`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,transition:'all .3s'}}>
+                      <i className={`fa-solid ${curCat.icon}`} style={{color:'#fff',fontSize:18}}></i>
                     </div>
                     <div>
-                      <p className="font-bold text-base" style={{color:'var(--t1)'}}>Random Prompt Generator</p>
-                      <p className="text-[11px]" style={{color:'var(--t3)'}}>Pick a category and spin for inspiration</p>
+                      <p style={{margin:0,fontSize:11,fontWeight:700,letterSpacing:'.12em',textTransform:'uppercase',color:'rgba(236,72,153,.7)'}}>Prompt Generator</p>
+                      <p style={{margin:'2px 0 0',fontSize:18,fontWeight:800,color:'#fff'}}>Get Inspired</p>
                     </div>
                   </div>
-                  <button onClick={()=>setShowRandPrompt(false)} className="w-8 h-8 rounded-xl flex items-center justify-center" style={{color:'var(--t2)'}} onMouseEnter={e=>e.currentTarget.style.background='var(--bg3)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><i className="fa-solid fa-xmark"></i></button>
+                  <button onClick={()=>setShowRandPrompt(false)} style={{width:32,height:32,borderRadius:10,border:'1px solid rgba(255,255,255,.12)',background:'rgba(255,255,255,.06)',color:'rgba(255,255,255,.5)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',transition:'all .15s'}}
+                    onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,.12)'}
+                    onMouseLeave={e=>e.currentTarget.style.background='rgba(255,255,255,.06)'}>
+                    <i className="fa-solid fa-xmark" style={{fontSize:12}}></i>
+                  </button>
                 </div>
+                <p style={{margin:0,fontSize:12,color:'rgba(255,255,255,.35)',position:'relative'}}>Pick a category and spin for inspiration</p>
               </div>
-              <div className="p-5 space-y-4">
-                {/* Category picker */}
-                <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8}}>
+
+              <div style={{padding:'20px 24px'}}>
+                {/* ── Category grid ── */}
+                <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:7,marginBottom:18}}>
                   {RAND_CATS.map(c=>(
-                    <button key={c.id} onClick={()=>{setRCat(c.id);setRandPromptResult('');}} className="flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all" style={{background:rCat===c.id?c.color+'18':'var(--bg3)',borderColor:rCat===c.id?c.color+'55':'var(--br)'}}>
-                      <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{background:c.color+(rCat===c.id?'25':'15')}}>
-                        <i className={`fa-solid ${c.icon} text-xs`} style={{color:c.color}}></i>
+                    <button key={c.id} onClick={()=>{setRCat(c.id);setRandPromptResult('');}}
+                      style={{display:'flex',flexDirection:'column',alignItems:'center',gap:5,padding:'10px 4px',borderRadius:12,border:`1px solid ${rCat===c.id?c.color+'55':'var(--br)'}`,background:rCat===c.id?c.color+'12':'var(--bg3)',cursor:'pointer',transition:'all .15s'}}
+                      onMouseEnter={e=>{ if(rCat!==c.id){e.currentTarget.style.borderColor=c.color+'33';e.currentTarget.style.background=c.color+'08';} }}
+                      onMouseLeave={e=>{ if(rCat!==c.id){e.currentTarget.style.borderColor='var(--br)';e.currentTarget.style.background='var(--bg3)';} }}>
+                      <div style={{width:28,height:28,borderRadius:9,background:c.color+(rCat===c.id?'28':'18'),display:'flex',alignItems:'center',justifyContent:'center',transition:'all .15s'}}>
+                        <i className={`fa-solid ${c.icon}`} style={{color:c.color,fontSize:11}}></i>
                       </div>
-                      <span className="text-[10px] font-bold" style={{color:rCat===c.id?c.color:'var(--t3)'}}>{c.label}</span>
+                      <span style={{fontSize:9,fontWeight:700,color:rCat===c.id?c.color:'var(--t3)',textTransform:'uppercase',letterSpacing:'.05em'}}>{c.label}</span>
                     </button>
                   ))}
                 </div>
-                {/* Result box */}
-                <div className="rounded-xl border p-4 min-h-24 flex items-center justify-center text-center transition-all" style={{borderColor:randPromptResult?curCat.color+'44':'var(--br)',background:randPromptResult?curCat.color+'08':'var(--bg3)'}}>
+
+                {/* ── Result box ── */}
+                <div style={{borderRadius:16,border:`1px solid ${randPromptResult?curCat.color+'44':'var(--br)'}`,background:randPromptResult?curCat.color+'06':'var(--bg3)',padding:'18px',minHeight:80,display:'flex',alignItems:'center',justifyContent:'center',marginBottom:16,transition:'all .3s',position:'relative',overflow:'hidden'}}>
+                  {randPromptResult && <div style={{position:'absolute',inset:0,background:`radial-gradient(ellipse at 30% 50%,${curCat.color}08,transparent)`,pointerEvents:'none'}}></div>}
                   {randPromptResult
-                    ?<p className="text-sm font-medium leading-relaxed" style={{color:'var(--t1)'}}>{randPromptResult}</p>
-                    :<p className="text-sm" style={{color:'var(--t3)'}}>Hit the button below to generate a prompt!</p>
+                    ?<p style={{margin:0,fontSize:14,fontWeight:500,lineHeight:1.6,color:'var(--t1)',textAlign:'center',position:'relative'}}>{randPromptResult}</p>
+                    :<p style={{margin:0,fontSize:13,color:'var(--t3)',textAlign:'center'}}>🎲 Hit <b style={{color:'var(--t2)'}}>Spin</b> to get a random prompt!</p>
                   }
                 </div>
-                {/* Actions */}
-                <div className="flex gap-3">
-                  <button onClick={spin} className="flex-1 py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 transition-all" style={{background:`linear-gradient(135deg,${curCat.color},#8B5CF6)`,boxShadow:`0 4px 14px ${curCat.color}33`}}>
-                    <i className="fa-solid fa-dice text-xs"></i>Spin!
+
+                {/* ── Actions ── */}
+                <div style={{display:'flex',gap:10,marginBottom:randPromptResult?12:0}}>
+                  <button onClick={spin}
+                    style={{flex:1,padding:'13px',borderRadius:14,fontSize:14,fontWeight:800,color:'#fff',background:curCat.gradient,boxShadow:`0 6px 20px ${curCat.color}44`,cursor:'pointer',border:'none',display:'flex',alignItems:'center',justifyContent:'center',gap:8,transition:'all .15s'}}
+                    onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-2px)';e.currentTarget.style.boxShadow=`0 10px 28px ${curCat.color}55`;}}
+                    onMouseLeave={e=>{e.currentTarget.style.transform='translateY(0)';e.currentTarget.style.boxShadow=`0 6px 20px ${curCat.color}44`;}}>
+                    <i className="fa-solid fa-dice" style={{fontSize:15}}></i>Spin!
                   </button>
                   {randPromptResult&&(
-                    <button onClick={()=>{setShowRandPrompt(false);setTimeout(()=>{const el=document.querySelector('textarea');if(el){el.value=randPromptResult;el.dispatchEvent(new Event('input',{bubbles:true}));}},100);}} className="flex-1 py-3 rounded-xl text-sm font-bold border transition-all flex items-center justify-center gap-2" style={{borderColor:curCat.color+'55',color:curCat.color,background:curCat.color+'10'}}>
-                      <i className="fa-solid fa-paper-plane text-xs"></i>Use This
+                    <button onClick={()=>{setShowRandPrompt(false);setTimeout(()=>{const el=document.querySelector('textarea');if(el){el.value=randPromptResult;el.dispatchEvent(new Event('input',{bubbles:true}));}},100);}}
+                      style={{flex:1,padding:'13px',borderRadius:14,fontSize:14,fontWeight:800,border:`1px solid ${curCat.color}55`,color:curCat.color,background:curCat.color+'10',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8,transition:'all .15s'}}
+                      onMouseEnter={e=>{e.currentTarget.style.background=curCat.color+'20';e.currentTarget.style.transform='translateY(-1px)';}}
+                      onMouseLeave={e=>{e.currentTarget.style.background=curCat.color+'10';e.currentTarget.style.transform='translateY(0)';}}>
+                      <i className="fa-solid fa-paper-plane" style={{fontSize:13}}></i>Use This
                     </button>
                   )}
                 </div>
+
+                {/* ── Suggestions row ── */}
                 {randPromptResult&&(
-                  <div className="flex gap-2">
-                    {curCat.prompts.filter(p=>p!==randPromptResult).slice(0,3).map((p,i)=>(
-                      <button key={i} onClick={()=>setRandPromptResult(p)} className="flex-1 px-2 py-1.5 rounded-lg text-[10px] border text-center transition-all truncate" style={{borderColor:'var(--br)',color:'var(--t3)',background:'var(--bg3)'}} onMouseEnter={e=>e.currentTarget.style.borderColor=curCat.color+'44'} onMouseLeave={e=>e.currentTarget.style.borderColor='var(--br)'}>
-                        {p.slice(0,30)}...
-                      </button>
-                    ))}
+                  <div>
+                    <p style={{margin:'0 0 7px',fontSize:10,fontWeight:700,letterSpacing:'.08em',textTransform:'uppercase',color:'var(--t3)'}}>More ideas</p>
+                    <div style={{display:'flex',flexDirection:'column',gap:5}}>
+                      {curCat.prompts.filter(p=>p!==randPromptResult).slice(0,3).map((p,i)=>(
+                        <button key={i} onClick={()=>setRandPromptResult(p)}
+                          style={{padding:'8px 12px',borderRadius:10,border:'1px solid var(--br)',background:'var(--bg3)',color:'var(--t2)',fontSize:12,textAlign:'left',cursor:'pointer',transition:'all .15s',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}
+                          onMouseEnter={e=>{e.currentTarget.style.borderColor=curCat.color+'44';e.currentTarget.style.color='var(--t1)';}}
+                          onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--br)';e.currentTarget.style.color='var(--t2)';}}>
+                          <i className="fa-solid fa-lightbulb" style={{color:curCat.color,fontSize:10,marginRight:7}}></i>{p.length>60?p.slice(0,60)+'…':p}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
@@ -4798,6 +4891,7 @@ Reply: ${botText.slice(0,800)}`,
       })()}
 
       {/* ═══ CHAIN OF THOUGHT VIEWER ═══ */}
+
       {showChainViewer&&(
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.75)',backdropFilter:'blur(6px)'}} onClick={()=>setShowChainViewer(false)}>
           <div className="w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col" style={{background:'var(--bg2)',border:'1px solid var(--br)',maxHeight:'90vh'}} onClick={e=>e.stopPropagation()}>
@@ -7494,11 +7588,15 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
             );})()}
             {/* Msg search */}
             <button onClick={()=>setShowMsgSearch(true)} className="hide-mobile p-2 rounded-lg transition-all hover:bg-white/5" style={{color:'var(--t2)'}} title="Message search (Ctrl+Shift+F)"><i className="fa-solid fa-magnifying-glass-dollar text-sm"></i></button>
-            {/* Incognito toggle */}
-            <button onClick={()=>{setIncognito(s=>!s);toast_(incognito?'Incognito OFF — chats will be saved':'Incognito ON — chats won\'t be saved',incognito?'info':'warning');}} className="p-2 rounded-lg transition-all" style={{color:incognito?'#a78bfa':'var(--t2)',background:incognito?'rgba(167,139,250,.12)':'transparent'}} title="Incognito Mode">
-              <i className="fa-solid fa-mask text-sm"></i>
+            {/* Incognito toggle — upgraded */}
+            <button onClick={()=>{setIncognito(s=>!s);toast_(incognito?'Incognito OFF — chats will be saved':''Incognito ON — chats won\'t be saved',incognito?'info':'warning');}}
+              title="Incognito Mode — chats won't be saved"
+              style={{display:'flex',alignItems:'center',gap:6,padding:incognito?'5px 10px 5px 7px':'6px 8px',borderRadius:incognito?20:10,border:incognito?'1px solid rgba(167,139,250,.35)':'1px solid transparent',background:incognito?'rgba(167,139,250,.1)':'transparent',color:incognito?'#a78bfa':'var(--t2)',cursor:'pointer',transition:'all .2s',flexShrink:0}}
+              onMouseEnter={e=>{ if(!incognito){e.currentTarget.style.background='rgba(167,139,250,.08)';e.currentTarget.style.borderColor='rgba(167,139,250,.2)';e.currentTarget.style.color='#a78bfa';} }}
+              onMouseLeave={e=>{ if(!incognito){e.currentTarget.style.background='transparent';e.currentTarget.style.borderColor='transparent';e.currentTarget.style.color='var(--t2)';} }}>
+              <i className="fa-solid fa-mask" style={{fontSize:13,filter:incognito?'drop-shadow(0 0 4px rgba(167,139,250,.6))':''}}></i>
+              {incognito&&<span className="incog-badge" style={{fontSize:10,fontWeight:700,letterSpacing:'.04em'}}>Incognito</span>}
             </button>
-            {incognito&&<span className="incog-badge text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1" style={{background:'rgba(167,139,250,.15)',color:'#a78bfa',border:'1px solid rgba(167,139,250,.3)'}}><i className="fa-solid fa-mask text-[9px]"></i>Incognito</span>}
             {/* Tools row */}
             <div className="flex items-center gap-0.5 px-1 py-0.5 rounded-xl border" style={{borderColor:'var(--br)',background:'var(--bg3)'}}>
               <button onClick={()=>setShowAIAgent(s=>!s)} className="p-1.5 rounded-lg transition-all" style={{color:showAIAgent?'#a78bfa':'var(--t2)',background:showAIAgent?'rgba(167,139,250,.12)':'transparent'}} title="AI Agent (Ctrl+Shift+A)">
@@ -7629,17 +7727,22 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                             return visibleFeatures.map(f=>{
                               const isActive=f.id==='incognito'&&incognito;
                               const displayCol=isActive?'#a78bfa':f.col;
+                              const specialBg={'digest':'linear-gradient(135deg,rgba(245,158,11,.1),rgba(249,115,22,.06))','randprompt':'linear-gradient(135deg,rgba(236,72,153,.1),rgba(139,92,246,.06))','incognito':isActive?'linear-gradient(135deg,rgba(167,139,250,.15),rgba(139,92,246,.08))':'var(--bg3)'};
+                              const bg=specialBg[f.id]||'var(--bg3)';
+                              const bdr=f.id==='digest'?'rgba(245,158,11,.3)':f.id==='randprompt'?'rgba(236,72,153,.3)':isActive?'rgba(167,139,250,.4)':'var(--br)';
                               return(
-                                <button key={f.id} onClick={getFn(f.id)} className="flex flex-col items-center gap-1.5 py-3 rounded-xl transition-all hover:scale-[1.04]" style={{background:'var(--bg3)',border:`1px solid ${isActive?'rgba(167,139,250,.35)':'var(--br)'}`,cursor:'pointer',position:'relative'}}>
-                                  {isActive&&<div className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full" style={{background:'#a78bfa'}}></div>}
-                                  <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{background:displayCol+'18'}}>
-                                    <i className={`fa-solid ${f.ic} text-xs`} style={{color:displayCol}}></i>
+                                <button key={f.id} onClick={getFn(f.id)}
+                                  style={{display:'flex',flexDirection:'column',alignItems:'center',gap:6,padding:'12px 4px 10px',borderRadius:14,border:`1px solid ${bdr}`,background:bg,cursor:'pointer',position:'relative',transition:'all .18s',minWidth:0}}
+                                  onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-2px) scale(1.03)';e.currentTarget.style.boxShadow=`0 6px 16px ${displayCol}28`;}}
+                                  onMouseLeave={e=>{e.currentTarget.style.transform='translateY(0) scale(1)';e.currentTarget.style.boxShadow='none';}}>
+                                  {isActive&&<div style={{position:'absolute',top:6,right:6,width:6,height:6,borderRadius:'50%',background:'#a78bfa',boxShadow:'0 0 6px rgba(167,139,250,.8)'}}></div>}
+                                  <div style={{width:34,height:34,borderRadius:11,background:`linear-gradient(135deg,${displayCol}28,${displayCol}14)`,border:`1px solid ${displayCol}30`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,boxShadow:isActive||['digest','randprompt'].includes(f.id)?`0 4px 12px ${displayCol}30`:'none'}}>
+                                    <i className={`fa-solid ${f.ic}`} style={{color:displayCol,fontSize:13,filter:isActive?'drop-shadow(0 0 4px rgba(167,139,250,.8))':''}}></i>
                                   </div>
-                                  <span style={{fontSize:10,color:'var(--t2)',fontWeight:500,textAlign:'center',lineHeight:1.2,maxWidth:64}}>{f.id==='incognito'&&incognito?'Incognito ON':f.lbl}</span>
+                                  <span style={{fontSize:9,color:['digest','randprompt'].includes(f.id)||isActive?displayCol:'var(--t2)',fontWeight:700,textAlign:'center',lineHeight:1.2,maxWidth:64,textTransform:'uppercase',letterSpacing:'.04em'}}>{f.id==='incognito'&&incognito?'ON':f.lbl}</span>
                                 </button>
                               );
-                            });
-                          })()}
+                            });                          })()}
                         </div>
                         {/* Customize shortcut link */}
                         <button onClick={()=>{setShowProfile(false);setShowSettings(true);setSettingsTab('quickaccess');}} className="w-full mt-2 py-1.5 rounded-xl text-[10px] font-medium flex items-center justify-center gap-1.5 transition-all border" style={{borderColor:'rgba(99,102,241,.2)',color:'#818cf8',background:'rgba(99,102,241,.06)'}} onMouseEnter={e=>{e.currentTarget.style.background='rgba(99,102,241,.12)';e.currentTarget.style.borderColor='rgba(99,102,241,.4)';}} onMouseLeave={e=>{e.currentTarget.style.background='rgba(99,102,241,.06)';e.currentTarget.style.borderColor='rgba(99,102,241,.2)';}}>
