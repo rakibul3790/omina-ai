@@ -2855,6 +2855,132 @@ function setGlobalTyping(val) {
   if(el) el.style.display = val ? 'flex' : 'none';
 }
 
+// ── AI Prompt Generator Tab (extracted to fix React hooks rules) ──
+function AiPromptTab({setInput, setShowPromptLib, setCustomPrompts, toast_}) {
+  const [aiPromptTopic,setAiPromptTopic] = React.useState('');
+  const [aiPromptGoal,setAiPromptGoal]   = React.useState('');
+  const [aiPromptStyle,setAiPromptStyle] = React.useState('detailed');
+  const [aiGenLoading,setAiGenLoading]   = React.useState(false);
+  const [aiGenResults,setAiGenResults]   = React.useState([]);
+  const [aiGenError,setAiGenError]       = React.useState('');
+  const inputRef = React.useRef(null);
+
+  const STYLES_AI=[
+    {id:'detailed',   label:'Detailed',    icon:'fa-list-ul',     desc:'Thorough, comprehensive prompt'},
+    {id:'concise',    label:'Concise',      icon:'fa-bolt',        desc:'Short, direct prompt'},
+    {id:'creative',   label:'Creative',     icon:'fa-palette',     desc:'Imaginative, open-ended'},
+    {id:'technical',  label:'Technical',    icon:'fa-code',        desc:'Precise, technical language'},
+    {id:'roleplay',   label:'Role-play',    icon:'fa-masks-theater',desc:'Act as / persona style'},
+  ];
+
+  const generateAiPrompts = async () => {
+    if(!aiPromptTopic.trim()) return;
+    setAiGenLoading(true); setAiGenResults([]); setAiGenError('');
+    try {
+      const res = await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+        message: 'Generate 4 high-quality AI prompts for the topic: "'+aiPromptTopic+'"'+(aiPromptGoal?' with the goal: "'+aiPromptGoal+'"':'')+'. Style: '+aiPromptStyle+'. Return ONLY a valid JSON array of 4 objects: [{"title":"...","prompt":"...","category":"..."}]. No markdown, no explanation.',
+        system_prompt:'You are an expert AI prompt engineer. Return only a valid JSON array.'
+      })});
+      const data = await res.json();
+      const raw=(data.reply||'[]').replace(/```json|```/g,'').trim();
+      const arr=JSON.parse(raw);
+      if(Array.isArray(arr)) setAiGenResults(arr.slice(0,4));
+    } catch(e){ setAiGenError('Failed to generate. Try again.'); }
+    setAiGenLoading(false);
+  };
+
+  return(
+    <div className="flex-1 overflow-y-auto sb p-5" style={{background:'#0d0f18'}}>
+      <div className="max-w-2xl mx-auto space-y-4">
+        <div className="rounded-2xl p-5 border" style={{background:'rgba(59,130,246,.04)',borderColor:'rgba(59,130,246,.15)'}}>
+          <p className="text-sm font-bold mb-4 flex items-center gap-2" style={{color:'#60a5fa'}}>
+            <i className="fa-solid fa-wand-magic-sparkles" style={{fontSize:12}}></i>AI Prompt Generator
+            <span className="text-[9px] px-2 py-0.5 rounded-full font-bold" style={{background:'rgba(59,130,246,.15)',color:'#60a5fa',border:'1px solid rgba(59,130,246,.25)'}}>Powered by Groq</span>
+          </p>
+          <div className="space-y-3">
+            <div>
+              <label className="text-[10px] uppercase tracking-widest font-bold block mb-1.5" style={{color:'rgba(255,255,255,.3)'}}>Topic / Subject *</label>
+              <input value={aiPromptTopic} onChange={e=>setAiPromptTopic(e.target.value)}
+                placeholder="E.g. Python debugging, Creative writing, Data analysis..."
+                className="w-full px-3.5 py-2.5 rounded-xl text-sm outline-none"
+                style={{background:'rgba(255,255,255,.04)',border:'1px solid rgba(59,130,246,.2)',color:'#e2e8f0'}}
+                onFocus={e=>e.target.style.borderColor='rgba(59,130,246,.5)'}
+                onBlur={e=>e.target.style.borderColor='rgba(59,130,246,.2)'}/>
+            </div>
+            <div>
+              <label className="text-[10px] uppercase tracking-widest font-bold block mb-1.5" style={{color:'rgba(255,255,255,.3)'}}>Goal (optional)</label>
+              <input value={aiPromptGoal} onChange={e=>setAiPromptGoal(e.target.value)}
+                placeholder="E.g. Learn faster, Get step-by-step explanation..."
+                className="w-full px-3.5 py-2.5 rounded-xl text-sm outline-none"
+                style={{background:'rgba(255,255,255,.04)',border:'1px solid rgba(59,130,246,.15)',color:'#e2e8f0'}}
+                onFocus={e=>e.target.style.borderColor='rgba(59,130,246,.4)'}
+                onBlur={e=>e.target.style.borderColor='rgba(59,130,246,.15)'}/>
+            </div>
+            <div>
+              <label className="text-[10px] uppercase tracking-widest font-bold block mb-1.5" style={{color:'rgba(255,255,255,.3)'}}>Prompt Style</label>
+              <div className="grid grid-cols-5 gap-1.5">
+                {STYLES_AI.map(s=>(
+                  <button key={s.id} onClick={()=>setAiPromptStyle(s.id)}
+                    className="flex flex-col items-center gap-1 p-2 rounded-xl border transition-all"
+                    style={{background:aiPromptStyle===s.id?'rgba(59,130,246,.12)':'rgba(255,255,255,.02)',borderColor:aiPromptStyle===s.id?'rgba(59,130,246,.4)':'rgba(255,255,255,.06)'}}>
+                    <i className={'fa-solid '+s.icon} style={{fontSize:10,color:aiPromptStyle===s.id?'#60a5fa':'rgba(255,255,255,.25)'}}></i>
+                    <span style={{fontSize:8,fontWeight:700,color:aiPromptStyle===s.id?'#60a5fa':'rgba(255,255,255,.25)',textAlign:'center',lineHeight:1.1}}>{s.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <button onClick={generateAiPrompts} disabled={!aiPromptTopic.trim()||aiGenLoading}
+              className="w-full py-3 rounded-xl text-sm font-bold text-white transition-all flex items-center justify-center gap-2"
+              style={{background:aiPromptTopic.trim()?'linear-gradient(135deg,#1d4ed8,#3b82f6)':'rgba(255,255,255,.04)',boxShadow:aiPromptTopic.trim()?'0 4px 20px rgba(59,130,246,.3)':'none',opacity:aiPromptTopic.trim()?1:.5}}>
+              {aiGenLoading?<><i className="fa-solid fa-circle-notch fa-spin" style={{fontSize:11}}></i>Generating 4 prompts...</>:<><i className="fa-solid fa-sparkles" style={{fontSize:11}}></i>Generate Prompts</>}
+            </button>
+          </div>
+        </div>
+        {aiGenError&&(
+          <div className="px-4 py-3 rounded-xl text-sm" style={{background:'rgba(239,68,68,.06)',color:'#fca5a5',border:'1px solid rgba(239,68,68,.15)'}}>{aiGenError}</div>
+        )}
+        {aiGenResults.length>0&&(
+          <div className="space-y-2.5">
+            <p className="text-[10px] uppercase tracking-widest font-bold" style={{color:'rgba(255,255,255,.3)'}}>Generated Prompts — click to use</p>
+            {aiGenResults.map((r,i)=>(
+              <div key={i} className="rounded-2xl border p-4 transition-all group"
+                style={{background:'rgba(255,255,255,.02)',borderColor:'rgba(59,130,246,.15)'}}
+                onMouseEnter={e=>e.currentTarget.style.borderColor='rgba(59,130,246,.4)'}
+                onMouseLeave={e=>e.currentTarget.style.borderColor='rgba(59,130,246,.15)'}>
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 text-sm font-bold" style={{background:'rgba(59,130,246,.12)',border:'1px solid rgba(59,130,246,.2)',color:'#60a5fa'}}>{i+1}</div>
+                  <div className="flex-1">
+                    <p className="text-sm font-bold mb-1" style={{color:'#e2e8f0'}}>{r.title}</p>
+                    <span className="text-[9px] px-2 py-0.5 rounded-full" style={{background:'rgba(59,130,246,.1)',color:'#60a5fa',border:'1px solid rgba(59,130,246,.2)'}}>{r.category||aiPromptTopic}</span>
+                  </div>
+                </div>
+                <p className="text-[11px] leading-relaxed mb-3" style={{color:'rgba(255,255,255,.4)'}}>{(r.prompt||'').slice(0,150)}...</p>
+                <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button onClick={()=>{setInput(r.prompt||'');setShowPromptLib(false);toast_('Prompt loaded!','success');}}
+                    className="flex-1 py-2 rounded-xl text-[11px] font-bold text-white"
+                    style={{background:'linear-gradient(135deg,#1d4ed8,#3b82f6)',boxShadow:'0 2px 10px rgba(59,130,246,.3)'}}>
+                    <i className="fa-solid fa-arrow-right mr-1" style={{fontSize:9}}></i>Use in Chat
+                  </button>
+                  <button onClick={()=>{setCustomPrompts(prev=>[...prev,{id:'c'+Date.now(),cat:r.category||'Custom',icon:'🤖',color:'#3B82F6',title:r.title||aiPromptTopic,text:r.prompt||''}]);toast_('Saved to library!','success');}}
+                    className="px-3 py-2 rounded-xl text-[11px] font-bold border"
+                    style={{borderColor:'rgba(59,130,246,.25)',color:'#60a5fa',background:'rgba(59,130,246,.06)'}}>
+                    <i className="fa-solid fa-floppy-disk mr-1" style={{fontSize:9}}></i>Save
+                  </button>
+                  <button onClick={()=>{navigator.clipboard.writeText(r.prompt||'');toast_('Copied!','success');}}
+                    className="w-9 py-2 rounded-xl flex items-center justify-center border"
+                    style={{borderColor:'rgba(255,255,255,.06)',color:'rgba(255,255,255,.3)',background:'rgba(255,255,255,.02)'}}>
+                    <i className="fa-solid fa-copy" style={{fontSize:9}}></i>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const [plan,setPlan]           = useState('free');
   const [model,setModel]         = useState(MODELS[0]);
@@ -6571,131 +6697,14 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
       )}
 
       {/* AI GENERATE TAB */}
-      {promptLibTab==='ai'&&(()=>{
-        const [aiPromptTopic,setAiPromptTopic] = React.useState('');
-        const [aiPromptGoal,setAiPromptGoal]   = React.useState('');
-        const [aiPromptStyle,setAiPromptStyle] = React.useState('detailed');
-        const [aiGenLoading,setAiGenLoading]   = React.useState(false);
-        const [aiGenResults,setAiGenResults]   = React.useState([]);
-        const [aiGenError,setAiGenError]       = React.useState('');
-
-        const STYLES_AI=[
-          {id:'detailed',   label:'Detailed',    icon:'fa-list-ul',     desc:'Thorough, comprehensive prompt'},
-          {id:'concise',    label:'Concise',      icon:'fa-bolt',        desc:'Short, direct prompt'},
-          {id:'creative',   label:'Creative',     icon:'fa-palette',     desc:'Imaginative, open-ended'},
-          {id:'technical',  label:'Technical',    icon:'fa-code',        desc:'Precise, technical language'},
-          {id:'roleplay',   label:'Role-play',    icon:'fa-masks-theater',desc:'Act as / persona style'},
-        ];
-
-        const generateAiPrompts = async () => {
-          if(!aiPromptTopic.trim()) return;
-          setAiGenLoading(true); setAiGenResults([]); setAiGenError('');
-          try {
-            const res = await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-              message: 'Generate 4 high-quality AI prompts for the topic: "'+aiPromptTopic+'"'+(aiPromptGoal?' with the goal: "'+aiPromptGoal+'"':'')+'. Style: '+aiPromptStyle+'. Return ONLY a valid JSON array of 4 objects: [{"title":"...","prompt":"...","category":"..."}]. No markdown, no explanation.',
-              system_prompt:'You are an expert AI prompt engineer. Return only a valid JSON array.'
-            })});
-            const data = await res.json();
-            const raw=(data.reply||'[]').replace(/```json|```/g,'').trim();
-            const arr=JSON.parse(raw);
-            if(Array.isArray(arr)) setAiGenResults(arr.slice(0,4));
-          } catch(e){ setAiGenError('Failed to generate. Try again.'); }
-          setAiGenLoading(false);
-        };
-
-        return(
-          <div className="flex-1 overflow-y-auto sb p-5" style={{background:'#0d0f18'}}>
-            <div className="max-w-2xl mx-auto space-y-4">
-              <div className="rounded-2xl p-5 border" style={{background:'rgba(59,130,246,.04)',borderColor:'rgba(59,130,246,.15)'}}>
-                <p className="text-sm font-bold mb-4 flex items-center gap-2" style={{color:'#60a5fa'}}>
-                  <i className="fa-solid fa-wand-magic-sparkles" style={{fontSize:12}}></i>AI Prompt Generator
-                  <span className="text-[9px] px-2 py-0.5 rounded-full font-bold" style={{background:'rgba(59,130,246,.15)',color:'#60a5fa',border:'1px solid rgba(59,130,246,.25)'}}>Powered by Groq</span>
-                </p>
-                <div className="space-y-3">
-                  <div>
-                    <label className="text-[10px] uppercase tracking-widest font-bold block mb-1.5" style={{color:'rgba(255,255,255,.3)'}}>Topic / Subject *</label>
-                    <input value={aiPromptTopic} onChange={e=>setAiPromptTopic(e.target.value)}
-                      placeholder="E.g. 'Python debugging', 'Creative writing', 'Data analysis'..."
-                      className="w-full px-3.5 py-2.5 rounded-xl text-sm outline-none"
-                      style={{background:'rgba(255,255,255,.04)',border:'1px solid rgba(59,130,246,.2)',color:'#e2e8f0'}}
-                      onFocus={e=>e.target.style.borderColor='rgba(59,130,246,.5)'}
-                      onBlur={e=>e.target.style.borderColor='rgba(59,130,246,.2)'}/>
-                  </div>
-                  <div>
-                    <label className="text-[10px] uppercase tracking-widest font-bold block mb-1.5" style={{color:'rgba(255,255,255,.3)'}}>Goal (optional)</label>
-                    <input value={aiPromptGoal} onChange={e=>setAiPromptGoal(e.target.value)}
-                      placeholder="E.g. 'Learn faster', 'Get step-by-step explanation'..."
-                      className="w-full px-3.5 py-2.5 rounded-xl text-sm outline-none"
-                      style={{background:'rgba(255,255,255,.04)',border:'1px solid rgba(59,130,246,.15)',color:'#e2e8f0'}}
-                      onFocus={e=>e.target.style.borderColor='rgba(59,130,246,.4)'}
-                      onBlur={e=>e.target.style.borderColor='rgba(59,130,246,.15)'}/>
-                  </div>
-                  <div>
-                    <label className="text-[10px] uppercase tracking-widest font-bold block mb-1.5" style={{color:'rgba(255,255,255,.3)'}}>Prompt Style</label>
-                    <div className="grid grid-cols-5 gap-1.5">
-                      {STYLES_AI.map(s=>(
-                        <button key={s.id} onClick={()=>setAiPromptStyle(s.id)}
-                          className="flex flex-col items-center gap-1 p-2 rounded-xl border transition-all"
-                          style={{background:aiPromptStyle===s.id?'rgba(59,130,246,.12)':'rgba(255,255,255,.02)',borderColor:aiPromptStyle===s.id?'rgba(59,130,246,.4)':'rgba(255,255,255,.06)'}}>
-                          <i className={'fa-solid '+s.icon} style={{fontSize:10,color:aiPromptStyle===s.id?'#60a5fa':'rgba(255,255,255,.25)'}}></i>
-                          <span style={{fontSize:8,fontWeight:700,color:aiPromptStyle===s.id?'#60a5fa':'rgba(255,255,255,.25)',textAlign:'center',lineHeight:1.1}}>{s.label}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <button onClick={generateAiPrompts} disabled={!aiPromptTopic.trim()||aiGenLoading}
-                    className="w-full py-3 rounded-xl text-sm font-bold text-white transition-all flex items-center justify-center gap-2"
-                    style={{background:aiPromptTopic.trim()?'linear-gradient(135deg,#1d4ed8,#3b82f6)':'rgba(255,255,255,.04)',boxShadow:aiPromptTopic.trim()?'0 4px 20px rgba(59,130,246,.3)':'none',opacity:aiPromptTopic.trim()?1:.5}}>
-                    {aiGenLoading?<><i className="fa-solid fa-circle-notch fa-spin" style={{fontSize:11}}></i>Generating 4 prompts...</>:<><i className="fa-solid fa-sparkles" style={{fontSize:11}}></i>Generate Prompts</>}
-                  </button>
-                </div>
-              </div>
-
-              {aiGenError&&(
-                <div className="px-4 py-3 rounded-xl text-sm" style={{background:'rgba(239,68,68,.06)',color:'#fca5a5',border:'1px solid rgba(239,68,68,.15)'}}>{aiGenError}</div>
-              )}
-
-              {aiGenResults.length>0&&(
-                <div className="space-y-2.5">
-                  <p className="text-[10px] uppercase tracking-widest font-bold" style={{color:'rgba(255,255,255,.3)'}}>Generated Prompts — click to use</p>
-                  {aiGenResults.map((r,i)=>(
-                    <div key={i} className="rounded-2xl border p-4 transition-all group"
-                      style={{background:'rgba(255,255,255,.02)',borderColor:'rgba(59,130,246,.15)'}}
-                      onMouseEnter={e=>e.currentTarget.style.borderColor='rgba(59,130,246,.4)'}
-                      onMouseLeave={e=>e.currentTarget.style.borderColor='rgba(59,130,246,.15)'}>
-                      <div className="flex items-start gap-3 mb-3">
-                        <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 text-sm font-bold" style={{background:'rgba(59,130,246,.12)',border:'1px solid rgba(59,130,246,.2)',color:'#60a5fa'}}>{i+1}</div>
-                        <div className="flex-1">
-                          <p className="text-sm font-bold mb-1" style={{color:'#e2e8f0'}}>{r.title}</p>
-                          <span className="text-[9px] px-2 py-0.5 rounded-full" style={{background:'rgba(59,130,246,.1)',color:'#60a5fa',border:'1px solid rgba(59,130,246,.2)'}}>{r.category||aiPromptTopic}</span>
-                        </div>
-                      </div>
-                      <p className="text-[11px] leading-relaxed mb-3" style={{color:'rgba(255,255,255,.4)'}}>{(r.prompt||'').slice(0,150)}...</p>
-                      <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={()=>{setInput(r.prompt||'');setShowPromptLib(false);setTimeout(()=>inputRef.current?.focus(),100);toast_('✨ Prompt loaded!','success');}}
-                          className="flex-1 py-2 rounded-xl text-[11px] font-bold text-white"
-                          style={{background:'linear-gradient(135deg,#1d4ed8,#3b82f6)',boxShadow:'0 2px 10px rgba(59,130,246,.3)'}}>
-                          <i className="fa-solid fa-arrow-right mr-1" style={{fontSize:9}}></i>Use in Chat
-                        </button>
-                        <button onClick={()=>{setCustomPrompts(prev=>[...prev,{id:'c'+Date.now(),cat:r.category||'Custom',icon:'🤖',color:'#3B82F6',title:r.title||aiPromptTopic,text:r.prompt||''}]);toast_('Saved to library!','success');}}
-                          className="px-3 py-2 rounded-xl text-[11px] font-bold border"
-                          style={{borderColor:'rgba(59,130,246,.25)',color:'#60a5fa',background:'rgba(59,130,246,.06)'}}>
-                          <i className="fa-solid fa-floppy-disk mr-1" style={{fontSize:9}}></i>Save
-                        </button>
-                        <button onClick={()=>{navigator.clipboard.writeText(r.prompt||'');toast_('Copied!','success');}}
-                          className="w-9 py-2 rounded-xl flex items-center justify-center border"
-                          style={{borderColor:'rgba(255,255,255,.06)',color:'rgba(255,255,255,.3)',background:'rgba(255,255,255,.02)'}}>
-                          <i className="fa-solid fa-copy" style={{fontSize:9}}></i>
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        );
-      })()}
+      {promptLibTab==='ai'&&(
+        <AiPromptTab
+          setInput={setInput}
+          setShowPromptLib={setShowPromptLib}
+          setCustomPrompts={setCustomPrompts}
+          toast_={toast_}
+        />
+      )}
 
     </div>
   </div>
@@ -7946,10 +7955,10 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                                   onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-2px) scale(1.03)';e.currentTarget.style.boxShadow=`0 6px 16px ${displayCol}28`;}}
                                   onMouseLeave={e=>{e.currentTarget.style.transform='translateY(0) scale(1)';e.currentTarget.style.boxShadow='none';}}>
                                   {isActive&&<div style={{position:'absolute',top:6,right:6,width:6,height:6,borderRadius:'50%',background:'#a78bfa',boxShadow:'0 0 6px rgba(167,139,250,.8)'}}></div>}
-                                  <div style={{width:34,height:34,borderRadius:11,background:'var(--bg2)',border:'1px solid var(--br)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,boxShadow:isActive?`0 4px 12px ${displayCol}30`:'none'}}>
-                                    <i className={`fa-solid ${f.ic}`} style={{color:isActive?displayCol:'var(--t2)',fontSize:13,filter:isActive?'drop-shadow(0 0 4px rgba(167,139,250,.8))':''}}></i>
+                                  <div style={{width:34,height:34,borderRadius:11,background:`linear-gradient(135deg,${displayCol}22,${displayCol}0e)`,border:`1px solid ${displayCol}28`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,boxShadow:isActive?`0 4px 12px ${displayCol}40`:'none'}}>
+                                    <i className={`fa-solid ${f.ic}`} style={{color:displayCol,fontSize:13,filter:isActive?'drop-shadow(0 0 4px rgba(167,139,250,.8))':''}}></i>
                                   </div>
-                                  <span style={{fontSize:9,color:isActive?displayCol:'var(--t2)',fontWeight:700,textAlign:'center',lineHeight:1.2,maxWidth:64,textTransform:'uppercase',letterSpacing:'.04em'}}>{f.id==='incognito'&&incognito?'ON':f.lbl}</span>
+                                  <span style={{fontSize:9,color:displayCol,fontWeight:700,textAlign:'center',lineHeight:1.2,maxWidth:64,textTransform:'uppercase',letterSpacing:'.04em'}}>{f.id==='incognito'&&incognito?'ON':f.lbl}</span>
                                 </button>
                               );
                             });                          })()}
