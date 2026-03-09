@@ -2283,7 +2283,7 @@ function TodoModal({todos,setTodos,onClose}) {
         {todos.length>0&&(
           <div className="px-5 pb-3 flex-shrink-0">
             <div className="w-full h-1 rounded-full overflow-hidden" style={{background:'var(--bg3)'}}>
-              <div className="h-1 rounded-full transition-all duration-500" style={{width:`${pct}%`,background:'linear-gradient(90deg,#34d399,#059669)'}}></div>
+              <div className="h-1 rounded-full transition-all duration-500" style={{width:pct+'%',background:'linear-gradient(90deg,#34d399,#059669)'}}></div>
             </div>
           </div>
         )}
@@ -2316,7 +2316,7 @@ function TodoModal({todos,setTodos,onClose}) {
             <div className="flex items-center gap-2 px-3 pb-2.5 pt-1 border-t" style={{borderColor:'var(--br)'}}>
               <div className="flex gap-1 flex-1">
                 {PRIORITIES.map(p=>(
-                  <button key={p.id} onClick={()=>setSelPriority(p.id)} className="px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all" style={{background:selPriority===p.id?p.color+'22':'transparent',color:selPriority===p.id?p.color:'var(--t3)',border:'1px solid '+selPriority===p.id?p.color+'44':'transparent'}}>{p.label}</button>
+                  <button key={p.id} onClick={()=>setSelPriority(p.id)} className="px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all" style={{background:selPriority===p.id?p.color+'22':'transparent',color:selPriority===p.id?p.color:'var(--t3)',border:(selPriority===p.id?'1px solid '+p.color+'44':'1px solid transparent')}}>{p.label}</button>
                 ))}
               </div>
               <select value={selCategory} onChange={e=>setSelCategory(e.target.value)} className="text-[10px] bg-transparent border-none outline-none px-1 rounded" style={{color:'var(--t3)'}}>
@@ -2947,8 +2947,8 @@ function FileCard({ block, onOpen, canvasMode }) {
         <div style={{display:'flex',alignItems:'center',gap:9,minWidth:0}}>
           <div style={{
             width:32,height:32,borderRadius:8,flexShrink:0,
-            background:`${block.meta.color}18`,
-            border:'1px solid '+block.meta.color+('30',
+            background:block.meta.color+'18',
+            border:'1px solid '+block.meta.color+'30',
             display:'flex',alignItems:'center',justifyContent:'center',
           }}>
             <i className={block.meta.icon} style={{fontSize:14,color:block.meta.color}}></i>
@@ -4893,7 +4893,7 @@ Reply: ${botText.slice(0,800)}`,
                     {filtered.map(tmpl=>(
                       <button key={tmpl.id} onClick={()=>{setInput(tmpl.prompt);setShowTemplates(false);setTimeout(()=>inputRef.current?.focus(),100);toast_('Template loaded! Edit and send ✨','success');}} className="group text-left p-4 rounded-2xl border transition-all" style={{background:'var(--bg3)',borderColor:'var(--br)'}} onMouseEnter={e=>{e.currentTarget.style.borderColor=tmpl.color+'88';e.currentTarget.style.background='var(--bg)';}} onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--br)';e.currentTarget.style.background='var(--bg3)';}}>
                         <div className="flex items-start gap-3">
-                          <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{background:tmpl.color+'18',border:'1px solid '+tmpl.color+('33'}}>
+                          <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{background:tmpl.color+'18',border:'1px solid '+tmpl.color+'33'}}>
                             <span style={{fontSize:17}}>{tmpl.icon}</span>
                           </div>
                           <div className="flex-1 min-w-0">
@@ -4995,7 +4995,7 @@ Reply: ${botText.slice(0,800)}`,
                     {icon:'fa-user',color:'#8B5CF6',label:'You Sent',val:userMsgs},
                     {icon:'fa-robot',color:'#F59E0B',label:'AI Replies',val:botMsgs},
                   ].map(s=>(
-                    <div key={s.label} style={{borderRadius:14,padding:'12px 8px',textAlign:'center',background:s.color+'0d',border:'1px solid '+s.color+('28'}}>
+                    <div key={s.label} style={{borderRadius:14,padding:'12px 8px',textAlign:'center',background:s.color+'0d',border:'1px solid '+s.color+'28'}}>
                       <div style={{width:30,height:30,borderRadius:10,background:s.color+'22',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 7px'}}>
                         <i className={`fa-solid ${s.icon}`} style={{color:s.color,fontSize:11}}></i>
                       </div>
@@ -5119,7 +5119,7 @@ Reply: ${botText.slice(0,800)}`,
                 <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:7,marginBottom:18}}>
                   {RAND_CATS.map(c=>(
                     <button key={c.id} onClick={()=>{setRCat(c.id);setRandPromptResult('');}}
-                      style={{display:'flex',flexDirection:'column',alignItems:'center',gap:5,padding:'10px 4px',borderRadius:12,border:'1px solid '+rCat===c.id?c.color+'55':'var(--br)',background:rCat===c.id?c.color+'12':'var(--bg3)',cursor:'pointer',transition:'all .15s'}}
+                      style={{display:'flex',flexDirection:'column',alignItems:'center',gap:5,padding:'10px 4px',borderRadius:12,border:(rCat===c.id?'1px solid '+c.color+'55':'1px solid var(--br)'),background:rCat===c.id?c.color+'12':'var(--bg3)',cursor:'pointer',transition:'all .15s'}}
                       onMouseEnter={e=>{ if(rCat!==c.id){e.currentTarget.style.borderColor=c.color+'33';e.currentTarget.style.background=c.color+'08';} }}
                       onMouseLeave={e=>{ if(rCat!==c.id){e.currentTarget.style.borderColor='var(--br)';e.currentTarget.style.background='var(--bg3)';} }}>
                       <div style={{width:28,height:28,borderRadius:9,background:c.color+(rCat===c.id?'28':'18'),display:'flex',alignItems:'center',justifyContent:'center',transition:'all .15s'}}>
@@ -5132,7 +5132,7 @@ Reply: ${botText.slice(0,800)}`,
 
                 {/* ── Result box ── */}
                 <div style={{borderRadius:16,border:'1px solid '+randPromptResult?curCat.color+'44':'var(--br)',background:randPromptResult?curCat.color+'06':'var(--bg3)',padding:'18px',minHeight:80,display:'flex',alignItems:'center',justifyContent:'center',marginBottom:16,transition:'all .3s',position:'relative',overflow:'hidden'}}>
-                  {randPromptResult && <div style={{position:'absolute',inset:0,background:`radial-gradient(ellipse at 30% 50%,${curCat.color}08,transparent)`,pointerEvents:'none'}}></div>}
+                  {randPromptResult && <div style={{position:'absolute',inset:0,background:'radial-gradient(ellipse at 30% 50%,'+curCat.color+'08,transparent)',pointerEvents:'none'}}></div>}
                   {randPromptResult
                     ?<p style={{margin:0,fontSize:14,fontWeight:500,lineHeight:1.6,color:'var(--t1)',textAlign:'center',position:'relative'}}>{randPromptResult}</p>
                     :<p style={{margin:0,fontSize:13,color:'var(--t3)',textAlign:'center'}}>🎲 Hit <b style={{color:'var(--t2)'}}>Spin</b> to get a random prompt!</p>
@@ -5149,7 +5149,7 @@ Reply: ${botText.slice(0,800)}`,
                   </button>
                   {randPromptResult&&(
                     <button onClick={()=>{setShowRandPrompt(false);setTimeout(()=>{const el=document.querySelector('textarea');if(el){el.value=randPromptResult;el.dispatchEvent(new Event('input',{bubbles:true}));}},100);}}
-                      style={{flex:1,padding:'13px',borderRadius:14,fontSize:14,fontWeight:800,border:'1px solid '+curCat.color+('55',color:curCat.color,background:curCat.color+'10',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8,transition:'all .15s'}}
+                      style={{flex:1,padding:'13px',borderRadius:14,fontSize:14,fontWeight:800,border:'1px solid '+curCat.color+'55',color:curCat.color,background:curCat.color+'10',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8,transition:'all .15s'}}
                       onMouseEnter={e=>{e.currentTarget.style.background=curCat.color+'20';e.currentTarget.style.transform='translateY(-1px)';}}
                       onMouseLeave={e=>{e.currentTarget.style.background=curCat.color+'10';e.currentTarget.style.transform='translateY(0)';}}>
                       <i className="fa-solid fa-paper-plane" style={{fontSize:13}}></i>Use This
@@ -5280,12 +5280,12 @@ Reply: ${botText.slice(0,800)}`,
               {/* Loading skeleton */}
               {chainLoading&&<div style={{display:'flex',flexDirection:'column',gap:12}}>
                 {[100,85,90,75].map((w,i)=>(
-                  <div key={i} style={{display:'flex',gap:14,animationDelay:`${i*.07}s`}}>
+                  <div key={i} style={{display:'flex',gap:14,animationDelay:i*.07+'s'}}>
                     <div style={{width:36,height:36,borderRadius:'50%',background:'var(--bg3)',flexShrink:0,animation:'pulse 1.6s ease-in-out infinite'}}/>
                     <div style={{flex:1}}>
                       <div style={{height:11,borderRadius:6,background:'var(--bg3)',width:'32%',marginBottom:10,animation:'pulse 1.6s ease-in-out infinite'}}/>
-                      <div style={{height:8,borderRadius:5,background:'var(--bg3)',width:w+'%',marginBottom:6,animation:'pulse 1.6s ease-in-out infinite',animationDelay:`${i*.05}s`}}/>
-                      <div style={{height:8,borderRadius:5,background:'var(--bg3)',width:'60%',animation:'pulse 1.6s ease-in-out infinite',animationDelay:`${i*.08}s`}}/>
+                      <div style={{height:8,borderRadius:5,background:'var(--bg3)',width:w+'%',marginBottom:6,animation:'pulse 1.6s ease-in-out infinite',animationDelay:i*.05+'s'}}/>
+                      <div style={{height:8,borderRadius:5,background:'var(--bg3)',width:'60%',animation:'pulse 1.6s ease-in-out infinite',animationDelay:i*.08+'s'}}/>
                     </div>
                   </div>
                 ))}
@@ -5298,8 +5298,8 @@ Reply: ${botText.slice(0,800)}`,
                 return <div>
                   <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:14}}>
                     {[{key:'pros',label:'Pros',ic:'fa-thumbs-up',col:'#10B981'},{key:'cons',label:'Cons',ic:'fa-thumbs-down',col:'#EF4444'}].map(side=>(
-                      <div key={side.key} style={{borderRadius:18,border:'1px solid '+side.col+('28',overflow:'hidden'}}>
-                        <div style={{padding:'11px 16px',background:`${side.col}12`,borderBottom:'1px solid '+side.col+('20',display:'flex',alignItems:'center',gap:8}}>
+                      <div key={side.key} style={{borderRadius:18,border:'1px solid '+side.col+'28',overflow:'hidden'}}>
+                        <div style={{padding:'11px 16px',background:side.col+'12',borderBottom:'1px solid '+side.col+'20',display:'flex',alignItems:'center',gap:8}}>
                           <i className={`fa-solid ${side.ic}`} style={{color:side.col,fontSize:12}}/>
                           <span style={{fontSize:12,fontWeight:800,color:side.col}}>{side.label}</span>
                           <span style={{marginLeft:'auto',fontSize:10,color:side.col+'88',fontWeight:600}}>{(d[side.key]||[]).length} points</span>
@@ -5307,7 +5307,7 @@ Reply: ${botText.slice(0,800)}`,
                         <div style={{padding:'12px 14px',display:'flex',flexDirection:'column',gap:8}}>
                           {(d[side.key]||[]).map((p,i)=>(
                             <div key={i} style={{display:'flex',gap:9,alignItems:'flex-start'}}>
-                              <div style={{width:8,height:8,borderRadius:'50%',background:wc[p.weight]||side.col,marginTop:4,flexShrink:0,boxShadow:`0 0 6px ${wc[p.weight]||side.col}60`}}/>
+                              <div style={{width:8,height:8,borderRadius:'50%',background:wc[p.weight]||side.col,marginTop:4,flexShrink:0,boxShadow:'0 0 6px '+wc[p.weight]||side.col+'60'}}/>
                               <span style={{fontSize:12,color:'var(--t2)',lineHeight:1.55,flex:1}}>{p.point||p}</span>
                               {p.weight==='high'&&<span style={{fontSize:8,padding:'2px 6px',borderRadius:6,background:'rgba(16,185,129,.12)',color:'#10B981',fontWeight:700,flexShrink:0,alignSelf:'flex-start',marginTop:2}}>KEY</span>}
                             </div>
@@ -5338,17 +5338,17 @@ Reply: ${botText.slice(0,800)}`,
                 return <div>
                   <div style={{position:'relative'}}>
                     {/* Timeline line */}
-                    <div style={{position:'absolute',left:18,top:20,bottom:20,width:2,background:`linear-gradient(180deg,${chainMode==='debug'?'#EF4444':chainMode==='plan'?'#F59E0B':'#10B981'},#8B5CF6,rgba(139,92,246,.05))`,borderRadius:2}}/>
+                    <div style={{position:'absolute',left:18,top:20,bottom:20,width:2,background:'linear-gradient(180deg,'+chainMode==='debug'?'#EF4444':chainMode==='plan'?'#F59E0B':'#10B981'+',#8B5CF6,rgba(139,92,246,.05))',borderRadius:2}}/>
                     <div style={{display:'flex',flexDirection:'column',gap:10,paddingLeft:2}}>
                       {chainSteps.map((s,i)=>{
                         const T=TYPE[s.type]||{c:'#10B981',ic:'fa-circle-dot',bg:'rgba(16,185,129,.08)'};
                         return <div key={i} style={{display:'flex',gap:14}}>
-                          <div style={{width:36,height:36,borderRadius:'50%',border:`2px solid ${T.c}`,background:'var(--bg2)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,zIndex:1,boxShadow:`0 0 0 3px var(--bg2),0 0 16px ${T.c}30`}}>
+                          <div style={{width:36,height:36,borderRadius:'50%',border:'2px solid '+T.c+'',background:'var(--bg2)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,zIndex:1,boxShadow:'0 0 0 3px var(--bg2),0 0 16px '+T.c+'30'}}>
                             <i className={`fa-solid ${T.ic}`} style={{color:T.c,fontSize:11}}/>
                           </div>
-                          <div style={{flex:1,borderRadius:16,padding:'14px 18px',border:'1px solid '+T.c+('20',background:T.bg,marginTop:2}}>
+                          <div style={{flex:1,borderRadius:16,padding:'14px 18px',border:'1px solid '+T.c+'20',background:T.bg,marginTop:2}}>
                             <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:8,flexWrap:'wrap'}}>
-                              <span style={{fontSize:9,fontWeight:800,padding:'3px 10px',borderRadius:20,background:`${T.c}20`,color:T.c,textTransform:'uppercase',letterSpacing:'.1em'}}>{s.type||'step'}</span>
+                              <span style={{fontSize:9,fontWeight:800,padding:'3px 10px',borderRadius:20,background:T.c+'20',color:T.c,textTransform:'uppercase',letterSpacing:'.1em'}}>{s.type||'step'}</span>
                               <span style={{fontSize:14,fontWeight:700,color:'var(--t1)'}}>Step {s.step}: {s.title}</span>
                               {s.timeline&&<span style={{marginLeft:'auto',fontSize:10,color:'var(--t3)',background:'var(--bg3)',padding:'3px 9px',borderRadius:8,border:'1px solid var(--br)',flexShrink:0}}>{s.timeline}</span>}
                             </div>
@@ -5482,7 +5482,7 @@ Reply: ${botText.slice(0,800)}`,
               {conceptLoading&&<div style={{display:'flex',flexDirection:'column',gap:10}}>
                 <div style={{display:'flex',justifyContent:'center',marginBottom:10}}><div style={{height:38,width:180,borderRadius:99,background:'var(--bg3)',animation:'pulse 1.6s ease-in-out infinite'}}/></div>
                 <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10}}>
-                  {[1,2,3,4,5,6].map(i=><div key={i} style={{borderRadius:16,border:'1px solid var(--br)',background:'var(--bg3)',padding:14,animation:'pulse 1.6s ease-in-out infinite',animationDelay:`${i*.1}s`}}>
+                  {[1,2,3,4,5,6].map(i=><div key={i} style={{borderRadius:16,border:'1px solid var(--br)',background:'var(--bg3)',padding:14,animation:'pulse 1.6s ease-in-out infinite',animationDelay:i*.1+'s'}}>
                     <div style={{height:10,borderRadius:6,background:'var(--br)',width:'60%',marginBottom:10}}/>
                     {[1,2,3].map(j=><div key={j} style={{height:8,borderRadius:5,background:'var(--br)',marginBottom:6,width:(50+j*15)+'%'}}/>)}
                   </div>)}
@@ -5499,11 +5499,11 @@ Reply: ${botText.slice(0,800)}`,
                 {/* Branch grid */}
                 <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(190px,1fr))',gap:12}}>
                   {(conceptData.branches||[]).map((br,bi)=>(
-                    <div key={bi} style={{borderRadius:18,border:'1px solid '+br.color+('30',background:`${br.color}06`,overflow:'hidden',transition:'transform .2s,box-shadow .2s,border-color .2s'}}
+                    <div key={bi} style={{borderRadius:18,border:'1px solid '+br.color+'30',background:br.color+'06',overflow:'hidden',transition:'transform .2s,box-shadow .2s,border-color .2s'}}
                       onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-4px)';e.currentTarget.style.boxShadow='0 12px 28px '+br.color+'25';e.currentTarget.style.borderColor=br.color+'55';}}
                       onMouseLeave={e=>{e.currentTarget.style.transform='';e.currentTarget.style.boxShadow='';e.currentTarget.style.borderColor=br.color+'30';}}>
-                      <div style={{padding:'11px 15px',background:`${br.color}14`,borderBottom:'1px solid '+br.color+('22',display:'flex',alignItems:'center',gap:9}}>
-                        <div style={{width:28,height:28,borderRadius:9,background:`${br.color}22`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                      <div style={{padding:'11px 15px',background:br.color+'14',borderBottom:'1px solid '+br.color+'22',display:'flex',alignItems:'center',gap:9}}>
+                        <div style={{width:28,height:28,borderRadius:9,background:br.color+'22',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
                           <i className={`fa-solid ${br.icon||'fa-circle-dot'}`} style={{color:br.color,fontSize:11}}/>
                         </div>
                         <span style={{fontSize:12,fontWeight:800,color:br.color,flex:1,lineHeight:1.2}}>{br.label}</span>
@@ -5698,7 +5698,7 @@ Reply: ${botText.slice(0,800)}`,
             ):(
             <div className="sb" style={{flex:1,overflowY:'auto',padding:'20px 26px 24px'}}>
               {storyLoading&&<div style={{display:'flex',flexDirection:'column',gap:12}}>
-                {[1,2,3].map(i=><div key={i} style={{borderRadius:14,border:'1px solid var(--br)',background:'var(--bg3)',padding:18,animation:'pulse 1.6s ease-in-out infinite',animationDelay:`${i*.1}s`}}>
+                {[1,2,3].map(i=><div key={i} style={{borderRadius:14,border:'1px solid var(--br)',background:'var(--bg3)',padding:18,animation:'pulse 1.6s ease-in-out infinite',animationDelay:i*.1+'s'}}>
                   <div style={{height:14,borderRadius:7,background:'var(--br)',width:'45%',marginBottom:14}}/>
                   {[95,85,90,70,80].map((w,j)=><div key={j} style={{height:8,borderRadius:5,background:'var(--br)',marginBottom:8,width:w+'%'}}/>)}
                 </div>)}
@@ -5707,7 +5707,7 @@ Reply: ${botText.slice(0,800)}`,
                 {/* Tags */}
                 <div style={{display:'flex',gap:7,flexWrap:'wrap',marginBottom:16}}>
                   {[{v:storyConfig.genre,c:'#F59E0B'},{v:storyConfig.mood,c:'#EF4444'},{v:storyConfig.length,c:'#3B82F6'},{v:(storyConfig.pov||'third')+' person',c:'#8B5CF6'}].map((b,i)=>(
-                    <span key={i} style={{fontSize:10,padding:'4px 12px',borderRadius:99,fontWeight:700,textTransform:'capitalize',background:b.c+'18',color:b.c,border:'1px solid '+b.c+('30'}}>{b.v}</span>
+                    <span key={i} style={{fontSize:10,padding:'4px 12px',borderRadius:99,fontWeight:700,textTransform:'capitalize',background:b.c+'18',color:b.c,border:'1px solid '+b.c+'30'}}>{b.v}</span>
                   ))}
                 </div>
                 {/* Story text */}
@@ -5989,7 +5989,7 @@ Reply: ${botText.slice(0,800)}`,
               {quizSubmitted?(
                 <div className="flex gap-2">
                   {[{lbl:'Score',val:quizScore+'%',col:quizScore>=70?'#10B981':'#EF4444'},{lbl:'Correct',val:Object.values(quizAnswers).filter((a,i)=>a===quizQuestions[i]?.answer).length+'/'+quizQuestions.length,col:'#F59E0B'},{lbl:'Grade',val:quizScore===100?'A+':quizScore>=80?'A':quizScore>=70?'B':quizScore>=60?'C':'D',col:'#818cf8'},{lbl:'Result',val:quizScore>=70?'Pass 🎉':'Retry 📚',col:quizScore>=70?'#10B981':'#EF4444'}].map(s=>(
-                    <div key={s.lbl} className="flex-1 text-center py-2.5 rounded-2xl" style={{background:s.col+'10',border:'1px solid '+s.col+('28'}}>
+                    <div key={s.lbl} className="flex-1 text-center py-2.5 rounded-2xl" style={{background:s.col+'10',border:'1px solid '+s.col+'28'}}>
                       <p className="text-base font-black" style={{color:s.col}}>{s.val}</p>
                       <p className="text-[9px] font-bold uppercase tracking-widest mt-0.5" style={{color:'var(--t3)'}}>{s.lbl}</p>
                     </div>
@@ -6194,7 +6194,7 @@ Reply: ${botText.slice(0,800)}`,
                     <button key={v} onClick={()=>setLlLevel(v)}
                       style={{padding:'5px 10px',borderRadius:9,fontSize:10,fontWeight:700,cursor:'pointer',
                         background:llLevel===v?clr+'20':'rgba(255,255,255,.04)',color:llLevel===v?clr:'var(--t3)',
-                        border:llLevel===v?'1px solid '+clr+('44':'1px solid rgba(255,255,255,.06)',transition:'all .15s'}}>
+                        border:llLevel===v?'1px solid '+clr+'44':'1px solid rgba(255,255,255,.06)',transition:'all .15s'}}>
                       {em} {v.charAt(0).toUpperCase()+v.slice(1)}
                     </button>
                   ))}
@@ -8055,7 +8055,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
               {/* Search modes */}
               <div className="flex items-center gap-1">
                 {[['normal','fa-magnifying-glass','Normal'],['semantic','fa-brain','Semantic'],['regex','fa-code','Regex']].map(([m,ic,lb])=>(
-                  <button key={m} onClick={()=>setSearchMode(m)} className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all" style={{background:searchMode===m?'rgba(99,102,241,.2)':'transparent',color:searchMode===m?'#818cf8':'var(--t3)',border:'1px solid '+searchMode===m?'rgba(99,102,241,.4)':'transparent'}}>
+                  <button key={m} onClick={()=>setSearchMode(m)} className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all" style={{background:searchMode===m?'rgba(99,102,241,.2)':'transparent',color:searchMode===m?'#818cf8':'var(--t3)',border:(searchMode===m?'1px solid rgba(99,102,241,.4)':'1px solid transparent')}}>
                     <i className={`fa-solid ${ic} text-[9px]`}></i>{lb}
                   </button>
                 ))}
@@ -8219,7 +8219,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                     {relatedChats.map((s,i)=>(
                       <button key={s.id} onClick={()=>{setSid(s.id);setShowMsgSearch(false);setMsgSearchQ('');}} className="w-full text-left px-4 py-3 rounded-xl border transition-all flex items-start gap-3" style={{borderColor:'var(--br)',background:'var(--bg3)'}} onMouseEnter={e=>e.currentTarget.style.borderColor='rgba(139,92,246,.4)'} onMouseLeave={e=>e.currentTarget.style.borderColor='var(--br)'}>
                         <div className="flex-shrink-0 mt-0.5">
-                          <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{background:`rgba(139,92,246,${0.08+i*0.03})`,border:'1px solid rgba(139,92,246,.2)'}}>
+                          <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{background:'rgba(139,92,246,'+0.08+i*0.03+')',border:'1px solid rgba(139,92,246,.2)'}}>
                             <span className="text-xs font-bold" style={{color:'#a78bfa'}}>#{i+1}</span>
                           </div>
                         </div>
@@ -8498,7 +8498,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       <div key={i} className="flex-1 flex flex-col items-center gap-1">
                         <span className="text-[9px]" style={{color:'var(--t3)'}}>{d.count||''}</span>
                         <div className="w-full rounded-t-md transition-all" style={{
-                          height:`${Math.max(4,d.count/maxActivity*60)}px`,
+                          height:Math.max(4,d.count/maxActivity*60)+'px',
                           background:d.count>0?'linear-gradient(to top,rgba(99,102,241,.6),rgba(139,92,246,.8))':'var(--bg2)',
                           border:'1px solid rgba(99,102,241,.2)'
                         }}/>
@@ -8848,7 +8848,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                                 className="w-full flex items-center gap-2.5 px-3 py-2.5 transition-all text-left"
                                 style={{background:persona===p.id?p.color+'12':'transparent',borderBottom:'1px solid var(--br)',cursor:'pointer'}}
                                 onMouseEnter={e=>e.currentTarget.style.background=p.color+'18'} onMouseLeave={e=>e.currentTarget.style.background=persona===p.id?p.color+'12':'transparent'}>
-                                <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{background:p.color+'20',border:'1px solid '+p.color+('33'}}>
+                                <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{background:p.color+'20',border:'1px solid '+p.color+'33'}}>
                                   <i className={`fa-solid ${p.icon}`} style={{fontSize:11,color:p.color}}></i>
                                 </div>
                                 <div className="flex-1 min-w-0">
@@ -8913,7 +8913,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                                   onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-2px) scale(1.03)';e.currentTarget.style.boxShadow='0 6px 16px '+displayCol+'28';}}
                                   onMouseLeave={e=>{e.currentTarget.style.transform='translateY(0) scale(1)';e.currentTarget.style.boxShadow='none';}}>
                                   {isActive&&<div style={{position:'absolute',top:6,right:6,width:6,height:6,borderRadius:'50%',background:'#a78bfa',boxShadow:'0 0 6px rgba(167,139,250,.8)'}}></div>}
-                                  <div style={{width:34,height:34,borderRadius:11,background:'linear-gradient(135deg,'+displayCol+'22,'+displayCol+'0e)',border:'1px solid '+displayCol+('28',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,boxShadow:isActive?'0 4px 12px '+displayCol+'40':'none'}}>
+                                  <div style={{width:34,height:34,borderRadius:11,background:'linear-gradient(135deg,'+displayCol+'22,'+displayCol+'0e)',border:'1px solid '+displayCol+'28',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,boxShadow:isActive?'0 4px 12px '+displayCol+'40':'none'}}>
                                     <i className={`fa-solid ${f.ic}`} style={{color:displayCol,fontSize:13,filter:isActive?'drop-shadow(0 0 4px rgba(167,139,250,.8))':''}}></i>
                                   </div>
                                   <span style={{fontSize:9,color:'rgba(255,255,255,.88)',fontWeight:600,textAlign:'center',lineHeight:1.2,maxWidth:64,letterSpacing:'.01em'}}>{f.id==='incognito'&&incognito?'ON':f.lbl}</span>
@@ -9043,7 +9043,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                     {LANGS.slice(0,10).map(l=>(
                       <button key={l.id} onClick={()=>setLanguage(l.id)}
                         style={{display:'flex',alignItems:'center',gap:4,padding:'4px 9px',borderRadius:20,
-                          border:'1px solid '+language===l.id?'rgba(99,102,241,.45)':'var(--br)',
+                          border:(language===l.id?'1px solid rgba(99,102,241,.45)':'1px solid var(--br)'),
                           background:language===l.id?'rgba(99,102,241,.1)':'transparent',
                           cursor:'pointer',fontSize:11,fontWeight:language===l.id?700:400,transition:'all .15s',
                           color:language===l.id?'#a5b4fc':'var(--t3)'}}>
@@ -9087,7 +9087,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       {msg.sender==='bot'&&(()=>{
                         const msgPersona = PERSONAS.find(p=>p.id===(msg.persona||persona)) || PERSONAS[0];
                         return (
-                          <div className="flex-shrink-0 mt-1 w-7 h-7 rounded-full flex items-center justify-center border-2" style={{background:`${msgPersona.color}18`,borderColor:msgPersona.color}}>
+                          <div className="flex-shrink-0 mt-1 w-7 h-7 rounded-full flex items-center justify-center border-2" style={{background:msgPersona.color+'18',borderColor:msgPersona.color}}>
                             <i className={`fa-solid ${msgPersona.icon}`} style={{fontSize:11,color:msgPersona.color}}></i>
                           </div>
                         );
@@ -9239,7 +9239,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                     </div>
                   ))}
                   <div id="omina-typing-indicator" className="flex gap-3 justify-start" style={{display: typing ? 'flex' : 'none'}}>
-                    <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 border-2" style={{background:`${(PERSONAS.find(p=>p.id===persona)||PERSONAS[0]).color}18`,borderColor:(PERSONAS.find(p=>p.id===persona)||PERSONAS[0]).color}}><i className={`fa-solid ${(PERSONAS.find(p=>p.id===persona)||PERSONAS[0]).icon}`} style={{fontSize:11,color:(PERSONAS.find(p=>p.id===persona)||PERSONAS[0]).color}}></i></div>
+                    <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 border-2" style={{background:(PERSONAS.find(p=>p.id===persona)||PERSONAS[0]).color+'18',borderColor:(PERSONAS.find(p=>p.id===persona)||PERSONAS[0]).color}}><i className={`fa-solid ${(PERSONAS.find(p=>p.id===persona)||PERSONAS[0]).icon}`} style={{fontSize:11,color:(PERSONAS.find(p=>p.id===persona)||PERSONAS[0]).color}}></i></div>
                     <div className="flex items-center rounded-2xl border" style={{background:'var(--bg3)',borderColor:'var(--br)'}}>
                       <div className="typing-bubble">
                         <span className="typing-dot"></span>
@@ -9386,7 +9386,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                   {LANGS.filter(l=>l.label.toLowerCase().includes(langSearch.toLowerCase())||l.id.includes(langSearch.toLowerCase())).map(l=>(
                     <button key={l.id} onClick={()=>setLanguage(l.id)}
                       style={{display:'flex',alignItems:'center',gap:8,padding:'9px 12px',borderRadius:11,
-                        border:'1px solid '+language===l.id?'rgba(99,102,241,.6)':'var(--br)',
+                        border:(language===l.id?'1px solid rgba(99,102,241,.6)':'1px solid var(--br)'),
                         background:language===l.id?'rgba(99,102,241,.15)':'var(--bg3)',
                         cursor:'pointer',transition:'all .15s',textAlign:'left'}}>
                       <span style={{fontSize:18,flexShrink:0,lineHeight:1}}>{l.flag}</span>
@@ -9410,10 +9410,10 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                   {PERSONAS.map(p=>(
                     <button key={p.id} onClick={()=>{setPersona(p.id);setSysPrompt(p.prompt);toast_(`${p.label} activated`,'success');}}
                       style={{display:'flex',alignItems:'flex-start',gap:10,padding:'12px 14px',borderRadius:14,
-                        border:`1.5px solid ${persona===p.id?p.color:'var(--br)'}`,
+                        border:(persona===p.id?'1.5px solid '+p.color:'1.5px solid var(--br)'),
                         background:persona===p.id?`${p.color}18`:'var(--bg3)',
                         cursor:'pointer',transition:'all .15s',textAlign:'left'}}>
-                      <div style={{width:34,height:34,borderRadius:10,background:`${p.color}25`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,marginTop:1}}>
+                      <div style={{width:34,height:34,borderRadius:10,background:p.color+'25',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,marginTop:1}}>
                         <i className={`fa-solid ${p.icon}`} style={{fontSize:14,color:p.color}}></i>
                       </div>
                       <div style={{minWidth:0,flex:1}}>
@@ -9447,7 +9447,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       {id:'sunset',  label:'Sunset',     icon:'fa-fire',          dot:'#FF6B35', bg:'#1A0A0A'},
                     ].map(t=>(
                       <button key={t.id} onClick={()=>{setTheme(t.id);toast_(`${t.label} theme`,'info');}}
-                        style={{background:t.bg,border:`2px solid ${theme===t.id?t.dot:'rgba(255,255,255,.08)'}`,borderRadius:12,padding:'10px 6px',cursor:'pointer',display:'flex',flexDirection:'column',alignItems:'center',gap:5,transition:'all .15s',transform:theme===t.id?'scale(1.04)':'scale(1)'}}>
+                        style={{background:t.bg,border:(theme===t.id?'2px solid '+t.dot:'2px solid rgba(255,255,255,.08)'),borderRadius:12,padding:'10px 6px',cursor:'pointer',display:'flex',flexDirection:'column',alignItems:'center',gap:5,transition:'all .15s',transform:theme===t.id?'scale(1.04)':'scale(1)'}}>
                         <div style={{width:22,height:22,borderRadius:'50%',background:t.dot,display:'flex',alignItems:'center',justifyContent:'center'}}>
                           <i className={`fa-solid ${t.icon}`} style={{fontSize:10,color:'#fff'}}></i>
                         </div>
@@ -9489,7 +9489,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       {id:'custom',  label:'Gradient', preview:'linear-gradient(135deg,#1a1a2e,#16213e,#0f3460)'},
                     ].map(bg=>(
                       <button key={bg.id} onClick={()=>setChatBg(bg.id)}
-                        style={{height:52,borderRadius:10,border:`2px solid ${chatBg===bg.id?'var(--accent)':'var(--br)'}`,overflow:'hidden',cursor:'pointer',position:'relative',background:'var(--bg3)',transition:'all .15s'}}>
+                        style={{height:52,borderRadius:10,border:(chatBg===bg.id?'2px solid var(--accent)':'2px solid var(--br)'),overflow:'hidden',cursor:'pointer',position:'relative',background:'var(--bg3)',transition:'all .15s'}}>
                         <div style={{position:'absolute',inset:0,backgroundImage:bg.id!=='none'?bg.preview:'none',backgroundSize:bg.size||'auto',backgroundRepeat:'repeat'}}/>
                         <div style={{position:'absolute',bottom:0,left:0,right:0,padding:'3px 4px',background:'rgba(0,0,0,.5)',backdropFilter:'blur(4px)'}}>
                           <span style={{fontSize:9,color:chatBg===bg.id?'var(--accent)':'rgba(255,255,255,.6)',fontWeight:chatBg===bg.id?700:400}}>{bg.label}</span>
@@ -9975,7 +9975,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                             </div>
                           </div>
                           <div className="h-1.5 rounded-full overflow-hidden" style={{background:'var(--bg3)'}}>
-                            <div className="h-full rounded-full transition-all duration-500" style={{width:`${pct}%`,background:'linear-gradient(90deg,'+barColor+'aa,'+barColor+')'}}/>
+                            <div className="h-full rounded-full transition-all duration-500" style={{width:pct+'%',background:'linear-gradient(90deg,'+barColor+'aa,'+barColor+')'}}/>
                           </div>
                         </div>
                         );
@@ -10112,7 +10112,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                           transition:'border-color .18s,box-shadow .18s',
                         }}>
                           <button onClick={launchMap[f.id]||(()=>{})} style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'11px 12px',background:'transparent',border:'none',cursor:'pointer'}}>
-                            <div style={{width:32,height:32,borderRadius:8,flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center',background:`${f.col}18`}}>
+                            <div style={{width:32,height:32,borderRadius:8,flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center',background:f.col+'18'}}>
                               <i className={`fa-solid ${f.ic}`} style={{color:f.col,fontSize:13}}></i>
                             </div>
                             <span style={{color:'var(--t1)',fontSize:12,fontWeight:500,flex:1,textAlign:'left',fontFamily:"'DM Sans',sans-serif"}}>{f.lbl}</span>
@@ -10140,8 +10140,8 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       return(
                         <div onClick={editMode?toggle:(launchMap[f.id]||(()=>{}))} style={{
                           position:'relative',borderRadius:12,overflow:'hidden',
-                          border:'1px solid '+editMode&&pinned?`${f.col+('70':editMode?'rgba(255,255,255,.15)':'var(--br)'}`,
-                          background: editMode&&pinned?`${f.col}12`:'var(--bg3)',
+                          border:(editMode&&pinned?'1px solid '+f.col+'70':editMode?'1px solid rgba(255,255,255,.15)':'1px solid var(--br)'),
+                          background:(editMode&&pinned?f.col+'12':'var(--bg3)'),
                           cursor:'pointer',transition:'all .18s',
                           boxShadow: editMode&&pinned?`0 0 0 1px ${f.col}30`:'none',
                         }}>
@@ -10149,7 +10149,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                             <div style={{
                               width:32,height:32,borderRadius:8,
                               display:'flex',alignItems:'center',justifyContent:'center',
-                              background:`${f.col}18`,
+                              background:f.col+'18',
                             }}>
                               <i className={`fa-solid ${f.ic}`} style={{color:f.col,fontSize:13}}></i>
                             </div>
@@ -10161,7 +10161,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                               width:20,height:20,borderRadius:50,
                               display:'flex',alignItems:'center',justifyContent:'center',
                               background:pinned?'#ef4444':'rgba(255,255,255,.1)',
-                              border:`1.5px solid ${pinned?'#ef4444':'rgba(255,255,255,.2)'}`,
+                              border:'1.5px solid '+pinned?'#ef4444':'rgba(255,255,255,.2)'+'',
                               boxShadow:pinned?'0 0 8px rgba(239,68,68,.4)':'none',
                               transition:'all .18s',
                             }}>
