@@ -8897,6 +8897,8 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                                 wordcloud:()=>{setShowProfile(false);setShowWordCloud(true);},
                                 modelcomp:()=>{setShowProfile(false);setShowModelComp(true);},
                                 profiles:()=>{setShowProfile(false);setShowProfiles(true);},
+                                dna:()=>{setShowProfile(false);setShowDNA(true);},
+                                collider:()=>{setShowProfile(false);setShowCollider(true);},
                               };
                               return map[id]||(() =>{});
                             };
@@ -10099,6 +10101,8 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       wordcloud:()=>{setShowSettings(false);setShowWordCloud(true);},
                       modelcomp:()=>{setShowSettings(false);setShowModelComp(true);},
                       profiles:()=>{setShowSettings(false);setShowProfiles(true);},
+                      dna:()=>{setFeatFromSettings(true);setShowSettings(false);setShowDNA(true);},
+                      collider:()=>{setFeatFromSettings(true);setShowSettings(false);setShowCollider(true);},
                     };
                     const isMobile=window.innerWidth<=768;
 
@@ -10222,53 +10226,6 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                                 All Features
                               </p>
                               {isMobile&&<EditBtn/>}
-                            </div>
-                            <div className="feat-grid">
-                              {unpinnedFeatures.map(f=>isMobile
-                                ?<MobileFeatCard key={f.id} f={f} pinned={false} editMode={featEditMode}/>
-                                :<FeatCard key={f.id} f={f} pinned={false}/>
-                              )}
-                            </div>
-                          </div>
-                        )}
-                      </>
-                    );
-
-
-                    return(
-                      <>
-                        {/* ── Pinned Features ── */}
-                        <div className="mb-4 rounded-2xl border p-3" style={{borderColor:'var(--br)',background:'var(--bg2)'}}>
-                          <div className="flex items-center justify-between mb-3">
-                            <p className="text-xs font-semibold flex items-center gap-1.5" style={{color:'var(--t1)'}}>
-                              <i className="fa-solid fa-thumbtack text-[10px]" style={{color:'#818cf8'}}></i>
-                              Pinned Features
-                            </p>
-                            <div style={{display:'flex',alignItems:'center',gap:6}}>
-                              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{background:atMax?'rgba(16,185,129,.15)':'rgba(99,102,241,.12)',color:atMax?'#10B981':'#818cf8'}}>{quickAccessIds.length}/12</span>
-                              {isMobile && <EditBtn/>}
-                            </div>
-                          </div>
-                          {pinnedFeatures.length===0
-                            ?<p className="text-xs text-center py-4" style={{color:'var(--t3)'}}>No features pinned yet.</p>
-                            :<div className="feat-grid">
-                              {pinnedFeatures.map(f=>isMobile
-                                ?<MobileFeatCard key={f.id} f={f} pinned={true} editMode={featEditMode}/>
-                                :<FeatCard key={f.id} f={f} pinned={true}/>
-                              )}
-                            </div>
-                          }
-                        </div>
-
-                        {/* ── All Features (unpinned only) ── */}
-                        {unpinnedFeatures.length>0&&(
-                          <div className="rounded-2xl border p-3" style={{borderColor:'var(--br)',background:'var(--bg2)'}}>
-                            <div className="flex items-center justify-between mb-3">
-                              <p className="text-xs font-semibold flex items-center gap-1.5" style={{color:'var(--t1)'}}>
-                                <i className="fa-solid fa-grid-2 text-[10px]" style={{color:'#f59e0b'}}></i>
-                                All Features
-                              </p>
-                              {isMobile && <EditBtn/>}
                             </div>
                             <div className="feat-grid">
                               {unpinnedFeatures.map(f=>isMobile
