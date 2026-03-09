@@ -2958,7 +2958,7 @@ function App() {
   // ── Story Generator ──
   const [showStoryGen,setShowStoryGen]       = useState(false);
   const [storyStep,setStoryStep]             = useState(0);
-  const [storyConfig,setStoryConfig]         = useState({genre:'fantasy',length:'short',char:'',setting:'',mood:'adventurous',twist:''});
+  const [storyConfig,setStoryConfig]         = useState({genre:'fantasy',length:'medium',char:'',setting:'',mood:'adventurous',twist:'',theme:'',pov:'third'});
   const [storyResult,setStoryResult]         = useState('');
   const [storyLoading,setStoryLoading]       = useState(false);
   // ── Chat Review Mode ──
@@ -3077,6 +3077,9 @@ function App() {
   const chainAbortRef   = useRef(null);
   const conceptAbortRef = useRef(null);
   const storyAbortRef   = useRef(null);
+  // ── Chain / Concept / Story new mode states ──
+  const [chainMode,setChainMode]         = useState('steps');
+  const [conceptMapMode,setConceptMapMode] = useState('branches');
   const quizAbortRef    = useRef(null);
   const llAbortRef      = useRef(null);
   const summaryAbortRef = useRef(null);
@@ -4785,11 +4788,11 @@ Reply: ${botText.slice(0,800)}`,
 
       {showRandPrompt&&(()=>{
         const RAND_CATS = [
-          {id:'creative', label:'Creative',  icon:'fa-paintbrush',    color:'#EC4899', gradient:'linear-gradient(135deg,#EC4899,#F43F5E)', prompts:['Write a short story about a robot who discovers emotions','Describe a world where music is illegal','Create a poem about the last library on Earth','Write a dialogue between the Sun and Moon','Imagine a city built entirely underwater','Write a letter from the future to the past']},
+          {id:'creative', label:'Creative',  icon:'fa-paintbrush',    color:'#EC4899', gradient:'linear-gradient(135deg,#EC4899,#F43F5E)', prompts:['Write a story about a robot who discovers emotions','Describe a world where music is illegal','Create a poem about the last library on Earth','Write a dialogue between the Sun and Moon','Imagine a city built entirely underwater','Write a letter from the future to the past']},
           {id:'coding',   label:'Coding',    icon:'fa-code',          color:'#10B981', gradient:'linear-gradient(135deg,#10B981,#059669)', prompts:['Build a CLI todo app in Python','Explain how async/await works with a real example','Write a recursive function to flatten nested arrays','Create a REST API endpoint for user authentication','Design a simple rate limiter algorithm','Build a real-time chat with WebSockets']},
-          {id:'learning', label:'Learning',  icon:'fa-graduation-cap',color:'#3B82F6', gradient:'linear-gradient(135deg,#3B82F6,#2563EB)', prompts:['Explain quantum computing like I'm 10','What are the key differences between ML and AI?','Teach me blockchain in 5 simple points','How does the internet actually work?','Explain Big O notation with simple examples','What is the Feynman Technique?']},
+          {id:'learning', label:'Learning',  icon:'fa-graduation-cap',color:'#3B82F6', gradient:'linear-gradient(135deg,#3B82F6,#2563EB)', prompts:['Explain quantum computing simply','What are the key differences between ML and AI?','Teach me blockchain in 5 simple points','How does the internet actually work?','Explain Big O notation with simple examples','What is the Feynman Technique?']},
           {id:'business', label:'Business',  icon:'fa-briefcase',     color:'#F59E0B', gradient:'linear-gradient(135deg,#F59E0B,#D97706)', prompts:['Write a cold email pitch for a SaaS product','Create a SWOT analysis template','Generate 10 startup ideas for 2025','Write a product launch announcement','Create a weekly standup template','Draft a VC pitch deck outline']},
-          {id:'fun',      label:'Fun',       icon:'fa-face-laugh',    color:'#F97316', gradient:'linear-gradient(135deg,#F97316,#EA580C)', prompts:['Tell me a programming joke I haven't heard','Roast my productivity habits','Write a haiku about debugging code','Create a fun quiz about space','What would happen if gravity stopped for 1 second?','Describe a zombie apocalypse but everyone codes']},
+          {id:'fun',      label:'Fun',       icon:'fa-face-laugh',    color:'#F97316', gradient:'linear-gradient(135deg,#F97316,#EA580C)', prompts:['Tell me a programming joke nobody knows','Roast my productivity habits','Write a haiku about debugging code','Create a fun quiz about space','What would happen if gravity stopped for 1 second?','Describe a zombie apocalypse but everyone codes']},
           {id:'analysis', label:'Analysis',  icon:'fa-chart-bar',     color:'#8B5CF6', gradient:'linear-gradient(135deg,#8B5CF6,#7C3AED)', prompts:['Analyze the pros and cons of remote work','Compare SQL vs NoSQL databases','Break down the psychology of procrastination','Analyze why most startups fail','Compare different programming paradigms','Analyze the future of AI in 2030']},
           {id:'design',   label:'Design',    icon:'fa-swatchbook',    color:'#06B6D4', gradient:'linear-gradient(135deg,#06B6D4,#0891B2)', prompts:['Design a color palette for a fintech app','Describe the perfect mobile UX for elderly users','Create a design system naming convention','Write a UI critique of a popular website','Suggest icons for a productivity dashboard','What makes a landing page convert?']},
           {id:'mindset',  label:'Mindset',   icon:'fa-brain',         color:'#A78BFA', gradient:'linear-gradient(135deg,#A78BFA,#8B5CF6)', prompts:['How do I beat perfectionism?','Explain the growth mindset with examples','What are the best habits for deep focus?','How do successful people start their mornings?','Overcome impostor syndrome as a developer','Build mental resilience under pressure']},
@@ -4893,29 +4896,51 @@ Reply: ${botText.slice(0,800)}`,
       {/* ═══ CHAIN OF THOUGHT VIEWER ═══ */}
 
       {showChainViewer&&(
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.75)',backdropFilter:'blur(6px)'}} onClick={()=>setShowChainViewer(false)}>
-          <div className="w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col" style={{background:'var(--bg2)',border:'1px solid var(--br)',maxHeight:'90vh'}} onClick={e=>e.stopPropagation()}>
+        <div style={{position:'fixed',inset:0,zIndex:200,display:'flex',alignItems:'center',justifyContent:'center',padding:16,background:'rgba(0,0,0,.88)',backdropFilter:'blur(18px)'}} onClick={()=>setShowChainViewer(false)}>
+          <div style={{width:'100%',maxWidth:680,background:'var(--bg2)',border:'1px solid var(--br)',borderRadius:24,boxShadow:'0 32px 80px rgba(0,0,0,.6)',display:'flex',flexDirection:'column',maxHeight:'92vh',animation:'mIn .32s cubic-bezier(.16,1,.3,1)',overflow:'hidden'}} onClick={e=>e.stopPropagation()}>
 
-            {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b flex-shrink-0" style={{borderColor:'var(--br)'}}>
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{background:'rgba(16,185,129,.15)',border:'1px solid rgba(16,185,129,.25)'}}>
-                  <i className="fa-solid fa-brain" style={{color:'#10b981',fontSize:15}}></i>
+            {/* ── Hero Header ── */}
+            <div style={{background:'linear-gradient(135deg,#05160e 0%,#0a2418 50%,#05160e 100%)',padding:'22px 22px 18px',flexShrink:0,position:'relative',overflow:'hidden'}}>
+              <div style={{position:'absolute',inset:0,background:'radial-gradient(ellipse at 20% 50%,rgba(16,185,129,.2) 0%,transparent 60%)',pointerEvents:'none'}}></div>
+              <div style={{position:'absolute',right:20,top:10,opacity:.04,fontSize:90,lineHeight:1,fontFamily:'monospace'}}>{'{ }'}</div>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',position:'relative'}}>
+                <div style={{display:'flex',alignItems:'center',gap:14}}>
+                  <div style={{width:50,height:50,borderRadius:16,background:'linear-gradient(135deg,#10B981,#06B6D4)',boxShadow:'0 8px 24px rgba(16,185,129,.4)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                    <i className="fa-solid fa-brain" style={{color:'#fff',fontSize:20}}></i>
+                  </div>
+                  <div>
+                    <p style={{margin:0,fontSize:11,fontWeight:700,letterSpacing:'.12em',textTransform:'uppercase',color:'rgba(16,185,129,.7)'}}>Reasoning Engine</p>
+                    <p style={{margin:'2px 0 0',fontSize:20,fontWeight:800,color:'#fff',lineHeight:1.1}}>Chain of Thought</p>
+                    <p style={{margin:'4px 0 0',fontSize:11,color:'rgba(255,255,255,.35)'}}>AI step-by-step problem decomposition</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-bold text-sm" style={{color:'var(--t1)'}}>Chain of Thought</p>
-                  <p className="text-[10px]" style={{color:'var(--t3)'}}>Step-by-step AI reasoning visualizer</p>
-                </div>
+                <button onClick={()=>setShowChainViewer(false)} style={{width:32,height:32,borderRadius:10,border:'1px solid rgba(255,255,255,.12)',background:'rgba(255,255,255,.06)',color:'rgba(255,255,255,.5)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,transition:'all .15s'}}
+                  onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,.12)'}
+                  onMouseLeave={e=>e.currentTarget.style.background='rgba(255,255,255,.06)'}>
+                  <i className="fa-solid fa-xmark" style={{fontSize:12}}></i>
+                </button>
               </div>
-              <button onClick={()=>setShowChainViewer(false)} className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/10 transition-all" style={{color:'var(--t2)',border:'none',background:'transparent'}}><i className="fa-solid fa-xmark"></i></button>
+              {/* Step type legend */}
+              <div style={{display:'flex',gap:8,marginTop:16,position:'relative',flexWrap:'wrap'}}>
+                {[{t:'analyze',c:'#3B82F6',ic:'fa-magnifying-glass',lbl:'Analyze'},{t:'plan',c:'#F59E0B',ic:'fa-map',lbl:'Plan'},{t:'execute',c:'#10B981',ic:'fa-bolt',lbl:'Execute'},{t:'verify',c:'#8B5CF6',ic:'fa-check-double',lbl:'Verify'},{t:'conclude',c:'#EC4899',ic:'fa-flag-checkered',lbl:'Conclude'}].map(x=>(
+                  <div key={x.t} style={{display:'flex',alignItems:'center',gap:5,padding:'4px 10px',borderRadius:99,background:'rgba(255,255,255,.05)',border:`1px solid ${x.c}30`}}>
+                    <i className={`fa-solid ${x.ic}`} style={{color:x.c,fontSize:9}}></i>
+                    <span style={{fontSize:10,color:'rgba(255,255,255,.5)',fontWeight:600}}>{x.lbl}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            {/* Input */}
-            <div className="px-5 pt-4 pb-3 flex-shrink-0">
-              <div className="flex gap-2">
-                <textarea value={chainInput} onChange={e=>setChainInput(e.target.value)} placeholder="Enter any problem or question... e.g. 'How do I build a REST API?'" rows={2} className="flex-1 rounded-xl px-4 py-3 text-sm outline-none resize-none border transition-all" style={{background:'var(--bg3)',borderColor:'var(--br)',color:'var(--t1)'}} onFocus={e=>e.target.style.borderColor='rgba(16,185,129,.4)'} onBlur={e=>e.target.style.borderColor='var(--br)'}/>
+            {/* ── Input area ── */}
+            <div style={{padding:'16px 20px 12px',flexShrink:0,borderBottom:'1px solid var(--br)',background:'var(--bg3)'}}>
+              <div style={{display:'flex',gap:10}}>
+                <textarea value={chainInput} onChange={e=>setChainInput(e.target.value)} placeholder="Describe any problem or question... e.g. 'How should I architect a microservices app?'" rows={2}
+                  style={{flex:1,borderRadius:14,padding:'11px 14px',fontSize:13,background:'var(--bg2)',border:'1px solid var(--br)',color:'var(--t1)',resize:'none',outline:'none',fontFamily:'inherit',transition:'border-color .15s'}}
+                  onFocus={e=>e.target.style.borderColor='rgba(16,185,129,.5)'}
+                  onBlur={e=>e.target.style.borderColor='var(--br)'}/>
                 {chainLoading?(
-                  <button onClick={()=>{if(chainAbortRef.current)chainAbortRef.current.abort();setChainLoading(false);}} className="px-4 rounded-xl text-sm font-bold text-white flex items-center gap-2 flex-shrink-0" style={{background:'rgba(239,68,68,.15)',color:'#f87171',border:'1px solid rgba(239,68,68,.3)'}}>
+                  <button onClick={()=>{if(chainAbortRef.current)chainAbortRef.current.abort();setChainLoading(false);}}
+                    style={{padding:'0 18px',borderRadius:14,fontSize:13,fontWeight:700,background:'rgba(239,68,68,.12)',color:'#f87171',border:'1px solid rgba(239,68,68,.3)',cursor:'pointer',display:'flex',alignItems:'center',gap:8,flexShrink:0,whiteSpace:'nowrap'}}>
                     <i className="fa-solid fa-stop" style={{fontSize:10}}></i>Stop
                   </button>
                 ):(
@@ -4924,78 +4949,107 @@ Reply: ${botText.slice(0,800)}`,
                     const ctrl=new AbortController(); chainAbortRef.current=ctrl;
                     setChainLoading(true); setChainSteps([]);
                     try{
-                      const res=await fetch('/chat',{method:'POST',signal:ctrl.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({message:`Break down this problem into clear reasoning steps. Return JSON array: [{"step":1,"title":"...","detail":"...","type":"analyze|plan|execute|verify"}]
-
-Problem: ${chainInput}
-
-Respond ONLY with valid JSON array.`,system_prompt:'Logical reasoning assistant. Respond with valid JSON only.'})});
+                      const res=await fetch('/chat',{method:'POST',signal:ctrl.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({message:`Break this problem into clear reasoning steps. Return a JSON array ONLY with no extra text: [{"step":1,"title":"...","detail":"...","type":"analyze|plan|execute|verify|conclude","insight":"one key takeaway"}]\n\nProblem: ${chainInput}\n\nReturn ONLY valid JSON array, 4-7 steps.`,system_prompt:'You are a logical reasoning assistant. Respond ONLY with a valid JSON array.'})});
                       const data=await res.json();
                       const clean=(data.reply||'[]').replace(/```json|```/g,'').trim();
                       setChainSteps(JSON.parse(clean));
-                    }catch(e){if(e.name!=='AbortError')setChainSteps([{step:1,title:'Error',detail:'Could not parse. Try again.',type:'verify'}]);}
+                    }catch(e){if(e.name!=='AbortError')setChainSteps([{step:1,title:'Parse Error',detail:'Could not parse response. Try rephrasing.',type:'verify',insight:'Simplify the problem statement'}]);}
                     finally{setChainLoading(false);chainAbortRef.current=null;}
-                  }} disabled={!chainInput.trim()} className="px-5 rounded-xl text-sm font-bold text-white disabled:opacity-40 flex items-center gap-2 flex-shrink-0 transition-all" style={{background:chainInput.trim()?'linear-gradient(135deg,#10B981,#06B6D4)':'var(--bg3)',border:'none',cursor:chainInput.trim()?'pointer':'default'}}>
+                  }} disabled={!chainInput.trim()}
+                    style={{padding:'0 20px',borderRadius:14,fontSize:13,fontWeight:700,color:'#fff',background:chainInput.trim()?'linear-gradient(135deg,#10B981,#06B6D4)':'var(--bg2)',border:'none',cursor:chainInput.trim()?'pointer':'default',display:'flex',alignItems:'center',gap:8,flexShrink:0,opacity:chainInput.trim()?1:.5,transition:'all .15s',whiteSpace:'nowrap',boxShadow:chainInput.trim()?'0 4px 14px rgba(16,185,129,.35)':'none'}}
+                    onMouseEnter={e=>{if(chainInput.trim())e.currentTarget.style.transform='translateY(-1px)';}}
+                    onMouseLeave={e=>e.currentTarget.style.transform='translateY(0)'}>
                     <i className="fa-solid fa-play" style={{fontSize:10}}></i>Analyze
                   </button>
                 )}
               </div>
-              {/* Example chips */}
-              <div className="flex gap-2 mt-2 flex-wrap">
-                {['How to learn coding fast?','Plan a startup launch','Debug a production issue','Explain quantum computing'].map(ex=>(
-                  <button key={ex} onClick={()=>setChainInput(ex)} className="px-2.5 py-1 rounded-full text-[10px] border transition-all" style={{borderColor:'rgba(16,185,129,.25)',color:'#34d399',background:'rgba(16,185,129,.07)'}}>{ex}</button>
+              {/* Example prompts */}
+              <div style={{display:'flex',gap:6,marginTop:10,flexWrap:'wrap'}}>
+                <span style={{fontSize:10,color:'var(--t3)',alignSelf:'center',marginRight:2}}>Try:</span>
+                {['Design a scalable API','Plan a product launch','Debug a memory leak','Break down machine learning','How to negotiate a raise'].map(ex=>(
+                  <button key={ex} onClick={()=>setChainInput(ex)}
+                    style={{padding:'4px 10px',borderRadius:99,fontSize:10,fontWeight:600,border:'1px solid rgba(16,185,129,.25)',color:'#34d399',background:'rgba(16,185,129,.07)',cursor:'pointer',transition:'all .12s',whiteSpace:'nowrap'}}
+                    onMouseEnter={e=>e.currentTarget.style.background='rgba(16,185,129,.15)'}
+                    onMouseLeave={e=>e.currentTarget.style.background='rgba(16,185,129,.07)'}>{ex}</button>
                 ))}
               </div>
             </div>
 
-            {/* Steps */}
-            <div className="flex-1 overflow-y-auto px-5 pb-5" style={{scrollbarWidth:'thin'}}>
+            {/* ── Steps output ── */}
+            <div style={{flex:1,overflowY:'auto',padding:'20px',scrollbarWidth:'thin'}} className="sb">
               {chainLoading&&(
-                <div className="space-y-3">
-                  {[1,2,3,4].map(i=>(
-                    <div key={i} className="flex gap-3">
-                      <div className="w-8 h-8 rounded-full flex-shrink-0 animate-pulse" style={{background:'var(--bg3)'}}></div>
-                      <div className="flex-1 rounded-xl p-4 border animate-pulse" style={{borderColor:'var(--br)',background:'var(--bg3)'}}>
-                        <div className="h-2.5 rounded w-1/3 mb-2.5" style={{background:'var(--br)'}}></div>
-                        <div className="h-2 rounded w-full mb-1.5" style={{background:'var(--br)'}}></div>
-                        <div className="h-2 rounded w-4/5" style={{background:'var(--br)'}}></div>
+                <div style={{display:'flex',flexDirection:'column',gap:12}}>
+                  <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:4}}>
+                    <div style={{width:7,height:7,borderRadius:'50%',background:'#10B981',animation:'pulse 1s infinite'}}></div>
+                    <span style={{fontSize:12,color:'#34d399',fontWeight:600}}>AI is reasoning through your problem…</span>
+                  </div>
+                  {[1,2,3,4,5].map(i=>(
+                    <div key={i} style={{display:'flex',gap:12,animationDelay:`${i*.1}s`}}>
+                      <div style={{width:36,height:36,borderRadius:'50%',background:'var(--bg3)',flexShrink:0,animation:'pulse 1.2s infinite'}}></div>
+                      <div style={{flex:1,borderRadius:14,padding:16,border:'1px solid var(--br)',background:'var(--bg3)',animation:'pulse 1.2s infinite'}}>
+                        <div style={{height:10,borderRadius:6,width:'35%',background:'var(--br)',marginBottom:10}}></div>
+                        <div style={{height:8,borderRadius:4,width:'90%',background:'var(--br)',marginBottom:6}}></div>
+                        <div style={{height:8,borderRadius:4,width:'70%',background:'var(--br)'}}></div>
                       </div>
                     </div>
                   ))}
                 </div>
               )}
               {!chainLoading&&chainSteps.length>0&&(
-                <div className="relative">
-                  <div className="absolute left-4 top-4 bottom-4 w-px" style={{background:'linear-gradient(180deg,#10B981,#06B6D4,#8B5CF6)'}}></div>
-                  <div className="space-y-3">
-                    {chainSteps.map((s,i)=>{
-                      const T={analyze:{c:'#3B82F6',ic:'fa-magnifying-glass'},plan:{c:'#F59E0B',ic:'fa-map'},execute:{c:'#10B981',ic:'fa-bolt'},verify:{c:'#8B5CF6',ic:'fa-check-double'}}[s.type||'analyze']||{c:'#10B981',ic:'fa-circle'};
-                      return(
-                        <div key={i} className="flex gap-3">
-                          <div className="w-8 h-8 rounded-full border-2 flex items-center justify-center flex-shrink-0 z-10" style={{background:'var(--bg2)',borderColor:T.c,boxShadow:`0 0 12px ${T.c}30`}}>
-                            <i className={`fa-solid ${T.ic}`} style={{color:T.c,fontSize:9}}></i>
-                          </div>
-                          <div className="flex-1 rounded-xl p-4 border" style={{background:`${T.c}08`,borderColor:`${T.c}25`}}>
-                            <div className="flex items-center gap-2 mb-1.5">
-                              <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide" style={{background:`${T.c}20`,color:T.c}}>{s.type||'step'}</span>
-                              <span className="text-xs font-semibold" style={{color:'var(--t1)'}}>Step {s.step}: {s.title}</span>
-                            </div>
-                            <p className="text-sm leading-relaxed" style={{color:'var(--t2)'}}>{s.detail}</p>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  {chainSteps.length>0&&(
-                    <button onClick={()=>navigator.clipboard.writeText(chainSteps.map(s=>`Step ${s.step} [${s.type}]: ${s.title}\n${s.detail}`).join('\n\n')).then(()=>toast_('Copied!','success'))} className="mt-4 w-full py-2.5 rounded-xl text-sm font-medium border transition-all flex items-center justify-center gap-2 hover:bg-white/5" style={{borderColor:'rgba(16,185,129,.25)',color:'#34d399',background:'rgba(16,185,129,.07)'}}>
-                      <i className="fa-solid fa-copy" style={{fontSize:11}}></i>Copy All Steps
+                <div>
+                  <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
+                    <p style={{margin:0,fontSize:11,fontWeight:700,letterSpacing:'.08em',textTransform:'uppercase',color:'var(--t3)'}}>{chainSteps.length} reasoning steps</p>
+                    <button onClick={()=>navigator.clipboard.writeText(chainSteps.map(s=>`Step ${s.step} [${s.type}]: ${s.title}\n${s.detail}${s.insight?'\n→ Insight: '+s.insight:''}`).join('\n\n')).then(()=>toast_('Copied!','success'))}
+                      style={{display:'flex',alignItems:'center',gap:6,padding:'5px 12px',borderRadius:8,border:'1px solid rgba(16,185,129,.25)',color:'#34d399',background:'rgba(16,185,129,.07)',fontSize:11,fontWeight:600,cursor:'pointer',transition:'all .12s'}}
+                      onMouseEnter={e=>e.currentTarget.style.background='rgba(16,185,129,.15)'}
+                      onMouseLeave={e=>e.currentTarget.style.background='rgba(16,185,129,.07)'}>
+                      <i className="fa-solid fa-copy" style={{fontSize:10}}></i>Copy All
                     </button>
-                  )}
+                  </div>
+                  <div style={{position:'relative'}}>
+                    <div style={{position:'absolute',left:17,top:18,bottom:18,width:2,background:'linear-gradient(180deg,#10B981,#06B6D4,#8B5CF6,#EC4899)',borderRadius:2,opacity:.5}}></div>
+                    <div style={{display:'flex',flexDirection:'column',gap:10}}>
+                      {chainSteps.map((s,i)=>{
+                        const T={analyze:{c:'#3B82F6',ic:'fa-magnifying-glass',bg:'rgba(59,130,246,.08)',br:'rgba(59,130,246,.2)'},plan:{c:'#F59E0B',ic:'fa-map',bg:'rgba(245,158,11,.08)',br:'rgba(245,158,11,.2)'},execute:{c:'#10B981',ic:'fa-bolt',bg:'rgba(16,185,129,.08)',br:'rgba(16,185,129,.2)'},verify:{c:'#8B5CF6',ic:'fa-check-double',bg:'rgba(139,92,246,.08)',br:'rgba(139,92,246,.2)'},conclude:{c:'#EC4899',ic:'fa-flag-checkered',bg:'rgba(236,72,153,.08)',br:'rgba(236,72,153,.2)'}}[s.type||'analyze']||{c:'#10B981',ic:'fa-circle',bg:'rgba(16,185,129,.08)',br:'rgba(16,185,129,.2)'};
+                        return(
+                          <div key={i} style={{display:'flex',gap:14,animation:`fUp .3s ease ${i*.06}s both`}}>
+                            <div style={{width:36,height:36,borderRadius:'50%',border:`2px solid ${T.c}`,background:'var(--bg2)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,zIndex:1,boxShadow:`0 0 16px ${T.c}30`}}>
+                              <i className={`fa-solid ${T.ic}`} style={{color:T.c,fontSize:10}}></i>
+                            </div>
+                            <div style={{flex:1,borderRadius:16,padding:'14px 16px',background:T.bg,border:`1px solid ${T.br}`}}>
+                              <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
+                                <span style={{fontSize:9,fontWeight:800,padding:'3px 8px',borderRadius:99,background:`${T.c}20`,color:T.c,textTransform:'uppercase',letterSpacing:'.08em'}}>{s.type||'step'}</span>
+                                <span style={{fontSize:13,fontWeight:700,color:'var(--t1)'}}>Step {s.step}: {s.title}</span>
+                              </div>
+                              <p style={{margin:0,fontSize:13,lineHeight:1.65,color:'var(--t2)'}}>{s.detail}</p>
+                              {s.insight&&(
+                                <div style={{marginTop:10,display:'flex',alignItems:'flex-start',gap:8,padding:'8px 12px',borderRadius:10,background:'rgba(255,255,255,.04)',border:'1px solid rgba(255,255,255,.06)'}}>
+                                  <i className="fa-solid fa-lightbulb" style={{color:'#FBBF24',fontSize:10,marginTop:2,flexShrink:0}}></i>
+                                  <span style={{fontSize:11,color:'rgba(255,255,255,.5)',lineHeight:1.5}}><b style={{color:'#FBBF24',fontWeight:700}}>Insight:</b> {s.insight}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  {/* Use in chat button */}
+                  <button onClick={()=>{setChainInput('');setShowChainViewer(false);setTimeout(()=>{const el=document.querySelector('textarea');if(el){el.value=`Based on this reasoning:\n${chainSteps.map(s=>`${s.step}. ${s.title}`).join('\n')}\n\nNow help me implement this:`;el.dispatchEvent(new Event('input',{bubbles:true}));}},100);}}
+                    style={{width:'100%',marginTop:16,padding:'12px',borderRadius:14,background:'linear-gradient(135deg,rgba(16,185,129,.15),rgba(6,182,212,.1))',border:'1px solid rgba(16,185,129,.3)',color:'#34d399',fontSize:13,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8,transition:'all .15s'}}
+                    onMouseEnter={e=>e.currentTarget.style.background='linear-gradient(135deg,rgba(16,185,129,.25),rgba(6,182,212,.18))'}
+                    onMouseLeave={e=>e.currentTarget.style.background='linear-gradient(135deg,rgba(16,185,129,.15),rgba(6,182,212,.1))'}>
+                    <i className="fa-solid fa-paper-plane" style={{fontSize:11}}></i>Continue in Chat with this Reasoning
+                  </button>
                 </div>
               )}
               {!chainLoading&&chainSteps.length===0&&(
-                <div className="text-center py-12" style={{color:'var(--t3)'}}>
-                  <i className="fa-solid fa-brain text-4xl mb-3 block" style={{color:'rgba(16,185,129,.2)'}}></i>
-                  <p className="text-sm" style={{color:'var(--t2)'}}>Enter a problem to visualize reasoning</p>
+                <div style={{textAlign:'center',padding:'48px 0'}}>
+                  <div style={{width:64,height:64,borderRadius:20,background:'rgba(16,185,129,.08)',border:'1px solid rgba(16,185,129,.15)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px'}}>
+                    <i className="fa-solid fa-brain" style={{color:'rgba(16,185,129,.4)',fontSize:26}}></i>
+                  </div>
+                  <p style={{margin:0,fontSize:15,fontWeight:700,color:'var(--t2)'}}>Ready to reason</p>
+                  <p style={{margin:'6px 0 0',fontSize:12,color:'var(--t3)'}}>Enter any problem above and click Analyze</p>
                 </div>
               )}
             </div>
@@ -5005,29 +5059,53 @@ Respond ONLY with valid JSON array.`,system_prompt:'Logical reasoning assistant.
 
       {/* ═══ CONCEPT MAP ═══ */}
       {showConceptMap&&(
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.75)',backdropFilter:'blur(6px)'}} onClick={()=>setShowConceptMap(false)}>
-          <div className="w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col" style={{background:'var(--bg2)',border:'1px solid var(--br)',maxHeight:'92vh'}} onClick={e=>e.stopPropagation()}>
+        <div style={{position:'fixed',inset:0,zIndex:200,display:'flex',alignItems:'center',justifyContent:'center',padding:16,background:'rgba(0,0,0,.88)',backdropFilter:'blur(18px)'}} onClick={()=>setShowConceptMap(false)}>
+          <div style={{width:'100%',maxWidth:720,background:'var(--bg2)',border:'1px solid var(--br)',borderRadius:24,boxShadow:'0 32px 80px rgba(0,0,0,.6)',display:'flex',flexDirection:'column',maxHeight:'92vh',animation:'mIn .32s cubic-bezier(.16,1,.3,1)',overflow:'hidden'}} onClick={e=>e.stopPropagation()}>
 
-            {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b flex-shrink-0" style={{borderColor:'var(--br)'}}>
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{background:'rgba(139,92,246,.15)',border:'1px solid rgba(139,92,246,.25)'}}>
-                  <i className="fa-solid fa-diagram-project" style={{color:'#8b5cf6',fontSize:15}}></i>
+            {/* ── Hero Header ── */}
+            <div style={{background:'linear-gradient(135deg,#0e0820 0%,#1a0e38 50%,#0e0820 100%)',padding:'22px 22px 18px',flexShrink:0,position:'relative',overflow:'hidden'}}>
+              <div style={{position:'absolute',inset:0,background:'radial-gradient(ellipse at 70% 40%,rgba(139,92,246,.22) 0%,transparent 60%)',pointerEvents:'none'}}></div>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',position:'relative'}}>
+                <div style={{display:'flex',alignItems:'center',gap:14}}>
+                  <div style={{width:50,height:50,borderRadius:16,background:'linear-gradient(135deg,#8B5CF6,#EC4899)',boxShadow:'0 8px 24px rgba(139,92,246,.45)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                    <i className="fa-solid fa-diagram-project" style={{color:'#fff',fontSize:20}}></i>
+                  </div>
+                  <div>
+                    <p style={{margin:0,fontSize:11,fontWeight:700,letterSpacing:'.12em',textTransform:'uppercase',color:'rgba(139,92,246,.7)'}}>Knowledge Mapper</p>
+                    <p style={{margin:'2px 0 0',fontSize:20,fontWeight:800,color:'#fff',lineHeight:1.1}}>Concept Map</p>
+                    <p style={{margin:'4px 0 0',fontSize:11,color:'rgba(255,255,255,.35)'}}>AI-generated visual knowledge structures</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-bold text-sm" style={{color:'var(--t1)'}}>Concept Map</p>
-                  <p className="text-[10px]" style={{color:'var(--t3)'}}>Visualize ideas and their connections</p>
+                <div style={{display:'flex',gap:8,alignItems:'center'}}>
+                  {conceptData&&(
+                    <button onClick={()=>{setConceptData(null);setConceptTopic('');}}
+                      style={{padding:'6px 12px',borderRadius:9,border:'1px solid rgba(255,255,255,.12)',background:'rgba(255,255,255,.06)',color:'rgba(255,255,255,.55)',fontSize:11,fontWeight:600,cursor:'pointer',display:'flex',alignItems:'center',gap:6,transition:'all .15s'}}
+                      onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,.12)'}
+                      onMouseLeave={e=>e.currentTarget.style.background='rgba(255,255,255,.06)'}>
+                      <i className="fa-solid fa-plus" style={{fontSize:9}}></i>New Map
+                    </button>
+                  )}
+                  <button onClick={()=>setShowConceptMap(false)} style={{width:32,height:32,borderRadius:10,border:'1px solid rgba(255,255,255,.12)',background:'rgba(255,255,255,.06)',color:'rgba(255,255,255,.5)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,transition:'all .15s'}}
+                    onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,.12)'}
+                    onMouseLeave={e=>e.currentTarget.style.background='rgba(255,255,255,.06)'}>
+                    <i className="fa-solid fa-xmark" style={{fontSize:12}}></i>
+                  </button>
                 </div>
               </div>
-              <button onClick={()=>setShowConceptMap(false)} className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/10 transition-all" style={{color:'var(--t2)',border:'none',background:'transparent'}}><i className="fa-solid fa-xmark"></i></button>
             </div>
 
-            {/* Input */}
-            <div className="px-5 pt-4 pb-3 flex-shrink-0">
-              <div className="flex gap-2">
-                <input value={conceptTopic} onChange={e=>setConceptTopic(e.target.value)} onKeyDown={e=>e.key==='Enter'&&conceptTopic.trim()&&!conceptLoading&&document.getElementById('concept-gen-btn').click()} placeholder="Enter a topic... e.g. Machine Learning, React, Blockchain" className="flex-1 rounded-xl px-4 py-3 text-sm outline-none border transition-all" style={{background:'var(--bg3)',borderColor:'var(--br)',color:'var(--t1)'}} onFocus={e=>e.target.style.borderColor='rgba(139,92,246,.4)'} onBlur={e=>e.target.style.borderColor='var(--br)'}/>
+            {/* ── Input ── */}
+            <div style={{padding:'14px 20px 12px',flexShrink:0,borderBottom:'1px solid var(--br)',background:'var(--bg3)'}}>
+              <div style={{display:'flex',gap:10}}>
+                <input value={conceptTopic} onChange={e=>setConceptTopic(e.target.value)}
+                  onKeyDown={e=>e.key==='Enter'&&conceptTopic.trim()&&!conceptLoading&&document.getElementById('concept-gen-btn').click()}
+                  placeholder="Enter any topic... e.g. Machine Learning, React, Climate Change"
+                  style={{flex:1,borderRadius:12,padding:'10px 14px',fontSize:13,background:'var(--bg2)',border:'1px solid var(--br)',color:'var(--t1)',outline:'none',fontFamily:'inherit',transition:'border-color .15s'}}
+                  onFocus={e=>e.target.style.borderColor='rgba(139,92,246,.5)'}
+                  onBlur={e=>e.target.style.borderColor='var(--br)'}/>
                 {conceptLoading?(
-                  <button onClick={()=>{if(conceptAbortRef.current)conceptAbortRef.current.abort();setConceptLoading(false);}} className="px-4 rounded-xl text-sm font-bold flex items-center gap-2 flex-shrink-0" style={{background:'rgba(239,68,68,.15)',color:'#f87171',border:'1px solid rgba(239,68,68,.3)'}}>
+                  <button onClick={()=>{if(conceptAbortRef.current)conceptAbortRef.current.abort();setConceptLoading(false);}}
+                    style={{padding:'0 16px',borderRadius:12,fontSize:13,fontWeight:700,background:'rgba(239,68,68,.12)',color:'#f87171',border:'1px solid rgba(239,68,68,.3)',cursor:'pointer',flexShrink:0,display:'flex',alignItems:'center',gap:7,whiteSpace:'nowrap'}}>
                     <i className="fa-solid fa-stop" style={{fontSize:10}}></i>Stop
                   </button>
                 ):(
@@ -5036,73 +5114,117 @@ Respond ONLY with valid JSON array.`,system_prompt:'Logical reasoning assistant.
                     const ctrl=new AbortController(); conceptAbortRef.current=ctrl;
                     setConceptLoading(true); setConceptData(null);
                     try{
-                      const res=await fetch('/chat',{method:'POST',signal:ctrl.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({message:`Create a concept map for "${conceptTopic}". Return JSON: {"center":"${conceptTopic}","branches":[{"label":"Branch Name","color":"#hexcolor","nodes":["concept1","concept2","concept3"]}]} with 5-6 branches, 3-5 nodes each. Varied colors. ONLY valid JSON.`,system_prompt:'Knowledge mapping assistant. Respond with valid JSON only.'})});
+                      const res=await fetch('/chat',{method:'POST',signal:ctrl.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({message:`Create a detailed concept map for "${conceptTopic}". Return ONLY valid JSON (no markdown): {"center":"${conceptTopic}","summary":"one sentence description","branches":[{"label":"Branch Name","color":"#hexcolor","icon":"fa-icon-name","nodes":[{"name":"concept","desc":"brief description"}]}]} with 5-7 branches, 3-5 nodes each. Use different colors per branch.`,system_prompt:'Knowledge mapping expert. Respond ONLY with valid JSON.'})});
                       const data=await res.json();
                       const clean=(data.reply||'{}').replace(/```json|```/g,'').trim();
                       setConceptData(JSON.parse(clean));
-                    }catch(e){if(e.name!=='AbortError')setConceptData({center:conceptTopic,branches:[{label:'Error',color:'#EF4444',nodes:['Try again','Simplify topic']}]});}
+                    }catch(e){if(e.name!=='AbortError')setConceptData({center:conceptTopic,summary:'Concept map for '+conceptTopic,branches:[{label:'Error',color:'#EF4444',icon:'fa-circle-exclamation',nodes:[{name:'Try again',desc:'Simplify your topic'}]}]});}
                     finally{setConceptLoading(false);conceptAbortRef.current=null;}
-                  }} disabled={!conceptTopic.trim()} className="px-5 rounded-xl text-sm font-bold text-white disabled:opacity-40 flex items-center gap-2 flex-shrink-0 transition-all" style={{background:conceptTopic.trim()?'linear-gradient(135deg,#8B5CF6,#EC4899)':'var(--bg3)',border:'none',cursor:conceptTopic.trim()?'pointer':'default'}}>
-                    <i className="fa-solid fa-diagram-project" style={{fontSize:10}}></i>Generate
+                  }} disabled={!conceptTopic.trim()}
+                    style={{padding:'0 18px',borderRadius:12,fontSize:13,fontWeight:700,color:'#fff',background:conceptTopic.trim()?'linear-gradient(135deg,#8B5CF6,#EC4899)':'var(--bg2)',border:'none',cursor:conceptTopic.trim()?'pointer':'default',display:'flex',alignItems:'center',gap:7,flexShrink:0,opacity:conceptTopic.trim()?1:.5,transition:'all .15s',boxShadow:conceptTopic.trim()?'0 4px 14px rgba(139,92,246,.35)':'none',whiteSpace:'nowrap'}}
+                    onMouseEnter={e=>{if(conceptTopic.trim())e.currentTarget.style.transform='translateY(-1px)';}}
+                    onMouseLeave={e=>e.currentTarget.style.transform='translateY(0)'}>
+                    <i className="fa-solid fa-wand-magic-sparkles" style={{fontSize:11}}></i>Generate
                   </button>
                 )}
               </div>
-              <div className="flex gap-2 mt-2 flex-wrap">
-                {['Machine Learning','React Hooks','Blockchain','Human Brain','Solar System','Climate Change'].map(ex=>(
-                  <button key={ex} onClick={()=>setConceptTopic(ex)} className="px-2.5 py-1 rounded-full text-[10px] border transition-all" style={{borderColor:'rgba(139,92,246,.25)',color:'#a78bfa',background:'rgba(139,92,246,.07)'}}>{ex}</button>
+              <div style={{display:'flex',gap:6,marginTop:10,flexWrap:'wrap'}}>
+                <span style={{fontSize:10,color:'var(--t3)',alignSelf:'center',marginRight:2}}>Topics:</span>
+                {['Machine Learning','React Hooks','Blockchain','Human Brain','Solar System','Climate Change','Entrepreneurship','Quantum Physics'].map(ex=>(
+                  <button key={ex} onClick={()=>setConceptTopic(ex)}
+                    style={{padding:'4px 10px',borderRadius:99,fontSize:10,fontWeight:600,border:'1px solid rgba(139,92,246,.25)',color:'#a78bfa',background:'rgba(139,92,246,.07)',cursor:'pointer',transition:'all .12s',whiteSpace:'nowrap'}}
+                    onMouseEnter={e=>e.currentTarget.style.background='rgba(139,92,246,.15)'}
+                    onMouseLeave={e=>e.currentTarget.style.background='rgba(139,92,246,.07)'}>{ex}</button>
                 ))}
               </div>
             </div>
 
-            {/* Map */}
-            <div className="flex-1 overflow-y-auto px-5 pb-5" style={{scrollbarWidth:'thin'}}>
+            {/* ── Map output ── */}
+            <div style={{flex:1,overflowY:'auto',padding:'20px',scrollbarWidth:'thin'}} className="sb">
               {conceptLoading&&(
-                <div className="space-y-3">
-                  <div className="flex justify-center mb-4"><div className="h-9 w-40 rounded-2xl animate-pulse" style={{background:'var(--bg3)'}}></div></div>
-                  {[1,2,3].map(i=>(
-                    <div key={i} className="rounded-xl border p-3 animate-pulse" style={{borderColor:'var(--br)',background:'var(--bg3)'}}>
-                      <div className="h-2.5 rounded w-1/4 mb-2" style={{background:'var(--br)'}}></div>
-                      <div className="flex gap-2">{[1,2,3].map(j=><div key={j} className="h-7 flex-1 rounded-lg" style={{background:'var(--br)'}}></div>)}</div>
-                    </div>
-                  ))}
+                <div>
+                  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:16}}>
+                    <div style={{width:7,height:7,borderRadius:'50%',background:'#8B5CF6',animation:'pulse 1s infinite'}}></div>
+                    <span style={{fontSize:12,color:'#a78bfa',fontWeight:600}}>Building your concept map…</span>
+                  </div>
+                  <div style={{display:'flex',justifyContent:'center',marginBottom:20}}>
+                    <div style={{height:36,width:160,borderRadius:20,background:'var(--bg3)',animation:'pulse 1.2s infinite'}}></div>
+                  </div>
+                  <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:12}}>
+                    {[1,2,3,4,5,6].map(i=>(
+                      <div key={i} style={{borderRadius:16,border:'1px solid var(--br)',background:'var(--bg3)',padding:14,animation:'pulse 1.2s infinite',animationDelay:`${i*.08}s`}}>
+                        <div style={{height:10,borderRadius:5,width:'50%',background:'var(--br)',marginBottom:10}}></div>
+                        <div style={{display:'flex',flexDirection:'column',gap:6}}>{[1,2,3].map(j=><div key={j} style={{height:28,borderRadius:8,background:'var(--br)'}}></div>)}</div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
               {!conceptLoading&&conceptData&&(
                 <div>
                   {/* Center node */}
-                  <div className="flex justify-center mb-5">
-                    <div className="px-6 py-2.5 rounded-2xl font-bold text-white text-sm shadow-lg" style={{background:'linear-gradient(135deg,#8B5CF6,#EC4899)',boxShadow:'0 4px 20px rgba(139,92,246,.35)'}}>
-                      <i className="fa-solid fa-circle-dot mr-2" style={{fontSize:10}}></i>{conceptData.center}
+                  <div style={{display:'flex',flexDirection:'column',alignItems:'center',marginBottom:20}}>
+                    <div style={{padding:'10px 24px',borderRadius:99,fontWeight:800,fontSize:16,color:'#fff',background:'linear-gradient(135deg,#8B5CF6,#EC4899)',boxShadow:'0 6px 24px rgba(139,92,246,.4)',display:'flex',alignItems:'center',gap:10}}>
+                      <i className="fa-solid fa-circle-dot" style={{fontSize:12,opacity:.8}}></i>{conceptData.center}
                     </div>
+                    {conceptData.summary&&<p style={{margin:'10px 0 0',fontSize:12,color:'var(--t3)',textAlign:'center',maxWidth:400}}>{conceptData.summary}</p>}
                   </div>
-                  {/* Branches */}
-                  <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(195px,1fr))',gap:12}}>
+                  {/* Branch grid */}
+                  <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:12,marginBottom:16}}>
                     {(conceptData.branches||[]).map((branch,bi)=>(
-                      <div key={bi} className="rounded-xl border overflow-hidden" style={{borderColor:`${branch.color}35`,background:`${branch.color}07`}}>
-                        <div className="px-3 py-2 flex items-center gap-2" style={{background:`${branch.color}15`,borderBottom:`1px solid ${branch.color}25`}}>
-                          <div className="w-2 h-2 rounded-full flex-shrink-0" style={{background:branch.color}}></div>
-                          <span className="text-xs font-bold" style={{color:branch.color}}>{branch.label}</span>
+                      <div key={bi} style={{borderRadius:16,border:`1px solid ${branch.color}35`,background:`${branch.color}06`,overflow:'hidden',transition:'all .15s'}}
+                        onMouseEnter={e=>{e.currentTarget.style.borderColor=branch.color+'60';e.currentTarget.style.boxShadow=`0 6px 20px ${branch.color}18`;}}
+                        onMouseLeave={e=>{e.currentTarget.style.borderColor=branch.color+'35';e.currentTarget.style.boxShadow='none';}}>
+                        <div style={{padding:'10px 14px',background:`${branch.color}14`,borderBottom:`1px solid ${branch.color}25`,display:'flex',alignItems:'center',gap:8}}>
+                          <div style={{width:26,height:26,borderRadius:8,background:branch.color+'25',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                            <i className={`fa-solid ${branch.icon||'fa-circle-dot'}`} style={{color:branch.color,fontSize:11}}></i>
+                          </div>
+                          <span style={{fontSize:12,fontWeight:800,color:branch.color}}>{branch.label}</span>
                         </div>
-                        <div className="p-2 space-y-1">
-                          {(branch.nodes||[]).map((node,ni)=>(
-                            <div key={ni} className="flex items-center gap-2 px-2 py-1.5 rounded-lg" style={{background:'var(--bg3)'}}>
-                              <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{background:`${branch.color}80`}}></div>
-                              <span className="text-xs" style={{color:'var(--t1)'}}>{node}</span>
-                            </div>
-                          ))}
+                        <div style={{padding:'10px 12px',display:'flex',flexDirection:'column',gap:6}}>
+                          {(branch.nodes||[]).map((node,ni)=>{
+                            const nm = typeof node==='string'?node:node.name;
+                            const desc = typeof node==='object'?node.desc:null;
+                            return(
+                              <div key={ni} style={{display:'flex',alignItems:'flex-start',gap:8,padding:'7px 10px',borderRadius:10,background:'var(--bg3)',cursor:'default',transition:'background .12s'}}
+                                onMouseEnter={e=>e.currentTarget.style.background=branch.color+'0f'}
+                                onMouseLeave={e=>e.currentTarget.style.background='var(--bg3)'}>
+                                <div style={{width:6,height:6,borderRadius:'50%',background:branch.color,flexShrink:0,marginTop:5}}></div>
+                                <div>
+                                  <p style={{margin:0,fontSize:12,fontWeight:600,color:'var(--t1)',lineHeight:1.3}}>{nm}</p>
+                                  {desc&&<p style={{margin:'3px 0 0',fontSize:10,color:'var(--t3)',lineHeight:1.4}}>{desc}</p>}
+                                </div>
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
                     ))}
                   </div>
-                  <button onClick={()=>{var _b=(conceptData.branches||[]);var txt='# '+conceptData.center+'\n\n'+_b.map(function(br){return '## '+br.label+'\n'+(br.nodes||[]).map(function(nd){return '- '+nd;}).join('\n');}).join('\n\n');navigator.clipboard.writeText(txt).then(function(){toast_('Copied!','success');});}} className="mt-4 w-full py-2.5 rounded-xl text-sm font-medium border transition-all flex items-center justify-center gap-2 hover:bg-white/5" style={{borderColor:'rgba(139,92,246,.25)',color:'#a78bfa',background:'rgba(139,92,246,.07)'}}>
-                    <i className="fa-solid fa-copy" style={{fontSize:11}}></i>Copy as Markdown
-                  </button>
+                  {/* Action buttons */}
+                  <div style={{display:'flex',gap:10}}>
+                    <button onClick={()=>{const txt='# '+conceptData.center+'\n'+(conceptData.summary?conceptData.summary+'\n':'')+'\n'+(conceptData.branches||[]).map(br=>'## '+br.label+'\n'+(br.nodes||[]).map(nd=>typeof nd==='string'?'- '+nd:'- **'+nd.name+'**: '+nd.desc).join('\n')).join('\n\n');navigator.clipboard.writeText(txt).then(()=>toast_('Copied!','success'));}}
+                      style={{flex:1,padding:'11px',borderRadius:12,border:'1px solid rgba(139,92,246,.3)',color:'#a78bfa',background:'rgba(139,92,246,.08)',fontSize:13,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:7,transition:'all .15s'}}
+                      onMouseEnter={e=>e.currentTarget.style.background='rgba(139,92,246,.16)'}
+                      onMouseLeave={e=>e.currentTarget.style.background='rgba(139,92,246,.08)'}>
+                      <i className="fa-solid fa-copy" style={{fontSize:11}}></i>Copy as Markdown
+                    </button>
+                    <button onClick={()=>{setShowConceptMap(false);setTimeout(()=>{const el=document.querySelector('textarea');if(el){el.value='Explain each branch of this concept map in detail:\n\n'+conceptData.center+'\n\nBranches: '+(conceptData.branches||[]).map(b=>b.label).join(', ');el.dispatchEvent(new Event('input',{bubbles:true}));}},100);}}
+                      style={{flex:1,padding:'11px',borderRadius:12,border:'1px solid rgba(236,72,153,.3)',color:'#f472b6',background:'rgba(236,72,153,.08)',fontSize:13,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:7,transition:'all .15s'}}
+                      onMouseEnter={e=>e.currentTarget.style.background='rgba(236,72,153,.16)'}
+                      onMouseLeave={e=>e.currentTarget.style.background='rgba(236,72,153,.08)'}>
+                      <i className="fa-solid fa-expand" style={{fontSize:11}}></i>Deep Dive in Chat
+                    </button>
+                  </div>
                 </div>
               )}
               {!conceptLoading&&!conceptData&&(
-                <div className="text-center py-12" style={{color:'var(--t3)'}}>
-                  <i className="fa-solid fa-diagram-project text-4xl mb-3 block" style={{color:'rgba(139,92,246,.2)'}}></i>
-                  <p className="text-sm" style={{color:'var(--t2)'}}>Enter any topic to generate a concept map</p>
+                <div style={{textAlign:'center',padding:'48px 0'}}>
+                  <div style={{width:64,height:64,borderRadius:20,background:'rgba(139,92,246,.08)',border:'1px solid rgba(139,92,246,.15)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px'}}>
+                    <i className="fa-solid fa-diagram-project" style={{color:'rgba(139,92,246,.4)',fontSize:26}}></i>
+                  </div>
+                  <p style={{margin:0,fontSize:15,fontWeight:700,color:'var(--t2)'}}>Map any knowledge</p>
+                  <p style={{margin:'6px 0 0',fontSize:12,color:'var(--t3)'}}>Enter a topic and watch it become a structured visual map</p>
                 </div>
               )}
             </div>
@@ -5112,32 +5234,48 @@ Respond ONLY with valid JSON array.`,system_prompt:'Logical reasoning assistant.
 
       {/* ═══ STORY GENERATOR ═══ */}
       {showStoryGen&&(
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.75)',backdropFilter:'blur(6px)'}} onClick={()=>setShowStoryGen(false)}>
-          <div className="w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col" style={{background:'var(--bg2)',border:'1px solid var(--br)',maxHeight:'92vh'}} onClick={e=>e.stopPropagation()}>
+        <div style={{position:'fixed',inset:0,zIndex:200,display:'flex',alignItems:'center',justifyContent:'center',padding:16,background:'rgba(0,0,0,.88)',backdropFilter:'blur(18px)'}} onClick={()=>setShowStoryGen(false)}>
+          <div style={{width:'100%',maxWidth:680,background:'var(--bg2)',border:'1px solid var(--br)',borderRadius:24,boxShadow:'0 32px 80px rgba(0,0,0,.6)',display:'flex',flexDirection:'column',maxHeight:'92vh',animation:'mIn .32s cubic-bezier(.16,1,.3,1)',overflow:'hidden'}} onClick={e=>e.stopPropagation()}>
 
-            {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b flex-shrink-0" style={{borderColor:'var(--br)'}}>
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{background:'rgba(245,158,11,.15)',border:'1px solid rgba(245,158,11,.25)'}}>
-                  <i className="fa-solid fa-book-open" style={{color:'#f59e0b',fontSize:15}}></i>
+            {/* ── Hero Header ── */}
+            <div style={{background:'linear-gradient(135deg,#150a00 0%,#2a1400 50%,#150a00 100%)',padding:'22px 22px 18px',flexShrink:0,position:'relative',overflow:'hidden'}}>
+              <div style={{position:'absolute',inset:0,background:'radial-gradient(ellipse at 40% 60%,rgba(245,158,11,.2) 0%,transparent 60%)',pointerEvents:'none'}}></div>
+              <div style={{position:'absolute',right:16,top:8,opacity:.05,fontSize:80,lineHeight:1}}>✍</div>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',position:'relative'}}>
+                <div style={{display:'flex',alignItems:'center',gap:14}}>
+                  <div style={{width:50,height:50,borderRadius:16,background:'linear-gradient(135deg,#F59E0B,#EF4444)',boxShadow:'0 8px 24px rgba(245,158,11,.4)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                    <i className="fa-solid fa-feather-pointed" style={{color:'#fff',fontSize:20}}></i>
+                  </div>
+                  <div>
+                    <p style={{margin:0,fontSize:11,fontWeight:700,letterSpacing:'.12em',textTransform:'uppercase',color:'rgba(245,158,11,.7)'}}>Creative Writing</p>
+                    <p style={{margin:'2px 0 0',fontSize:20,fontWeight:800,color:'#fff',lineHeight:1.1}}>Story Generator</p>
+                    <p style={{margin:'4px 0 0',fontSize:11,color:'rgba(255,255,255,.35)'}}>AI-crafted original stories with your settings</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-bold text-sm" style={{color:'var(--t1)'}}>Story Generator</p>
-                  <p className="text-[10px]" style={{color:'var(--t3)'}}>Create original AI-written stories</p>
+                <div style={{display:'flex',gap:8,alignItems:'center'}}>
+                  {storyResult&&(
+                    <button onClick={()=>{setStoryResult('');setStoryStep(0);}}
+                      style={{padding:'6px 12px',borderRadius:9,border:'1px solid rgba(255,255,255,.12)',background:'rgba(255,255,255,.06)',color:'rgba(255,255,255,.55)',fontSize:11,fontWeight:600,cursor:'pointer',display:'flex',alignItems:'center',gap:6,transition:'all .15s'}}
+                      onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,.12)'}
+                      onMouseLeave={e=>e.currentTarget.style.background='rgba(255,255,255,.06)'}>
+                      <i className="fa-solid fa-plus" style={{fontSize:9}}></i>New Story
+                    </button>
+                  )}
+                  <button onClick={()=>setShowStoryGen(false)} style={{width:32,height:32,borderRadius:10,border:'1px solid rgba(255,255,255,.12)',background:'rgba(255,255,255,.06)',color:'rgba(255,255,255,.5)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,transition:'all .15s'}}
+                    onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,.12)'}
+                    onMouseLeave={e=>e.currentTarget.style.background='rgba(255,255,255,.06)'}>
+                    <i className="fa-solid fa-xmark" style={{fontSize:12}}></i>
+                  </button>
                 </div>
-              </div>
-              <div className="flex items-center gap-2">
-                {storyResult&&<button onClick={()=>{setStoryResult('');setStoryStep(0);}} className="text-[11px] px-3 py-1.5 rounded-lg border transition-all hover:bg-white/5" style={{borderColor:'var(--br)',color:'var(--t2)'}}>New Story</button>}
-                <button onClick={()=>setShowStoryGen(false)} className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/10 transition-all" style={{color:'var(--t2)',border:'none',background:'transparent'}}><i className="fa-solid fa-xmark"></i></button>
               </div>
             </div>
 
             {!storyResult?(
-            <div className="flex-1 overflow-y-auto p-5 space-y-5" style={{scrollbarWidth:'thin'}}>
+            <div style={{flex:1,overflowY:'auto',padding:'20px',scrollbarWidth:'thin'}} className="sb">
 
-              {/* Genre */}
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{color:'var(--t3)'}}>Genre</p>
+              {/* ── Genre grid ── */}
+              <div style={{marginBottom:18}}>
+                <p style={{margin:'0 0 10px',fontSize:10,fontWeight:700,letterSpacing:'.1em',textTransform:'uppercase',color:'var(--t3)'}}>Genre</p>
                 <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8}}>
                   {[
                     {id:'fantasy',label:'Fantasy',icon:'fa-wand-sparkles',color:'#8B5CF6'},
@@ -5148,92 +5286,164 @@ Respond ONLY with valid JSON array.`,system_prompt:'Logical reasoning assistant.
                     {id:'adventure',label:'Adventure',icon:'fa-compass',color:'#10B981'},
                     {id:'comedy',label:'Comedy',icon:'fa-face-laugh',color:'#F97316'},
                     {id:'thriller',label:'Thriller',icon:'fa-bolt',color:'#06B6D4'},
+                    {id:'historical',label:'Historical',icon:'fa-landmark',color:'#D97706'},
+                    {id:'dystopia',label:'Dystopia',icon:'fa-city',color:'#64748B'},
+                    {id:'mythology',label:'Myth',icon:'fa-fire-flame-curved',color:'#DC2626'},
+                    {id:'cyberpunk',label:'Cyberpunk',icon:'fa-microchip',color:'#A855F7'},
                   ].map(g=>(
-                    <button key={g.id} onClick={()=>setStoryConfig(c=>({...c,genre:g.id}))} className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl border transition-all" style={{background:storyConfig.genre===g.id?`${g.color}15`:'var(--bg3)',borderColor:storyConfig.genre===g.id?`${g.color}55`:'var(--br)'}}>
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{background:storyConfig.genre===g.id?`${g.color}22`:'var(--bg2)'}}>
+                    <button key={g.id} onClick={()=>setStoryConfig(c=>({...c,genre:g.id}))}
+                      style={{display:'flex',flexDirection:'column',alignItems:'center',gap:5,padding:'10px 4px',borderRadius:12,border:`1px solid ${storyConfig.genre===g.id?g.color+'55':'var(--br)'}`,background:storyConfig.genre===g.id?`${g.color}14`:'var(--bg3)',cursor:'pointer',transition:'all .15s'}}
+                      onMouseEnter={e=>{if(storyConfig.genre!==g.id){e.currentTarget.style.borderColor=g.color+'33';e.currentTarget.style.background=g.color+'08';}}}
+                      onMouseLeave={e=>{if(storyConfig.genre!==g.id){e.currentTarget.style.borderColor='var(--br)';e.currentTarget.style.background='var(--bg3)';}}}> 
+                      <div style={{width:28,height:28,borderRadius:9,background:storyConfig.genre===g.id?`${g.color}28`:'var(--bg2)',display:'flex',alignItems:'center',justifyContent:'center',transition:'all .15s'}}>
                         <i className={`fa-solid ${g.icon}`} style={{color:storyConfig.genre===g.id?g.color:'var(--t3)',fontSize:11}}></i>
                       </div>
-                      <span className="text-[9px] font-bold" style={{color:storyConfig.genre===g.id?g.color:'var(--t3)'}}>{g.label}</span>
+                      <span style={{fontSize:9,fontWeight:700,color:storyConfig.genre===g.id?g.color:'var(--t3)',textTransform:'uppercase',letterSpacing:'.04em'}}>{g.label}</span>
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Length + Mood */}
-              <div className="grid grid-cols-2 gap-4">
+              {/* ── Length + Mood row ── */}
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14,marginBottom:18}}>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{color:'var(--t3)'}}>Length</p>
-                  <div className="flex gap-2">
-                    {[['short','~200w'],['medium','~500w'],['long','~800w']].map(([v,l])=>(
-                      <button key={v} onClick={()=>setStoryConfig(c=>({...c,length:v}))} className="flex-1 py-2 rounded-xl text-[10px] font-bold border capitalize transition-all" style={{background:storyConfig.length===v?'rgba(245,158,11,.15)':'var(--bg3)',borderColor:storyConfig.length===v?'rgba(245,158,11,.45)':'var(--br)',color:storyConfig.length===v?'#F59E0B':'var(--t3)'}}>{v}<br/><span style={{fontWeight:400,opacity:.7}}>{l}</span></button>
+                  <p style={{margin:'0 0 8px',fontSize:10,fontWeight:700,letterSpacing:'.1em',textTransform:'uppercase',color:'var(--t3)'}}>Length</p>
+                  <div style={{display:'flex',gap:6}}>
+                    {[['short','Flash','~200w'],['medium','Short','~500w'],['long','Full','~800w'],['epic','Epic','~1200w']].map(([v,lbl,wc])=>(
+                      <button key={v} onClick={()=>setStoryConfig(c=>({...c,length:v}))}
+                        style={{flex:1,padding:'8px 4px',borderRadius:10,fontSize:10,fontWeight:700,border:`1px solid ${storyConfig.length===v?'rgba(245,158,11,.5)':'var(--br)'}`,background:storyConfig.length===v?'rgba(245,158,11,.15)':'var(--bg3)',color:storyConfig.length===v?'#F59E0B':'var(--t3)',cursor:'pointer',transition:'all .15s',textAlign:'center'}}>
+                        {lbl}<br/><span style={{fontSize:8,opacity:.7,fontWeight:400}}>{wc}</span>
+                      </button>
                     ))}
                   </div>
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{color:'var(--t3)'}}>Mood</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {[['adventurous','⚔️'],['dark','🌑'],['hopeful','🌅'],['funny','😄'],['mysterious','🌫️']].map(([v,e])=>(
-                      <button key={v} onClick={()=>setStoryConfig(c=>({...c,mood:v}))} className="px-2 py-1.5 rounded-lg text-[10px] font-semibold border capitalize transition-all" style={{background:storyConfig.mood===v?'rgba(59,130,246,.15)':'var(--bg3)',borderColor:storyConfig.mood===v?'rgba(59,130,246,.4)':'var(--br)',color:storyConfig.mood===v?'#60a5fa':'var(--t3)'}}>{e} {v}</button>
+                  <p style={{margin:'0 0 8px',fontSize:10,fontWeight:700,letterSpacing:'.1em',textTransform:'uppercase',color:'var(--t3)'}}>Point of View</p>
+                  <div style={{display:'flex',gap:6}}>
+                    {[['first','1st Person'],['third','3rd Person'],['second','2nd Person']].map(([v,lbl])=>(
+                      <button key={v} onClick={()=>setStoryConfig(c=>({...c,pov:v}))}
+                        style={{flex:1,padding:'8px 4px',borderRadius:10,fontSize:10,fontWeight:700,border:`1px solid ${storyConfig.pov===v?'rgba(59,130,246,.5)':'var(--br)'}`,background:storyConfig.pov===v?'rgba(59,130,246,.15)':'var(--bg3)',color:storyConfig.pov===v?'#60a5fa':'var(--t3)',cursor:'pointer',transition:'all .15s',textAlign:'center',lineHeight:1.3}}>
+                        {lbl}
+                      </button>
                     ))}
                   </div>
                 </div>
               </div>
 
-              {/* Inputs */}
-              <div className="space-y-3">
+              {/* ── Mood row ── */}
+              <div style={{marginBottom:18}}>
+                <p style={{margin:'0 0 8px',fontSize:10,fontWeight:700,letterSpacing:'.1em',textTransform:'uppercase',color:'var(--t3)'}}>Mood & Tone</p>
+                <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+                  {[['adventurous','⚔️','#10B981'],['dark','🌑','#6B7280'],['hopeful','🌅','#F59E0B'],['funny','😄','#F97316'],['mysterious','🌫️','#8B5CF6'],['romantic','💗','#EC4899'],['tense','⚡','#EF4444'],['philosophical','🌀','#06B6D4']].map(([v,e,col])=>(
+                    <button key={v} onClick={()=>setStoryConfig(c=>({...c,mood:v}))}
+                      style={{padding:'5px 12px',borderRadius:99,fontSize:11,fontWeight:600,border:`1px solid ${storyConfig.mood===v?col+'55':'var(--br)'}`,background:storyConfig.mood===v?col+'15':'var(--bg3)',color:storyConfig.mood===v?col:'var(--t3)',cursor:'pointer',transition:'all .15s',display:'flex',alignItems:'center',gap:5}}>
+                      {e}<span style={{textTransform:'capitalize'}}>{v}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* ── Custom inputs ── */}
+              <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:20}}>
+                <p style={{margin:0,fontSize:10,fontWeight:700,letterSpacing:'.1em',textTransform:'uppercase',color:'var(--t3)'}}>Story Details <span style={{fontWeight:400,opacity:.5,textTransform:'none',letterSpacing:'normal'}}>(optional)</span></p>
                 {[
-                  ['char','Main Character','e.g. A lonely astronaut, A teenage wizard'],
-                  ['setting','Setting','e.g. Post-apocalyptic Earth, Ancient Japan'],
-                  ['twist','Plot Twist','e.g. The hero was the villain all along'],
-                ].map(([key,label,ph])=>(
-                  <div key={key}>
-                    <p className="text-[10px] font-bold uppercase tracking-widest mb-1.5 flex items-center gap-2" style={{color:'var(--t3)'}}>{label} <span className="font-normal normal-case tracking-normal opacity-50">optional</span></p>
-                    <input value={storyConfig[key]||''} onChange={e=>setStoryConfig(c=>({...c,[key]:e.target.value}))} placeholder={ph} className="w-full rounded-xl px-4 py-2.5 text-sm outline-none border transition-all" style={{background:'var(--bg3)',borderColor:'var(--br)',color:'var(--t1)'}} onFocus={e=>e.target.style.borderColor='rgba(245,158,11,.4)'} onBlur={e=>e.target.style.borderColor='var(--br)'}/>
+                  ['char','fa-user','Main Character','e.g. A lonely astronaut, A teenage wizard'],
+                  ['setting','fa-map-pin','Setting / World','e.g. Post-apocalyptic Earth, Ancient Japan, Underwater city'],
+                  ['twist','fa-shuffle','Plot Twist','e.g. The hero was the villain, Time loops, Everyone is a simulation'],
+                  ['theme','fa-heart-pulse','Central Theme','e.g. Redemption, Betrayal, Found family, AI vs humanity'],
+                ].map(([key,ic,label,ph])=>(
+                  <div key={key} style={{position:'relative'}}>
+                    <div style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',pointerEvents:'none'}}>
+                      <i className={`fa-solid ${ic}`} style={{color:'var(--t3)',fontSize:11}}></i>
+                    </div>
+                    <input value={storyConfig[key]||''} onChange={e=>setStoryConfig(c=>({...c,[key]:e.target.value}))} placeholder={ph}
+                      style={{width:'100%',borderRadius:12,padding:'10px 12px 10px 34px',fontSize:13,background:'var(--bg3)',border:'1px solid var(--br)',color:'var(--t1)',outline:'none',fontFamily:'inherit',transition:'border-color .15s',boxSizing:'border-box'}}
+                      onFocus={e=>e.target.style.borderColor='rgba(245,158,11,.4)'}
+                      onBlur={e=>e.target.style.borderColor='var(--br)'}/>
                   </div>
                 ))}
               </div>
 
               {storyLoading?(
-                <button onClick={()=>{if(storyAbortRef.current)storyAbortRef.current.abort();setStoryLoading(false);}} className="w-full py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2" style={{background:'rgba(239,68,68,.12)',color:'#f87171',border:'1px solid rgba(239,68,68,.3)'}}>
-                  <i className="fa-solid fa-stop" style={{fontSize:10}}></i>Stop Writing
+                <button onClick={()=>{if(storyAbortRef.current)storyAbortRef.current.abort();setStoryLoading(false);}}
+                  style={{width:'100%',padding:'14px',borderRadius:14,fontSize:14,fontWeight:700,background:'rgba(239,68,68,.12)',color:'#f87171',border:'1px solid rgba(239,68,68,.3)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
+                  <i className="fa-solid fa-stop" style={{fontSize:11}}></i>Stop Writing
                 </button>
               ):(
                 <button onClick={async()=>{
                   const ctrl=new AbortController(); storyAbortRef.current=ctrl;
                   setStoryLoading(true); setStoryResult('');
-                  const prompt=`Write a ${storyConfig.mood} ${storyConfig.genre} story${storyConfig.char?' featuring '+storyConfig.char:''}${storyConfig.setting?' set in '+storyConfig.setting:''}${storyConfig.twist?' with this twist: '+storyConfig.twist:''}. Length: ~${storyConfig.length==='short'?200:storyConfig.length==='medium'?500:800} words. Vivid descriptions, compelling dialogue, satisfying ending. Include a title.`;
+                  const cfg=storyConfig;
+                  const wordCount=cfg.length==='short'?200:cfg.length==='medium'?500:cfg.length==='long'?800:1200;
+                  const prompt=`Write a ${cfg.mood||'adventurous'} ${cfg.genre||'fantasy'} story${cfg.char?' featuring '+cfg.char:''}${cfg.setting?' set in '+cfg.setting:''}${cfg.twist?' with this plot twist: '+cfg.twist:''}${cfg.theme?' exploring the theme of '+cfg.theme:''}. Write in ${cfg.pov==='first'?'first':'cfg.pov==='second'?'second':'third'} person. Target ~${wordCount} words. Include: vivid descriptions, compelling dialogue, a strong opening hook, rising tension, and a satisfying ending. Start with a title on the first line.`;
                   try{
-                    const res=await fetch('/chat',{method:'POST',signal:ctrl.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({message:prompt,system_prompt:'You are a creative fiction writer. Write engaging, original stories.'})});
+                    const res=await fetch('/chat',{method:'POST',signal:ctrl.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({message:prompt,system_prompt:'You are a master creative fiction writer. Write original, vivid, emotionally engaging stories.'})});
                     const data=await res.json();
-                    setStoryResult(data.reply||'Could not generate story.');
-                  }catch(e){if(e.name!=='AbortError')setStoryResult('Error generating story.');}
+                    setStoryResult(data.reply||'Could not generate story. Please try again.');
+                  }catch(e){if(e.name!=='AbortError')setStoryResult('Error generating story. Please try again.');}
                   finally{setStoryLoading(false);storyAbortRef.current=null;}
-                }} className="w-full py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 transition-all" style={{background:'linear-gradient(135deg,#F59E0B,#EF4444)',border:'none',boxShadow:'0 4px 18px rgba(245,158,11,.25)',cursor:'pointer'}}>
-                  <i className="fa-solid fa-feather-pointed" style={{fontSize:11}}></i>Generate Story
+                }}
+                  style={{width:'100%',padding:'14px',borderRadius:16,fontSize:14,fontWeight:800,color:'#fff',background:'linear-gradient(135deg,#F59E0B,#EF4444)',border:'none',boxShadow:'0 6px 24px rgba(245,158,11,.35)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8,transition:'all .15s'}}
+                  onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-2px)';e.currentTarget.style.boxShadow='0 10px 32px rgba(245,158,11,.5)';}}
+                  onMouseLeave={e=>{e.currentTarget.style.transform='translateY(0)';e.currentTarget.style.boxShadow='0 6px 24px rgba(245,158,11,.35)';}}>
+                  <i className="fa-solid fa-feather-pointed" style={{fontSize:13}}></i>Write My Story
                 </button>
               )}
             </div>
             ):(
-            <div className="flex-1 overflow-y-auto p-5" style={{scrollbarWidth:'thin'}}>
+            <div style={{flex:1,overflowY:'auto',padding:'20px',scrollbarWidth:'thin'}} className="sb">
               {storyLoading&&(
-                <div className="space-y-3">
-                  {[1,2,3].map(i=><div key={i} className="rounded-xl border p-4 animate-pulse" style={{borderColor:'var(--br)',background:'var(--bg3)',animationDelay:`${i*.1}s`}}><div className="h-3 rounded w-2/5 mb-3" style={{background:'var(--br)'}}></div><div className="space-y-2">{[1,2,3].map(j=><div key={j} className="h-2 rounded" style={{background:'var(--br)',width:`${70+j*10}%`}}></div>)}</div></div>)}
+                <div style={{display:'flex',flexDirection:'column',gap:12}}>
+                  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:4}}>
+                    <div style={{width:7,height:7,borderRadius:'50%',background:'#F59E0B',animation:'pulse 1s infinite'}}></div>
+                    <span style={{fontSize:12,color:'#F59E0B',fontWeight:600}}>AI is crafting your story…</span>
+                  </div>
+                  {[1,2,3,4].map(i=><div key={i} style={{borderRadius:12,border:'1px solid var(--br)',background:'var(--bg3)',padding:16,animation:'pulse 1.2s infinite',animationDelay:`${i*.1}s`}}><div style={{height:11,borderRadius:5,width:'45%',background:'var(--br)',marginBottom:12}}></div><div style={{display:'flex',flexDirection:'column',gap:7}}>{[1,2,3].map(j=><div key={j} style={{height:8,borderRadius:4,background:'var(--br)',width:`${60+j*12}%`}}></div>)}</div></div>)}
                 </div>
               )}
               {!storyLoading&&(
                 <div>
-                  <div className="flex items-center gap-2 mb-4">
-                    <span className="text-[10px] px-2 py-0.5 rounded-full font-bold capitalize" style={{background:'rgba(245,158,11,.15)',color:'#F59E0B'}}>{storyConfig.genre}</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full font-bold capitalize" style={{background:'rgba(239,68,68,.12)',color:'#EF4444'}}>{storyConfig.mood}</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full font-bold capitalize" style={{background:'rgba(59,130,246,.12)',color:'#60a5fa'}}>{storyConfig.length}</span>
+                  {/* Story tags */}
+                  <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:14}}>
+                    {[
+                      {val:storyConfig.genre,bg:'rgba(245,158,11,.15)',col:'#F59E0B'},
+                      {val:storyConfig.mood,bg:'rgba(239,68,68,.12)',col:'#EF4444'},
+                      {val:storyConfig.length==='short'?'Flash':storyConfig.length==='medium'?'Short Story':storyConfig.length==='long'?'Full Story':'Epic',bg:'rgba(59,130,246,.12)',col:'#60a5fa'},
+                      {val:storyConfig.pov==='first'?'1st Person POV':storyConfig.pov==='second'?'2nd Person POV':'3rd Person POV',bg:'rgba(139,92,246,.12)',col:'#a78bfa'},
+                    ].filter(t=>t.val).map((t,i)=>(
+                      <span key={i} style={{fontSize:10,fontWeight:700,padding:'4px 10px',borderRadius:99,background:t.bg,color:t.col,textTransform:'capitalize'}}>{t.val}</span>
+                    ))}
                   </div>
-                  <div className="rounded-xl border p-5 text-sm leading-relaxed whitespace-pre-wrap" style={{borderColor:'rgba(245,158,11,.2)',background:'rgba(245,158,11,.04)',color:'var(--t1)',lineHeight:1.85,fontFamily:"'DM Sans',sans-serif"}}>{storyResult}</div>
-                  <div className="flex gap-2 mt-4">
-                    <button onClick={()=>navigator.clipboard.writeText(storyResult).then(()=>toast_('Story copied!','success'))} className="flex-1 py-2.5 rounded-xl text-sm font-bold border transition-all hover:bg-white/5 flex items-center justify-center gap-2" style={{borderColor:'rgba(245,158,11,.3)',color:'#F59E0B',background:'rgba(245,158,11,.07)'}}>
-                      <i className="fa-solid fa-copy" style={{fontSize:11}}></i>Copy
+                  {/* Story content */}
+                  <div style={{borderRadius:16,border:'1px solid rgba(245,158,11,.2)',background:'linear-gradient(135deg,rgba(245,158,11,.04),rgba(239,68,68,.02))',padding:'20px 22px',fontSize:14,lineHeight:1.85,color:'var(--t1)',whiteSpace:'pre-wrap',fontFamily:"'DM Sans',sans-serif",marginBottom:14}}>
+                    {storyResult}
+                  </div>
+                  {/* Actions */}
+                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8}}>
+                    <button onClick={()=>navigator.clipboard.writeText(storyResult).then(()=>toast_('Story copied!','success'))}
+                      style={{padding:'10px',borderRadius:12,border:'1px solid rgba(245,158,11,.3)',color:'#F59E0B',background:'rgba(245,158,11,.08)',fontSize:12,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:6,transition:'all .15s'}}
+                      onMouseEnter={e=>e.currentTarget.style.background='rgba(245,158,11,.15)'}
+                      onMouseLeave={e=>e.currentTarget.style.background='rgba(245,158,11,.08)'}>
+                      <i className="fa-solid fa-copy" style={{fontSize:10}}></i>Copy
                     </button>
-                    <button onClick={()=>{send(storyResult.slice(0,200)+'...\n\nContinue this story:');setShowStoryGen(false);}} className="flex-1 py-2.5 rounded-xl text-sm font-bold border transition-all hover:bg-white/5 flex items-center justify-center gap-2" style={{borderColor:'rgba(59,130,246,.3)',color:'#60a5fa',background:'rgba(59,130,246,.07)'}}>
-                      <i className="fa-solid fa-arrow-right" style={{fontSize:11}}></i>Continue in Chat
+                    <button onClick={()=>{send(storyResult.slice(0,300)+'...\n\nContinue this story:');setShowStoryGen(false);}}
+                      style={{padding:'10px',borderRadius:12,border:'1px solid rgba(59,130,246,.3)',color:'#60a5fa',background:'rgba(59,130,246,.08)',fontSize:12,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:6,transition:'all .15s'}}
+                      onMouseEnter={e=>e.currentTarget.style.background='rgba(59,130,246,.15)'}
+                      onMouseLeave={e=>e.currentTarget.style.background='rgba(59,130,246,.08)'}>
+                      <i className="fa-solid fa-arrow-right" style={{fontSize:10}}></i>Continue
+                    </button>
+                    <button onClick={async()=>{
+                      setStoryLoading(true);
+                      try{
+                        const res=await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'Write a sequel to this story in the same style and length:\n\n'+storyResult.slice(0,600),system_prompt:'You are a creative fiction writer. Write a compelling sequel.'})});
+                        const data=await res.json();
+                        setStoryResult(data.reply||storyResult);
+                      }catch{}finally{setStoryLoading(false);}
+                    }}
+                      style={{padding:'10px',borderRadius:12,border:'1px solid rgba(16,185,129,.3)',color:'#34d399',background:'rgba(16,185,129,.08)',fontSize:12,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:6,transition:'all .15s'}}
+                      onMouseEnter={e=>e.currentTarget.style.background='rgba(16,185,129,.15)'}
+                      onMouseLeave={e=>e.currentTarget.style.background='rgba(16,185,129,.08)'}>
+                      <i className="fa-solid fa-rotate" style={{fontSize:10}}></i>Sequel
                     </button>
                   </div>
                 </div>
