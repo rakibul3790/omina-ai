@@ -7,3 +7,64 @@ services:
     envVars:
       - key: SECRET_KEY
         generateValue: true
+      # ── App URL ──────────────────────────────────
+      - key: APP_URL
+        value: https://omina-ai.onrender.com   # change to your real URL
+
+      # ── bKash (Sandbox → live replace BASE_URL) ──
+      - key: BKASH_BASE_URL
+        value: https://tokenized.sandbox.bka.sh/v1.2.0-beta
+      - key: BKASH_APP_KEY
+        sync: false        # set in Render dashboard
+      - key: BKASH_APP_SECRET
+        sync: false
+      - key: BKASH_USERNAME
+        sync: false
+      - key: BKASH_PASSWORD
+        sync: false
+
+      # ── Nagad ────────────────────────────────────
+      - key: NAGAD_BASE_URL
+        value: https://api.mynagad.com
+      - key: NAGAD_MERCHANT_ID
+        sync: false
+      - key: NAGAD_PUBLIC_KEY
+        sync: false
+      - key: NAGAD_PRIVATE_KEY
+        sync: false
+
+      # ── Stripe (Card + PayPal) ───────────────────
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_PRICE_PRO_M
+        sync: false
+      - key: STRIPE_PRICE_PRO_Y
+        sync: false
+      - key: STRIPE_PRICE_MAX_M
+        sync: false
+      - key: STRIPE_PRICE_MAX_Y
+        sync: false
+      - key: STRIPE_PRICE_CODE_M
+        sync: false
+      - key: STRIPE_PRICE_CODE_Y
+        sync: false
+
+      # ── Firebase ─────────────────────────────────
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      - key: FIREBASE_PRIVATE_KEY_ID
+        sync: false
+      - key: FIREBASE_PRIVATE_KEY
+        sync: false
+      - key: FIREBASE_CLIENT_EMAIL
+        sync: false
+      - key: FIREBASE_CLIENT_ID
+        sync: false
+      - key: FIREBASE_CLIENT_CERT_URL
+        sync: false
+
+      # ── Groq ─────────────────────────────────────
+      - key: GROQ_API_KEY
+        sync: false
