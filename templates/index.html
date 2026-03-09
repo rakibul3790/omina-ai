@@ -292,6 +292,9 @@ input:-webkit-autofill{-webkit-box-shadow:0 0 0 30px var(--bgi) inset!important;
 .feat-card:hover .feat-checkbox{opacity:1}
 .feat-pin-mobile{display:none}
 .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.feat-card-wrap .feat-pin-btn{opacity:0;transition:opacity .15s}
+.feat-card-wrap:hover{border-color:var(--brh)!important;box-shadow:0 4px 18px rgba(0,0,0,.22)!important}
+.feat-card-wrap:hover .feat-pin-btn{opacity:1}
 @media(min-width:769px){
   .sidebar-overlay{display:none!important;pointer-events:none!important}
   .sidebar{position:relative!important;flex-shrink:0;overflow:hidden!important;transition:width .32s cubic-bezier(.16,1,.3,1), opacity .28s ease !important;will-change:width;}
@@ -316,7 +319,6 @@ input:-webkit-autofill{-webkit-box-shadow:0 0 0 30px var(--bgi) inset!important;
 
   /* ── Feature grid ── */
   .feat-grid{grid-template-columns:repeat(2,1fr)!important;gap:8px!important;}
-  .feat-card:hover .feat-pin{opacity:1!important}
   .feat-pin-mobile{font-size:10px!important;}
 
   /* ── Settings modal — slide up from bottom ── */
@@ -2879,6 +2881,7 @@ function App() {
   const [quickAccessIds,setQuickAccessIds] = useState(()=>{
     try{const saved=localStorage.getItem('omina_qa');return saved?JSON.parse(saved):['todo','sticky','aiagent','imageai','prompts','commands'];}catch{return['todo','sticky','aiagent','imageai','prompts','commands'];}
   });
+  const [featEditMode,setFeatEditMode] = useState(false);
   // ── Quiz Generator ──
   const [showQuiz,setShowQuiz]               = useState(false);
   const [quizConfig,setQuizConfig]           = useState({topic:'',difficulty:'medium',count:5,type:'mcq'});
@@ -8350,24 +8353,12 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       profiles:()=>{setShowSettings(false);setShowProfiles(true);},
                     };
                     const isMobile=window.innerWidth<=768;
-                    const [featEditMode,setFeatEditMode]=React.useState(false);
 
-                    /* ── Desktop FeatCard (no useState inside — uses DOM ref) ── */
+                    /* ── Desktop FeatCard — pure CSS hover, no hooks ── */
                     const FeatCard=({f,pinned})=>{
-                      const ref=React.useRef(null);
                       const toggle=e=>{e.stopPropagation();if(pinned)setQuickAccessIds(p=>p.filter(x=>x!==f.id));else if(!atMax)setQuickAccessIds(p=>[...p,f.id]);else toast_('Maximum 12 features allowed','info');};
-                      const onEnter=()=>{
-                        if(ref.current){ref.current.style.borderColor='var(--brh)';ref.current.style.boxShadow='0 4px 18px rgba(0,0,0,.22)';}
-                        const btn=ref.current&&ref.current.querySelector('.feat-hover-btn');
-                        if(btn)btn.style.opacity='1';
-                      };
-                      const onLeave=()=>{
-                        if(ref.current){ref.current.style.borderColor='var(--br)';ref.current.style.boxShadow='none';}
-                        const btn=ref.current&&ref.current.querySelector('.feat-hover-btn');
-                        if(btn)btn.style.opacity='0';
-                      };
                       return(
-                        <div ref={ref} onMouseEnter={onEnter} onMouseLeave={onLeave} style={{
+                        <div className="feat-card-wrap" style={{
                           position:'relative',borderRadius:13,overflow:'hidden',
                           border:'1.5px solid var(--br)',background:'var(--bg3)',
                           transition:'border-color .18s,box-shadow .18s',
@@ -8379,15 +8370,14 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                             <span style={{color:'var(--t1)',fontSize:12,fontWeight:600,flex:1,textAlign:'left',fontFamily:"'DM Sans',sans-serif"}}>{f.lbl}</span>
                           </button>
                           {(!atMax||pinned)&&(
-                            <button className="feat-hover-btn" onClick={toggle} title={pinned?'Unpin':'Pin'} style={{
-                              position:'absolute',bottom:7,right:7,opacity:0,
+                            <button className="feat-pin-btn" onClick={toggle} title={pinned?'Unpin':'Pin'} style={{
+                              position:'absolute',bottom:7,right:7,
                               display:'flex',alignItems:'center',gap:4,
                               padding:'3px 9px',borderRadius:7,
                               background:pinned?'rgba(239,68,68,.12)':'rgba(99,102,241,.12)',
                               border:`1px solid ${pinned?'rgba(239,68,68,.3)':'rgba(99,102,241,.3)'}`,
                               color:pinned?'#f87171':'#a5b4fc',
                               cursor:'pointer',fontSize:10,fontWeight:600,
-                              transition:'opacity .15s',
                             }}>
                               <i className={`fa-solid ${pinned?'fa-xmark':'fa-thumbtack'}`} style={{fontSize:9}}></i>
                               {pinned?'Unpin':'Pin'}
