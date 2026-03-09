@@ -15,7 +15,8 @@
         import { initializeApp }             from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
                  GoogleAuthProvider, signInWithPopup, updateProfile,
-                 sendPasswordResetEmail }     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+                 sendPasswordResetEmail, onAuthStateChanged }
+                 from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
         // Flask থেকে inject করা config
         const firebaseConfig = {
@@ -38,6 +39,26 @@
         window._fbResetPw    = sendPasswordResetEmail;
         window._fbReady      = true;
         window.dispatchEvent(new Event("fb-ready"));
+
+        // ── Auto-login: Firebase session থাকলে সরাসরি home এ redirect ──
+        onAuthStateChanged(auth_fb, async (user) => {
+            if (user) {
+                try {
+                    const idToken = await user.getIdToken(true); // fresh token
+                    const res = await fetch("/api/verify-session", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ idToken })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        window.location.href = "/"; // ✅ already logged in → home
+                    }
+                } catch(e) {
+                    // silent fail — login page দেখাবে
+                }
+            }
+        });
     </script>
 
     <style>
@@ -255,7 +276,7 @@
                                         <i className="fa-solid fa-lock text-slate-500"></i>
                                     </div>
                                     <input type={showPassword ? "text" : "password"} name="password" value={formData.password} onChange={handleInputChange}
-                                        placeholder="Password" required
+                                        placeholder="Password" required autoComplete="new-password"
                                         className="w-full bg-[#1E232B] border border-slate-700 rounded-xl py-3.5 pl-11 pr-12 text-slate-200 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder-slate-500"
                                     />
                                     <button type="button" onClick={() => setShowPassword(!showPassword)}
