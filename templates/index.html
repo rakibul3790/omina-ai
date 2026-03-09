@@ -3286,6 +3286,7 @@ function App() {
     try{const saved=localStorage.getItem('omina_qa');return saved?JSON.parse(saved):['todo','sticky','aiagent','imageai','prompts','commands'];}catch{return['todo','sticky','aiagent','imageai','prompts','commands'];}
   });
   const [featEditMode,setFeatEditMode] = useState(false);
+  const [syncReady,setSyncReady]         = useState(false); // pull complete হওয়ার আগে push বন্ধ
   // ── Quiz Generator ──
   const [showQuiz,setShowQuiz]               = useState(false);
   const [quizConfig,setQuizConfig]           = useState({topic:'',difficulty:'medium',count:5,type:'mcq'});
@@ -3504,14 +3505,50 @@ function App() {
         if(d.omina_votes    !== undefined){ try{localStorage.setItem('omina_votes',JSON.stringify(d.omina_votes));   setMsgVotes(d.omina_votes);}catch{} }
         if(d.omina_ws_members!==undefined){ try{localStorage.setItem('omina_ws_members',JSON.stringify(d.omina_ws_members));setWsMembers(d.omina_ws_members);}catch{} }
         if(d.omina_ws_notes !== undefined){ try{localStorage.setItem('omina_ws_notes',JSON.stringify(d.omina_ws_notes));setWsNotes(d.omina_ws_notes);}catch{} }
-        if(d.omina_avatar   !== undefined){ try{localStorage.setItem('omina_avatar',d.omina_avatar);                 setAvatarUrl(d.omina_avatar);}catch{} }
+        if(d.omina_avatar      !== undefined){ try{localStorage.setItem('omina_avatar',d.omina_avatar); setAvatarUrl(d.omina_avatar);}catch{} }
+        // ── Settings ──
+        if(d.omina_settings !== undefined){
+          try{
+            localStorage.setItem('omina_settings',JSON.stringify(d.omina_settings));
+            const s=d.omina_settings;
+            if(s.theme     !== undefined) setTheme(s.theme);
+            if(s.fontSize  !== undefined) setFontSize(s.fontSize);
+            if(s.language  !== undefined) setLanguage(s.language);
+            if(s.sound     !== undefined) setSound(s.sound);
+            if(s.memory    !== undefined) setMemory(s.memory);
+            if(s.compact   !== undefined) setCompact(s.compact);
+            if(s.timestamps!== undefined) setTimestamps(s.timestamps);
+            if(s.chatBg    !== undefined) setChatBg(s.chatBg);
+            if(s.chatBgCustom!==undefined)setChatBgCustom(s.chatBgCustom);
+            if(s.enterSend !== undefined) setEnterSend(s.enterSend);
+          }catch{}
+        }
+        // ── TTS ──
+        if(d.omina_tts_on    !== undefined){ try{if(d.omina_tts_on){localStorage.setItem('omina_tts_on','1');setTtsEnabled(true);}else{localStorage.removeItem('omina_tts_on');setTtsEnabled(false);}}catch{} }
+        if(d.omina_tts_voice !== undefined){ try{localStorage.setItem('omina_tts_voice',d.omina_tts_voice); setTtsVoice(d.omina_tts_voice);}catch{} }
+        if(d.omina_tts_rate  !== undefined){ try{localStorage.setItem('omina_tts_rate',d.omina_tts_rate);   setTtsRate(d.omina_tts_rate);}catch{} }
+        if(d.omina_tts_pitch !== undefined){ try{localStorage.setItem('omina_tts_pitch',d.omina_tts_pitch); setTtsPitch(d.omina_tts_pitch);}catch{} }
+        // ── Security/App settings ──
+        if(d.omina_apikeys   !== undefined){ try{localStorage.setItem('omina_apikeys',JSON.stringify(d.omina_apikeys));   setApiKeys(d.omina_apikeys);}catch{} }
+        if(d.omina_ratelimits!== undefined){ try{localStorage.setItem('omina_ratelimits',JSON.stringify(d.omina_ratelimits));setRateLimits(d.omina_ratelimits);}catch{} }
+        if(d.omina_chatlock  !== undefined){ try{localStorage.setItem('omina_chatlock',JSON.stringify(d.omina_chatlock)); setChatLock(d.omina_chatlock);}catch{} }
+        if(d.omina_tray      !== undefined){ try{localStorage.setItem('omina_tray',JSON.stringify(d.omina_tray));         setTrayNotifs(d.omina_tray);}catch{} }
+        if(d.omina_cache     !== undefined){ try{localStorage.setItem('omina_cache',JSON.stringify(d.omina_cache));       setOfflineCache(d.omina_cache);}catch{} }
+        if(d.omina_reviews   !== undefined){ try{localStorage.setItem('omina_reviews',JSON.stringify(d.omina_reviews));   setReviewComments(d.omina_reviews);}catch{} }
+        if(d.omina_comp_runs !== undefined){ try{localStorage.setItem('omina_comp_runs',d.omina_comp_runs);               setCompRunCount(d.omina_comp_runs);}catch{} }
+        if(d.omina_splash_done  !== undefined){ try{if(d.omina_splash_done){localStorage.setItem('omina_splash_done','1');setSplashDone(true);}}catch{} }
+        if(d.omina_onboard_done !== undefined){ try{if(d.omina_onboard_done){localStorage.setItem('omina_onboard_done','1');setOnboardDone(true);}}catch{} }
+        if(d.omina_agent_hist !== undefined){ try{localStorage.setItem('omina_agent_hist',JSON.stringify(d.omina_agent_hist));}catch{} }
+        if(d.omina_mc_hist  !== undefined){ try{localStorage.setItem('omina_mc_hist',JSON.stringify(d.omina_mc_hist));}catch{} }
       }catch(e){ console.warn('Sync pull failed:',e); }
+      finally{ setSyncReady(true); } // pull done — এখন push allow
     };
     pullSync();
   },[]);
 
   // ── Push helper: single key change হলে Firestore এ save ──
   const syncPush = async (key, value)=>{
+    if(!syncReady) return; // pull শেষ না হলে push করব না
     try{
       await fetch('/api/sync/key',{
         method:'POST',
@@ -3538,6 +3575,26 @@ function App() {
   useEffect(()=>{syncPush('omina_ws_members',wsMembers);},[wsMembers]);
   useEffect(()=>{syncPush('omina_ws_notes',  wsNotes);},[wsNotes]);
   useEffect(()=>{if(avatarUrl)syncPush('omina_avatar',avatarUrl);},[avatarUrl]);
+
+  // ── Settings object এ সব একসাথে push (theme, fontSize etc) ──
+  useEffect(()=>{
+    syncPush('omina_settings',{theme,fontSize,language,sound,memory,compact,timestamps,chatBg,chatBgCustom,enterSend});
+  },[theme,fontSize,language,sound,memory,compact,timestamps,chatBg,chatBgCustom,enterSend]);
+
+  // ── TTS ──
+  useEffect(()=>{syncPush('omina_tts_on',   ttsEnabled);},[ttsEnabled]);
+  useEffect(()=>{syncPush('omina_tts_voice', ttsVoice);},[ttsVoice]);
+  useEffect(()=>{syncPush('omina_tts_rate',  ttsRate);},[ttsRate]);
+  useEffect(()=>{syncPush('omina_tts_pitch', ttsPitch);},[ttsPitch]);
+
+  // ── Security & App ──
+  useEffect(()=>{syncPush('omina_apikeys',    apiKeys);},[apiKeys]);
+  useEffect(()=>{syncPush('omina_ratelimits', rateLimits);},[rateLimits]);
+  useEffect(()=>{syncPush('omina_chatlock',   chatLock);},[chatLock]);
+  useEffect(()=>{syncPush('omina_tray',       trayNotifs.slice(-50));},[trayNotifs]);
+  useEffect(()=>{syncPush('omina_cache',      offlineCache);},[offlineCache]);
+  useEffect(()=>{syncPush('omina_reviews',    reviewComments);},[reviewComments]);
+  useEffect(()=>{syncPush('omina_comp_runs',  compRunCount);},[compRunCount]);
   // ══════════════════════════════════════════════════════
 
   useEffect(()=>{
