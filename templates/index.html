@@ -319,12 +319,12 @@ input:-webkit-autofill{-webkit-box-shadow:0 0 0 30px var(--bgi) inset!important;
   .feat-card:hover .feat-pin{opacity:1!important}
   /* ── Feature card mobile polish ── */
   .feat-card{border-radius:14px!important;}
-  .feat-card>button.w-full{padding:10px 10px 8px 10px!important;gap:8px!important;flex-direction:column!important;align-items:flex-start!important;}
-  .feat-card>button.w-full .w-8{width:34px!important;height:34px!important;border-radius:10px!important;margin-bottom:2px!important;}
-  .feat-card>button.w-full .w-8 i{font-size:14px!important;}
-  .feat-card>button.w-full span.text-xs{font-size:11.5px!important;line-height:1.3!important;}
-  .feat-card>button.w-full .fa-arrow-up-right-from-square{display:none!important;}
-  .feat-pin-mobile{font-size:9.5px!important;padding-top:6px!important;padding-bottom:6px!important;}
+  .feat-card-btn{display:flex!important;flex-direction:column!important;align-items:flex-start!important;padding:10px 10px 8px 10px!important;gap:6px!important;width:100%!important;transition:background .15s;}
+  .feat-card-btn .feat-card-icon{width:34px!important;height:34px!important;border-radius:10px!important;display:flex!important;align-items:center!important;justify-content:center!important;flex-shrink:0!important;}
+  .feat-card-btn .feat-card-icon i{font-size:14px!important;}
+  .feat-card-btn .feat-card-label{font-size:11.5px!important;font-weight:600!important;line-height:1.3!important;text-align:left!important;}
+  .feat-card-btn .feat-card-arrow{display:none!important;}
+  .feat-pin-mobile{font-size:9.5px!important;padding-top:7px!important;padding-bottom:7px!important;}
 
   /* ── Settings modal — slide up from bottom ── */
   .settings-modal{
@@ -8358,12 +8358,12 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                     };
                     const FeatCard=({f,pinned,showCheck})=>(
                       <div className="feat-card relative rounded-xl border overflow-hidden transition-all" style={{borderColor:pinned?f.col+'55':'var(--br)',background:pinned?f.col+'0e':'var(--bg3)'}}>
-                        <button onClick={launchMap[f.id]||(() =>{})} className="w-full flex items-center gap-2.5 px-3 py-3 transition-all" onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,.04)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
-                          <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{background:f.col+'22'}}>
+                        <button onClick={launchMap[f.id]||(() =>{})} className="feat-card-btn w-full flex items-center gap-2.5 px-3 py-3 transition-all" onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,.04)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                          <div className="feat-card-icon w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{background:f.col+'22'}}>
                             <i className={`fa-solid ${f.ic} text-sm`} style={{color:f.col}}></i>
                           </div>
-                          <span className="text-xs font-semibold flex-1 text-left" style={{color:'var(--t1)'}}>{f.lbl}</span>
-                          <i className="fa-solid fa-arrow-up-right-from-square text-[8px]" style={{color:'var(--t3)',opacity:.4}}></i>
+                          <span className="feat-card-label text-xs font-semibold flex-1 text-left" style={{color:'var(--t1)'}}>{f.lbl}</span>
+                          <i className="feat-card-arrow fa-solid fa-arrow-up-right-from-square text-[8px]" style={{color:'var(--t3)',opacity:.4}}></i>
                         </button>
                         {/* Desktop only: hover checkbox */}
                         {showCheck && (!atMax || pinned) && (
