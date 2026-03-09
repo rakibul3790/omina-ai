@@ -84,6 +84,40 @@ def home():
         user_email=session.get("user_email", "")
     )
 
+@app.route("/sw.js")
+def service_worker():
+    """Serve Service Worker from root scope"""
+    from flask import send_from_directory, Response
+    import os
+    # Try templates folder first, then root
+    sw_path = os.path.join(app.root_path, 'templates', 'sw.js')
+    if not os.path.exists(sw_path):
+        sw_path = os.path.join(app.root_path, 'sw.js')
+    if os.path.exists(sw_path):
+        with open(sw_path) as f:
+            js = f.read()
+        return Response(js, mimetype='application/javascript',
+                       headers={'Service-Worker-Allowed': '/',
+                                'Cache-Control': 'no-cache'})
+    return Response('// SW not found', mimetype='application/javascript'), 404
+
+@app.route("/manifest.json")
+def manifest():
+    """Serve PWA manifest"""
+    from flask import send_from_directory
+    import os, json as _json2
+    mf_path = os.path.join(app.root_path, 'templates', 'manifest.json')
+    if not os.path.exists(mf_path):
+        mf_path = os.path.join(app.root_path, 'manifest.json')
+    if os.path.exists(mf_path):
+        with open(mf_path) as f:
+            mf = _json2.load(f)
+        from flask import jsonify as _jfy
+        resp = _jfy(mf)
+        resp.headers['Cache-Control'] = 'public, max-age=86400'
+        return resp
+    return jsonify({"error": "manifest not found"}), 404
+
 @app.route("/login")
 def login_page():
     if "uid" in session:
@@ -595,3 +629,280 @@ def generate_image():
 if __name__ == "__main__":
     print("Omina AI running at http://127.0.0.1:5000")
     app.run(debug=True)
+
+
+# ═══════════════════════════════════════════════════════════════
+#  PAYMENT GATEWAY ROUTES
+# ═══════════════════════════════════════════════════════════════
+import hashlib, hmac, time, uuid
+
+# ── bKash Payment ───────────────────────────────────────────
+BKASH_BASE_URL   = os.environ.get("BKASH_BASE_URL",   "https://tokenized.sandbox.bka.sh/v1.2.0-beta")
+BKASH_APP_KEY    = os.environ.get("BKASH_APP_KEY",    "")
+BKASH_APP_SECRET = os.environ.get("BKASH_APP_SECRET", "")
+BKASH_USERNAME   = os.environ.get("BKASH_USERNAME",   "")
+BKASH_PASSWORD   = os.environ.get("BKASH_PASSWORD",   "")
+
+def bkash_grant_token():
+    """Get bKash auth token"""
+    import requests
+    headers = {
+        "Content-Type":  "application/json",
+        "Accept":        "application/json",
+        "username":      BKASH_USERNAME,
+        "password":      BKASH_PASSWORD,
+    }
+    body = {"app_key": BKASH_APP_KEY, "app_secret": BKASH_APP_SECRET}
+    res = requests.post(f"{BKASH_BASE_URL}/tokenized/checkout/token/grant", json=body, headers=headers, timeout=10)
+    data = res.json()
+    return data.get("id_token"), data.get("refresh_token")
+
+@app.route("/api/payment/bkash/create", methods=["POST"])
+def bkash_create():
+    """Create bKash payment"""
+    import requests as req
+    user = get_current_user()
+    if not user:
+        return jsonify({"error": "Unauthorized"}), 401
+    data      = request.json or {}
+    amount    = str(data.get("amount", "12"))
+    plan_id   = data.get("plan_id", "pro")
+    inv_id    = f"OMINA-{uuid.uuid4().hex[:10].upper()}"
+    try:
+        id_token, _ = bkash_grant_token()
+        headers = {
+            "Content-Type":  "application/json",
+            "Accept":        "application/json",
+            "Authorization": id_token,
+            "X-APP-Key":     BKASH_APP_KEY,
+        }
+        body = {
+            "mode":                  "0011",
+            "payerReference":        user["uid"],
+            "callbackURL":           os.environ.get("APP_URL", "") + "/api/payment/bkash/callback",
+            "amount":                amount,
+            "currency":              "BDT",
+            "intent":                "sale",
+            "merchantInvoiceNumber": inv_id,
+        }
+        res  = req.post(f"{BKASH_BASE_URL}/tokenized/checkout/create", json=body, headers=headers, timeout=10)
+        resp = res.json()
+        if resp.get("statusCode") == "0000":
+            # Store pending payment in Firestore
+            db.collection("payments").document(inv_id).set({
+                "uid":        user["uid"],
+                "plan_id":    plan_id,
+                "amount":     amount,
+                "method":     "bkash",
+                "invoice_id": inv_id,
+                "status":     "pending",
+                "created_at": _dt.datetime.utcnow().isoformat(),
+                "payment_id": resp.get("paymentID"),
+            })
+            return jsonify({"success": True, "bkashURL": resp.get("bkashURL"), "paymentID": resp.get("paymentID")})
+        return jsonify({"error": resp.get("statusMessage", "bKash error")}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/payment/bkash/callback", methods=["GET", "POST"])
+def bkash_callback():
+    """bKash payment callback"""
+    import requests as req
+    payment_id = request.args.get("paymentID") or (request.json or {}).get("paymentID")
+    status     = request.args.get("status")
+    if status == "cancel" or status == "failure":
+        return redirect("/?payment=failed")
+    try:
+        id_token, _ = bkash_grant_token()
+        headers = {"Authorization": id_token, "X-APP-Key": BKASH_APP_KEY, "Content-Type": "application/json"}
+        res  = req.post(f"{BKASH_BASE_URL}/tokenized/checkout/execute", json={"paymentID": payment_id}, headers=headers, timeout=10)
+        resp = res.json()
+        if resp.get("statusCode") == "0000":
+            # Find and update payment record
+            docs = db.collection("payments").where("payment_id", "==", payment_id).limit(1).stream()
+            for doc in docs:
+                pay_data = doc.to_dict()
+                doc.reference.update({"status": "completed", "trxID": resp.get("trxID")})
+                # Activate plan
+                db.collection("users").document(pay_data["uid"]).set(
+                    {"plan": pay_data["plan_id"], "plan_updated": _dt.datetime.utcnow().isoformat()},
+                    merge=True
+                )
+            return redirect("/?payment=success")
+        return redirect("/?payment=failed")
+    except Exception as e:
+        return redirect(f"/?payment=error&msg={str(e)}")
+
+# ── Nagad Payment ────────────────────────────────────────────
+NAGAD_BASE_URL    = os.environ.get("NAGAD_BASE_URL",    "https://api.mynagad.com")
+NAGAD_MERCHANT_ID = os.environ.get("NAGAD_MERCHANT_ID", "")
+NAGAD_PUBLIC_KEY  = os.environ.get("NAGAD_PUBLIC_KEY",  "")
+NAGAD_PRIVATE_KEY = os.environ.get("NAGAD_PRIVATE_KEY", "")
+
+@app.route("/api/payment/nagad/create", methods=["POST"])
+def nagad_create():
+    """Create Nagad payment"""
+    user = get_current_user()
+    if not user:
+        return jsonify({"error": "Unauthorized"}), 401
+    data    = request.json or {}
+    amount  = str(data.get("amount", "12"))
+    plan_id = data.get("plan_id", "pro")
+    inv_id  = f"OMINA-{uuid.uuid4().hex[:10].upper()}"
+    try:
+        import requests as req
+        from base64 import b64encode
+        timestamp   = _dt.datetime.now().strftime("%Y%m%d%H%M%S")
+        order_id    = inv_id
+        # Nagad API call
+        headers = {
+            "X-KM-Api-Version": "v-0.2.0",
+            "X-KM-IP-V4":       "127.0.0.1",
+            "X-KM-Client-Type": "PC_WEB",
+            "Content-Type":     "application/json",
+        }
+        init_body = {
+            "datetime":        timestamp,
+            "invoiceNumber":   order_id,
+            "amount":          amount,
+            "challenge":       uuid.uuid4().hex,
+        }
+        init_url = f"{NAGAD_BASE_URL}/api/dfs/check-out/initialize/{NAGAD_MERCHANT_ID}/{order_id}"
+        res = req.post(init_url, json=init_body, headers=headers, timeout=10)
+        resp = res.json()
+        # Store pending
+        db.collection("payments").document(inv_id).set({
+            "uid": user["uid"], "plan_id": plan_id, "amount": amount,
+            "method": "nagad", "invoice_id": inv_id, "status": "pending",
+            "created_at": _dt.datetime.utcnow().isoformat(),
+        })
+        return jsonify({"success": True, "redirectURL": resp.get("callBackUrl", ""), "invoice": inv_id})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/payment/nagad/callback", methods=["GET", "POST"])
+def nagad_callback():
+    payment_ref_id = request.args.get("payment_ref_id")
+    status         = request.args.get("status")
+    order_id       = request.args.get("order_id")
+    if status == "Success" and order_id:
+        try:
+            docs = db.collection("payments").where("invoice_id", "==", order_id).limit(1).stream()
+            for doc in docs:
+                pay = doc.to_dict()
+                doc.reference.update({"status": "completed", "nagad_ref": payment_ref_id})
+                db.collection("users").document(pay["uid"]).set(
+                    {"plan": pay["plan_id"], "plan_updated": _dt.datetime.utcnow().isoformat()},
+                    merge=True
+                )
+            return redirect("/?payment=success")
+        except Exception as e:
+            return redirect(f"/?payment=error&msg={str(e)}")
+    return redirect("/?payment=failed")
+
+# ── Stripe (Card + PayPal) ────────────────────────────────────
+STRIPE_SECRET_KEY      = os.environ.get("STRIPE_SECRET_KEY",      "")
+STRIPE_WEBHOOK_SECRET  = os.environ.get("STRIPE_WEBHOOK_SECRET",  "")
+STRIPE_PRICES = {
+    # Set these in env or Stripe dashboard
+    "pro_monthly":  os.environ.get("STRIPE_PRICE_PRO_M",  ""),
+    "pro_yearly":   os.environ.get("STRIPE_PRICE_PRO_Y",  ""),
+    "max_monthly":  os.environ.get("STRIPE_PRICE_MAX_M",  ""),
+    "max_yearly":   os.environ.get("STRIPE_PRICE_MAX_Y",  ""),
+    "code_monthly": os.environ.get("STRIPE_PRICE_CODE_M", ""),
+    "code_yearly":  os.environ.get("STRIPE_PRICE_CODE_Y", ""),
+}
+
+@app.route("/api/payment/stripe/create-session", methods=["POST"])
+def stripe_create_session():
+    """Create Stripe Checkout session (card + PayPal)"""
+    user = get_current_user()
+    if not user:
+        return jsonify({"error": "Unauthorized"}), 401
+    if not STRIPE_SECRET_KEY:
+        return jsonify({"error": "Stripe not configured"}), 503
+    try:
+        import stripe
+        stripe.api_key = STRIPE_SECRET_KEY
+        data       = request.json or {}
+        plan_id    = data.get("plan_id", "pro")
+        billing    = data.get("billing", "m")   # m or y
+        method     = data.get("method", "card") # card or paypal
+        price_key  = f"{plan_id}_{('monthly' if billing=='m' else 'yearly')}"
+        price_id   = STRIPE_PRICES.get(price_key)
+        if not price_id:
+            return jsonify({"error": f"Price not configured for {price_key}"}), 400
+        pay_methods = ["card"]
+        if method == "paypal":
+            pay_methods = ["paypal"]
+        app_url = os.environ.get("APP_URL", "https://omina-ai.onrender.com")
+        session = stripe.checkout.Session.create(
+            payment_method_types = pay_methods,
+            mode                 = "subscription",
+            line_items           = [{"price": price_id, "quantity": 1}],
+            success_url          = f"{app_url}/?payment=success&session_id={{CHECKOUT_SESSION_ID}}",
+            cancel_url           = f"{app_url}/?payment=cancelled",
+            client_reference_id  = user["uid"],
+            customer_email       = user.get("email"),
+            metadata             = {"plan_id": plan_id, "uid": user["uid"]},
+        )
+        # Store pending
+        db.collection("payments").document(session.id).set({
+            "uid": user["uid"], "plan_id": plan_id, "method": method,
+            "billing": billing, "status": "pending",
+            "created_at": _dt.datetime.utcnow().isoformat(),
+        })
+        return jsonify({"success": True, "url": session.url, "session_id": session.id})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/payment/stripe/webhook", methods=["POST"])
+def stripe_webhook():
+    """Stripe webhook — activates plan after payment"""
+    if not STRIPE_SECRET_KEY:
+        return jsonify({"error": "Not configured"}), 503
+    try:
+        import stripe
+        stripe.api_key = STRIPE_SECRET_KEY
+        payload    = request.get_data(as_text=True)
+        sig_header = request.headers.get("Stripe-Signature", "")
+        event = stripe.Webhook.construct_event(payload, sig_header, STRIPE_WEBHOOK_SECRET)
+        if event["type"] == "checkout.session.completed":
+            sess    = event["data"]["object"]
+            uid     = sess.get("client_reference_id") or sess["metadata"].get("uid")
+            plan_id = sess["metadata"].get("plan_id", "pro")
+            if uid:
+                db.collection("users").document(uid).set(
+                    {"plan": plan_id, "plan_updated": _dt.datetime.utcnow().isoformat(),
+                     "stripe_customer": sess.get("customer"),
+                     "stripe_subscription": sess.get("subscription")},
+                    merge=True
+                )
+                doc_ref = db.collection("payments").document(sess.id)
+                if doc_ref.get().exists:
+                    doc_ref.update({"status": "completed", "trxID": sess.get("payment_intent")})
+        elif event["type"] in ("customer.subscription.deleted", "customer.subscription.paused"):
+            sub  = event["data"]["object"]
+            cust = sub.get("customer")
+            # Find user by stripe_customer
+            docs = db.collection("users").where("stripe_customer", "==", cust).limit(1).stream()
+            for doc in docs:
+                doc.reference.update({"plan": "free"})
+        return jsonify({"received": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.route("/api/payment/verify", methods=["POST"])
+def verify_payment():
+    """Verify payment status and return current plan"""
+    user = get_current_user()
+    if not user:
+        return jsonify({"error": "Unauthorized"}), 401
+    try:
+        doc = db.collection("users").document(user["uid"]).get()
+        if doc.exists:
+            data = doc.to_dict()
+            return jsonify({"plan": data.get("plan", "free"), "plan_updated": data.get("plan_updated")})
+        return jsonify({"plan": "free"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
