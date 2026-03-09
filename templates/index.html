@@ -8372,15 +8372,15 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                           </button>
                           {(!atMax||pinned)&&(
                             <button className="feat-pin-btn" onClick={toggle} title={pinned?'Unpin':'Pin'} style={{
-                              position:'absolute',top:'50%',right:10,transform:'translateY(-50%)',
+                              position:'absolute',top:8,right:8,
                               display:'flex',alignItems:'center',justifyContent:'center',
-                              width:26,height:26,borderRadius:6,padding:0,
-                              background:pinned?'rgba(239,68,68,.1)':'rgba(255,255,255,.07)',
-                              border:`1px solid ${pinned?'rgba(239,68,68,.25)':'rgba(255,255,255,.1)'}`,
+                              width:20,height:20,borderRadius:5,padding:0,
+                              background:pinned?'rgba(239,68,68,.12)':'rgba(255,255,255,.07)',
+                              border:`1px solid ${pinned?'rgba(239,68,68,.3)':'rgba(255,255,255,.12)'}`,
                               color:pinned?'#f87171':'var(--t3)',
                               cursor:'pointer',transition:'all .15s',
                             }}>
-                              <i className={`fa-solid ${pinned?'fa-minus':'fa-plus'}`} style={{fontSize:9}}></i>
+                              <i className={`fa-solid ${pinned?'fa-minus':'fa-plus'}`} style={{fontSize:8}}></i>
                             </button>
                           )}
                         </div>
