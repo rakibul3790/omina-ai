@@ -8352,37 +8352,42 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                     const isMobile=window.innerWidth<=768;
                     const [featEditMode,setFeatEditMode]=React.useState(false);
 
-                    /* ── Desktop FeatCard ── */
+                    /* ── Desktop FeatCard (no useState inside — uses DOM ref) ── */
                     const FeatCard=({f,pinned})=>{
-                      const [hovered,setHovered]=React.useState(false);
+                      const ref=React.useRef(null);
                       const toggle=e=>{e.stopPropagation();if(pinned)setQuickAccessIds(p=>p.filter(x=>x!==f.id));else if(!atMax)setQuickAccessIds(p=>[...p,f.id]);else toast_('Maximum 12 features allowed','info');};
+                      const onEnter=()=>{
+                        if(ref.current){ref.current.style.borderColor='var(--brh)';ref.current.style.boxShadow='0 4px 18px rgba(0,0,0,.22)';}
+                        const btn=ref.current&&ref.current.querySelector('.feat-hover-btn');
+                        if(btn)btn.style.opacity='1';
+                      };
+                      const onLeave=()=>{
+                        if(ref.current){ref.current.style.borderColor='var(--br)';ref.current.style.boxShadow='none';}
+                        const btn=ref.current&&ref.current.querySelector('.feat-hover-btn');
+                        if(btn)btn.style.opacity='0';
+                      };
                       return(
-                        <div
-                          onMouseEnter={()=>setHovered(true)}
-                          onMouseLeave={()=>setHovered(false)}
-                          style={{
-                            position:'relative',borderRadius:13,overflow:'hidden',
-                            border:`1.5px solid ${hovered?'var(--brh)':'var(--br)'}`,
-                            background:'var(--bg3)',
-                            boxShadow:hovered?'0 4px 18px rgba(0,0,0,.22)':'none',
-                            transition:'border-color .18s,box-shadow .18s',
-                          }}
-                        >
+                        <div ref={ref} onMouseEnter={onEnter} onMouseLeave={onLeave} style={{
+                          position:'relative',borderRadius:13,overflow:'hidden',
+                          border:'1.5px solid var(--br)',background:'var(--bg3)',
+                          transition:'border-color .18s,box-shadow .18s',
+                        }}>
                           <button onClick={launchMap[f.id]||(()=>{})} style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'10px 12px',background:'transparent',border:'none',cursor:'pointer'}}>
                             <div style={{width:34,height:34,borderRadius:9,flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center',background:`${f.col}20`}}>
                               <i className={`fa-solid ${f.ic}`} style={{color:f.col,fontSize:14}}></i>
                             </div>
                             <span style={{color:'var(--t1)',fontSize:12,fontWeight:600,flex:1,textAlign:'left',fontFamily:"'DM Sans',sans-serif"}}>{f.lbl}</span>
                           </button>
-                          {hovered && (!atMax||pinned) && (
-                            <button onClick={toggle} title={pinned?'Unpin':'Pin'} style={{
-                              position:'absolute',bottom:7,right:7,
+                          {(!atMax||pinned)&&(
+                            <button className="feat-hover-btn" onClick={toggle} title={pinned?'Unpin':'Pin'} style={{
+                              position:'absolute',bottom:7,right:7,opacity:0,
                               display:'flex',alignItems:'center',gap:4,
                               padding:'3px 9px',borderRadius:7,
                               background:pinned?'rgba(239,68,68,.12)':'rgba(99,102,241,.12)',
                               border:`1px solid ${pinned?'rgba(239,68,68,.3)':'rgba(99,102,241,.3)'}`,
                               color:pinned?'#f87171':'#a5b4fc',
                               cursor:'pointer',fontSize:10,fontWeight:600,
+                              transition:'opacity .15s',
                             }}>
                               <i className={`fa-solid ${pinned?'fa-xmark':'fa-thumbtack'}`} style={{fontSize:9}}></i>
                               {pinned?'Unpin':'Pin'}
@@ -8407,7 +8412,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                             </div>
                             <span style={{color:'var(--t1)',fontSize:12,fontWeight:600,lineHeight:1.3,fontFamily:"'DM Sans',sans-serif"}}>{f.lbl}</span>
                           </button>
-                          {editMode && (
+                          {editMode&&(
                             <div onClick={toggle} style={{
                               position:'absolute',inset:0,
                               background:pinned?'rgba(239,68,68,.14)':'rgba(99,102,241,.11)',
@@ -8443,6 +8448,53 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                         {featEditMode?'Done':'Edit'}
                       </button>
                     );
+
+                    return(
+                      <>
+                        {/* ── Pinned Features ── */}
+                        <div className="mb-4 rounded-2xl border p-3" style={{borderColor:'var(--br)',background:'var(--bg2)'}}>
+                          <div className="flex items-center justify-between mb-3">
+                            <p className="text-xs font-semibold flex items-center gap-1.5" style={{color:'var(--t1)'}}>
+                              <i className="fa-solid fa-thumbtack text-[10px]" style={{color:'#818cf8'}}></i>
+                              Pinned Features
+                            </p>
+                            <div style={{display:'flex',alignItems:'center',gap:6}}>
+                              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{background:atMax?'rgba(16,185,129,.15)':'rgba(99,102,241,.12)',color:atMax?'#10B981':'#818cf8'}}>{quickAccessIds.length}/12</span>
+                              {isMobile&&<EditBtn/>}
+                            </div>
+                          </div>
+                          {pinnedFeatures.length===0
+                            ?<p className="text-xs text-center py-4" style={{color:'var(--t3)'}}>No features pinned yet.</p>
+                            :<div className="feat-grid">
+                              {pinnedFeatures.map(f=>isMobile
+                                ?<MobileFeatCard key={f.id} f={f} pinned={true} editMode={featEditMode}/>
+                                :<FeatCard key={f.id} f={f} pinned={true}/>
+                              )}
+                            </div>
+                          }
+                        </div>
+
+                        {/* ── All Features (unpinned only) ── */}
+                        {unpinnedFeatures.length>0&&(
+                          <div className="rounded-2xl border p-3" style={{borderColor:'var(--br)',background:'var(--bg2)'}}>
+                            <div className="flex items-center justify-between mb-3">
+                              <p className="text-xs font-semibold flex items-center gap-1.5" style={{color:'var(--t1)'}}>
+                                <i className="fa-solid fa-grid-2 text-[10px]" style={{color:'#f59e0b'}}></i>
+                                All Features
+                              </p>
+                              {isMobile&&<EditBtn/>}
+                            </div>
+                            <div className="feat-grid">
+                              {unpinnedFeatures.map(f=>isMobile
+                                ?<MobileFeatCard key={f.id} f={f} pinned={false} editMode={featEditMode}/>
+                                :<FeatCard key={f.id} f={f} pinned={false}/>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    );
+
 
                     return(
                       <>
