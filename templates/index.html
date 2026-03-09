@@ -4784,7 +4784,7 @@ Reply: ${botText.slice(0,800)}`,
         const hour = today.getHours();
         const greeting = hour<12?'Good Morning':hour<17?'Good Afternoon':'Good Evening';
         return(
-          <div className="feat-modal-wrap fixed inset-0 z-[200] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.85)',backdropFilter:'blur(16px)'}} onClick={()=>setShowDigest(false)}>
+          <div className="feat-modal-wrap fixed inset-0 z-[200] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.85)',backdropFilter:'blur(16px)'}} onClick={()=>{setShowDigest(false);if(featFromSettings){setFeatFromSettings(false);setShowSettings(true);setSettingsTab('quickaccess');}}}>
             <div className="w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden" style={{background:'var(--bg2)',border:'1px solid var(--br)',animation:'mIn .32s cubic-bezier(.16,1,.3,1)'}} onClick={e=>e.stopPropagation()}>
 
               {/* ── Hero Header ── */}
@@ -4930,7 +4930,7 @@ Reply: ${botText.slice(0,800)}`,
           setRandPromptResult(p);
         };
         return(
-          <div className="feat-modal-wrap fixed inset-0 z-[200] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.85)',backdropFilter:'blur(16px)'}} onClick={()=>setShowRandPrompt(false)}>
+          <div className="feat-modal-wrap fixed inset-0 z-[200] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.85)',backdropFilter:'blur(16px)'}} onClick={()=>{setShowRandPrompt(false);if(featFromSettings){setFeatFromSettings(false);setShowSettings(true);setSettingsTab('quickaccess');}}}>
             <div className="w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden" style={{background:'var(--bg2)',border:'1px solid var(--br)',animation:'mIn .32s cubic-bezier(.16,1,.3,1)'}} onClick={e=>e.stopPropagation()}>
 
               {/* ── Hero Header ── */}
@@ -5022,7 +5022,7 @@ Reply: ${botText.slice(0,800)}`,
 
       {/* ═══ CHAIN OF THOUGHT VIEWER ═══ */}
       {showChainViewer&&(
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.92)',backdropFilter:'blur(24px)'}} onClick={()=>setShowChainViewer(false)}>
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.92)',backdropFilter:'blur(24px)'}} onClick={()=>{setShowChainViewer(false);if(featFromSettings){setFeatFromSettings(false);setShowSettings(true);setSettingsTab('quickaccess');}}}>
           <div className="w-full max-w-2xl flex flex-col rounded-3xl" style={{background:'var(--bg2)',border:'1px solid rgba(255,255,255,.07)',maxHeight:'90vh',boxShadow:'0 32px 80px rgba(0,0,0,.6)',animation:'mIn .28s cubic-bezier(.16,1,.3,1)'}} onClick={e=>e.stopPropagation()}>
 
             {/* ── Hero Header ── */}
@@ -5225,7 +5225,7 @@ Reply: ${botText.slice(0,800)}`,
 
       {/* ═══ CONCEPT MAP ═══ */}
       {showConceptMap&&(
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.92)',backdropFilter:'blur(24px)'}} onClick={()=>setShowConceptMap(false)}>
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.92)',backdropFilter:'blur(24px)'}} onClick={()=>{setShowConceptMap(false);if(featFromSettings){setFeatFromSettings(false);setShowSettings(true);setSettingsTab('quickaccess');}}}>
           <div className="w-full max-w-2xl flex flex-col rounded-3xl" style={{background:'var(--bg2)',border:'1px solid rgba(255,255,255,.07)',maxHeight:'90vh',boxShadow:'0 32px 80px rgba(0,0,0,.6)',animation:'mIn .28s cubic-bezier(.16,1,.3,1)'}} onClick={e=>e.stopPropagation()}>
 
             {/* ── Hero Header ── */}
@@ -5391,7 +5391,7 @@ Reply: ${botText.slice(0,800)}`,
 
       {/* ═══ STORY GENERATOR ═══ */}
       {showStoryGen&&(
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.92)',backdropFilter:'blur(24px)'}} onClick={()=>setShowStoryGen(false)}>
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.92)',backdropFilter:'blur(24px)'}} onClick={()=>{setShowStoryGen(false);if(featFromSettings){setFeatFromSettings(false);setShowSettings(true);setSettingsTab('quickaccess');}}}>
           <div className="w-full max-w-2xl flex flex-col rounded-3xl" style={{background:'var(--bg2)',border:'1px solid rgba(255,255,255,.07)',maxHeight:'90vh',boxShadow:'0 32px 80px rgba(0,0,0,.6)',animation:'mIn .28s cubic-bezier(.16,1,.3,1)'}} onClick={e=>e.stopPropagation()}>
 
             {/* ── Hero Header ── */}
@@ -5607,12 +5607,12 @@ Reply: ${botText.slice(0,800)}`,
               </div>
               {/* Stats strip */}
               <div className="flex gap-2 mb-4">
-                {[{ic:'fa-note-sticky',lbl:'Notes',val:wsNotes.length,col:'#10B981'},{ic:'fa-users',lbl:'Members',val:wsMembers.length+1,col:'#06B6D4'},{ic:'fa-clock',lbl:'Active',val:'Now',col:'#a78bfa'}].map(s=>(
+                {(()=>{const wsStats=[{ic:'fa-note-sticky',lbl:'Notes',val:wsNotes.length,col:'#10B981'},{ic:'fa-users',lbl:'Members',val:wsMembers.length+1,col:'#06B6D4'},{ic:'fa-clock',lbl:'Active',val:'Now',col:'#a78bfa'}];return wsStats.map(s=>(
                   <div key={s.lbl} className="flex items-center gap-2 px-3 py-2 rounded-xl flex-1" style={{background:'rgba(255,255,255,.03)',border:'1px solid rgba(255,255,255,.06)'}}>
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{background:s.col+'18'}}><i className={`fa-solid ${s.ic}`} style={{color:s.col,fontSize:11}}></i></div>
                     <div><p className="text-xs font-black" style={{color:'var(--t1)'}}>{s.val}</p><p className="text-[9px]" style={{color:'var(--t3)'}}>{s.lbl}</p></div>
                   </div>
-                ))}
+                ))});})()}
               </div>
               {/* Tabs */}
               <div className="flex gap-1 p-1 rounded-2xl" style={{background:'rgba(0,0,0,.25)',border:'1px solid rgba(255,255,255,.05)'}}>
@@ -5838,12 +5838,20 @@ Reply: ${botText.slice(0,800)}`,
                 </div>
               ):(
                 <div className="flex gap-2">
-                  {[{ic:'fa-book',lbl:'Any Topic',col:'#F59E0B',tip:'Browse topics',act:()=>{setQuizConfig(c=>({...c,topic:''}));document.querySelector('.quiz-topic-input')?.focus();toast_('Pick any topic below!','info');}},{ic:'fa-list-check',lbl:'MCQ',col:'#10B981',tip:'Multiple choice',act:()=>{setQuizConfig(c=>({...c,type:'mcq'}));toast_('Multiple Choice selected','success');}},{ic:'fa-toggle-on',lbl:'True/False',col:'#818cf8',tip:'True or false',act:()=>{setQuizConfig(c=>({...c,type:'truefalse'}));toast_('True/False selected','success');}},{ic:'fa-pen',lbl:'Fill Blank',col:'#06B6D4',tip:'Fill in the blank',act:()=>{setQuizConfig(c=>({...c,type:'fill'}));toast_('Fill in Blank selected','success');}}].map(s=>(
-                    <button key={s.lbl} onClick={s.act} className="flex-1 flex items-center gap-1.5 px-2 py-2.5 rounded-xl transition-all" style={{background:'rgba(255,255,255,.04)',border:`1px solid rgba(255,255,255,.07)`,cursor:'pointer'}} onMouseEnter={e=>{e.currentTarget.style.background=s.col+'18';e.currentTarget.style.borderColor=s.col+'44';}} onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,.04)';e.currentTarget.style.borderColor='rgba(255,255,255,.07)';}}>
-                      <i className={`fa-solid ${s.ic}`} style={{color:s.col,fontSize:11}}></i>
-                      <span className="text-[10px] font-semibold" style={{color:'var(--t2)'}}>{s.lbl}</span>
-                    </button>
-                  ))}
+                  {(()=>{
+                    const qActs=[
+                      {ic:'fa-book',lbl:'Any Topic',col:'#F59E0B',act:()=>{setQuizConfig(cfg=>({...cfg,topic:''}));toast_('Pick any topic!','info');}},
+                      {ic:'fa-list-check',lbl:'MCQ',col:'#10B981',act:()=>{setQuizConfig(cfg=>({...cfg,type:'mcq'}));toast_('Multiple Choice selected','success');}},
+                      {ic:'fa-toggle-on',lbl:'True/False',col:'#818cf8',act:()=>{setQuizConfig(cfg=>({...cfg,type:'truefalse'}));toast_('True/False selected','success');}},
+                      {ic:'fa-pen',lbl:'Fill Blank',col:'#06B6D4',act:()=>{setQuizConfig(cfg=>({...cfg,type:'fill'}));toast_('Fill in Blank selected','success');}},
+                    ];
+                    return qActs.map(s=>(
+                      <button key={s.lbl} onClick={s.act} className="flex-1 flex items-center gap-1.5 px-2 py-2.5 rounded-xl transition-all" style={{background:'rgba(255,255,255,.04)',border:'1px solid rgba(255,255,255,.07)',cursor:'pointer'}} onMouseEnter={e=>{e.currentTarget.style.background=s.col+'18';e.currentTarget.style.borderColor=s.col+'44';}} onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,.04)';e.currentTarget.style.borderColor='rgba(255,255,255,.07)';}}>
+                        <i className={`fa-solid ${s.ic}`} style={{color:s.col,fontSize:11}}></i>
+                        <span className="text-[10px] font-semibold" style={{color:'var(--t2)'}}>{s.lbl}</span>
+                      </button>
+                    ));
+                  })()}
                 </div>
               )}
             </div>
@@ -6209,13 +6217,13 @@ Reply: ${botText.slice(0,800)}`,
                     </div>
                     {/* Challenge type cards */}
                     <div className="grid grid-cols-3 gap-2 mb-4">
-                      {[{ic:'fa-spell-check',lbl:'Spelling',desc:'Word accuracy',col:'#6366F1'},{ic:'fa-shuffle',lbl:'Word Order',desc:'Sentence build',col:'#10B981'},{ic:'fa-microphone',lbl:'Pronunciation',desc:'Say it right',col:'#F59E0B'},{ic:'fa-pen-to-square',lbl:'Writing',desc:'Fill the blank',col:'#EF4444'},{ic:'fa-eye',lbl:'Reading',desc:'Comprehension',col:'#8B5CF6'},{ic:'fa-comments',lbl:'Conversation',desc:'Full dialogue',col:'#06B6D4'}].map((c,i)=>(
-                        <button key={i} onClick={()=>toast_(`${c.lbl} challenge coming soon!`,'info')} className="rounded-xl border p-2.5 text-center transition-all" style={{borderColor:c.col+'28',background:c.col+'08'}} onMouseEnter={e=>{e.currentTarget.style.background=c.col+'18';e.currentTarget.style.borderColor=c.col+'44';}} onMouseLeave={e=>{e.currentTarget.style.background=c.col+'08';e.currentTarget.style.borderColor=c.col+'28';}}>
-                          <div className="w-8 h-8 rounded-lg mx-auto mb-1.5 flex items-center justify-center" style={{background:`linear-gradient(135deg,${c.col}cc,${c.col}88)`,boxShadow:`0 3px 10px ${c.col}35`}}>
-                            <i className={`fa-solid ${c.ic} text-white`} style={{fontSize:13}}></i>
+                      {[{ic:'fa-spell-check',lbl:'Spelling',desc:'Word accuracy',col:'#6366F1'},{ic:'fa-shuffle',lbl:'Word Order',desc:'Sentence build',col:'#10B981'},{ic:'fa-microphone',lbl:'Pronunciation',desc:'Say it right',col:'#F59E0B'},{ic:'fa-pen-to-square',lbl:'Writing',desc:'Fill the blank',col:'#EF4444'},{ic:'fa-eye',lbl:'Reading',desc:'Comprehension',col:'#8B5CF6'},{ic:'fa-comments',lbl:'Conversation',desc:'Full dialogue',col:'#06B6D4'}].map((ch,i)=>(
+                        <button key={i} onClick={()=>toast_(ch.lbl+' challenge coming soon!','info')} className="rounded-xl border p-2.5 text-center transition-all" style={{borderColor:ch.col+'28',background:ch.col+'08'}} onMouseEnter={e=>{e.currentTarget.style.background=ch.col+'18';e.currentTarget.style.borderColor=ch.col+'44';}} onMouseLeave={e=>{e.currentTarget.style.background=ch.col+'08';e.currentTarget.style.borderColor=ch.col+'28';}}>
+                          <div className="w-8 h-8 rounded-lg mx-auto mb-1.5 flex items-center justify-center" style={{background:'linear-gradient(135deg,'+ch.col+'cc,'+ch.col+'88)',boxShadow:'0 3px 10px '+ch.col+'35'}}>
+                            <i className={`fa-solid ${ch.ic} text-white`} style={{fontSize:13}}></i>
                           </div>
-                          <p className="text-[10px] font-bold" style={{color:'var(--t1)'}}>{c.lbl}</p>
-                          <p className="text-[9px]" style={{color:'var(--t3)'}}>{c.desc}</p>
+                          <p className="text-[10px] font-bold" style={{color:'var(--t1)'}}>{ch.lbl}</p>
+                          <p className="text-[9px]" style={{color:'var(--t3)'}}>{ch.desc}</p>
                         </button>
                       ))}
                     </div>
@@ -6414,7 +6422,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
 
       {/* ═══ QUICK COMMAND PALETTE ═══ */}
       {showCmdPalette&&(
-  <div className="fixed inset-0 z-[300] flex items-start justify-center pt-12 px-4" style={{background:'rgba(0,0,0,.85)',backdropFilter:'blur(16px)'}} onClick={()=>{setShowCmdPalette(false);setCmdQuery('');}}>
+  <div className="fixed inset-0 z-[300] flex items-start justify-center pt-12 px-4" style={{background:'rgba(0,0,0,.85)',backdropFilter:'blur(16px)'}} onClick={()=>{setShowCmdPalette(false);setCmdQuery('');if(featFromSettings){setFeatFromSettings(false);setShowSettings(true);setSettingsTab('quickaccess');}}}>
     <div className="w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden" style={{background:'#0d0f18',border:'1px solid rgba(255,255,255,.08)',animation:'mIn .22s cubic-bezier(.16,1,.3,1)'}} onClick={e=>e.stopPropagation()}>
 
       {/* Search bar */}
@@ -6587,7 +6595,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
 
 {/* ═══ PROMPT LIBRARY ═══ */}
 {showPromptLib&&(
-  <div className="fixed inset-0 z-[250] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.88)',backdropFilter:'blur(16px)'}} onClick={()=>{setShowPromptLib(false);setPCat('All');}}>
+  <div className="fixed inset-0 z-[250] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.88)',backdropFilter:'blur(16px)'}} onClick={()=>{setShowPromptLib(false);setPCat('All');if(featFromSettings){setFeatFromSettings(false);setShowSettings(true);setSettingsTab('quickaccess');}}}>
     <div className="w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden flex flex-col" style={{background:'#0d0f18',border:'1px solid rgba(255,255,255,.08)',maxHeight:'92vh',animation:'mIn .24s cubic-bezier(.16,1,.3,1)'}} onClick={e=>e.stopPropagation()}>
 
       {/* Header */}
@@ -6860,7 +6868,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
 
 {/* ═══ MULTIPLE PROFILES ═══ */}
       {showProfiles&&(
-        <div className="fixed inset-0 z-[250] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.8)',backdropFilter:'blur(10px)'}} onClick={()=>setShowProfiles(false)}>
+        <div className="fixed inset-0 z-[250] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.8)',backdropFilter:'blur(10px)'}} onClick={()=>{setShowProfiles(false);if(featFromSettings){setFeatFromSettings(false);setShowSettings(true);setSettingsTab('quickaccess');}}}>
           <div className="w-full max-w-md rounded-2xl border shadow-2xl overflow-hidden" style={{background:'var(--bg2)',borderColor:'var(--br)'}} onClick={e=>e.stopPropagation()}>
             <div className="px-5 py-4 border-b flex items-center justify-between" style={{borderColor:'var(--br)',background:'linear-gradient(135deg,rgba(37,99,235,.08),rgba(99,102,241,.04))'}}>
               <div className="flex items-center gap-3">
@@ -6969,7 +6977,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
         ];
 
         return(
-          <div className="fixed inset-0 z-[250] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.82)',backdropFilter:'blur(18px)'}} onClick={()=>setShowWordCloud(false)}>
+          <div className="fixed inset-0 z-[250] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.82)',backdropFilter:'blur(18px)'}} onClick={()=>{setShowWordCloud(false);if(featFromSettings){setFeatFromSettings(false);setShowSettings(true);setSettingsTab('quickaccess');}}}>
             <div className="w-full max-w-2xl rounded-2xl border shadow-2xl flex flex-col overflow-hidden" style={{background:'var(--bg2)',borderColor:'rgba(255,255,255,.08)',maxHeight:'90vh'}} onClick={e=>e.stopPropagation()}>
 
               {/* ── Header ── */}
@@ -7139,7 +7147,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
       })()}
       {/* ═══ MODEL COMPARISON ═══ */}
       {showModelComp&&(
-        <div className="fixed inset-0 z-[250] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.85)',backdropFilter:'blur(12px)'}} onClick={()=>setShowModelComp(false)}>
+        <div className="fixed inset-0 z-[250] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.85)',backdropFilter:'blur(12px)'}} onClick={()=>{setShowModelComp(false);if(featFromSettings){setFeatFromSettings(false);setShowSettings(true);setSettingsTab('quickaccess');}}}>
           <div className="w-full max-w-4xl rounded-2xl border shadow-2xl overflow-hidden flex flex-col" style={{background:'var(--bg2)',borderColor:'var(--br)',maxHeight:'88vh'}} onClick={e=>e.stopPropagation()}>
             <div className="px-5 py-4 border-b flex items-center justify-between flex-shrink-0" style={{borderColor:'var(--br)',background:'linear-gradient(135deg,rgba(5,150,105,.08),rgba(6,182,212,.04))'}}>
               <div className="flex items-center gap-3">
@@ -7222,8 +7230,8 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
       )}
       {showImgGen&&<ImageGenModal onClose={()=>{setShowImgGen(false);setImgGenPrompt('');}} onGenerate={handleImgGen} history={imgGenHistory} setHistory={setImgGenHistory} initialPrompt={imgGenPrompt}/>}
       {showShare&&<ShareModal session={curSession} onClose={()=>setShowShare(false)}/>}
-      {showTodo&&<TodoModal todos={todos} setTodos={setTodos} onClose={()=>setShowTodo(false)}/>}
-      {showSticky&&<StickyModal notes={stickyNotes} setNotes={setStickyNotes} onClose={()=>setShowSticky(false)}/>}
+      {showTodo&&<TodoModal todos={todos} setTodos={setTodos} onClose={()=>{setShowTodo(false);if(featFromSettings){setFeatFromSettings(false);setShowSettings(true);setSettingsTab('quickaccess');}}}/>}
+      {showSticky&&<StickyModal notes={stickyNotes} setNotes={setStickyNotes} onClose={()=>{setShowSticky(false);if(featFromSettings){setFeatFromSettings(false);setShowSettings(true);setSettingsTab('quickaccess');}}}/>}
       {showAIAgent&&<AIAgentModal onClose={()=>setShowAIAgent(false)} sysPrompt={sysPrompt} language={language}/>}
 
       {/* ── MESSAGE SEARCH MODAL ── */}
