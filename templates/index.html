@@ -3156,7 +3156,7 @@ function App() {
   const [settingsTab,setSettingsTab]     = useState('general');
   const [showProfile,setShowProfile]     = useState(false);
   const [showPersonaDrop,setShowPersonaDrop] = useState(false);
-  const [avatarUrl,setAvatarUrl]         = useState(()=>localStorage.getItem('omina_avatar')||'');
+  const [avatarUrl,setAvatarUrl]         = useState(()=>{try{return localStorage.getItem('omina_avatar')||'';}catch{return '';}});
   const avatarInputRef                   = useRef(null);
   const [showPricing,setShowPricing]     = useState(false);
   const [showModels,setShowModels]       = useState(false);
@@ -3193,7 +3193,7 @@ function App() {
   // ── Multiple Profiles ──
   const [showProfiles,setShowProfiles]     = useState(false);
   const [profiles,setProfiles]             = useState(()=>{try{return JSON.parse(localStorage.getItem('omina_profiles')||'null');}catch{return null;}});
-  const [activeProfile,setActiveProfile]   = useState(()=>localStorage.getItem('omina_active_profile')||'default');
+  const [activeProfile,setActiveProfile]   = useState(()=>{try{return localStorage.getItem('omina_active_profile')||'default';}catch{return 'default';}});
   // ── Word Cloud ──
   const [showWordCloud,setShowWordCloud]   = useState(false);
   const [wcTab,setWcTab]                   = useState('cloud'); // cloud | chart | timeline | ignored
@@ -3319,16 +3319,16 @@ function App() {
   const [trayNotifs,setTrayNotifs]           = useState(()=>{try{return JSON.parse(localStorage.getItem('omina_tray')||'[]')}catch{return[]}});
   const [trayUnread,setTrayUnread]           = useState(0);
   // ── Splash / Onboarding ──
-  const [splashDone,setSplashDone]       = useState(()=>!!localStorage.getItem('omina_splash_done'));
-  const [onboardDone,setOnboardDone]     = useState(()=>!!localStorage.getItem('omina_onboard_done'));
+  const [splashDone,setSplashDone]       = useState(()=>{try{return !!localStorage.getItem('omina_splash_done');}catch{return false;}});
+  const [onboardDone,setOnboardDone]     = useState(()=>{try{return !!localStorage.getItem('omina_onboard_done');}catch{return false;}});
   const [onboardStep,setOnboardStep]     = useState(0);
   const [showOnboard,setShowOnboard]     = useState(false);
   // ── Text-to-Speech ──
-  const [ttsEnabled,setTtsEnabled]       = useState(()=>!!localStorage.getItem('omina_tts_on'));
+  const [ttsEnabled,setTtsEnabled]       = useState(()=>{try{return !!localStorage.getItem('omina_tts_on');}catch{return false;}});
   const [ttsSpeaking,setTtsSpeaking]     = useState(false);
-  const [ttsVoice,setTtsVoice]           = useState(()=>localStorage.getItem('omina_tts_voice')||'');
-  const [ttsRate,setTtsRate]             = useState(()=>parseFloat(localStorage.getItem('omina_tts_rate')||'1'));
-  const [ttsPitch,setTtsPitch]           = useState(()=>parseFloat(localStorage.getItem('omina_tts_pitch')||'1'));
+  const [ttsVoice,setTtsVoice]           = useState(()=>{try{return localStorage.getItem('omina_tts_voice')||'';}catch{return '';}});
+  const [ttsRate,setTtsRate]             = useState(()=>{try{return parseFloat(localStorage.getItem('omina_tts_rate')||'1');}catch{return 1;}});
+  const [ttsPitch,setTtsPitch]           = useState(()=>{try{return parseFloat(localStorage.getItem('omina_tts_pitch')||'1');}catch{return 1;}});
   const [ttsVoices,setTtsVoices]         = useState([]);
   const [ttsOpen,setTtsOpen]             = useState(false);
   const [ttsVoiceSearch,setTtsVoiceSearch] = useState('');
@@ -7786,7 +7786,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
       {showModelComp&&(()=>{
         const mcTab = window._mcTab||'compare';
         const setMcTab = t=>{window._mcTab=t;setShowModelComp(s=>s);};
-        const mcHistory = JSON.parse(localStorage.getItem('omina_mc_hist')||'[]');
+        const mcHistory = (()=>{try{return JSON.parse(localStorage.getItem('omina_mc_hist')||'[]');}catch{return [];}})();
         const TEMPLATES = [
           {ic:'fa-code',lbl:'Debug Code',col:'#3B82F6',prompt:'Review this code and find any bugs or improvements:\n\nfunction factorial(n) { return n * factorial(n-1); }'},
           {ic:'fa-pen-nib',lbl:'Creative Writing',col:'#8B5CF6',prompt:'Write a short story opening about a robot who discovers emotions.'},
