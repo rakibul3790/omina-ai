@@ -8407,20 +8407,25 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                           </button>
                         )}
 
-                        {/* ── Mobile: pin strip at bottom ── */}
+                        {/* ── Mobile: corner badge ── */}
                         {showCheck && (!atMax || pinned) && (
                           <button
                             onClick={e=>{e.stopPropagation();if(pinned)setQuickAccessIds(p=>p.filter(x=>x!==f.id));else if(!atMax)setQuickAccessIds(p=>[...p,f.id]);else toast_('Maximum 12 features allowed','info');}}
-                            className="feat-pin-mobile w-full items-center justify-center gap-1.5 border-t transition-all"
+                            className="feat-pin-mobile"
                             style={{
-                              borderColor: pinned?f.col+'50':'var(--br)',
-                              background: pinned?f.col+'20':'transparent',
-                              color: pinned?f.col:'var(--t3)',
-                              paddingTop:7, paddingBottom:7,
+                              position:'absolute', top:8, right:8,
+                              display:'flex', alignItems:'center', justifyContent:'center',
+                              width:28, height:28, borderRadius:8,
+                              background: pinned ? f.col : 'rgba(255,255,255,.07)',
+                              border: `1.5px solid ${pinned ? f.col : 'rgba(255,255,255,.15)'}`,
+                              boxShadow: pinned ? `0 0 10px ${f.col}55` : 'none',
+                              color: pinned ? '#fff' : 'var(--t3)',
+                              cursor:'pointer', transition:'all .18s',
+                              padding:0,
                             }}
+                            title={pinned?'Unpin':'Pin'}
                           >
-                            <i className={`fa-solid ${pinned?'fa-thumbtack':'fa-plus'}`} style={{fontSize:9}}></i>
-                            <span style={{fontSize:10,fontWeight:700,letterSpacing:.3}}>{pinned?'Pinned':'Pin'}</span>
+                            <i className={`fa-solid ${pinned?'fa-thumbtack':'fa-plus'}`} style={{fontSize:10}}></i>
                           </button>
                         )}
                       </div>
