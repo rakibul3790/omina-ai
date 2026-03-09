@@ -5582,26 +5582,32 @@ Reply: ${botText.slice(0,800)}`,
 
             {/* ═══ TEAM WORKSPACE ═══ */}
       {showWorkspace&&(
-        <div className="feat-modal-wrap fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.85)'}} onClick={()=>setShowWorkspace(false)}>
-          <div className="feat-modal-inner w-full max-w-2xl rounded-2xl border shadow-2xl overflow-hidden flex flex-col" style={{background:'var(--bg2)',borderColor:'var(--br)',maxHeight:'90vh'}} onClick={e=>e.stopPropagation()}>
+        <div className="feat-modal-wrap fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.88)'}} onClick={()=>setShowWorkspace(false)}>
+          <div className="feat-modal-inner w-full max-w-2xl rounded-3xl border shadow-2xl overflow-hidden flex flex-col" style={{background:'var(--bg2)',borderColor:'rgba(16,185,129,.2)',maxHeight:'90vh',boxShadow:'0 32px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(16,185,129,.1)'}} onClick={e=>e.stopPropagation()}>
             {/* Header */}
-            <div className="px-5 py-4 border-b flex-shrink-0" style={{borderColor:'var(--br)',background:'linear-gradient(135deg,rgba(16,185,129,.1),rgba(6,182,212,.06))'}}>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{background:'linear-gradient(135deg,#10B981,#06B6D4)',boxShadow:'0 0 16px rgba(16,185,129,.3)'}}>
-                    <i className="fa-solid fa-people-group text-white text-sm"></i>
+            <div className="px-6 py-5 border-b flex-shrink-0" style={{borderColor:'rgba(16,185,129,.15)',background:'linear-gradient(135deg,rgba(16,185,129,.12),rgba(6,182,212,.07),rgba(0,0,0,0))'}}>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{background:'linear-gradient(145deg,#10B981,#06B6D4)',boxShadow:'0 6px 20px rgba(16,185,129,.45), inset 0 1px 0 rgba(255,255,255,.2)'}}>
+                    <i className="fa-solid fa-people-group text-white" style={{fontSize:18}}></i>
                   </div>
                   <div>
-                    <p className="font-bold text-base" style={{color:'var(--t1)'}}>Team Workspace</p>
-                    <p className="text-[11px]" style={{color:'var(--t3)'}}>{wsMembers.length+1} member{wsMembers.length!==0?'s':''} · Shared notes & resources</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-bold text-base" style={{color:'var(--t1)'}}>Team Workspace</p>
+                      <span className="text-[9px] font-bold px-2 py-0.5 rounded-full" style={{background:'rgba(16,185,129,.15)',color:'#10B981',border:'1px solid rgba(16,185,129,.3)'}}>BETA</span>
+                    </div>
+                    <p className="text-[11px] mt-0.5" style={{color:'var(--t3)'}}>{wsMembers.length+1} member{wsMembers.length!==0?'s':''} · Shared notes & resources</p>
                   </div>
                 </div>
-                <button onClick={()=>setShowWorkspace(false)} className="w-8 h-8 rounded-xl flex items-center justify-center" style={{color:'var(--t2)'}} onMouseEnter={e=>e.currentTarget.style.background='var(--bg3)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><i className="fa-solid fa-xmark"></i></button>
+                <div className="flex items-center gap-2">
+                  <div className="flex -space-x-1.5">{[...(wsMembers.slice(0,3))].map((m,i)=>(<div key={i} className="w-7 h-7 rounded-full border-2 flex items-center justify-center text-[10px] font-bold text-white" style={{borderColor:'var(--bg2)',background:`hsl(${i*80+160},60%,45%)`}}>{m.name?.[0]||'?'}</div>))}<div className="w-7 h-7 rounded-full border-2 flex items-center justify-center text-[10px] font-bold text-white" style={{borderColor:'var(--bg2)',background:'linear-gradient(135deg,#10B981,#06B6D4)'}}>{(window.OMINA_USER?.name||'M')[0]}</div></div>
+                  <button onClick={()=>setShowWorkspace(false)} className="w-8 h-8 rounded-xl flex items-center justify-center transition-all" style={{color:'var(--t3)'}} onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,.08)';e.currentTarget.style.color='var(--t1)';}} onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='var(--t3)';}}><i className="fa-solid fa-xmark"></i></button>
+                </div>
               </div>
               {/* Tabs */}
-              <div className="flex gap-1 mt-3 p-1 rounded-xl" style={{background:'var(--bg3)'}}>
-                {[['notes','fa-sticky-note','Notes'],['members','fa-users','Members'],['chats','fa-messages','Shared Chats'],['activity','fa-clock-rotate-left','Activity']].map(([t,ic,l])=>(
-                  <button key={t} onClick={()=>setWsTab(t)} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-bold transition-all" style={{background:wsTab===t?'var(--bg2)':'transparent',color:wsTab===t?'var(--t1)':'var(--t3)'}}>
+              <div className="flex gap-1 p-1 rounded-2xl" style={{background:'rgba(0,0,0,.25)',border:'1px solid rgba(255,255,255,.05)'}}>
+                {[['notes','fa-sticky-note','Notes'],['members','fa-users','Members'],['chats','fa-comments','Shared Chats'],['resources','fa-folder-open','Resources'],['activity','fa-clock-rotate-left','Activity']].map(([t,ic,l])=>(
+                  <button key={t} onClick={()=>setWsTab(t)} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[11px] font-bold transition-all" style={{background:wsTab===t?'linear-gradient(135deg,rgba(16,185,129,.2),rgba(6,182,212,.12))':'transparent',color:wsTab===t?'#10B981':'var(--t3)',boxShadow:wsTab===t?'0 2px 8px rgba(16,185,129,.2)':'none',border:wsTab===t?'1px solid rgba(16,185,129,.25)':'1px solid transparent'}}>
                     <i className={`fa-solid ${ic} text-[10px]`}></i>{l}
                   </button>
                 ))}
@@ -5609,6 +5615,49 @@ Reply: ${botText.slice(0,800)}`,
             </div>
 
             <div className="flex-1 overflow-y-auto sb p-4">
+              {/* ── RESOURCES TAB ── */}
+              {wsTab==='resources'&&(
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    {[{ic:'fa-file-code',lbl:'Code Snippets',col:'#3B82F6',desc:'Shared code library',count:0},{ic:'fa-link',lbl:'Links',col:'#10B981',desc:'Useful references',count:0},{ic:'fa-file-image',lbl:'Assets',col:'#F59E0B',desc:'Images & media',count:0},{ic:'fa-bookmark',lbl:'Bookmarks',col:'#8B5CF6',desc:'Saved pages',count:0}].map((r,i)=>(
+                      <div key={i} className="rounded-2xl border p-4 cursor-pointer transition-all" style={{borderColor:r.col+'33',background:r.col+'08'}} onMouseEnter={e=>{e.currentTarget.style.background=r.col+'14';e.currentTarget.style.borderColor=r.col+'55';}} onMouseLeave={e=>{e.currentTarget.style.background=r.col+'08';e.currentTarget.style.borderColor=r.col+'33';}}>
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{background:`linear-gradient(135deg,${r.col}dd,${r.col}88)`,boxShadow:`0 4px 12px ${r.col}40`}}>
+                            <i className={`fa-solid ${r.ic} text-white`} style={{fontSize:15}}></i>
+                          </div>
+                          <div>
+                            <p className="text-sm font-bold" style={{color:'var(--t1)'}}>{r.lbl}</p>
+                            <p className="text-[10px]" style={{color:'var(--t3)'}}>{r.desc}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{background:r.col+'18',color:r.col}}>{r.count} items</span>
+                          <i className="fa-solid fa-plus text-[10px]" style={{color:'var(--t3)'}}></i>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Upload area */}
+                  <div className="rounded-2xl border-2 border-dashed p-6 text-center" style={{borderColor:'rgba(16,185,129,.25)',background:'rgba(16,185,129,.04)'}}>
+                    <div className="w-12 h-12 rounded-2xl mx-auto mb-3 flex items-center justify-center" style={{background:'linear-gradient(135deg,rgba(16,185,129,.2),rgba(6,182,212,.1))'}}>
+                      <i className="fa-solid fa-cloud-arrow-up" style={{color:'#10B981',fontSize:20}}></i>
+                    </div>
+                    <p className="text-sm font-bold mb-1" style={{color:'var(--t1)'}}>Drop files here</p>
+                    <p className="text-xs" style={{color:'var(--t3)'}}>Share resources with your team</p>
+                    <button className="mt-3 px-4 py-2 rounded-xl text-xs font-bold text-white" style={{background:'linear-gradient(135deg,#10B981,#06B6D4)'}} onClick={()=>toast_('File upload coming soon!','info')}>
+                      <i className="fa-solid fa-folder-plus mr-1.5 text-[10px]"></i>Browse Files
+                    </button>
+                  </div>
+                  {/* Quick links */}
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{color:'var(--t3)'}}>Quick Add Link</p>
+                    <div className="flex gap-2">
+                      <input placeholder="Paste a URL..." className="flex-1 rounded-xl px-3 py-2.5 text-xs outline-none border" style={{background:'var(--bg3)',borderColor:'var(--br)',color:'var(--t1)'}} onFocus={e=>e.target.style.borderColor='rgba(16,185,129,.4)'} onBlur={e=>e.target.style.borderColor='var(--br)'}/>
+                      <button className="px-4 rounded-xl text-xs font-bold text-white" style={{background:'linear-gradient(135deg,#10B981,#06B6D4)'}} onClick={()=>toast_('Link saved!','success')}>Save</button>
+                    </div>
+                  </div>
+                </div>
+              )}
               {/* ── NOTES TAB ── */}
               {wsTab==='notes'&&(
                 <div className="space-y-3">
@@ -5747,25 +5796,43 @@ Reply: ${botText.slice(0,800)}`,
 
       {/* ═══ QUIZ GENERATOR ═══ */}
       {showQuiz&&(
-        <div className="feat-modal-wrap fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.85)'}} onClick={()=>setShowQuiz(false)}>
-          <div className="feat-modal-inner w-full max-w-2xl rounded-2xl border shadow-2xl flex flex-col" style={{background:'var(--bg2)',borderColor:'var(--br)',maxHeight:'92vh'}} onClick={e=>e.stopPropagation()}>
+        <div className="feat-modal-wrap fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.88)'}} onClick={()=>setShowQuiz(false)}>
+          <div className="feat-modal-inner w-full max-w-2xl rounded-3xl border shadow-2xl flex flex-col" style={{background:'var(--bg2)',borderColor:'rgba(245,158,11,.2)',maxHeight:'92vh',boxShadow:'0 32px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(245,158,11,.08)'}} onClick={e=>e.stopPropagation()}>
             {/* Header */}
-            <div className="px-5 py-4 border-b flex-shrink-0" style={{borderColor:'var(--br)',background:'linear-gradient(135deg,rgba(245,158,11,.1),rgba(239,68,68,.06))'}}>
+            <div className="px-6 py-5 border-b flex-shrink-0" style={{borderColor:'rgba(245,158,11,.15)',background:'linear-gradient(135deg,rgba(245,158,11,.12),rgba(239,68,68,.07),rgba(0,0,0,0))'}}>
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{background:'linear-gradient(135deg,#F59E0B,#EF4444)',boxShadow:'0 0 16px rgba(245,158,11,.3)'}}>
-                    <i className="fa-solid fa-circle-question text-white text-sm"></i>
+                <div className="flex items-center gap-3.5">
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{background:'linear-gradient(145deg,#F59E0B,#EF4444)',boxShadow:'0 6px 20px rgba(245,158,11,.45), inset 0 1px 0 rgba(255,255,255,.2)'}}>
+                    <i className="fa-solid fa-circle-question text-white" style={{fontSize:18}}></i>
                   </div>
                   <div>
-                    <p className="font-bold text-base" style={{color:'var(--t1)'}}>Quiz Generator</p>
-                    <p className="text-[11px]" style={{color:'var(--t3)'}}>Test your knowledge with AI-generated quizzes</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-bold text-base" style={{color:'var(--t1)'}}>Quiz Generator</p>
+                      {quizSubmitted&&<span className="text-[9px] font-bold px-2 py-0.5 rounded-full" style={{background:'rgba(16,185,129,.15)',color:'#10B981',border:'1px solid rgba(16,185,129,.3)'}}>DONE</span>}
+                    </div>
+                    <p className="text-[11px] mt-0.5" style={{color:'var(--t3)'}}>AI-generated quizzes · MCQ · T/F · Fill-in</p>
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  {quizSubmitted&&<button onClick={()=>{setQuizQuestions([]);setQuizAnswers({});setQuizSubmitted(false);setQuizScore(0);}} className="px-3 py-1.5 rounded-xl text-xs border" style={{borderColor:'var(--br)',color:'var(--t2)'}}>New Quiz</button>}
-                  <button onClick={()=>setShowQuiz(false)} className="w-8 h-8 rounded-xl flex items-center justify-center" style={{color:'var(--t2)'}} onMouseEnter={e=>e.currentTarget.style.background='var(--bg3)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><i className="fa-solid fa-xmark"></i></button>
+                <div className="flex items-center gap-2">
+                  {quizSubmitted&&(
+                    <button onClick={()=>{setQuizQuestions([]);setQuizAnswers({});setQuizSubmitted(false);setQuizScore(0);}} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all" style={{borderColor:'rgba(245,158,11,.3)',color:'#F59E0B',background:'rgba(245,158,11,.08)'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(245,158,11,.15)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(245,158,11,.08)'}>
+                      <i className="fa-solid fa-rotate-right text-[10px]"></i>New Quiz
+                    </button>
+                  )}
+                  <button onClick={()=>setShowQuiz(false)} className="w-8 h-8 rounded-xl flex items-center justify-center transition-all" style={{color:'var(--t3)'}} onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,.08)';e.currentTarget.style.color='var(--t1)';}} onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='var(--t3)';}}><i className="fa-solid fa-xmark"></i></button>
                 </div>
               </div>
+              {/* Stats strip */}
+              {quizSubmitted&&(
+                <div className="flex gap-3 mt-4">
+                  {[{lbl:'Score',val:quizScore+'%',col:quizScore>=70?'#10B981':'#EF4444'},{lbl:'Correct',val:Object.values(quizAnswers).filter((a,i)=>a===quizQuestions[i]?.answer).length+'/'+quizQuestions.length,col:'#F59E0B'},{lbl:'Grade',val:quizScore===100?'A+':quizScore>=80?'A':quizScore>=70?'B':quizScore>=60?'C':'D',col:'#818cf8'}].map(s=>(
+                    <div key={s.lbl} className="flex-1 text-center px-3 py-2.5 rounded-2xl" style={{background:s.col+'10',border:`1px solid ${s.col}30`}}>
+                      <p className="text-lg font-black" style={{color:s.col}}>{s.val}</p>
+                      <p className="text-[9px] font-bold uppercase tracking-widest mt-0.5" style={{color:'var(--t3)'}}>{s.lbl}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="flex-1 overflow-y-auto sb p-5 feat-loading-wrap">
@@ -5839,12 +5906,12 @@ Reply: ${botText.slice(0,800)}`,
                 </div>
               ):(
                 <div className="space-y-4">
-                  {/* Score banner */}
+                  {/* Score banner - celebration message only */}
                   {quizSubmitted&&(
-                    <div className="rounded-xl border p-4 text-center" style={{borderColor:quizScore>=70?'rgba(16,185,129,.4)':'rgba(239,68,68,.4)',background:quizScore>=70?'rgba(16,185,129,.08)':'rgba(239,68,68,.06)'}}>
-                      <p className="text-3xl font-bold mb-1" style={{color:quizScore>=70?'#10B981':'#EF4444'}}>{quizScore}%</p>
-                      <p className="text-sm font-medium" style={{color:'var(--t2)'}}>{quizScore===100?'Perfect! 🎉':quizScore>=80?'Great job! 🌟':quizScore>=60?'Good effort! 💪':'Keep practicing! 📚'}</p>
-                      <p className="text-xs mt-1" style={{color:'var(--t3)'}}>{Object.values(quizAnswers).filter((a,i)=>a===quizQuestions[i]?.answer).length} / {quizQuestions.length} correct</p>
+                    <div className="rounded-2xl border p-4 text-center" style={{borderColor:quizScore>=70?'rgba(16,185,129,.3)':'rgba(239,68,68,.3)',background:quizScore>=70?'rgba(16,185,129,.06)':'rgba(239,68,68,.04)'}}>
+                      <p className="text-2xl mb-1">{quizScore===100?'🎉':quizScore>=80?'🌟':quizScore>=70?'💪':quizScore>=50?'📚':'🔄'}</p>
+                      <p className="text-sm font-bold" style={{color:quizScore>=70?'#10B981':'#EF4444'}}>{quizScore===100?'Perfect Score!':quizScore>=80?'Excellent Work!':quizScore>=70?'Great Job!':quizScore>=50?'Good Effort!':'Keep Practicing!'}</p>
+                      <p className="text-xs mt-1" style={{color:'var(--t3)'}}>Check the score breakdown above</p>
                     </div>
                   )}
                   {/* Questions */}
@@ -5915,49 +5982,46 @@ Reply: ${botText.slice(0,800)}`,
 
       {/* ═══ LANGUAGE LEARNING MODE ═══ */}
       {showLangLearn&&(
-        <div className="feat-modal-wrap fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.85)'}} onClick={()=>setShowLangLearn(false)}>
-          <div className="feat-modal-inner w-full max-w-2xl rounded-2xl border shadow-2xl flex flex-col" style={{background:'var(--bg2)',borderColor:'var(--br)',maxHeight:'92vh'}} onClick={e=>e.stopPropagation()}>
-            {/* Header — redesigned */}
-            <div className="px-5 py-4 border-b flex-shrink-0" style={{borderColor:'var(--br)',background:'linear-gradient(135deg,rgba(99,102,241,.12),rgba(16,185,129,.07))'}}>
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{background:'linear-gradient(135deg,#6366F1,#10B981)',boxShadow:'0 0 18px rgba(99,102,241,.35)'}}>
-                    <i className="fa-solid fa-language text-white" style={{fontSize:14}}></i>
+        <div className="feat-modal-wrap fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.88)'}} onClick={()=>setShowLangLearn(false)}>
+          <div className="feat-modal-inner w-full max-w-2xl rounded-3xl border shadow-2xl flex flex-col" style={{background:'var(--bg2)',borderColor:'rgba(99,102,241,.2)',maxHeight:'92vh',boxShadow:'0 32px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(99,102,241,.08)'}} onClick={e=>e.stopPropagation()}>
+            {/* Header */}
+            <div className="px-6 py-5 border-b flex-shrink-0" style={{borderColor:'rgba(99,102,241,.15)',background:'linear-gradient(135deg,rgba(99,102,241,.13),rgba(16,185,129,.07),rgba(0,0,0,0))'}}>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{background:'linear-gradient(145deg,#6366F1,#10B981)',boxShadow:'0 6px 20px rgba(99,102,241,.45), inset 0 1px 0 rgba(255,255,255,.2)'}}>
+                    <i className="fa-solid fa-language text-white" style={{fontSize:19}}></i>
                   </div>
                   <div>
-                    <p className="font-bold text-sm" style={{color:'var(--t1)'}}>Language Learning</p>
-                    <p className="text-[10px]" style={{color:'var(--t3)'}}>Cards · Phrases · Grammar · Translate</p>
+                    <p className="font-bold text-base" style={{color:'var(--t1)'}}>Language Learning</p>
+                    <p className="text-[11px] mt-0.5" style={{color:'var(--t3)'}}>Cards · Phrases · Grammar · Translate · Challenge</p>
                   </div>
                 </div>
-                <button onClick={()=>setShowLangLearn(false)} className="w-8 h-8 rounded-xl flex items-center justify-center transition-all" style={{color:'var(--t3)'}} onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,.08)';e.currentTarget.style.color='var(--t1)'}} onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='var(--t3)'}}><i className="fa-solid fa-xmark text-sm"></i></button>
+                <button onClick={()=>setShowLangLearn(false)} className="w-8 h-8 rounded-xl flex items-center justify-center transition-all" style={{color:'var(--t3)'}} onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,.08)';e.currentTarget.style.color='var(--t1)';}} onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='var(--t3)';}}><i className="fa-solid fa-xmark text-sm"></i></button>
               </div>
-              {/* Lang pills + Level pills + Tabs in one row */}
+              {/* Controls row */}
               <div className="flex items-center gap-2 flex-wrap">
-                {/* Language selector as styled pills */}
                 <div style={{position:'relative',flexShrink:0}}>
                   <select value={llLang} onChange={e=>{setLlLang(e.target.value);setLlCards([]);}}
-                    style={{appearance:'none',background:'rgba(99,102,241,.1)',border:'1px solid rgba(99,102,241,.3)',
-                      borderRadius:8,padding:'5px 28px 5px 10px',fontSize:11,fontWeight:600,color:'var(--t1)',
+                    style={{appearance:'none',background:'rgba(99,102,241,.12)',border:'1px solid rgba(99,102,241,.3)',
+                      borderRadius:10,padding:'6px 30px 6px 12px',fontSize:11,fontWeight:700,color:'var(--t1)',
                       cursor:'pointer',outline:'none'}}>
-                    {[['bangla','🇧🇩 বাংলা'],['japanese','🇯🇵 Japanese'],['korean','🇰🇷 Korean'],['spanish','🇪🇸 Spanish'],['french','🇫🇷 French'],['german','🇩🇪 German'],['mandarin','🇨🇳 Mandarin'],['arabic','🇸🇦 Arabic'],['portuguese','🇧🇷 Portuguese'],['italian','🇮🇹 Italian'],['hindi','🇮🇳 Hindi']].map(([v,l])=><option key={v} value={v}>{l}</option>)}
+                    {[['bangla','🇧🇩 বাংলা'],['japanese','🇯🇵 Japanese'],['korean','🇰🇷 Korean'],['spanish','🇪🇸 Spanish'],['french','🇫🇷 French'],['german','🇩🇪 German'],['mandarin','🇨🇳 Mandarin'],['arabic','🇸🇦 Arabic'],['portuguese','🇧🇷 Portuguese'],['italian','🇮🇹 Italian'],['hindi','🇮🇳 Hindi'],['turkish','🇹🇷 Turkish'],['russian','🇷🇺 Russian']].map(([v,l])=><option key={v} value={v}>{l}</option>)}
                   </select>
-                  <i className="fa-solid fa-chevron-down" style={{position:'absolute',right:8,top:'50%',transform:'translateY(-50%)',fontSize:8,color:'var(--t3)',pointerEvents:'none'}}></i>
+                  <i className="fa-solid fa-chevron-down" style={{position:'absolute',right:9,top:'50%',transform:'translateY(-50%)',fontSize:8,color:'var(--t3)',pointerEvents:'none'}}></i>
                 </div>
-                {/* Level pills */}
                 <div className="flex gap-1">
-                  {[['beginner','#10B981'],['intermediate','#F59E0B'],['advanced','#EF4444']].map(([v,clr])=>(
+                  {[['beginner','🟢','#10B981'],['intermediate','🟡','#F59E0B'],['advanced','🔴','#EF4444']].map(([v,e,clr])=>(
                     <button key={v} onClick={()=>setLlLevel(v)}
-                      style={{padding:'4px 10px',borderRadius:7,fontSize:10,fontWeight:600,border:'none',cursor:'pointer',
-                        background:llLevel===v?clr+'22':'var(--bg3)',color:llLevel===v?clr:'var(--t3)',
-                        outline:llLevel===v?`1px solid ${clr}55`:'1px solid transparent',transition:'all .12s'}}>
-                      {v.charAt(0).toUpperCase()+v.slice(1)}
+                      style={{padding:'5px 11px',borderRadius:9,fontSize:10,fontWeight:700,border:'none',cursor:'pointer',
+                        background:llLevel===v?clr+'20':'rgba(255,255,255,.04)',color:llLevel===v?clr:'var(--t3)',
+                        outline:llLevel===v?`1px solid ${clr}44`:'1px solid rgba(255,255,255,.05)',transition:'all .15s'}}>
+                      {e} {v.charAt(0).toUpperCase()+v.slice(1)}
                     </button>
                   ))}
                 </div>
-                {/* Tabs */}
-                <div className="flex gap-1 ml-auto p-1 rounded-xl" style={{background:'var(--bg3)'}}>
-                  {[['flashcard','fa-clone','Cards'],['phrase','fa-comment-dots','Phrases'],['grammar','fa-spell-check','Grammar'],['translate','fa-arrows-left-right','Translate']].map(([t,ic,lb])=>(
-                    <button key={t} onClick={()=>setLlTab(t)} className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all" style={{background:llTab===t?'var(--bg2)':'transparent',color:llTab===t?'var(--t1)':'var(--t3)'}}>
+                <div className="flex gap-1 ml-auto p-1 rounded-2xl" style={{background:'rgba(0,0,0,.25)',border:'1px solid rgba(255,255,255,.05)'}}>
+                  {[['flashcard','fa-clone','Cards'],['phrase','fa-comment-dots','Phrases'],['grammar','fa-spell-check','Grammar'],['translate','fa-arrows-left-right','Translate'],['challenge','fa-trophy','Challenge']].map(([t,ic,lb])=>(
+                    <button key={t} onClick={()=>setLlTab(t)} className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[10px] font-bold transition-all" style={{background:llTab===t?'linear-gradient(135deg,rgba(99,102,241,.25),rgba(16,185,129,.12))':'transparent',color:llTab===t?'#818cf8':'var(--t3)',border:llTab===t?'1px solid rgba(99,102,241,.3)':'1px solid transparent'}}>
                       <i className={`fa-solid ${ic} text-[9px]`}></i>{lb}
                     </button>
                   ))}
@@ -6108,6 +6172,63 @@ Reply: ${botText.slice(0,800)}`,
                       {r.tip&&<p className="text-[10px] mt-1" style={{color:'#F59E0B'}}>💡 {r.tip}</p>}
                     </div>
                   ))}
+                </div>
+              )}
+
+              {/* CHALLENGE TAB */}
+              {llTab==='challenge'&&(
+                <div className="space-y-4">
+                  <div className="rounded-2xl border p-5" style={{borderColor:'rgba(245,158,11,.3)',background:'linear-gradient(135deg,rgba(245,158,11,.08),rgba(239,68,68,.04))'}}>
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{background:'linear-gradient(135deg,#F59E0B,#EF4444)',boxShadow:'0 4px 14px rgba(245,158,11,.4)'}}>
+                        <i className="fa-solid fa-trophy text-white" style={{fontSize:16}}></i>
+                      </div>
+                      <div>
+                        <p className="font-bold text-sm" style={{color:'var(--t1)'}}>Daily Challenge</p>
+                        <p className="text-[10px]" style={{color:'var(--t3)'}}>Test your {llLang} skills</p>
+                      </div>
+                      <div className="ml-auto text-right">
+                        <p className="text-xl font-black" style={{color:'#F59E0B'}}>🔥 0</p>
+                        <p className="text-[9px]" style={{color:'var(--t3)'}}>Day streak</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 mb-4">
+                      {[{ic:'fa-spell-check',lbl:'Spelling',col:'#6366F1'},{ic:'fa-shuffle',lbl:'Word Order',col:'#10B981'},{ic:'fa-ear-listen',lbl:'Listening',col:'#F59E0B'}].map((c,i)=>(
+                        <button key={i} onClick={()=>toast_('Challenge mode coming soon!','info')} className="rounded-2xl border p-3 text-center transition-all" style={{borderColor:c.col+'33',background:c.col+'08'}} onMouseEnter={e=>{e.currentTarget.style.background=c.col+'18';}} onMouseLeave={e=>{e.currentTarget.style.background=c.col+'08';}}>
+                          <div className="w-9 h-9 rounded-xl mx-auto mb-2 flex items-center justify-center" style={{background:`linear-gradient(135deg,${c.col}cc,${c.col}88)`,boxShadow:`0 3px 10px ${c.col}40`}}>
+                            <i className={`fa-solid ${c.ic} text-white`} style={{fontSize:14}}></i>
+                          </div>
+                          <p className="text-[11px] font-bold" style={{color:'var(--t1)'}}>{c.lbl}</p>
+                        </button>
+                      ))}
+                    </div>
+                    <button onClick={async()=>{
+                      const ctrl=new AbortController(); llAbortRef.current=ctrl;
+                      setLlLoading(true);
+                      try{
+                        const res=await fetch('/chat',{method:'POST',signal:ctrl.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({message:`Create a 5-question ${llLevel} ${llLang} challenge. Mix: spelling (give English, ask ${llLang}), translation (give ${llLang}, ask English), fill-in-blank. Return JSON: [{"type":"spell|translate|fill","prompt":"question","answer":"correct answer","hint":"short hint"}]. JSON only.`,system_prompt:'Language teacher. JSON only.'})});
+                        const data=await res.json();
+                        const clean=(data.reply||'[]').replace(/```json|```/g,'').trim();
+                        setLlCards(JSON.parse(clean)); setLlCardIdx(0); setLlFlipped(false); setLlTab('flashcard');
+                        toast_('Challenge ready! Check Flashcards tab','success');
+                      }catch(e){if(e.name!=='AbortError')toast_('Failed to generate challenge','error');}
+                      finally{setLlLoading(false); llAbortRef.current=null;}
+                    }} className="w-full py-3 rounded-2xl text-sm font-bold text-white flex items-center justify-center gap-2" style={{background:'linear-gradient(135deg,#F59E0B,#EF4444)',boxShadow:'0 4px 16px rgba(245,158,11,.35)'}}>
+                      <i className="fa-solid fa-bolt text-xs"></i>Start Daily Challenge
+                    </button>
+                  </div>
+                  {/* Leaderboard preview */}
+                  <div className="rounded-2xl border p-4" style={{borderColor:'rgba(99,102,241,.25)',background:'rgba(99,102,241,.05)'}}>
+                    <p className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{color:'var(--t3)'}}>🏆 Leaderboard</p>
+                    {[{name:'You',score:0,flag:'🥇'},{name:'—',score:0,flag:'🥈'},{name:'—',score:0,flag:'🥉'}].map((p,i)=>(
+                      <div key={i} className="flex items-center gap-3 py-2 border-b last:border-0" style={{borderColor:'rgba(255,255,255,.04)'}}>
+                        <span className="text-base">{p.flag}</span>
+                        <span className="text-xs font-bold flex-1" style={{color:'var(--t1)'}}>{p.name}</span>
+                        <span className="text-xs font-black" style={{color:'#818cf8'}}>{p.score} pts</span>
+                      </div>
+                    ))}
+                    <p className="text-[10px] text-center mt-2" style={{color:'var(--t3)'}}>Complete challenges to earn points!</p>
+                  </div>
                 </div>
               )}
 
@@ -7946,19 +8067,16 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                             return visibleFeatures.map(f=>{
                               const isActive=f.id==='incognito'&&incognito;
                               const displayCol=isActive?'#a78bfa':f.col;
-                              const specialBg={'incognito':isActive?'linear-gradient(135deg,rgba(167,139,250,.15),rgba(139,92,246,.08))':'var(--bg3)'};
-                              const bg=specialBg[f.id]||'var(--bg3)';
-                              const bdr=isActive?'rgba(167,139,250,.4)':'var(--br)';
                               return(
                                 <button key={f.id} onClick={getFn(f.id)}
-                                  style={{display:'flex',flexDirection:'column',alignItems:'center',gap:6,padding:'12px 4px 10px',borderRadius:14,border:`1px solid ${bdr}`,background:bg,cursor:'pointer',position:'relative',transition:'all .18s',minWidth:0}}
-                                  onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-2px) scale(1.03)';e.currentTarget.style.boxShadow=`0 6px 16px ${displayCol}28`;}}
-                                  onMouseLeave={e=>{e.currentTarget.style.transform='translateY(0) scale(1)';e.currentTarget.style.boxShadow='none';}}>
-                                  {isActive&&<div style={{position:'absolute',top:6,right:6,width:6,height:6,borderRadius:'50%',background:'#a78bfa',boxShadow:'0 0 6px rgba(167,139,250,.8)'}}></div>}
-                                  <div style={{width:34,height:34,borderRadius:11,background:`linear-gradient(135deg,${displayCol}22,${displayCol}0e)`,border:`1px solid ${displayCol}28`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,boxShadow:isActive?`0 4px 12px ${displayCol}40`:'none'}}>
-                                    <i className={`fa-solid ${f.ic}`} style={{color:displayCol,fontSize:13,filter:isActive?'drop-shadow(0 0 4px rgba(167,139,250,.8))':''}}></i>
+                                  style={{display:'flex',flexDirection:'column',alignItems:'center',gap:7,padding:'14px 4px 12px',borderRadius:16,border:`1px solid ${isActive?displayCol+'55':'rgba(255,255,255,.06)'}`,background:isActive?`linear-gradient(145deg,${displayCol}22,${displayCol}0d)`:'linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.01))',cursor:'pointer',position:'relative',transition:'all .18s',minWidth:0}}
+                                  onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-3px) scale(1.05)';e.currentTarget.style.background=`linear-gradient(145deg,${displayCol}28,${displayCol}12)`;e.currentTarget.style.borderColor=`${displayCol}60`;e.currentTarget.style.boxShadow=`0 8px 22px ${displayCol}35`;}}
+                                  onMouseLeave={e=>{e.currentTarget.style.transform='';e.currentTarget.style.background=isActive?`linear-gradient(145deg,${displayCol}22,${displayCol}0d)`:'linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.01))';e.currentTarget.style.borderColor=isActive?displayCol+'55':'rgba(255,255,255,.06)';e.currentTarget.style.boxShadow='none';}}>
+                                  {isActive&&<div style={{position:'absolute',top:7,right:7,width:6,height:6,borderRadius:'50%',background:displayCol,boxShadow:`0 0 8px ${displayCol}`,animation:'pulse 1.5s infinite'}}></div>}
+                                  <div style={{width:44,height:44,borderRadius:13,background:`linear-gradient(145deg,${displayCol}ee,${displayCol}99)`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,boxShadow:`0 5px 16px ${displayCol}50, inset 0 1px 0 rgba(255,255,255,.25)`}}>
+                                    <i className={`fa-solid ${f.ic}`} style={{color:'#fff',fontSize:17,filter:'drop-shadow(0 1px 4px rgba(0,0,0,.35))'}}></i>
                                   </div>
-                                  <span style={{fontSize:9,color:displayCol,fontWeight:700,textAlign:'center',lineHeight:1.2,maxWidth:64,textTransform:'uppercase',letterSpacing:'.04em'}}>{f.id==='incognito'&&incognito?'ON':f.lbl}</span>
+                                  <span style={{fontSize:9.5,color:'var(--t1)',fontWeight:700,textAlign:'center',lineHeight:1.25,maxWidth:68,letterSpacing:'.01em',opacity:.88}}>{f.id==='incognito'&&incognito?'ON':f.lbl}</span>
                                 </button>
                               );
                             });                          })()}
