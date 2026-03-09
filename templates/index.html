@@ -106,7 +106,7 @@ window.OMINA_USER = { name:"{{ user_name }}", email:"{{ user_email }}" };
 [data-fontsize="md"] .md-body{font-size:14.5px!important}
 [data-fontsize="lg"] .md-body{font-size:16px!important}
 *{box-sizing:border-box;transition:background-color .2s,color .2s,border-color .2s}
-body{margin:0;background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--t1);overflow:hidden}
+body{margin:0;background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--t1);overflow:hidden;overscroll-behavior-y:auto;-webkit-overflow-scrolling:touch;}
 .sb::-webkit-scrollbar{width:5px;height:5px}
 .sb::-webkit-scrollbar-track{background:transparent}
 .sb::-webkit-scrollbar-thumb{background:var(--br);border-radius:10px}
@@ -2720,10 +2720,10 @@ function AIAgentModal({onClose,sysPrompt,language}) {
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.88)',backdropFilter:'blur(18px)'}} onClick={onClose}>
-      <div className="w-full max-w-2xl rounded-3xl shadow-2xl flex flex-col" style={{background:'var(--bg2)',border:'1px solid rgba(167,139,250,.22)',maxHeight:'92vh',boxShadow:'0 30px 80px rgba(0,0,0,.6),0 0 0 1px rgba(167,139,250,.08)'}} onClick={e=>e.stopPropagation()}>
+      <div className="w-full max-w-2xl rounded-none sm:rounded-3xl shadow-2xl flex flex-col" style={{background:'var(--bg2)',border:'1px solid rgba(167,139,250,.22)',maxHeight:'100dvh',height:'100dvh',sm_height:'auto',boxShadow:'0 30px 80px rgba(0,0,0,.6),0 0 0 1px rgba(167,139,250,.08)'}} onClick={e=>e.stopPropagation()}>
 
         {/* ── Header ── */}
-        <div className="px-6 py-5 border-b flex-shrink-0" style={{borderColor:'rgba(167,139,250,.12)',background:'linear-gradient(135deg,rgba(167,139,250,.12),rgba(139,92,246,.07),transparent)'}}>
+        <div className="px-4 sm:px-6 py-4 sm:py-5 border-b flex-shrink-0" style={{borderColor:'rgba(167,139,250,.12)',background:'linear-gradient(135deg,rgba(167,139,250,.12),rgba(139,92,246,.07),transparent)'}}>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className="w-11 h-11 rounded-2xl flex items-center justify-center relative" style={{background:'linear-gradient(145deg,#7c3aed,#a855f7)',boxShadow:'0 6px 20px rgba(139,92,246,.45),inset 0 1px 0 rgba(255,255,255,.2)'}}>
@@ -2739,7 +2739,7 @@ function AIAgentModal({onClose,sysPrompt,language}) {
                 <p className="text-[11px] mt-0.5" style={{color:'var(--t3)'}}>Multi-step autonomous task executor · {MODES.find(m=>m.id===agentMode)?.lbl} mode</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <div className="flex rounded-xl overflow-hidden border" style={{borderColor:'rgba(255,255,255,.07)'}}>
                 {[['run','fa-bolt','Run'],['history','fa-clock-rotate-left','History']].map(([t,ic,l])=>(
                   <button key={t} onClick={()=>setTab(t)} className="px-3 py-1.5 text-[11px] font-bold transition-all flex items-center gap-1.5" style={{background:tab===t?'rgba(167,139,250,.2)':'transparent',color:tab===t?'#a78bfa':'var(--t3)',border:'none',cursor:'pointer'}}>
@@ -2762,13 +2762,13 @@ function AIAgentModal({onClose,sysPrompt,language}) {
 
         {/* ── RUN TAB ── */}
         {tab==='run'&&(
-        <div className="flex-1 overflow-y-auto sb p-5 space-y-5" style={{minHeight:0}}>
+        <div className="flex-1 overflow-y-auto sb p-3 sm:p-5 space-y-4 sm:space-y-5" style={{minHeight:0}}>
 
           {/* Mode selector */}
           {!running&&!done&&(
             <div>
               <p className="text-[10px] font-bold uppercase tracking-widest mb-2.5" style={{color:'var(--t3)'}}>Agent Mode</p>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {MODES.map(m=>(
                   <button key={m.id} onClick={()=>setAgentMode(m.id)} className="rounded-2xl border p-3 text-center transition-all" style={{borderColor:agentMode===m.id?m.col+'55':'rgba(255,255,255,.06)',background:agentMode===m.id?m.col+'12':'rgba(255,255,255,.02)'}} onMouseEnter={e=>{if(agentMode!==m.id){e.currentTarget.style.background=m.col+'08';e.currentTarget.style.borderColor=m.col+'30';}}} onMouseLeave={e=>{if(agentMode!==m.id){e.currentTarget.style.background='rgba(255,255,255,.02)';e.currentTarget.style.borderColor='rgba(255,255,255,.06)';}}}>
                     <div className="w-8 h-8 rounded-xl mx-auto mb-2 flex items-center justify-center" style={{background:'linear-gradient(135deg,'+m.col+'cc,'+m.col+'88)',boxShadow:agentMode===m.id?'0 4px 12px '+m.col+'40':'none'}}>
@@ -2788,7 +2788,7 @@ function AIAgentModal({onClose,sysPrompt,language}) {
               <p className="text-[10px] font-bold uppercase tracking-widest mb-2.5" style={{color:'var(--t3)'}}>Task Type</p>
               <div className="grid grid-cols-2 gap-2">
                 {AGENT_TASKS.map(t=>(
-                  <button key={t.id} onClick={()=>{setSelectedTask(t.id===selectedTask?null:t.id);if(t.id!==selectedTask)setGoal(t.prompt);}} className="p-3 rounded-2xl border text-left transition-all flex items-center gap-3" style={{borderColor:selectedTask===t.id?t.color+'55':'rgba(255,255,255,.06)',background:selectedTask===t.id?t.color+'10':'rgba(255,255,255,.02)'}} onMouseEnter={e=>{if(selectedTask!==t.id){e.currentTarget.style.borderColor=t.color+'35';e.currentTarget.style.background=t.color+'07';}}} onMouseLeave={e=>{if(selectedTask!==t.id){e.currentTarget.style.borderColor='rgba(255,255,255,.06)';e.currentTarget.style.background='rgba(255,255,255,.02)';}}} >
+                  <button key={t.id} onClick={()=>{setSelectedTask(t.id===selectedTask?null:t.id);if(t.id!==selectedTask)setGoal(t.prompt);}} className="p-2.5 sm:p-3 rounded-2xl border text-left transition-all flex items-center gap-2" style={{borderColor:selectedTask===t.id?t.color+'55':'rgba(255,255,255,.06)',background:selectedTask===t.id?t.color+'10':'rgba(255,255,255,.02)'}} onMouseEnter={e=>{if(selectedTask!==t.id){e.currentTarget.style.borderColor=t.color+'35';e.currentTarget.style.background=t.color+'07';}}} onMouseLeave={e=>{if(selectedTask!==t.id){e.currentTarget.style.borderColor='rgba(255,255,255,.06)';e.currentTarget.style.background='rgba(255,255,255,.02)';}}} >
                     <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{background:'linear-gradient(135deg,'+t.color+'cc,'+t.color+'77)',boxShadow:selectedTask===t.id?'0 3px 10px '+t.color+'40':'none'}}>
                       <i className={"fa-solid "+t.icon+" text-white"} style={{fontSize:12}}></i>
                     </div>
@@ -8249,11 +8249,11 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
         </div>
         );
       })()}
-      {showImgGen&&<ImageGenModal onClose={()=>{setShowImgGen(false);setImgGenPrompt('');}} onGenerate={handleImgGen} history={imgGenHistory} setHistory={setImgGenHistory} initialPrompt={imgGenPrompt}/>}
+      {showImgGen&&<ImageGenModal onClose={()=>{setShowImgGen(false);setImgGenPrompt('');if(featFromSettings){setFeatFromSettings(false);setShowSettings(true);setSettingsTab('quickaccess');}}} onGenerate={handleImgGen} history={imgGenHistory} setHistory={setImgGenHistory} initialPrompt={imgGenPrompt}/>}
       {showShare&&<ShareModal session={curSession} onClose={()=>setShowShare(false)}/>}
       {showTodo&&<TodoModal todos={todos} setTodos={setTodos} onClose={()=>{setShowTodo(false);if(featFromSettings){setFeatFromSettings(false);setShowSettings(true);setSettingsTab('quickaccess');}}}/>}
       {showSticky&&<StickyModal notes={stickyNotes} setNotes={setStickyNotes} onClose={()=>{setShowSticky(false);if(featFromSettings){setFeatFromSettings(false);setShowSettings(true);setSettingsTab('quickaccess');}}}/>}
-      {showAIAgent&&<AIAgentModal onClose={()=>setShowAIAgent(false)} sysPrompt={sysPrompt} language={language}/>}
+      {showAIAgent&&<AIAgentModal onClose={()=>{setShowAIAgent(false);if(featFromSettings){setFeatFromSettings(false);setShowSettings(true);setSettingsTab('quickaccess');}}} sysPrompt={sysPrompt} language={language}/>}
 
       {/* ── MESSAGE SEARCH MODAL ── */}
       {showMsgSearch&&(
@@ -10316,8 +10316,8 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       quiz:()=>{setFeatFromSettings(true);setShowSettings(false);setShowQuiz(true);},
                       langlearn:()=>{setFeatFromSettings(true);setShowSettings(false);setShowLangLearn(true);},
                       splitview:()=>{setShowSettings(false);const other=sessions.find(s=>s.id!==sid);if(other){setSplitSid(other.id);setSplitView(true);}else toast_('Need 2 chats','info');},
-                      wordcloud:()=>{setShowSettings(false);setShowWordCloud(true);},
-                      modelcomp:()=>{setShowSettings(false);setShowModelComp(true);},
+                      wordcloud:()=>{setFeatFromSettings(true);setShowSettings(false);setShowWordCloud(true);},
+                      modelcomp:()=>{setFeatFromSettings(true);setShowSettings(false);setShowModelComp(true);},
                       ,
                       dna:()=>{setFeatFromSettings(true);setShowSettings(false);setShowDNA(true);},
                       collider:()=>{setFeatFromSettings(true);setShowSettings(false);setShowCollider(true);},
