@@ -315,8 +315,16 @@ input:-webkit-autofill{-webkit-box-shadow:0 0 0 30px var(--bgi) inset!important;
   .feat-pin-mobile{display:flex!important}
 
   /* ── Feature grid ── */
-  .feat-grid{grid-template-columns:repeat(2,1fr)!important;}
+  .feat-grid{grid-template-columns:repeat(2,1fr)!important;gap:6px!important;}
   .feat-card:hover .feat-pin{opacity:1!important}
+  /* ── Feature card mobile polish ── */
+  .feat-card{border-radius:14px!important;}
+  .feat-card>button.w-full{padding:10px 10px 8px 10px!important;gap:8px!important;flex-direction:column!important;align-items:flex-start!important;}
+  .feat-card>button.w-full .w-8{width:34px!important;height:34px!important;border-radius:10px!important;margin-bottom:2px!important;}
+  .feat-card>button.w-full .w-8 i{font-size:14px!important;}
+  .feat-card>button.w-full span.text-xs{font-size:11.5px!important;line-height:1.3!important;}
+  .feat-card>button.w-full .fa-arrow-up-right-from-square{display:none!important;}
+  .feat-pin-mobile{font-size:9.5px!important;padding-top:6px!important;padding-bottom:6px!important;}
 
   /* ── Settings modal — slide up from bottom ── */
   .settings-modal{
