@@ -1514,10 +1514,10 @@ function CanvasPanel({content, onClose}) {
         </div>
         <div style={{flex:1,display:'flex',alignItems:'center',gap:6,paddingLeft:12,overflow:'hidden'}}>
           <i className="fa-solid fa-cube" style={{color:'#6366f1',fontSize:12,flexShrink:0}}></i>
-          <span style={{fontSize:12,color:'#444466',fontFamily:"'JetBrains Mono',monospace",flexShrink:0}}>omina-canvas</span>
+          <span style={{fontSize:12,color:'#444466',fontFamily:'JetBrains Mono, monospace',flexShrink:0}}>omina-canvas</span>
           <i className="fa-solid fa-chevron-right" style={{color:'#333355',fontSize:9,flexShrink:0}}></i>
           <i className={fi.i} style={{color:fi.c,fontSize:11,flexShrink:0}}></i>
-          <span style={{fontSize:12,color:'#cdd6f4',fontFamily:"'JetBrains Mono',monospace",overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{activeTab}</span>
+          <span style={{fontSize:12,color:'#cdd6f4',fontFamily:'JetBrains Mono, monospace',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{activeTab}</span>
         </div>
         <div style={{display:'flex',alignItems:'center',gap:4,flexShrink:0}}>
           {/* NEW: AI Chat toggle in title bar */}
@@ -1631,7 +1631,7 @@ function CanvasPanel({content, onClose}) {
         <div className="cv-findbar">
           <i className="fa-solid fa-magnifying-glass" style={{fontSize:11,color:'#444466'}}></i>
           <input ref={findRef} className="cv-find-input" value={findQ} onChange={e=>setFindQ(e.target.value)} placeholder="Search in file…" onKeyDown={e=>e.key==='Escape'&&setShowFind(false)}/>
-          <span style={{fontSize:11,color:'#444466',fontFamily:"'JetBrains Mono',monospace",minWidth:60}}>
+          <span style={{fontSize:11,color:'#444466',fontFamily:'JetBrains Mono, monospace',minWidth:60}}>
             {findQ ? (findCount>0?`${findCount} match${findCount>1?'es':''}`: '0 matches') : ''}
           </span>
           <button className="cv-btn" onClick={()=>setShowFind(false)} style={{padding:'2px 6px',marginLeft:4}}><i className="fa-solid fa-xmark" style={{fontSize:10}}></i></button>
@@ -1653,7 +1653,7 @@ function CanvasPanel({content, onClose}) {
                       style={{width:'100%',height:'100%',border:'none',display:'block'}} title="Canvas Preview"/>
                   ) : (
                     <div className="sb" style={{height:'100%',overflow:'auto',padding:'20px 24px'}}>
-                      <pre style={{whiteSpace:'pre-wrap',wordBreak:'break-word',fontFamily:"'JetBrains Mono',monospace",fontSize:13,lineHeight:1.7,color:'#cdd6f4',margin:0}}>{liveCode}</pre>
+                      <pre style={{whiteSpace:'pre-wrap',wordBreak:'break-word',fontFamily:'JetBrains Mono, monospace',fontSize:13,lineHeight:1.7,color:'#cdd6f4',margin:0}}>{liveCode}</pre>
                     </div>
                   )}
                 </div>
@@ -1668,25 +1668,25 @@ function CanvasPanel({content, onClose}) {
                         {t==='problems'&&errCount>0&&<span style={{marginLeft:6,background:'#f85149',color:'#fff',borderRadius:99,padding:'0 5px',fontSize:9,fontWeight:700}}>{errCount}</span>}
                       </button>
                     ))}
-                    <button onClick={()=>setConsoleLogs([])} style={{marginLeft:'auto',fontSize:10,color:'#444466',background:'none',border:'none',cursor:'pointer',fontFamily:"'JetBrains Mono',monospace",padding:'2px 6px',borderRadius:4}} onMouseEnter={e=>e.currentTarget.style.color='#818cf8'} onMouseLeave={e=>e.currentTarget.style.color='#444466'}>
+                    <button onClick={()=>setConsoleLogs([])} style={{marginLeft:'auto',fontSize:10,color:'#444466',background:'none',border:'none',cursor:'pointer',fontFamily:'JetBrains Mono, monospace',padding:'2px 6px',borderRadius:4}} onMouseEnter={e=>e.currentTarget.style.color='#818cf8'} onMouseLeave={e=>e.currentTarget.style.color='#444466'}>
                       <i className="fa-solid fa-trash-can" style={{marginRight:4,fontSize:9}}></i>Clear
                     </button>
                   </div>
                   <div className="sb" style={{flex:1,overflow:'auto',padding:'6px 12px',background:'#08080f'}}>
                     {consoleTab==='console'?(
                       consoleLogs.length===0
-                        ?<span style={{color:'#333355',fontFamily:"'JetBrains Mono',monospace",fontSize:11,fontStyle:'italic'}}>No output yet…</span>
+                        ?<span style={{color:'#333355',fontFamily:'JetBrains Mono, monospace',fontSize:11,fontStyle:'italic'}}>No output yet…</span>
                         :consoleLogs.map((l,i)=>(
-                          <div key={i} style={{fontFamily:"'JetBrains Mono',monospace",fontSize:11,color:l.method==='error'?'#f85149':l.method==='warn'?'#e3b341':'#8b949e',padding:'2px 0',display:'flex',gap:8}}>
+                          <div key={i} style={{fontFamily:'JetBrains Mono, monospace',fontSize:11,color:l.method==='error'?'#f85149':l.method==='warn'?'#e3b341':'#8b949e',padding:'2px 0',display:'flex',gap:8}}>
                             <span style={{color:'#444466'}}>[{l.time}]</span>
                             <span>{l.args.join(' ')}</span>
                           </div>
                         ))
                     ):(
                       errCount===0&&warnCount===0
-                        ?<span style={{color:'#3fb950',fontFamily:"'JetBrains Mono',monospace",fontSize:11}}>✓ No problems detected</span>
+                        ?<span style={{color:'#3fb950',fontFamily:'JetBrains Mono, monospace',fontSize:11}}>✓ No problems detected</span>
                         :consoleLogs.filter(l=>l.method==='error'||l.method==='warn').map((l,i)=>(
-                          <div key={i} style={{fontFamily:"'JetBrains Mono',monospace",fontSize:11,color:l.method==='error'?'#f85149':'#e3b341',padding:'2px 0',display:'flex',gap:8,alignItems:'flex-start'}}>
+                          <div key={i} style={{fontFamily:'JetBrains Mono, monospace',fontSize:11,color:l.method==='error'?'#f85149':'#e3b341',padding:'2px 0',display:'flex',gap:8,alignItems:'flex-start'}}>
                             <i className={`fa-solid ${l.method==='error'?'fa-circle-xmark':'fa-triangle-exclamation'}`} style={{fontSize:10,marginTop:1,flexShrink:0}}></i>
                             <span>{l.args.join(' ')}</span>
                           </div>
@@ -1723,8 +1723,8 @@ function CanvasPanel({content, onClose}) {
                 <i className="fa-solid fa-code" style={{fontSize:28,color:'rgba(99,102,241,.4)'}}></i>
               </div>
               <div style={{textAlign:'center'}}>
-                <p style={{margin:'0 0 4px',fontSize:14,fontWeight:600,color:'#333355',fontFamily:"'JetBrains Mono',monospace"}}>Canvas is ready</p>
-                <p style={{margin:0,fontSize:12,color:'#22223a',fontFamily:"'JetBrains Mono',monospace"}}>Send code to see it here</p>
+                <p style={{margin:'0 0 4px',fontSize:14,fontWeight:600,color:'#333355',fontFamily:'JetBrains Mono, monospace'}}>Canvas is ready</p>
+                <p style={{margin:0,fontSize:12,color:'#22223a',fontFamily:'JetBrains Mono, monospace'}}>Send code to see it here</p>
               </div>
             </div>
           )}
@@ -1747,12 +1747,12 @@ function CanvasPanel({content, onClose}) {
                 <i className="fa-solid fa-robot" style={{fontSize:11,color:'#818cf8'}}></i>
               </div>
               <div style={{flex:1,minWidth:0}}>
-                <p style={{margin:0,fontSize:12,fontWeight:700,color:'#cdd6f4',fontFamily:"'JetBrains Mono',monospace"}}>AI Code Assistant</p>
+                <p style={{margin:0,fontSize:12,fontWeight:700,color:'#cdd6f4',fontFamily:'JetBrains Mono, monospace'}}>AI Code Assistant</p>
                 <p style={{margin:0,fontSize:10,color:'#444466'}}>Ask about your code</p>
               </div>
               {aiMessages.length>0&&(
                 <button onClick={()=>setAiMessages([])}
-                  style={{background:'none',border:'none',cursor:'pointer',color:'#333355',padding:'3px 5px',borderRadius:5,fontSize:10,fontFamily:"'JetBrains Mono',monospace",transition:'all .1s'}}
+                  style={{background:'none',border:'none',cursor:'pointer',color:'#333355',padding:'3px 5px',borderRadius:5,fontSize:10,fontFamily:'JetBrains Mono, monospace',transition:'all .1s'}}
                   onMouseEnter={e=>{e.currentTarget.style.color='#f87171';e.currentTarget.style.background='rgba(239,68,68,.08)';}}
                   onMouseLeave={e=>{e.currentTarget.style.color='#333355';e.currentTarget.style.background='none';}}>
                   <i className="fa-solid fa-trash-can" style={{fontSize:9,marginRight:3}}></i>Clear
@@ -1769,14 +1769,14 @@ function CanvasPanel({content, onClose}) {
                     <div style={{width:44,height:44,borderRadius:14,background:'rgba(99,102,241,.1)',border:'1px solid rgba(99,102,241,.15)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 10px'}}>
                       <i className="fa-solid fa-wand-magic-sparkles" style={{fontSize:18,color:'rgba(99,102,241,.6)'}}></i>
                     </div>
-                    <p style={{margin:'0 0 4px',fontSize:12,fontWeight:600,color:'#4a4a6a',fontFamily:"'JetBrains Mono',monospace"}}>Ask about your code</p>
+                    <p style={{margin:'0 0 4px',fontSize:12,fontWeight:600,color:'#4a4a6a',fontFamily:'JetBrains Mono, monospace'}}>Ask about your code</p>
                     <p style={{margin:0,fontSize:10,color:'#2a2a40',lineHeight:1.5}}>I can explain, debug, improve, or help you add features to the current code.</p>
                   </div>
                   {/* Quick prompts */}
-                  <p style={{margin:'4px 0 6px',fontSize:10,fontWeight:700,color:'#333355',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'.06em',textTransform:'uppercase'}}>Quick prompts</p>
+                  <p style={{margin:'4px 0 6px',fontSize:10,fontWeight:700,color:'#333355',fontFamily:'JetBrains Mono, monospace',letterSpacing:'.06em',textTransform:'uppercase'}}>Quick prompts</p>
                   {quickPrompts.map((q,i)=>(
                     <button key={i} onClick={()=>{setAiInput(q);setTimeout(()=>aiInputRef.current?.focus(),50);}}
-                      style={{textAlign:'left',padding:'8px 10px',borderRadius:8,border:'1px solid #1c1c2e',background:'transparent',color:'#555577',fontSize:11,cursor:'pointer',fontFamily:"'JetBrains Mono',monospace",transition:'all .12s',lineHeight:1.4}}
+                      style={{textAlign:'left',padding:'8px 10px',borderRadius:8,border:'1px solid #1c1c2e',background:'transparent',color:'#555577',fontSize:11,cursor:'pointer',fontFamily:'JetBrains Mono, monospace',transition:'all .12s',lineHeight:1.4}}
                       onMouseEnter={e=>{e.currentTarget.style.background='rgba(99,102,241,.08)';e.currentTarget.style.borderColor='rgba(99,102,241,.2)';e.currentTarget.style.color='#818cf8';}}
                       onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.borderColor='#1c1c2e';e.currentTarget.style.color='#555577';}}>
                       <i className="fa-solid fa-bolt" style={{fontSize:8,marginRight:6,color:'#333355'}}></i>{q}
@@ -1793,8 +1793,8 @@ function CanvasPanel({content, onClose}) {
                     display:'flex',alignItems:'center',gap:6,marginBottom:3
                   }}>
                     {msg.role==='user'
-                      ?<><div style={{width:16,height:16,borderRadius:5,background:'#2563eb',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}><i className="fa-solid fa-user" style={{fontSize:7,color:'#fff'}}></i></div><span style={{fontSize:9,fontWeight:700,color:'#3b82f6',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'.04em'}}>YOU</span></>
-                      :<><div style={{width:16,height:16,borderRadius:5,background:'rgba(99,102,241,.2)',border:'1px solid rgba(99,102,241,.25)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}><i className="fa-solid fa-robot" style={{fontSize:7,color:'#818cf8'}}></i></div><span style={{fontSize:9,fontWeight:700,color:'#6366f1',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'.04em'}}>OMINA AI</span></>
+                      ?<><div style={{width:16,height:16,borderRadius:5,background:'#2563eb',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}><i className="fa-solid fa-user" style={{fontSize:7,color:'#fff'}}></i></div><span style={{fontSize:9,fontWeight:700,color:'#3b82f6',fontFamily:'JetBrains Mono, monospace',letterSpacing:'.04em'}}>YOU</span></>
+                      :<><div style={{width:16,height:16,borderRadius:5,background:'rgba(99,102,241,.2)',border:'1px solid rgba(99,102,241,.25)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}><i className="fa-solid fa-robot" style={{fontSize:7,color:'#818cf8'}}></i></div><span style={{fontSize:9,fontWeight:700,color:'#6366f1',fontFamily:'JetBrains Mono, monospace',letterSpacing:'.04em'}}>OMINA AI</span></>
                     }
                   </div>
                   {msg.role==='user'
@@ -1809,7 +1809,7 @@ function CanvasPanel({content, onClose}) {
               {/* Typing indicator */}
               {aiTyping&&(
                 <div style={{display:'flex',alignItems:'center',gap:6,padding:'8px 10px',borderRadius:10,background:'rgba(99,102,241,.06)',border:'1px solid #1c1c2e',width:'fit-content'}}>
-                  <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:11,color:'#444466'}}>thinking</span>
+                  <span style={{fontFamily:'JetBrains Mono, monospace',fontSize:11,color:'#444466'}}>thinking</span>
                   <span className="tw-cursor" style={{marginLeft:2}}/>
                 </div>
               )}
@@ -1830,7 +1830,7 @@ function CanvasPanel({content, onClose}) {
                   rows={1}
                   style={{
                     flex:1,background:'transparent',border:'none',outline:'none',resize:'none',
-                    fontFamily:"'JetBrains Mono',monospace",fontSize:11,color:'#8888aa',
+                    fontFamily:'JetBrains Mono, monospace',fontSize:11,color:'#8888aa',
                     lineHeight:1.5,maxHeight:80,overflowY:'auto',
                     scrollbarWidth:'none'
                   }}
@@ -1852,7 +1852,7 @@ function CanvasPanel({content, onClose}) {
                   }
                 </button>
               </div>
-              <p style={{margin:'5px 0 0',fontSize:9,color:'#22223a',textAlign:'center',fontFamily:"'JetBrains Mono',monospace"}}>Enter to send · Shift+Enter new line</p>
+              <p style={{margin:'5px 0 0',fontSize:9,color:'#22223a',textAlign:'center',fontFamily:'JetBrains Mono, monospace'}}>Enter to send · Shift+Enter new line</p>
             </div>
           </div>
         )}
@@ -2643,7 +2643,7 @@ function StickyModal({notes,setNotes,onClose}) {
                       onChange={e=>update(n.id,'title',e.target.value)}
                       placeholder="Title..."
                       className="bg-transparent border-none outline-none text-xs font-bold w-full mr-2"
-                      style={{color:'rgba(0,0,0,.55)',fontFamily:"'DM Sans',sans-serif"}}
+                      style={{color:'rgba(0,0,0,.55)',fontFamily:'DM Sans, sans-serif'}}
                     />
                     {n.pinned&&<i className="fa-solid fa-thumbtack text-[9px] flex-shrink-0" style={{color:'rgba(0,0,0,.45)'}}></i>}
                   </div>
@@ -2654,7 +2654,7 @@ function StickyModal({notes,setNotes,onClose}) {
                     onChange={e=>update(n.id,'text',e.target.value)}
                     placeholder="Write your note..."
                     className="flex-1 bg-transparent border-none outline-none resize-none text-sm px-3 pb-2"
-                    style={{color:'#1a1a1a',fontFamily:"'DM Sans',sans-serif",lineHeight:1.65,minHeight:90}}
+                    style={{color:'#1a1a1a',fontFamily:'DM Sans, sans-serif',lineHeight:1.65,minHeight:90}}
                   />
 
                   {/* Color picker + actions */}
@@ -3046,7 +3046,7 @@ function ShareModal({session, onClose}) {
         <div className="rounded-xl p-4 border" style={{background:'var(--bg3)',borderColor:'var(--br)'}}>
           <p className="text-xs mb-2 font-medium" style={{color:'var(--t2)'}}>Shareable link</p>
           <div className="flex items-center gap-2">
-            <input readOnly value={shareUrl} className="flex-1 text-xs rounded-lg px-3 py-2 border outline-none" style={{background:'var(--bg2)',borderColor:'var(--br)',color:'var(--t1)',fontFamily:"'JetBrains Mono',monospace"}}/>
+            <input readOnly value={shareUrl} className="flex-1 text-xs rounded-lg px-3 py-2 border outline-none" style={{background:'var(--bg2)',borderColor:'var(--br)',color:'var(--t1)',fontFamily:'JetBrains Mono, monospace'}}/>
             <button onClick={copyLink} className={`px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${copied?'bg-emerald-600 text-white':'bg-blue-600 text-white hover:bg-blue-500'}`}>
               <i className={`fa-solid ${copied?'fa-check':'fa-copy'} text-xs`}></i>{copied?'Copied!':'Copy'}
             </button>
@@ -3147,7 +3147,7 @@ function FileCard({ block, onOpen, canvasMode }) {
             <i className={block.meta.icon} style={{fontSize:14,color:block.meta.color}}></i>
           </div>
           <div style={{minWidth:0}}>
-            <p style={{margin:0,fontSize:12,fontWeight:600,color:'var(--t1)',fontFamily:"'JetBrains Mono',monospace",overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+            <p style={{margin:0,fontSize:12,fontWeight:600,color:'var(--t1)',fontFamily:'JetBrains Mono, monospace',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
               {block.meta.ext}
             </p>
             <p style={{margin:0,fontSize:10,color:'var(--t3)'}}>
@@ -5575,7 +5575,7 @@ Text to analyze:
   const suggestions=[{i:'fa-regular fa-image',t:'Create an image'},{i:'fa-solid fa-code',t:'Write me code'},{i:'fa-solid fa-pen-nib',t:'Write anything'},{i:'fa-solid fa-globe',t:'Search the web'},{i:'fa-regular fa-compass',t:'Teach me something'}];
 
   return(
-    <div className="flex" style={{height:'100dvh',width:'100vw',maxWidth:'100%',background:'var(--bg)',fontFamily:"'DM Sans',sans-serif",position:'relative'}}>
+    <div className="flex" style={{height:'100dvh',width:'100vw',maxWidth:'100%',background:'var(--bg)',fontFamily:'DM Sans, sans-serif',position:'relative'}}>
       <input type="file" ref={fileRef} onChange={onFile} className="hidden" accept="image/*,.pdf,.txt,.md,.json,.csv,.py,.js,.html,.css,.xml" multiple/>
       <Toast t={toast}/>
 
@@ -6508,7 +6508,7 @@ Text to analyze:
                   ))}
                 </div>
                 {/* Story text */}
-                <div style={{borderRadius:20,border:'1px solid rgba(245,158,11,.18)',background:'rgba(245,158,11,.02)',padding:'22px 24px',fontSize:14,lineHeight:1.95,color:'var(--t1)',whiteSpace:'pre-wrap',fontFamily:"'DM Sans',sans-serif",marginBottom:16,letterSpacing:'.01em'}}>{storyResult}</div>
+                <div style={{borderRadius:20,border:'1px solid rgba(245,158,11,.18)',background:'rgba(245,158,11,.02)',padding:'22px 24px',fontSize:14,lineHeight:1.95,color:'var(--t1)',whiteSpace:'pre-wrap',fontFamily:'DM Sans, sans-serif',marginBottom:16,letterSpacing:'.01em'}}>{storyResult}</div>
                 {/* Actions */}
                 <div style={{display:'flex',gap:8}}>
                   <button onClick={()=>navigator.clipboard.writeText(storyResult).then(()=>toast_('Story copied!','success'))} style={{flex:1,padding:'11px',borderRadius:13,border:'1px solid rgba(245,158,11,.3)',background:'rgba(245,158,11,.07)',color:'#F59E0B',fontSize:12,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:7,transition:'all .15s'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(245,158,11,.14)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(245,158,11,.07)'}>
@@ -8849,7 +8849,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
               </div>
               <div className="text-right mt-4">
                 <div className="text-sm h-5 truncate" style={{color:'rgba(255,255,255,.3)',fontFamily:'monospace'}}>{calcExpr||' '}</div>
-                <div className="text-5xl font-thin mt-1 truncate" style={{color:'#fff',letterSpacing:'-2px',fontFamily:"'SF Pro Display',system-ui,sans-serif"}}>{calcDisplay}</div>
+                <div className="text-5xl font-thin mt-1 truncate" style={{color:'#fff',letterSpacing:'-2px',fontFamily:'SF Pro Display, system-ui, sans-serif'}}>{calcDisplay}</div>
               </div>
               {calcHistory.length>0&&(
                 <div className="mt-3 flex gap-2 overflow-x-auto pb-1" style={{scrollbarWidth:'none'}}>
@@ -8890,7 +8890,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                     gridColumn:`span ${btn.span}`,padding:'18px 8px',borderRadius:18,
                     background:btn.bg,color:btn.c,fontWeight:400,fontSize:20,
                     cursor:'pointer',transition:'all .1s',border:'none',
-                    fontFamily:"'SF Pro Display',system-ui",
+                    fontFamily:'SF Pro Display, system-ui',
                   }}
                   onMouseEnter={e=>{e.currentTarget.style.filter='brightness(1.3)';e.currentTarget.style.transform='scale(.97)';}}
                   onMouseLeave={e=>{e.currentTarget.style.filter='none';e.currentTarget.style.transform='scale(1)';}}>
@@ -9347,7 +9347,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                             {keys.split(' + ').map((k,i)=>(
                               <React.Fragment key={i}>
                                 {i>0&&<span style={{color:'var(--t3)',fontSize:9,margin:'0 1px'}}>+</span>}
-                                <span style={{display:'inline-flex',alignItems:'center',padding:'2px 6px',borderRadius:5,background:'var(--bg)',border:'1px solid var(--brh)',color:'var(--t1)',fontSize:10,fontFamily:"'JetBrains Mono',monospace",fontWeight:500,whiteSpace:'nowrap'}}>{k}</span>
+                                <span style={{display:'inline-flex',alignItems:'center',padding:'2px 6px',borderRadius:5,background:'var(--bg)',border:'1px solid var(--brh)',color:'var(--t1)',fontSize:10,fontFamily:'JetBrains Mono, monospace',fontWeight:500,whiteSpace:'nowrap'}}>{k}</span>
                               </React.Fragment>
                             ))}
                           </div>
@@ -9357,7 +9357,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                   </div>
                 ))}
               </div>
-              <p className="text-center text-[10px] mt-4" style={{color:'var(--t3)'}}>Press <span style={{fontFamily:"'JetBrains Mono',monospace"}}>Ctrl + /</span> anytime to open this panel</p>
+              <p className="text-center text-[10px] mt-4" style={{color:'var(--t3)'}}>Press <span style={{fontFamily:'JetBrains Mono, monospace'}}>Ctrl + /</span> anytime to open this panel</p>
             </div>
           </div>
         </div>
@@ -9567,7 +9567,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
           <div className="w-full max-w-lg mi p-6 rounded-2xl border" style={{background:'var(--bg2)',borderColor:'rgba(139,92,246,.3)'}} onClick={e=>e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4"><div className="flex items-center gap-2"><i className="fa-solid fa-sliders text-purple-400"></i><span className="font-bold" style={{color:'var(--t1)'}}>Custom Instructions</span></div><button onClick={()=>setShowSysPrompt(false)} style={{color:'var(--t2)'}} className="hover:text-white"><i className="fa-solid fa-xmark"></i></button></div>
             <p className="text-xs mb-3" style={{color:'var(--t3)'}}>Tell Omina AI how to behave in every conversation.</p>
-            <textarea value={sysPrompt} onChange={e=>setSysPrompt(e.target.value)} className="w-full rounded-xl px-4 py-3 text-sm outline-none resize-none border" rows="7" style={{background:'var(--bg3)',borderColor:'rgba(139,92,246,.3)',color:'var(--t1)',fontFamily:"'DM Sans',sans-serif"}}/>
+            <textarea value={sysPrompt} onChange={e=>setSysPrompt(e.target.value)} className="w-full rounded-xl px-4 py-3 text-sm outline-none resize-none border" rows="7" style={{background:'var(--bg3)',borderColor:'rgba(139,92,246,.3)',color:'var(--t1)',fontFamily:'DM Sans, sans-serif'}}/>
             <div className="flex gap-2 mt-4">
               <button onClick={()=>setSysPrompt('You are Omina AI, a helpful assistant. Always use markdown formatting.')} className="px-4 py-2 rounded-xl text-xs border transition-all" style={{borderColor:'var(--br)',color:'var(--t2)'}}>Reset</button>
               <button onClick={()=>setShowSysPrompt(false)} className="flex-1 py-2 rounded-xl text-sm font-bold text-white bg-purple-600 hover:bg-purple-500 transition-all">Save</button>
@@ -10331,7 +10331,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                         )}
                       </div>
                     </div>
-                  );})}
+                  );})
                   {/* Image Analysis indicator */}
                   {analyzingImg&&(
                     <div className="flex gap-3 justify-start">
@@ -10609,7 +10609,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       <input value={chatBgCustom} onChange={e=>setChatBgCustom(e.target.value)}
                         placeholder="linear-gradient(135deg, #1a1a2e, #16213e)"
                         className="w-full px-3 py-2 rounded-xl text-xs outline-none border"
-                        style={{background:'var(--bg3)',borderColor:'var(--br)',color:'var(--t1)',fontFamily:"'JetBrains Mono',monospace"}}/>
+                        style={{background:'var(--bg3)',borderColor:'var(--br)',color:'var(--t1)',fontFamily:'JetBrains Mono, monospace'}}/>
                       {chatBgCustom&&<div className="mt-2 h-12 rounded-xl border" style={{backgroundImage:chatBgCustom,borderColor:'var(--br)'}}/>}
                     </div>
                   )}
@@ -11064,7 +11064,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                             <div style={{width:32,height:32,borderRadius:8,flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center',background:f.col+'18'}}>
                               <i className={`fa-solid ${f.ic}`} style={{color:f.col,fontSize:13}}></i>
                             </div>
-                            <span style={{color:'var(--t1)',fontSize:12,fontWeight:500,flex:1,textAlign:'left',fontFamily:"'DM Sans',sans-serif"}}>{f.lbl}</span>
+                            <span style={{color:'var(--t1)',fontSize:12,fontWeight:500,flex:1,textAlign:'left',fontFamily:'DM Sans, sans-serif'}}>{f.lbl}</span>
                           </button>
                           {(!atMax||pinned)&&(
                             <button className="feat-pin-btn" onClick={toggle} title={pinned?'Unpin':'Pin'} style={{
@@ -11102,7 +11102,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                             }}>
                               <i className={`fa-solid ${f.ic}`} style={{color:f.col,fontSize:13}}></i>
                             </div>
-                            <span style={{color:'var(--t1)',fontSize:12,fontWeight:500,lineHeight:1.3,fontFamily:"'DM Sans',sans-serif"}}>{f.lbl}</span>
+                            <span style={{color:'var(--t1)',fontSize:12,fontWeight:500,lineHeight:1.3,fontFamily:'DM Sans, sans-serif'}}>{f.lbl}</span>
                           </div>
                           {editMode&&(
                             <div style={{
@@ -11220,7 +11220,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                               {k.split(' + ').map((p,i)=>(
                                 <React.Fragment key={i}>
                                   {i>0&&<span className="text-[9px] mx-0.5" style={{color:'var(--t3)'}}>+</span>}
-                                  <span style={{display:'inline-flex',alignItems:'center',padding:'2px 7px',borderRadius:5,background:'var(--bg)',border:'1px solid var(--brh)',color:'var(--t1)',fontSize:10,fontFamily:"'JetBrains Mono',monospace",fontWeight:500}}>{p}</span>
+                                  <span style={{display:'inline-flex',alignItems:'center',padding:'2px 7px',borderRadius:5,background:'var(--bg)',border:'1px solid var(--brh)',color:'var(--t1)',fontSize:10,fontFamily:'JetBrains Mono, monospace',fontWeight:500}}>{p}</span>
                                 </React.Fragment>
                               ))}
                             </div>
@@ -11278,7 +11278,7 @@ class ErrorBoundary extends React.Component {
     return React.createElement('div', {
       style: {
         minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center',
-        background:'#080B14', fontFamily:"'DM Sans',sans-serif", padding:24
+        background:'#080B14', fontFamily:'DM Sans, sans-serif', padding:24
       }
     },
       React.createElement('div', {
