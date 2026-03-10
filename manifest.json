@@ -1,0 +1,81 @@
+{
+  "name": "Omina AI",
+  "short_name": "Omina",
+  "description": "Your intelligent AI assistant — chat, create, and explore",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0a0a0f",
+  "theme_color": "#7c3aed",
+  "lang": "en",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "https://ui-avatars.com/api/?name=O&size=72&background=7c3aed&color=fff&rounded=true&bold=true",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://ui-avatars.com/api/?name=O&size=96&background=7c3aed&color=fff&rounded=true&bold=true",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://ui-avatars.com/api/?name=O&size=128&background=7c3aed&color=fff&rounded=true&bold=true",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://ui-avatars.com/api/?name=O&size=144&background=7c3aed&color=fff&rounded=true&bold=true",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://ui-avatars.com/api/?name=O&size=152&background=7c3aed&color=fff&rounded=true&bold=true",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://ui-avatars.com/api/?name=O&size=192&background=7c3aed&color=fff&rounded=true&bold=true",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://ui-avatars.com/api/?name=O&size=384&background=7c3aed&color=fff&rounded=true&bold=true",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://ui-avatars.com/api/?name=O&size=512&background=7c3aed&color=fff&rounded=true&bold=true",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "New Chat",
+      "short_name": "New Chat",
+      "description": "Start a new conversation",
+      "url": "/?new=1",
+      "icons": [{ "src": "https://ui-avatars.com/api/?name=+&size=96&background=7c3aed&color=fff&bold=true", "sizes": "96x96" }]
+    },
+    {
+      "name": "AI Agent",
+      "short_name": "Agent",
+      "description": "Open AI Agent",
+      "url": "/?open=agent",
+      "icons": [{ "src": "https://ui-avatars.com/api/?name=A&size=96&background=3b82f6&color=fff&bold=true", "sizes": "96x96" }]
+    }
+  ],
+  "screenshots": [],
+  "categories": ["productivity", "utilities", "education"],
+  "prefer_related_applications": false
+}
