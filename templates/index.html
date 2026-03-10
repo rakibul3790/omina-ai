@@ -10068,9 +10068,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       </button>
                     </div>
                   )}
-                  {msgs.slice(-msgVisibleCount).map((msg,idx)=>{
-                    const isLastMsg = msg.id === msgs[msgs.length-1]?.id;
-                    return (
+                  {msgs.slice(-msgVisibleCount).map((msg,idx)=>{const isLastMsg=msg.id===msgs[msgs.length-1]?.id;return(
                     <div key={msg.id} className={`mw flex gap-3 ${msg.sender==='user'?'justify-end':'justify-start'}`}>
                       {msg.sender==='bot'&&(()=>{
                         const msgPersona = PERSONAS.find(p=>p.id===(msg.persona||persona)) || PERSONAS[0];
@@ -10333,7 +10331,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                         )}
                       </div>
                     </div>
-                  ); })}
+                  );})}
                   {/* Image Analysis indicator */}
                   {analyzingImg&&(
                     <div className="flex gap-3 justify-start">
