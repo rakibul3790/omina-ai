@@ -906,3 +906,86 @@ def verify_payment():
         return jsonify({"plan": "free"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+# ── Image Analysis ────────────────────────────────────────────
+@app.route("/api/analyze-image", methods=["POST"])
+def analyze_image():
+    user = get_current_user()
+    if not user:
+        return jsonify({"success": False, "error": "Not logged in."}), 401
+    data      = request.json
+    image_b64 = data.get("image", "")      # full data:image/... base64 string
+    prompt    = data.get("prompt", "Analyze and describe this image in detail.")
+    lang_instr = data.get("lang_instruction", "")
+    if not image_b64:
+        return jsonify({"success": False, "error": "No image provided."}), 400
+    try:
+        # Use Groq vision model (llama-4-scout supports vision)
+        system_msg = f"You are Omina AI, a helpful visual analysis assistant. {lang_instr}"
+        completion = groq_client.chat.completions.create(
+            model="meta-llama/llama-4-scout-17b-16e-instruct",
+            messages=[
+                {"role": "system", "content": system_msg},
+                {"role": "user", "content": [
+                    {"type": "image_url", "image_url": {"url": image_b64}},
+                    {"type": "text",      "text": prompt}
+                ]}
+            ],
+            max_tokens=1024,
+            temperature=0.6,
+        )
+        reply = completion.choices[0].message.content
+        reply = re.sub(r"<think>.*?</think>", "", reply, flags=re.DOTALL).strip()
+        return jsonify({"success": True, "reply": reply})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# ── Voice Transcription ───────────────────────────────────────
+@app.route("/api/transcribe", methods=["POST"])
+def transcribe_voice():
+    user = get_current_user()
+    if not user:
+        return jsonify({"success": False, "error": "Not logged in."}), 401
+    if "audio" not in request.files:
+        return jsonify({"success": False, "error": "No audio file."}), 400
+    audio_file = request.files["audio"]
+    lang       = request.form.get("lang", "")
+    try:
+        audio_bytes = audio_file.read()
+        # Groq Whisper transcription
+        transcription = groq_client.audio.transcriptions.create(
+            file=("voice.webm", audio_bytes, audio_file.content_type or "audio/webm"),
+            model="whisper-large-v3",
+            language=lang if lang and lang != "auto" else None,
+            response_format="text",
+        )
+        text = transcription if isinstance(transcription, str) else transcription.text
+        return jsonify({"success": True, "text": text.strip()})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# ── Message Translation ───────────────────────────────────────
+@app.route("/api/translate", methods=["POST"])
+def translate_message():
+    user = get_current_user()
+    if not user:
+        return jsonify({"success": False, "error": "Not logged in."}), 401
+    data      = request.json
+    text      = data.get("text", "").strip()
+    target    = data.get("target", "English")
+    if not text:
+        return jsonify({"success": False, "error": "No text provided."}), 400
+    try:
+        completion = groq_client.chat.completions.create(
+            model=GROQ_MODEL,
+            messages=[
+                {"role": "system", "content": f"You are a professional translator. Translate the given text to {target}. Return ONLY the translated text — no explanations, no original text, no quotes, no labels."},
+                {"role": "user",   "content": text}
+            ],
+            max_tokens=1024,
+            temperature=0.3,
+        )
+        translated = completion.choices[0].message.content.strip()
+        return jsonify({"success": True, "translated": translated, "target": target})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
