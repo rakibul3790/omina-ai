@@ -3542,6 +3542,8 @@ function App() {
   });
   // ── Tools: API Key Management ──
   const [apiKeys,setApiKeys]             = useState(()=>{try{return JSON.parse(localStorage.getItem('omina_apikeys')||'[]')}catch{return[]}});
+  const [apiKeySelProv,setApiKeySelProv] = useState('');
+  const [apiKeyTab,setApiKeyTab]         = useState('keys');
   const [newKeyName,setNewKeyName]       = useState('');
   const [newKeyVal,setNewKeyVal]         = useState('');
   const [showKeyVal,setShowKeyVal]       = useState({});
@@ -10876,8 +10878,8 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       {id:'Mistral',  label:'Mistral',   icon:'fa-wind',         color:'#EC4899', accent:'rgba(236,72,153,',  desc:'Mistral Large, Codestral'},
                       {id:'Custom',   label:'Custom',    icon:'fa-code',         color:'#64748B', accent:'rgba(100,116,139,', desc:'Any OpenAI-compatible API'},
                     ];
-                    const [selProv,setSelProv]=React.useState('');
-                    const [apiTab,setApiTab]=React.useState('keys'); // 'keys' | 'add'
+                    const selProv=apiKeySelProv, setSelProv=setApiKeySelProv;
+                    const apiTab=apiKeyTab,     setApiTab=setApiKeyTab;
                     const selProvObj=PROVIDERS.find(p=>p.id===selProv)||null;
                     return(
                     <div style={{borderRadius:18,border:'1px solid rgba(99,102,241,.2)',overflow:'hidden',background:'var(--bg2)'}}>
