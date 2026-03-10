@@ -813,7 +813,7 @@ function InlineSourceIcon({title, url}) {
             onMouseEnter={e=>e.currentTarget.style.textDecoration='underline'}
             onMouseLeave={e=>e.currentTarget.style.textDecoration='none'}>
             <i className="fa-solid fa-arrow-up-right-from-square" style={{fontSize:9,flexShrink:0}}></i>
-            {url.length>45?url.slice(0,45)+'…':url}
+            {url.length>45?url.slice(0,45)+'...':url}
           </a>
           {/* Arrow */}
           <span style={{position:'absolute',bottom:-5,left:'50%',transform:'translateX(-50%)',
@@ -1630,7 +1630,7 @@ function CanvasPanel({content, onClose}) {
       {showFind&&tab==='code'&&(
         <div className="cv-findbar">
           <i className="fa-solid fa-magnifying-glass" style={{fontSize:11,color:'#444466'}}></i>
-          <input ref={findRef} className="cv-find-input" value={findQ} onChange={e=>setFindQ(e.target.value)} placeholder="Search in file…" onKeyDown={e=>e.key==='Escape'&&setShowFind(false)}/>
+          <input ref={findRef} className="cv-find-input" value={findQ} onChange={e=>setFindQ(e.target.value)} placeholder="Search in file..." onKeyDown={e=>e.key==='Escape'&&setShowFind(false)}/>
           <span style={{fontSize:11,color:'#444466',fontFamily:'JetBrains Mono, monospace',minWidth:60}}>
             {findQ ? (findCount>0?`${findCount} match${findCount>1?'es':''}`: '0 matches') : ''}
           </span>
@@ -1675,7 +1675,7 @@ function CanvasPanel({content, onClose}) {
                   <div className="sb" style={{flex:1,overflow:'auto',padding:'6px 12px',background:'#08080f'}}>
                     {consoleTab==='console'?(
                       consoleLogs.length===0
-                        ?<span style={{color:'#333355',fontFamily:'JetBrains Mono, monospace',fontSize:11,fontStyle:'italic'}}>No output yet…</span>
+                        ?<span style={{color:'#333355',fontFamily:'JetBrains Mono, monospace',fontSize:11,fontStyle:'italic'}}>No output yet...</span>
                         :consoleLogs.map((l,i)=>(
                           <div key={i} style={{fontFamily:'JetBrains Mono, monospace',fontSize:11,color:l.method==='error'?'#f85149':l.method==='warn'?'#e3b341':'#8b949e',padding:'2px 0',display:'flex',gap:8}}>
                             <span style={{color:'#444466'}}>[{l.time}]</span>
@@ -1825,7 +1825,7 @@ function CanvasPanel({content, onClose}) {
                   value={aiInput}
                   onChange={e=>setAiInput(e.target.value)}
                   onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendAiMessage();}}}
-                  placeholder="Ask about the code…"
+                  placeholder="Ask about the code..."
                   rows={1}
                   style={{
                     flex:1,background:'transparent',border:'none',outline:'none',resize:'none',
@@ -2211,7 +2211,7 @@ function ImageGenModal({onClose,onGenerate,history,setHistory,initialPrompt}) {
                     {lighting&&<span className="text-[9px] px-1.5 py-0.5 rounded-full" style={{background:'rgba(245,158,11,.12)',color:'#F59E0B'}}>{lighting}</span>}
                     {color&&<span className="text-[9px] px-1.5 py-0.5 rounded-full" style={{background:'rgba(6,182,212,.12)',color:'#06B6D4'}}>{color}</span>}
                   </div>
-                  {prompt&&<p className="text-[9px] text-center leading-relaxed" style={{color:'var(--t3)'}}>{prompt.slice(0,80)}{prompt.length>80?'…':''}</p>}
+                  {prompt&&<p className="text-[9px] text-center leading-relaxed" style={{color:'var(--t3)'}}>{prompt.slice(0,80)}{prompt.length>80?'...':''}</p>}
                 </div>
               </div>
               {/* Tips */}
@@ -2394,7 +2394,7 @@ function ImageGenModal({onClose,onGenerate,history,setHistory,initialPrompt}) {
               <div className="w-full py-3.5 rounded-xl flex items-center justify-center gap-3" style={{background:'rgba(124,58,237,.08)',border:'1px solid rgba(124,58,237,.25)'}}>
                 <div style={{width:18,height:18,borderRadius:'50%',border:'2.5px solid rgba(124,58,237,.25)',borderTopColor:'#a78bfa',animation:'spin 0.7s linear infinite',flexShrink:0}}></div>
                 <div>
-                  <span className="text-sm font-bold block" style={{color:'#a78bfa'}}>Generating your image…</span>
+                  <span className="text-sm font-bold block" style={{color:'#a78bfa'}}>Generating your image...</span>
                   <span className="text-[10px]" style={{color:'var(--t3)'}}>Usually takes 15–40 seconds</span>
                 </div>
               </div>
@@ -2743,7 +2743,7 @@ function AIAgentModal({onClose,sysPrompt,language}) {
     const modePromptSuffix = agentMode==='deep' ? ' Be extremely thorough and detailed.' : agentMode==='creative' ? ' Be imaginative, bold, and expansive.' : agentMode==='precise' ? ' Be concise, accurate, and factual.' : '';
 
     try {
-      addStep('Initializing agent…','thinking');
+      addStep('Initializing agent...','thinking');
       await sleep(300);
       addStep('Mode: '+curMode.lbl+' · Task: '+(curTask?.label||'Custom'),'info');
       await sleep(250);
@@ -2901,7 +2901,7 @@ function AIAgentModal({onClose,sysPrompt,language}) {
           {!running&&!done&&(
             <div>
               <p className="text-[10px] font-bold uppercase tracking-widest mb-2.5" style={{color:'var(--t3)'}}>Goal / Task Description</p>
-              <textarea value={goal} onChange={e=>setGoal(e.target.value)} placeholder="Describe exactly what you want the AI agent to accomplish…" rows={3} className="w-full px-4 py-3 rounded-2xl border outline-none resize-none text-sm transition-all" style={{background:'rgba(167,139,250,.06)',borderColor:'rgba(167,139,250,.2)',color:'var(--t1)',lineHeight:1.6}} onFocus={e=>e.target.style.borderColor='rgba(167,139,250,.5)'} onBlur={e=>e.target.style.borderColor='rgba(167,139,250,.2)'}/>
+              <textarea value={goal} onChange={e=>setGoal(e.target.value)} placeholder="Describe exactly what you want the AI agent to accomplish..." rows={3} className="w-full px-4 py-3 rounded-2xl border outline-none resize-none text-sm transition-all" style={{background:'rgba(167,139,250,.06)',borderColor:'rgba(167,139,250,.2)',color:'var(--t1)',lineHeight:1.6}} onFocus={e=>e.target.style.borderColor='rgba(167,139,250,.5)'} onBlur={e=>e.target.style.borderColor='rgba(167,139,250,.2)'}/>
               <button onClick={runAgent} disabled={!goal.trim()} className="mt-2.5 w-full py-3.5 rounded-2xl text-sm font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-30" style={{background:goal.trim()?'linear-gradient(135deg,#7c3aed,#a855f7)':'rgba(255,255,255,.05)',color:goal.trim()?'#fff':'var(--t3)',border:goal.trim()?'none':'1px solid rgba(255,255,255,.06)',boxShadow:goal.trim()?'0 6px 20px rgba(139,92,246,.4)':'none'}}>
                 <i className="fa-solid fa-bolt text-sm"></i>Launch Agent
               </button>
@@ -2926,7 +2926,7 @@ function AIAgentModal({onClose,sysPrompt,language}) {
                     <span className="flex-shrink-0 text-[9px]" style={{color:'var(--t3)'}}>{s.time}</span>
                   </div>
                 ))}
-                {running&&<div className="flex items-center gap-2 px-2 py-1.5 text-[11px]" style={{color:'#a78bfa'}}><i className="fa-solid fa-circle-notch fa-spin" style={{fontSize:9}}></i>Processing…</div>}
+                {running&&<div className="flex items-center gap-2 px-2 py-1.5 text-[11px]" style={{color:'#a78bfa'}}><i className="fa-solid fa-circle-notch fa-spin" style={{fontSize:9}}></i>Processing...</div>}
               </div>
             </div>
           )}
@@ -2992,7 +2992,7 @@ function AIAgentModal({onClose,sysPrompt,language}) {
                       {h.mode&&<span className="text-[9px] px-1.5 py-0.5 rounded-lg font-bold" style={{background:modeData.col+'15',color:modeData.col}}>{modeData.lbl}</span>}
                       {h.steps&&<span className="text-[9px]" style={{color:'var(--t3)'}}>{h.steps} steps</span>}
                     </div>
-                    <p className="text-[11px] line-clamp-2 mb-2.5" style={{color:'var(--t2)',lineHeight:1.5}}>{(h.result||'').slice(0,150)}…</p>
+                    <p className="text-[11px] line-clamp-2 mb-2.5" style={{color:'var(--t2)',lineHeight:1.5}}>{(h.result||'').slice(0,150)}...</p>
                     <div className="flex gap-2">
                       <button onClick={()=>{setGoal(h.goal);setTab('run');setSteps([]);setDone(false);setResult('');setSubResults([]);setProgress(0);}} className="text-[10px] font-bold px-3 py-1 rounded-xl border transition-all" style={{borderColor:'rgba(167,139,250,.25)',color:'#a78bfa',background:'rgba(167,139,250,.06)'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(167,139,250,.14)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(167,139,250,.06)'}>
                         <i className="fa-solid fa-rotate-right mr-1 text-[9px]"></i>Re-run
@@ -4143,7 +4143,7 @@ ReactDOM.flushSync(()=>{ setTyping(true); }); } catch(_){ setTyping(true); }
   const onFile = async (e) => {
     const picked = [...e.target.files].slice(0, 5);
     if (!picked.length) return;
-    toast_('Reading files…', 'info');
+    toast_('Reading files...', 'info');
     const newFiles = await Promise.all(picked.map(async f => {
       const { content, preview, type } = await readFileContent(f);
       return {
@@ -4207,7 +4207,7 @@ ReactDOM.flushSync(()=>{ setTyping(true); }); } catch(_){ setTyping(true); }
     const r=new SR();r.continuous=false;r.interimResults=true;r.lang=VOICE_LANGS[language]||'en-US';
     r.onresult=e=>{const t=Array.from(e.results).map(x=>x[0].transcript).join('');setInput(t);};
     r.onend=()=>setVoiceOn(false);r.onerror=()=>{setVoiceOn(false);toast_('Voice failed','error');};
-    recRef.current=r;r.start();setVoiceOn(true);toast_('Listening…','info');
+    recRef.current=r;r.start();setVoiceOn(true);toast_('Listening...','info');
   };
 
   // ── Audio Voice Message (MediaRecorder → Whisper) ──────────
@@ -4226,7 +4226,7 @@ ReactDOM.flushSync(()=>{ setTyping(true); }); } catch(_){ setTyping(true); }
         setAudioSeconds(0);
         setAudioRecording(false);
         const blob = new Blob(audioChunks.current,{type:mime});
-        toast_("Transcribing…","info");
+        toast_("Transcribing...","info");
         try{
           const fd = new FormData();
           fd.append("audio", blob, "voice.webm");
@@ -4246,7 +4246,7 @@ ReactDOM.flushSync(()=>{ setTyping(true); }); } catch(_){ setTyping(true); }
       setAudioRecording(true);
       setAudioSeconds(0);
       audioTimerRef.current = setInterval(()=>setAudioSeconds(s=>s+1),1000);
-      toast_("🎙️ Recording…","info");
+      toast_("🎙️ Recording...","info");
     }catch(e){
       toast_("Microphone access denied","error");
     }
@@ -4582,7 +4582,7 @@ ReactDOM.flushSync(()=>{ setTyping(true); }); } catch(_){ setTyping(true); }
       const updated=[...prev];
       if(!sessionId){
         sessionId=Date.now().toString();
-        const ns={id:sessionId,title:text.slice(0,45)+(text.length>45?'…':''),messages:[userMsg],model,createdAt:Date.now(),folderId:activeFolderId||null};
+        const ns={id:sessionId,title:text.slice(0,45)+(text.length>45?'...':''),messages:[userMsg],model,createdAt:Date.now(),folderId:activeFolderId||null};
         updated.unshift(ns);
         setSid(sessionId);
         if(activeFolderId)setFolders(fs=>fs.map(f=>f.id===activeFolderId?{...f,sessionIds:[...f.sessionIds,sessionId]}:f));
@@ -4618,7 +4618,7 @@ ReactDOM.flushSync(()=>{ setTyping(true); }); } catch(_){ setTyping(true); }
     if(detectImageRequest(text) && !webSearch && !file) {
       try {
         const imgPrompt = extractImagePrompt(text);
-        toast_('🎨 Generating image…', 'info');
+        toast_('🎨 Generating image...', 'info');
         const res = await fetch('/api/generate-image', {
           method:'POST',
           headers:{'Content-Type':'application/json'},
@@ -4725,7 +4725,7 @@ ReactDOM.flushSync(()=>{ setTyping(true); }); } catch(_){ setTyping(true); }
         files.forEach(f => {
           if (f.content) {
             const label = f.fileType === 'pdf' ? '📄 PDF' : f.fileType === 'text' ? '📝 File' : '📎 File';
-            fileContext += `\n\n${label}: **${f.name}**\n\`\`\`\n${f.content.slice(0, 8000)}${f.content.length > 8000 ? '\n… [truncated]' : ''}\n\`\`\``;
+            fileContext += `\n\n${label}: **${f.name}**\n\`\`\`\n${f.content.slice(0, 8000)}${f.content.length > 8000 ? '\n... [truncated]' : ''}\n\`\`\``;
           } else if (f.fileType === 'image') {
             fileContext += `\n\n🖼️ Image attached: **${f.name}** (${Math.round(f.size/1024)}KB)`;
           }
@@ -4998,7 +4998,7 @@ ${cached}`,sender:'bot',model,timestamp:Date.now(),language};
     if(!last) return;
     setSessions(prev=>prev.map(s=>s.id===sid?{...s,messages:s.messages.filter((m,i)=>!(i===s.messages.length-1&&m.sender==='bot'))}:s));
     setTimeout(()=>send(last.text),80);
-    toast_('Regenerating…','info');
+    toast_('Regenerating...','info');
   };
 
   const startEdit=msg=>{setEditMsgId(msg.id);setEditMsgVal(msg.text);};
@@ -5101,7 +5101,7 @@ Reply: ${botText.slice(0,800)}`,
     const i=msgs.findIndex(m=>m.id===botMsg.id);if(i<=0) return;
     const um=[...msgs].slice(0,i).reverse().find(m=>m.sender==='user');if(!um) return;
     const key=bkey(botMsg.id);const ex=branches[key];const cur=ex?ex.texts:[botMsg.text];
-    toast_('Generating alternate…','info');setTyping(true);
+    toast_('Generating alternate...','info');setTyping(true);
     try{const res=await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:um.text+' (Give a completely different approach.)',system_prompt:sysPrompt})});const data=await res.json();const nt=[...cur,data.reply||'No response.'];setBranches(p=>({...p,[key]:{texts:nt,idx:nt.length-1}}));toast_(`Branch ${nt.length} ready!`,'success');}
     catch{toast_('Branch failed','error');}finally{setTyping(false);}
   };
@@ -5473,7 +5473,7 @@ Text to analyze:
         <div className="flex items-center gap-3 px-4 py-2 border-b" style={{borderColor:'rgba(248,113,113,.3)',background:'rgba(248,113,113,.06)'}}>
           <div className="w-2 h-2 rounded-full bg-red-400" style={{animation:'pulse 1s infinite'}}></div>
           <div className="voice-wave flex-shrink-0"><span/><span/><span/><span/><span/></div>
-          <span className="text-xs font-medium" style={{color:'#F87171'}}>Listening… speak now</span>
+          <span className="text-xs font-medium" style={{color:'#F87171'}}>Listening... speak now</span>
           <button onClick={toggleVoice} className="ml-auto text-xs px-2 py-0.5 rounded-lg border transition-all hover:bg-red-500 hover:text-white" style={{borderColor:'rgba(248,113,113,.4)',color:'#F87171'}}>Stop</button>
         </div>
       )}
@@ -5554,7 +5554,7 @@ Text to analyze:
                 {isExpanded&&(
                   <div className="border-t px-2 py-2 space-y-1" style={{borderColor:'var(--br)'}}>
                     <select onChange={e=>{if(e.target.value){addSessionToFolder(folder.id,e.target.value);e.target.value='';}}} className="w-full text-[11px] rounded-lg px-2 py-1.5 border outline-none mb-1" style={{background:'var(--bg2)',borderColor:'var(--br)',color:'var(--t2)'}}>
-                      <option value="">＋ Add existing chat…</option>
+                      <option value="">＋ Add existing chat...</option>
                       {sessions.filter(s=>!folder.sessionIds.includes(s.id)).map(s=><option key={s.id} value={s.id}>{s.title?.slice(0,30)}</option>)}
                     </select>
                     {folderSessions.length===0
@@ -5963,7 +5963,7 @@ Text to analyze:
                           style={{padding:'8px 12px',borderRadius:10,border:'1px solid var(--br)',background:'var(--bg3)',color:'var(--t2)',fontSize:12,textAlign:'left',cursor:'pointer',transition:'all .15s',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}
                           onMouseEnter={e=>{e.currentTarget.style.borderColor=curCat.color+'44';e.currentTarget.style.color='var(--t1)';}}
                           onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--br)';e.currentTarget.style.color='var(--t2)';}}>
-                          <i className="fa-solid fa-lightbulb" style={{color:curCat.color,fontSize:10,marginRight:7}}></i>{p.length>60?p.slice(0,60)+'…':p}
+                          <i className="fa-solid fa-lightbulb" style={{color:curCat.color,fontSize:10,marginRight:7}}></i>{p.length>60?p.slice(0,60)+'...':p}
                         </button>
                       ))}
                     </div>
@@ -8703,7 +8703,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                               <div className="p-3 text-xs leading-relaxed flex-1" style={{color:'var(--t2)',minHeight:120}}>
                                 {loading&&<div className="space-y-2">{[80,60,90,50,70].map((w,i)=><div key={i} className="h-2 rounded-full animate-pulse" style={{width:w+'%',background:'rgba(255,255,255,.06)'}}/>)}</div>}
                                 {result&&!loading&&<div dangerouslySetInnerHTML={{__html:result.replace(/\n/g,'<br/>')}}/>}
-                                {!result&&!loading&&<span style={{color:'var(--t3)'}}>Waiting…</span>}
+                                {!result&&!loading&&<span style={{color:'var(--t3)'}}>Waiting...</span>}
                               </div>
                               {result&&metrics&&(
                                 <div className="px-3 py-2 border-t flex items-center justify-between gap-2 flex-wrap" style={{borderColor:'rgba(255,255,255,.06)'}}>
@@ -8739,7 +8739,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                           </div>
                           <p className="text-sm font-bold" style={{color:'var(--t1)'}}>{t.lbl}</p>
                         </div>
-                        <p className="text-[10px] leading-relaxed line-clamp-2" style={{color:'var(--t3)'}}>{t.prompt.slice(0,80)}…</p>
+                        <p className="text-[10px] leading-relaxed line-clamp-2" style={{color:'var(--t3)'}}>{t.prompt.slice(0,80)}...</p>
                         <div className="mt-2 flex items-center gap-1" style={{color:t.col}}>
                           <i className="fa-solid fa-arrow-right text-[9px]"></i>
                           <span className="text-[10px] font-bold">Use this prompt</span>
@@ -8924,7 +8924,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
               <div className="relative">
                 <textarea
                   value={toneText} onChange={e=>setToneText(e.target.value)}
-                  placeholder="Paste any text — email, tweet, essay, message…"
+                  placeholder="Paste any text — email, tweet, essay, message..."
                   rows={4}
                   className="w-full rounded-2xl px-4 py-3.5 text-sm resize-none outline-none"
                   style={{background:'rgba(255,255,255,.05)',border:'1px solid rgba(167,139,250,.2)',color:'#fff',lineHeight:1.7,fontFamily:'inherit',transition:'border-color .2s'}}
@@ -8938,7 +8938,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                 className="w-full py-3 rounded-2xl font-bold text-sm transition-all disabled:opacity-40 flex items-center justify-center gap-2"
                 style={{background:'linear-gradient(135deg,#7C3AED,#4F46E5)',color:'white',boxShadow:toneText.trim()?'0 4px 20px rgba(124,58,237,.4)':'none'}}>
                 {toneLoading
-                  ?<><div style={{width:14,height:14,border:'2px solid rgba(255,255,255,.3)',borderTopColor:'#fff',borderRadius:'50%',animation:'spin 1s linear infinite'}}></div>Analyzing…</>
+                  ?<><div style={{width:14,height:14,border:'2px solid rgba(255,255,255,.3)',borderTopColor:'#fff',borderRadius:'50%',animation:'spin 1s linear infinite'}}></div>Analyzing...</>
                   :<><i className="fa-solid fa-waveform-lines"></i>Analyze Tone</>
                 }
               </button>
@@ -9031,7 +9031,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
             {/* ── Search Bar ── */}
             <div className="flex items-center gap-2 px-4 py-3 border-b flex-shrink-0" style={{borderColor:'var(--br)'}}>
               <i className="fa-solid fa-magnifying-glass text-sm flex-shrink-0" style={{color:'var(--t3)'}}></i>
-              <input autoFocus value={msgSearchQ} onChange={e=>setMsgSearchQ(e.target.value)} placeholder={searchMode==='regex'?'Enter regex pattern… e.g. \\bpython\\b':searchMode==='semantic'?'Semantic search — describe what you need…':'Search all messages…'} className="flex-1 bg-transparent text-sm outline-none" style={{color:'var(--t1)'}}/>
+              <input autoFocus value={msgSearchQ} onChange={e=>setMsgSearchQ(e.target.value)} placeholder={searchMode==='regex'?'Enter regex pattern... e.g. \\bpython\\b':searchMode==='semantic'?'Semantic search — describe what you need...':'Search all messages...'} className="flex-1 bg-transparent text-sm outline-none" style={{color:'var(--t1)'}}/>
               {msgSearchQ&&<span className="text-[10px] px-2 py-0.5 rounded-full font-bold flex-shrink-0" style={{background:'var(--bg3)',color:'var(--t3)'}}>{searchTab==='images'?imgSearchResults.length:searchTab==='related'?relatedChats.length:msgSearchResults.length}</span>}
               <span className="kbd flex-shrink-0">ESC</span>
             </div>
@@ -9150,7 +9150,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                         <span className="text-[10px] ml-auto truncate max-w-[160px]" style={{color:'var(--t3)'}}>{m.sessionTitle}</span>
                         {m.timestamp&&<span className="text-[9px] flex-shrink-0" style={{color:'var(--t3)'}}>{new Date(m.timestamp).toLocaleDateString()}</span>}
                       </div>
-                      <p className="text-xs leading-relaxed" style={{color:'var(--t2)'}} dangerouslySetInnerHTML={{__html:'…'+hi+'…'}}/>
+                      <p className="text-xs leading-relaxed" style={{color:'var(--t2)'}} dangerouslySetInnerHTML={{__html:'...'+hi+'...'}}/>
                     </button>
                   );
                 });
@@ -9255,7 +9255,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
             <div className="p-5 max-h-80 overflow-y-auto sb feat-loading-wrap">
               {summaryLoading&&<div className="feat-load-overlay"><div className="fl-clock"><div className="fl-hour"></div><div className="fl-minute"></div></div><span className="fl-label">Loading...</span></div>}
               {summaryLoading
-                ?<div className="flex flex-col items-center justify-center py-8 gap-3"><div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div><p className="text-sm" style={{color:'var(--t3)'}}>Generating summary…</p></div>
+                ?<div className="flex flex-col items-center justify-center py-8 gap-3"><div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div><p className="text-sm" style={{color:'var(--t3)'}}>Generating summary...</p></div>
                 :<div className="md-body" dangerouslySetInnerHTML={{__html:marked.parse(summaryText||'')}}/>
               }
             </div>
@@ -9371,7 +9371,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
             <div className="rounded-2xl border overflow-hidden shadow-2xl" style={{background:'var(--bg2)',borderColor:'var(--br)'}}>
               <div className="flex items-center gap-3 px-4 py-3 border-b" style={{borderColor:'var(--br)'}}>
                 <i className="fa-solid fa-magnifying-glass text-sm" style={{color:'var(--t3)'}}></i>
-                <input ref={searchRef} value={searchQ} onChange={e=>setSearchQ(e.target.value)} placeholder="Search chats…" className="flex-1 bg-transparent text-sm outline-none placeholder-slate-500" style={{color:'var(--t1)'}}/>
+                <input ref={searchRef} value={searchQ} onChange={e=>setSearchQ(e.target.value)} placeholder="Search chats..." className="flex-1 bg-transparent text-sm outline-none placeholder-slate-500" style={{color:'var(--t1)'}}/>
                 <span className="kbd">ESC</span>
               </div>
               <div className="max-h-80 overflow-y-auto sb py-2">
@@ -9516,7 +9516,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
               <div className="relative">
                 <i className="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs" style={{color:'var(--t3)'}}></i>
                 <input value={favSearch} onChange={e=>setFavSearch(e.target.value)}
-                  placeholder="Search favorites…" className="w-full pl-8 pr-3 py-2 rounded-xl text-sm outline-none border"
+                  placeholder="Search favorites..." className="w-full pl-8 pr-3 py-2 rounded-xl text-sm outline-none border"
                   style={{background:'var(--bg3)',borderColor:'var(--br)',color:'var(--t1)'}}/>
               </div>
             </div>
@@ -9545,7 +9545,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                     </div>
                     {/* Message content */}
                     <div className="px-4 py-3" style={{background:'var(--bg2)'}}>
-                      <p className="text-sm" style={{color:'var(--t1)',lineHeight:1.6,whiteSpace:'pre-wrap',wordBreak:'break-word'}}>{m.text?.slice(0,400)}{m.text?.length>400?'…':''}</p>
+                      <p className="text-sm" style={{color:'var(--t1)',lineHeight:1.6,whiteSpace:'pre-wrap',wordBreak:'break-word'}}>{m.text?.slice(0,400)}{m.text?.length>400?'...':''}</p>
                     </div>
                   </div>
                 ))
@@ -9580,7 +9580,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
         <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.7)'}} onClick={()=>setShowFolderModal(false)}>
           <div className="w-full max-w-sm mi rounded-2xl border p-6" style={{background:'var(--bg2)',borderColor:'var(--br)'}} onClick={e=>e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4"><span className="font-bold" style={{color:'var(--t1)'}}>New Folder</span><button onClick={()=>setShowFolderModal(false)} style={{color:'var(--t2)'}} className="hover:text-white"><i className="fa-solid fa-xmark"></i></button></div>
-            <input value={newFName} onChange={e=>setNewFName(e.target.value)} onKeyDown={e=>e.key==='Enter'&&makeFolder()} placeholder="Folder name…" className="w-full rounded-xl px-4 py-2.5 text-sm outline-none mb-4 border" style={{background:'var(--bg3)',borderColor:'var(--br)',color:'var(--t1)'}}/>
+            <input value={newFName} onChange={e=>setNewFName(e.target.value)} onKeyDown={e=>e.key==='Enter'&&makeFolder()} placeholder="Folder name..." className="w-full rounded-xl px-4 py-2.5 text-sm outline-none mb-4 border" style={{background:'var(--bg3)',borderColor:'var(--br)',color:'var(--t1)'}}/>
             <p className="text-xs mb-2" style={{color:'var(--t3)'}}>Pick a color</p>
             <div className="flex gap-2.5 mb-5">{FC.map(c=><button key={c} onClick={()=>setNewFColor(c)} className={`w-8 h-8 rounded-full flex-shrink-0 transition-all ${newFColor===c?'ring-2 ring-white ring-offset-2 scale-110':''}`} style={{background:c,ringOffsetColor:'var(--bg2)'}}></button>)}</div>
             <button onClick={makeFolder} className="w-full py-2.5 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-500 transition-all">Create Folder</button>
@@ -10036,7 +10036,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       
                       <VoiceBar/>
                       <FileBar/>
-                      <textarea value={input} onChange={handleInput} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey&&enterSend){e.preventDefault();send();}}} placeholder={`Message ${model.name}…`} className="w-full bg-transparent px-4 md:px-5 pt-4 pb-2 max-h-40 resize-none outline-none text-sm placeholder-slate-500" style={{color:'var(--t1)'}} rows="1"/>
+                      <textarea value={input} onChange={handleInput} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey&&enterSend){e.preventDefault();send();}}} placeholder={`Message ${model.name}...`} className="w-full bg-transparent px-4 md:px-5 pt-4 pb-2 max-h-40 resize-none outline-none text-sm placeholder-slate-500" style={{color:'var(--t1)'}} rows="1"/>
                       <InputToolbar send={send} pickFile={pickFile} toggleVoice={toggleVoice} voiceOn={voiceOn} webSearch={webSearch} setWebSearch={setWebSearch} showImgGen={showImgGen} setShowImgGen={setShowImgGen} showCanvas={showCanvas} setShowCanvas={setShowCanvas} canvasMode={canvasMode} setCanvasMode={setCanvasMode} curSession={curSession} msgs={msgs} typing={typing} stopGen={stopGen} input={input} file={file} charCount={charCount} charLimit={charLimit} regen={regen} isFront={true} mood={mood} setMood={setMood}/>
                     </div>
                   </div>
@@ -10091,7 +10091,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                             <div className="rounded-2xl overflow-hidden border" style={{borderColor:'rgba(139,92,246,.25)',maxWidth:380}}>
                               <img src={msg.imageUrl} alt={msg.imagePrompt||'Generated image'} className="w-full h-auto block" style={{borderRadius:'inherit'}} onError={e=>{e.target.style.display='none';}}/>
                             </div>
-                            {msg.imagePrompt&&<p className="text-[10px] px-1" style={{color:'var(--t3)'}}>🎨 "{msg.imagePrompt.slice(0,80)}{msg.imagePrompt.length>80?'…':''}"</p>}
+                            {msg.imagePrompt&&<p className="text-[10px] px-1" style={{color:'var(--t3)'}}>🎨 "{msg.imagePrompt.slice(0,80)}{msg.imagePrompt.length>80?'...':''}"</p>}
                             <div className="flex gap-2 flex-wrap">
                               <button onClick={()=>{
                                 const a=document.createElement('a');
@@ -10339,7 +10339,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       </div>
                       <div className="flex items-center gap-2 rounded-2xl border px-3 py-2" style={{background:'var(--bg3)',borderColor:'rgba(139,92,246,.25)'}}>
                         <i className="fa-solid fa-spinner fa-spin text-xs" style={{color:'#8B5CF6'}}></i>
-                        <span className="text-xs" style={{color:'var(--t2)'}}>Analyzing image…</span>
+                        <span className="text-xs" style={{color:'var(--t2)'}}>Analyzing image...</span>
                       </div>
                     </div>
                   )}
@@ -10369,7 +10369,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                     onDragOver={e=>{e.preventDefault();setDragOverInput(true);}}
                     onDragLeave={()=>setDragOverInput(false)}
                     onDrop={e=>{e.preventDefault();setDragOverInput(false);const txt=e.dataTransfer.getData('text/plain');if(txt){const ta=inputRef.current;if(ta){const s=ta.selectionStart,en=ta.selectionEnd,v=input;const newVal=v.slice(0,s)+txt+v.slice(en);setInput(newVal);setTimeout(()=>{ta.selectionStart=ta.selectionEnd=s+txt.length;ta.focus();},0);}else setInput(p=>p+txt);toast_('Text dropped into input','success');}}}
-                    placeholder="Message Omina AI… (drag text here)" className="w-full bg-transparent px-4 md:px-5 pt-4 pb-2 max-h-40 resize-none outline-none text-sm placeholder-slate-500" style={{color:'var(--t1)',transition:'background .2s',background:dragOverInput?'rgba(6,182,212,.06)':'transparent'}} rows="1"/>
+                    placeholder="Message Omina AI... (drag text here)" className="w-full bg-transparent px-4 md:px-5 pt-4 pb-2 max-h-40 resize-none outline-none text-sm placeholder-slate-500" style={{color:'var(--t1)',transition:'background .2s',background:dragOverInput?'rgba(6,182,212,.06)':'transparent'}} rows="1"/>
                   <InputToolbar send={send} pickFile={pickFile} toggleVoice={toggleVoice} voiceOn={voiceOn} webSearch={webSearch} setWebSearch={setWebSearch} showImgGen={showImgGen} setShowImgGen={setShowImgGen} showCanvas={showCanvas} setShowCanvas={setShowCanvas} canvasMode={canvasMode} setCanvasMode={setCanvasMode} curSession={curSession} msgs={msgs} typing={typing} stopGen={stopGen} input={input} file={file} charCount={charCount} charLimit={charLimit} regen={regen} isFront={false} mood={mood} setMood={setMood}/>
                 </div>
                 <p className="text-center text-[10px] mt-2" style={{color:'var(--t3)'}}>Omina AI may make mistakes · Shift+Enter for new line</p>
@@ -10483,7 +10483,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                 {/* Search box */}
                 <div className="relative mb-4">
                   <i className="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs" style={{color:'var(--t3)'}}></i>
-                  <input value={langSearch} onChange={e=>setLangSearch(e.target.value)} placeholder="Search language…"
+                  <input value={langSearch} onChange={e=>setLangSearch(e.target.value)} placeholder="Search language..."
                     className="w-full pl-8 pr-3 py-2 rounded-xl text-sm outline-none border"
                     style={{background:'var(--bg3)',borderColor:'var(--br)',color:'var(--t1)'}}/>
                 </div>
@@ -10683,7 +10683,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                             } else { toast_('Already saved','info'); }
                             setNewMemory('');
                           }}}
-                          placeholder="Type any fact about you… press Enter"
+                          placeholder="Type any fact about you... press Enter"
                           className="w-full pl-8 pr-3 py-2 rounded-xl text-xs outline-none border transition-all"
                           style={{background:'var(--bg3)',borderColor:'rgba(139,92,246,.2)',color:'var(--t1)'}}
                           onFocus={e=>e.target.style.borderColor='rgba(139,92,246,.5)'}
