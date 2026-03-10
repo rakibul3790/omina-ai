@@ -1106,7 +1106,7 @@ function PricingModal({onClose,currentPlan,onSelectPlan}) {
                   :<button onClick={()=>buy(p.id)} disabled={!!buying} style={{...p.btnStyle,padding:'11px',borderRadius:12,fontSize:13,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:6,opacity:buying&&buying!==p.id?0.5:1,transition:'all .15s'}}
                     onMouseEnter={e=>!buying&&(e.currentTarget.style.opacity='.85')}
                     onMouseLeave={e=>e.currentTarget.style.opacity='1'}>
-                    {isBuying?<><i className="fa-solid fa-circle-notch fa-spin" style={{fontSize:11}}></i> Processing…</>:p.id==='free'?'Switch to Free':<>Get {p.name} <i className="fa-solid fa-arrow-right" style={{fontSize:11}}></i></>}
+                    {isBuying?<><i className="fa-solid fa-circle-notch fa-spin" style={{fontSize:11}}></i> Processing...</>:p.id==='free'?'Switch to Free':<>Get {p.name} <i className="fa-solid fa-arrow-right" style={{fontSize:11}}></i></>}
                   </button>
                 }
               </div>
