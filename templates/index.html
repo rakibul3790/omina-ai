@@ -1086,10 +1086,10 @@ function PricingModal({onClose,currentPlan,onSelectPlan}) {
                 </div>
                 <div style={{marginBottom:20}}>
                   <div style={{display:'flex',alignItems:'baseline',gap:4}}>
-                    <span style={{fontSize:36,fontWeight:800,color:'#F1F5F9',lineHeight:1}}>${price}</span>
+                    <span style={{fontSize:36,fontWeight:800,color:'#F1F5F9',lineHeight:1}}>$</span><span style={{fontSize:36,fontWeight:800,color:'#F1F5F9',lineHeight:1}}>{price}</span>
                     {price>0&&<span style={{fontSize:12,color:'rgba(255,255,255,.4)',fontWeight:500}}>/mo</span>}
                   </div>
-                  {bill==='y'&&price>0&&<p style={{margin:'4px 0 0',fontSize:11,color:'#34D399',fontWeight:600}}>Billed ${price*12}/year</p>}
+                  {bill==='y'&&price>0&&<p style={{margin:'4px 0 0',fontSize:11,color:'#34D399',fontWeight:600}}>Billed {'$'}{price*12}/year</p>}
                   {price===0&&<p style={{margin:'4px 0 0',fontSize:11,color:'rgba(255,255,255,.4)'}}>Always free</p>}
                 </div>
                 <ul style={{listStyle:'none',margin:'0 0 20px',padding:0,display:'flex',flexDirection:'column',gap:8,flex:1}}>
@@ -1129,7 +1129,7 @@ function PricingModal({onClose,currentPlan,onSelectPlan}) {
               </div>
               <h3 style={{margin:'0 0 6px',fontSize:22,fontWeight:800,color:'#F1F5F9'}}>Complete Payment</h3>
               <p style={{margin:0,fontSize:13,color:'rgba(255,255,255,.4)'}}>
-                {payModal.planName} Plan · <strong style={{color:'#34D399'}}>${payModal.price}/mo</strong>
+                {payModal.planName} Plan · <strong style={{color:'#34D399'}}>{'$'}{payModal.price}/mo</strong>
                 {payModal.billing==='y'&&<span style={{color:'rgba(255,255,255,.35)'}}> · billed yearly</span>}
               </p>
             </div>
