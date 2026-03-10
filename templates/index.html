@@ -448,11 +448,13 @@ input:-webkit-autofill{-webkit-box-shadow:0 0 0 30px var(--bgi) inset!important;
 .img-preset-btn{transition:transform .12s, border-color .2s, color .15s, background .15s !important;}
 .img-preset-btn:hover{transform:translateY(-1px) !important;border-color:rgba(124,58,237,.5) !important;color:#a78bfa !important;background:rgba(124,58,237,.08) !important;}
 .img-preset-btn:active{transform:scale(.97) !important;}
+
 .img-chip-btn{transition:transform .1s, border-color .15s, background .15s, color .15s !important;}
 .img-chip-btn:hover{transform:scale(1.06) !important;}
 
 .img-hist-card{transition:transform .15s, border-color .2s, box-shadow .15s !important;cursor:pointer;}
 .img-hist-card:hover{transform:translateY(-3px) scale(1.01) !important;border-color:rgba(124,58,237,.5) !important;box-shadow:0 8px 24px rgba(124,58,237,.2) !important;}
+
 .img-action-btn{transition:transform .12s, background .15s, border-color .15s !important;}
 .img-action-btn:hover{transform:translateY(-1px) !important;filter:brightness(1.1);}
 .img-action-btn:active{transform:scale(.96) !important;}
@@ -1071,7 +1073,7 @@ function PricingModal({onClose,currentPlan,onSelectPlan}) {
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))',gap:16}}>
           {plans.map(p=>{
             const price=p.price[bill];const isCurr=currentPlan===p.id;const isBuying=buying===p.id;const isBought=bought===p.id;
-            return(
+            return (
               <div key={p.id} style={{borderRadius:20,padding:24,display:'flex',flexDirection:'column',background:p.grad,border:'1px solid '+p.border,position:'relative',transition:'transform .2s'}}
                 onMouseEnter={e=>e.currentTarget.style.transform='translateY(-4px)'}
                 onMouseLeave={e=>e.currentTarget.style.transform='translateY(0)'}>
@@ -1113,8 +1115,8 @@ function PricingModal({onClose,currentPlan,onSelectPlan}) {
                   </button>
                 )}
               </div>
-            ))
-          }
+            );
+          })}
         </div>
         <p style={{textAlign:'center',marginTop:20,fontSize:12,color:'var(--t3)'}}>
           <i className="fa-solid fa-shield-halved" style={{marginRight:6,color:'#34D399'}}></i>
@@ -2569,8 +2571,8 @@ function TodoModal({todos,setTodos,onClose}) {
                   <button onClick={()=>remove(t.id)} className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-red-500/20 transition-all" style={{color:'var(--t3)',border:'none',background:'none',cursor:'pointer'}}><i className="fa-solid fa-trash" style={{fontSize:9}}></i></button>
                 </div>
               </div>
-            ))
-          }
+            );
+          })}
         </div>
       </div>
     </div>
@@ -5567,8 +5569,8 @@ Text to analyze:
                   </div>
                 )}
               </div>
-            ))
-          }
+            );
+          })}
         </div>
       )}
     </div>
