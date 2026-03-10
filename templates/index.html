@@ -3851,11 +3851,17 @@ function App() {
 
   // ── Mobile Back Button Navigation ───────────────────────────
   useEffect(()=>{
+    // helper: close a feat-from-settings panel → go back to settings
+    const closeFeatOrSettings = (setter) => {
+      setter(false);
+      if(featFromSettings){ setFeatFromSettings(false); setShowSettings(true); setSettingsTab('quickaccess'); }
+    };
+
     // Expose all panel closers so the back handler (outside React) can call them
     window.__ominaNav = {
       closers: [
         // order matters: highest priority (deepest) first
-        { key:'cmdPalette',  isOpen:()=>showCmdPalette,   close:()=>setShowCmdPalette(false) },
+        { key:'cmdPalette',  isOpen:()=>showCmdPalette,   close:()=>closeFeatOrSettings(setShowCmdPalette) },
         { key:'shortcuts',   isOpen:()=>showShortcuts,    close:()=>setShowShortcuts(false)  },
         { key:'share',       isOpen:()=>showShare,        close:()=>setShowShare(false)      },
         { key:'msgSearch',   isOpen:()=>showMsgSearch,    close:()=>setShowMsgSearch(false)  },
@@ -3866,27 +3872,27 @@ function App() {
         { key:'search',      isOpen:()=>showSearch,       close:()=>setShowSearch(false)     },
         { key:'models',      isOpen:()=>showModels,       close:()=>setShowModels(false)     },
         { key:'templates',   isOpen:()=>showTemplates,    close:()=>setShowTemplates(false)  },
-        { key:'wordCloud',   isOpen:()=>showWordCloud,    close:()=>setShowWordCloud(false)  },
-        { key:'modelComp',   isOpen:()=>showModelComp,    close:()=>setShowModelComp(false)  },
-        { key:'digest',      isOpen:()=>showDigest,       close:()=>setShowDigest(false)     },
-        { key:'randPrompt',  isOpen:()=>showRandPrompt,   close:()=>setShowRandPrompt(false) },
-        { key:'chainViewer', isOpen:()=>showChainViewer,  close:()=>setShowChainViewer(false)},
-        { key:'conceptMap',  isOpen:()=>showConceptMap,   close:()=>setShowConceptMap(false) },
-        { key:'storyGen',    isOpen:()=>showStoryGen,     close:()=>setShowStoryGen(false)   },
+        { key:'wordCloud',   isOpen:()=>showWordCloud,    close:()=>closeFeatOrSettings(setShowWordCloud)  },
+        { key:'modelComp',   isOpen:()=>showModelComp,    close:()=>closeFeatOrSettings(setShowModelComp)  },
+        { key:'digest',      isOpen:()=>showDigest,       close:()=>closeFeatOrSettings(setShowDigest)     },
+        { key:'randPrompt',  isOpen:()=>showRandPrompt,   close:()=>closeFeatOrSettings(setShowRandPrompt) },
+        { key:'chainViewer', isOpen:()=>showChainViewer,  close:()=>closeFeatOrSettings(setShowChainViewer)},
+        { key:'conceptMap',  isOpen:()=>showConceptMap,   close:()=>closeFeatOrSettings(setShowConceptMap) },
+        { key:'storyGen',    isOpen:()=>showStoryGen,     close:()=>closeFeatOrSettings(setShowStoryGen)   },
         { key:'review',      isOpen:()=>showReview,       close:()=>setShowReview(false)     },
-        { key:'workspace',   isOpen:()=>showWorkspace,    close:()=>setShowWorkspace(false)  },
-        { key:'quiz',        isOpen:()=>showQuiz,         close:()=>setShowQuiz(false)       },
-        { key:'langLearn',   isOpen:()=>showLangLearn,    close:()=>setShowLangLearn(false)  },
-        { key:'dna',         isOpen:()=>showDNA,          close:()=>setShowDNA(false)        },
-        { key:'collider',    isOpen:()=>showCollider,     close:()=>setShowCollider(false)   },
+        { key:'workspace',   isOpen:()=>showWorkspace,    close:()=>closeFeatOrSettings(setShowWorkspace)  },
+        { key:'quiz',        isOpen:()=>showQuiz,         close:()=>closeFeatOrSettings(setShowQuiz)       },
+        { key:'langLearn',   isOpen:()=>showLangLearn,    close:()=>closeFeatOrSettings(setShowLangLearn)  },
+        { key:'dna',         isOpen:()=>showDNA,          close:()=>closeFeatOrSettings(setShowDNA)        },
+        { key:'collider',    isOpen:()=>showCollider,     close:()=>closeFeatOrSettings(setShowCollider)   },
         { key:'dashboard',   isOpen:()=>showDashboard,    close:()=>setShowDashboard(false)  },
-        { key:'todo',        isOpen:()=>showTodo,         close:()=>setShowTodo(false)       },
-        { key:'sticky',      isOpen:()=>showSticky,       close:()=>setShowSticky(false)     },
-        { key:'promptLib',   isOpen:()=>showPromptLib,    close:()=>setShowPromptLib(false)  },
-        { key:'profiles',    isOpen:()=>showProfiles,     close:()=>setShowProfiles(false)   },
+        { key:'todo',        isOpen:()=>showTodo,         close:()=>closeFeatOrSettings(setShowTodo)       },
+        { key:'sticky',      isOpen:()=>showSticky,       close:()=>closeFeatOrSettings(setShowSticky)     },
+        { key:'promptLib',   isOpen:()=>showPromptLib,    close:()=>closeFeatOrSettings(setShowPromptLib)  },
+        { key:'profiles',    isOpen:()=>showProfiles,     close:()=>closeFeatOrSettings(setShowProfiles)   },
         { key:'favorites',   isOpen:()=>showFavorites,    close:()=>setShowFavorites(false)  },
-        { key:'imgGen',      isOpen:()=>showImgGen,       close:()=>setShowImgGen(false)     },
-        { key:'aiAgent',     isOpen:()=>showAIAgent,      close:()=>setShowAIAgent(false)    },
+        { key:'imgGen',      isOpen:()=>showImgGen,       close:()=>closeFeatOrSettings(setShowImgGen)     },
+        { key:'aiAgent',     isOpen:()=>showAIAgent,      close:()=>closeFeatOrSettings(setShowAIAgent)    },
         { key:'canvas',      isOpen:()=>showCanvas,       close:()=>setShowCanvas(false)     },
         { key:'profile',     isOpen:()=>showProfile,      close:()=>setShowProfile(false)    },
         { key:'settings',    isOpen:()=>showSettings,     close:()=>setShowSettings(false)   },
