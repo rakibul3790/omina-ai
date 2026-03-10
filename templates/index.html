@@ -1116,7 +1116,7 @@ function PricingModal({onClose,currentPlan,onSelectPlan}) {
                 )}
               </div>
             );
-          })}
+          })
         </div>
         <p style={{textAlign:'center',marginTop:20,fontSize:12,color:'var(--t3)'}}>
           <i className="fa-solid fa-shield-halved" style={{marginRight:6,color:'#34D399'}}></i>
@@ -2572,7 +2572,7 @@ function TodoModal({todos,setTodos,onClose}) {
                 </div>
               </div>
             );
-          })}
+          })
         </div>
       </div>
     </div>
@@ -3008,7 +3008,7 @@ function AIAgentModal({onClose,sysPrompt,language}) {
                     </div>
                   </div>
                 );
-              })}
+              })
               <button onClick={()=>{setHistory([]);try{localStorage.removeItem('omina_agent_hist');}catch{}}} className="w-full py-2 rounded-2xl text-[11px] font-bold border transition-all" style={{borderColor:'rgba(239,68,68,.2)',color:'#f87171',background:'transparent'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(239,68,68,.06)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
                 <i className="fa-solid fa-trash mr-1.5 text-[10px]"></i>Clear History
               </button>
@@ -5316,7 +5316,7 @@ Reply: ${botText.slice(0,800)}`,
                     {active&&<i className="fa-solid fa-check" style={{fontSize:8,color:clr,flexShrink:0}}></i>}
                   </button>
                 );
-              })}
+              })
             </div>,
             document.body
           )}
@@ -5570,7 +5570,7 @@ Text to analyze:
                 )}
               </div>
             );
-          })}
+          })
         </div>
       )}
     </div>
@@ -6940,7 +6940,7 @@ Text to analyze:
                         {quizSubmitted&&q.explanation&&<p className="text-[10px] mt-2 leading-relaxed" style={{color:'var(--t3)'}}><span className="font-bold" style={{color:'#F59E0B'}}>Explanation:</span> {q.explanation}</p>}
                       </div>
                     );
-                  })}
+                  })
                   {!quizSubmitted&&(
                     <button onClick={()=>{
                       const score=Math.round((quizQuestions.filter((q,i)=>{
@@ -7368,7 +7368,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       {hasTag&&<i className="fa-solid fa-check text-[10px]" style={{color:tag.color}}></i>}
                     </button>
                   );
-                })}
+                })
               </div>
               <button onClick={()=>setShowTagModal(false)} className="w-full mt-4 py-2.5 rounded-xl text-sm font-bold text-white transition-all" style={{background:'linear-gradient(135deg,#4F46E5,#7C3AED)'}}>
                 Done
@@ -7465,7 +7465,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       <i className={'fa-solid '+c.icon} style={{fontSize:8}}></i>{cmd}
                     </button>
                   );
-                })}
+                })
               </div>
             )}
 
@@ -7697,7 +7697,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                             </div>
                           </div>
                         );
-                      })}
+                      })
                     </div>
                   </>
                 );
@@ -8150,7 +8150,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                         <p className="text-[10px] flex items-center gap-1" style={{color:'var(--t3)'}}><i className="fa-solid fa-lightbulb text-[9px]" style={{color:col}}></i>{idea.use}</p>
                       </div>
                     );
-                  })}
+                  })
                 </div>
               )}
             </div>
@@ -8224,7 +8224,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       <i className={"fa-solid "+(isActive?'fa-circle-check':'fa-chevron-right')+" text-sm"} style={{color:isActive?p.color:'var(--t3)'}}></i>
                     </button>
                   );
-                })}
+                })
                 <button onClick={()=>{const name=prompt('New profile name:');if(!name)return;const colors=['#3B82F6','#8B5CF6','#10B981','#F59E0B','#EF4444','#EC4899','#06B6D4'];const np={id:'p'+Date.now(),name,avatar:name[0].toUpperCase(),color:colors[Math.floor(Math.random()*colors.length)],persona:'default',language:'auto',theme:'dark',model:'omina-basic',desc:'Custom profile'};setProfiles(prev=>[...(prev||DEFAULT_PROFILES),np]);toast_('Profile created!','success');}} className="w-full py-3 rounded-2xl text-sm border transition-all flex items-center justify-center gap-2" style={{borderColor:'rgba(37,99,235,.25)',color:'#60a5fa',background:'rgba(37,99,235,.05)'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(37,99,235,.1)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(37,99,235,.05)'}>
                   <i className="fa-solid fa-plus text-xs"></i>New Profile
                 </button>
@@ -8724,7 +8724,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                               )}
                             </div>
                           );
-                        })}
+                        })
                       </div>
                     )}
                   </div>
@@ -9687,7 +9687,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                   <button onClick={e=>{e.stopPropagation();setChatTabs(p=>p.filter(t=>t.id!==tab.id));}} className="opacity-0 group-hover:opacity-100 w-3.5 h-3.5 rounded flex items-center justify-center transition-all hover:text-red-400" style={{color:'var(--t3)'}}><i className="fa-solid fa-xmark text-[8px]"></i></button>
                 </div>
               );
-            })}
+            })
             <button onClick={()=>{setChatTabs([]);setActiveTab(null);}} className="ml-auto flex-shrink-0 px-2 py-1 rounded-lg text-[9px] transition-all" style={{color:'var(--t3)'}} title="Close all tabs" onMouseEnter={e=>e.currentTarget.style.color='#EF4444'} onMouseLeave={e=>e.currentTarget.style.color='var(--t3)'}>
               <i className="fa-solid fa-xmark-circle text-xs"></i>
             </button>
@@ -10335,7 +10335,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                         )}
                       </div>
                     </div>
-                  );})
+                  })
                   {/* Image Analysis indicator */}
                   {analyzingImg&&(
                     <div className="flex gap-3 justify-start">
@@ -10975,7 +10975,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                                 </div>
                               </div>
                             );
-                          })}
+                          })
                         </div>
                       )}
 
