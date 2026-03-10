@@ -6916,8 +6916,8 @@ Text to analyze:
                               let bg='var(--bg2)',bc='var(--br)',tc='var(--t2)';
                               if(quizSubmitted){if(isAns){bg='rgba(16,185,129,.12)';bc='rgba(16,185,129,.4)';tc='#10B981';}else if(selected&&!isAns){bg='rgba(239,68,68,.08)';bc='rgba(239,68,68,.3)';tc='#EF4444';}}
                               else if(selected){bg='rgba(245,158,11,.12)';bc='rgba(245,158,11,.4)';tc='#F59E0B';}
-                              return(<button key={oi} onClick={()=>{if(!quizSubmitted)setQuizAnswers(p=>({...p,[qi]:optKey}));}} className="w-full text-left px-3 py-2 rounded-xl text-xs border transition-all" style={{background:bg,borderColor:bc,color:tc}}>{opt}</button>))
-                            }
+                              return(<button key={oi} onClick={()=>{if(!quizSubmitted)setQuizAnswers(p=>({...p,[qi]:optKey}));}} className="w-full text-left px-3 py-2 rounded-xl text-xs border transition-all" style={{background:bg,borderColor:bc,color:tc}}>{opt}</button>);
+                            })}
                           </div>
                         )}
                         {/* True/False */}
@@ -6929,8 +6929,8 @@ Text to analyze:
                               let bg='var(--bg2)',bc='var(--br)',tc='var(--t2)';
                               if(quizSubmitted){if(isAns){bg='rgba(16,185,129,.12)';bc='rgba(16,185,129,.4)';tc='#10B981';}else if(selected&&!isAns){bg='rgba(239,68,68,.08)';bc='rgba(239,68,68,.3)';tc='#EF4444';}}
                               else if(selected){bg='rgba(245,158,11,.12)';bc='rgba(245,158,11,.4)';tc='#F59E0B';}
-                              return(<button key={v} onClick={()=>{if(!quizSubmitted)setQuizAnswers(p=>({...p,[qi]:v}));}} className="flex-1 py-2 rounded-xl text-xs font-bold border capitalize transition-all" style={{background:bg,borderColor:bc,color:tc}}>{v==='true'?'✅ True':'❌ False'}</button>))
-                            }
+                              return(<button key={v} onClick={()=>{if(!quizSubmitted)setQuizAnswers(p=>({...p,[qi]:v}));}} className="flex-1 py-2 rounded-xl text-xs font-bold border capitalize transition-all" style={{background:bg,borderColor:bc,color:tc}}>{v==='true'?'✅ True':'❌ False'}</button>);
+                            })}
                           </div>
                         )}
                         {/* Fill blank */}
