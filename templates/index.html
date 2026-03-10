@@ -1110,8 +1110,8 @@ function PricingModal({onClose,currentPlan,onSelectPlan}) {
                   </button>
                 }
               </div>
-            );
-          })}
+            ))
+          }
         </div>
         <p style={{textAlign:'center',marginTop:20,fontSize:12,color:'var(--t3)'}}>
           <i className="fa-solid fa-shield-halved" style={{marginRight:6,color:'#34D399'}}></i>
@@ -1781,8 +1781,7 @@ function CanvasPanel({content, onClose}) {
                       onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.borderColor='#1c1c2e';e.currentTarget.style.color='#555577';}}>
                       <i className="fa-solid fa-bolt" style={{fontSize:8,marginRight:6,color:'#333355'}}></i>{q}
                     </button>
-                  );
-                  })}
+                  ))}
                 </div>
               )}
 
@@ -2567,8 +2566,8 @@ function TodoModal({todos,setTodos,onClose}) {
                   <button onClick={()=>remove(t.id)} className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-red-500/20 transition-all" style={{color:'var(--t3)',border:'none',background:'none',cursor:'pointer'}}><i className="fa-solid fa-trash" style={{fontSize:9}}></i></button>
                 </div>
               </div>
-            );
-          })}
+            ))
+          }
         </div>
       </div>
     </div>
@@ -3003,8 +3002,8 @@ function AIAgentModal({onClose,sysPrompt,language}) {
                       </button>
                     </div>
                   </div>
-                );
-              })}
+                ))
+              }
               <button onClick={()=>{setHistory([]);try{localStorage.removeItem('omina_agent_hist');}catch{}}} className="w-full py-2 rounded-2xl text-[11px] font-bold border transition-all" style={{borderColor:'rgba(239,68,68,.2)',color:'#f87171',background:'transparent'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(239,68,68,.06)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
                 <i className="fa-solid fa-trash mr-1.5 text-[10px]"></i>Clear History
               </button>
@@ -5311,8 +5310,8 @@ Reply: ${botText.slice(0,800)}`,
                     </div>
                     {active&&<i className="fa-solid fa-check" style={{fontSize:8,color:clr,flexShrink:0}}></i>}
                   </button>
-                );
-              })}
+                ))
+              }
             </div>,
             document.body
           )}
@@ -5565,8 +5564,8 @@ Text to analyze:
                   </div>
                 )}
               </div>
-            );
-          })}
+            ))
+          }
         </div>
       )}
     </div>
@@ -6912,8 +6911,8 @@ Text to analyze:
                               let bg='var(--bg2)',bc='var(--br)',tc='var(--t2)';
                               if(quizSubmitted){if(isAns){bg='rgba(16,185,129,.12)';bc='rgba(16,185,129,.4)';tc='#10B981';}else if(selected&&!isAns){bg='rgba(239,68,68,.08)';bc='rgba(239,68,68,.3)';tc='#EF4444';}}
                               else if(selected){bg='rgba(245,158,11,.12)';bc='rgba(245,158,11,.4)';tc='#F59E0B';}
-                              return(<button key={oi} onClick={()=>{if(!quizSubmitted)setQuizAnswers(p=>({...p,[qi]:optKey}));}} className="w-full text-left px-3 py-2 rounded-xl text-xs border transition-all" style={{background:bg,borderColor:bc,color:tc}}>{opt}</button>);
-                            })}
+                              return(<button key={oi} onClick={()=>{if(!quizSubmitted)setQuizAnswers(p=>({...p,[qi]:optKey}));}} className="w-full text-left px-3 py-2 rounded-xl text-xs border transition-all" style={{background:bg,borderColor:bc,color:tc}}>{opt}</button>))
+                            }
                           </div>
                         )}
                         {/* True/False */}
@@ -6925,8 +6924,8 @@ Text to analyze:
                               let bg='var(--bg2)',bc='var(--br)',tc='var(--t2)';
                               if(quizSubmitted){if(isAns){bg='rgba(16,185,129,.12)';bc='rgba(16,185,129,.4)';tc='#10B981';}else if(selected&&!isAns){bg='rgba(239,68,68,.08)';bc='rgba(239,68,68,.3)';tc='#EF4444';}}
                               else if(selected){bg='rgba(245,158,11,.12)';bc='rgba(245,158,11,.4)';tc='#F59E0B';}
-                              return(<button key={v} onClick={()=>{if(!quizSubmitted)setQuizAnswers(p=>({...p,[qi]:v}));}} className="flex-1 py-2 rounded-xl text-xs font-bold border capitalize transition-all" style={{background:bg,borderColor:bc,color:tc}}>{v==='true'?'✅ True':'❌ False'}</button>);
-                            })}
+                              return(<button key={v} onClick={()=>{if(!quizSubmitted)setQuizAnswers(p=>({...p,[qi]:v}));}} className="flex-1 py-2 rounded-xl text-xs font-bold border capitalize transition-all" style={{background:bg,borderColor:bc,color:tc}}>{v==='true'?'✅ True':'❌ False'}</button>))
+                            }
                           </div>
                         )}
                         {/* Fill blank */}
@@ -6935,8 +6934,8 @@ Text to analyze:
                         )}
                         {quizSubmitted&&q.explanation&&<p className="text-[10px] mt-2 leading-relaxed" style={{color:'var(--t3)'}}><span className="font-bold" style={{color:'#F59E0B'}}>Explanation:</span> {q.explanation}</p>}
                       </div>
-                    );
-                  })}
+                    ))
+                  }
                   {!quizSubmitted&&(
                     <button onClick={()=>{
                       const score=Math.round((quizQuestions.filter((q,i)=>{
@@ -7363,8 +7362,8 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       <span className="text-xs font-semibold flex-1" style={{color:hasTag?tag.color:'var(--t2)'}}>{tag.label}</span>
                       {hasTag&&<i className="fa-solid fa-check text-[10px]" style={{color:tag.color}}></i>}
                     </button>
-                  );
-                })}
+                  ))
+                }
               </div>
               <button onClick={()=>setShowTagModal(false)} className="w-full mt-4 py-2.5 rounded-xl text-sm font-bold text-white transition-all" style={{background:'linear-gradient(135deg,#4F46E5,#7C3AED)'}}>
                 Done
@@ -7460,8 +7459,8 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,.04)';e.currentTarget.style.color='rgba(255,255,255,.5)';e.currentTarget.style.borderColor='rgba(255,255,255,.06)';}}>
                       <i className={'fa-solid '+c.icon} style={{fontSize:8}}></i>{cmd}
                     </button>
-                  );
-                })}
+                  ))
+                }
               </div>
             )}
 
@@ -7692,8 +7691,8 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                               </button>
                             </div>
                           </div>
-                        );
-                      })}
+                        ))
+                      }
                     </div>
                   </>
                 );
@@ -7734,8 +7733,8 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                           style={{background:newPromptCat===c?cc+'18':'rgba(255,255,255,.02)',borderColor:newPromptCat===c?cc+'50':'rgba(255,255,255,.06)',color:newPromptCat===c?cc:'rgba(255,255,255,.3)'}}>
                           {c}
                         </button>
-                      );
-                    })}
+                      ))
+                    }
                   </div>
                 </div>
                 <div>
@@ -7965,8 +7964,8 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                                 <div className="h-full rounded-full transition-all" style={{width:pct+'%',background:'linear-gradient(90deg,'+s.col+','+s.col+'88)'}}></div>
                               </div>
                             </div>
-                          );
-                        })}
+                          ))
+                        }
                       </div>
                     </div>
                   )}
@@ -7992,8 +7991,8 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                               <div className="h-full rounded-full" style={{width:pct+'%',background:'linear-gradient(90deg,'+col+','+col+'66)'}}></div>
                             </div>
                           </div>
-                        );
-                      })}
+                        ))
+                      }
                     </div>
                   )}
 
@@ -8016,8 +8015,8 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                               <div key={h} className="flex-1 flex flex-col items-center gap-0.5" title={h+':00 — '+c+' msgs'}>
                                 <div className="w-full rounded-sm transition-all" style={{height:Math.max(2,pct*0.56)+'px',background:isPeak?'linear-gradient(0deg,#EC4899,#f472b6)':'rgba(255,255,255,.12)',boxShadow:isPeak?'0 0 8px rgba(236,72,153,.5)':'none'}}></div>
                               </div>
-                            );
-                          })}
+                            ))
+                          }
                         </div>
                         <div className="flex justify-between mt-1">
                           <span className="text-[9px]" style={{color:'var(--t3)'}}>0h</span>
@@ -8145,8 +8144,8 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                         <p className="text-xs mb-1.5" style={{color:'var(--t2)'}}>{idea.desc}</p>
                         <p className="text-[10px] flex items-center gap-1" style={{color:'var(--t3)'}}><i className="fa-solid fa-lightbulb text-[9px]" style={{color:col}}></i>{idea.use}</p>
                       </div>
-                    );
-                  })}
+                    ))
+                  }
                 </div>
               )}
             </div>
@@ -8219,8 +8218,8 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       </div>
                       <i className={"fa-solid "+(isActive?'fa-circle-check':'fa-chevron-right')+" text-sm"} style={{color:isActive?p.color:'var(--t3)'}}></i>
                     </button>
-                  );
-                })}
+                  ))
+                }
                 <button onClick={()=>{const name=prompt('New profile name:');if(!name)return;const colors=['#3B82F6','#8B5CF6','#10B981','#F59E0B','#EF4444','#EC4899','#06B6D4'];const np={id:'p'+Date.now(),name,avatar:name[0].toUpperCase(),color:colors[Math.floor(Math.random()*colors.length)],persona:'default',language:'auto',theme:'dark',model:'omina-basic',desc:'Custom profile'};setProfiles(prev=>[...(prev||DEFAULT_PROFILES),np]);toast_('Profile created!','success');}} className="w-full py-3 rounded-2xl text-sm border transition-all flex items-center justify-center gap-2" style={{borderColor:'rgba(37,99,235,.25)',color:'#60a5fa',background:'rgba(37,99,235,.05)'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(37,99,235,.1)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(37,99,235,.05)'}>
                   <i className="fa-solid fa-plus text-xs"></i>New Profile
                 </button>
@@ -8460,8 +8459,8 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                               <button key={word} onClick={()=>ignoreWord(word)} title={'Used '+count+'x — click to hide'} className="transition-all hover:opacity-60 active:scale-95" style={{fontSize:size,fontWeight:300+Math.round(ratio*500),color:col,lineHeight:1.4,padding:'2px 4px',borderRadius:6,background:'transparent',border:'none',cursor:'pointer'}}>
                                 {word}
                               </button>
-                            );
-                          })}
+                            ))
+                          }
                         </div>
                         <div className="flex items-center justify-between">
                           <p className="text-[10px]" style={{color:'var(--t3)'}}>Click any word to hide it · Showing top {Math.min(sorted.length,60)}</p>
@@ -8487,8 +8486,8 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                               </div>
                               <span className="text-[10px] w-8 text-right font-bold" style={{color:col}}>{pct}%</span>
                             </div>
-                          );
-                        })}
+                          ))
+                        }
                       </div>
                     )}
 
@@ -8719,8 +8718,8 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                                 </div>
                               )}
                             </div>
-                          );
-                        })}
+                          ))
+                        }
                       </div>
                     )}
                   </div>
@@ -8816,8 +8815,8 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                               ))}
                             </div>
                           </div>
-                        );
-                      })}
+                        ))
+                      }
                     </div>
                   )}
                 </div>
@@ -9682,8 +9681,8 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                   {s?.messages?.length>0&&<span className="text-[9px] px-1 rounded" style={{background:'rgba(99,102,241,.15)',color:'#818cf8'}}>{s.messages.length}</span>}
                   <button onClick={e=>{e.stopPropagation();setChatTabs(p=>p.filter(t=>t.id!==tab.id));}} className="opacity-0 group-hover:opacity-100 w-3.5 h-3.5 rounded flex items-center justify-center transition-all hover:text-red-400" style={{color:'var(--t3)'}}><i className="fa-solid fa-xmark text-[8px]"></i></button>
                 </div>
-              );
-            })}
+              ))
+            }
             <button onClick={()=>{setChatTabs([]);setActiveTab(null);}} className="ml-auto flex-shrink-0 px-2 py-1 rounded-lg text-[9px] transition-all" style={{color:'var(--t3)'}} title="Close all tabs" onMouseEnter={e=>e.currentTarget.style.color='#EF4444'} onMouseLeave={e=>e.currentTarget.style.color='var(--t3)'}>
               <i className="fa-solid fa-xmark-circle text-xs"></i>
             </button>
@@ -10743,8 +10742,8 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                                   <i className="fa-solid fa-xmark" style={{fontSize:8}}></i>
                                 </button>
                               </div>
-                            );
-                          })}
+                            ))
+                          }
                         </div>
                       </div>
                     )}
@@ -10970,8 +10969,8 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                                   </button>
                                 </div>
                               </div>
-                            );
-                          })}
+                            ))
+                          }
                         </div>
                       )}
 
