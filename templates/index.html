@@ -448,6 +448,7 @@ input:-webkit-autofill{-webkit-box-shadow:0 0 0 30px var(--bgi) inset!important;
 .img-preset-btn{transition:transform .12s, border-color .2s, color .15s, background .15s !important;}
 .img-preset-btn:hover{transform:translateY(-1px) !important;border-color:rgba(124,58,237,.5) !important;color:#a78bfa !important;background:rgba(124,58,237,.08) !important;}
 .img-preset-btn:active{transform:scale(.97) !important;}
+
 .img-chip-btn{transition:transform .1s, border-color .15s, background .15s, color .15s !important;}
 .img-chip-btn:hover{transform:scale(1.06) !important;}
 
@@ -1098,16 +1099,21 @@ function PricingModal({onClose,currentPlan,onSelectPlan}) {
                     </li>
                   ))}
                 </ul>
-                {isBought
-                  ?<div className="sp" style={{padding:'11px',borderRadius:12,textAlign:'center',fontSize:13,fontWeight:700,color:'#fff',background:'#059669',display:'flex',alignItems:'center',justifyContent:'center',gap:6}}><i className="fa-solid fa-check"></i> Activated!</div>
-                  :isCurr
-                  ?<div style={{padding:'11px',borderRadius:12,textAlign:'center',fontSize:13,fontWeight:600,color:'rgba(255,255,255,.4)',background:'rgba(255,255,255,.05)',border:'1px solid rgba(255,255,255,.1)'}}><i className="fa-solid fa-circle-check" style={{marginRight:6}}></i>Current Plan</div>
-                  :<button onClick={()=>buy(p.id)} disabled={!!buying} style={{...p.btnStyle,padding:'11px',borderRadius:12,fontSize:13,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:6,opacity:buying&&buying!==p.id?0.5:1,transition:'all .15s'}}
-                    onMouseEnter={e=>!buying&&(e.currentTarget.style.opacity='.85')}
-                    onMouseLeave={e=>e.currentTarget.style.opacity='1'}>
-                    {isBuying?<><i className="fa-solid fa-circle-notch fa-spin" style={{fontSize:11}}></i> Processing...</>:p.id==='free'?'Switch to Free':<>Get {p.name} <i className="fa-solid fa-arrow-right" style={{fontSize:11}}></i></>}
+                {isBought && (
+                  <div className="sp" style={{padding:'11px',borderRadius:12,textAlign:'center',fontSize:13,fontWeight:700,color:'#fff',background:'#059669',display:'flex',alignItems:'center',justifyContent:'center',gap:6}}>
+                    <i className="fa-solid fa-check"></i> Activated!
+                  </div>
+                )}
+                {!isBought && isCurr && (
+                  <div style={{padding:'11px',borderRadius:12,textAlign:'center',fontSize:13,fontWeight:600,color:'rgba(255,255,255,.4)',background:'rgba(255,255,255,.05)',border:'1px solid rgba(255,255,255,.1)'}}>
+                    <i className="fa-solid fa-circle-check" style={{marginRight:6}}></i>Current Plan
+                  </div>
+                )}
+                {!isBought && !isCurr && (
+                  <button onClick={()=>buy(p.id)} disabled={!!buying} style={{...p.btnStyle,padding:'11px',borderRadius:12,fontSize:13,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:6,opacity:buying&&buying!==p.id?0.5:1,transition:'all .15s'}} onMouseEnter={e=>{if(!buying)e.currentTarget.style.opacity='.85'}} onMouseLeave={e=>{e.currentTarget.style.opacity='1'}}>
+                    {isBuying ? (<><i className="fa-solid fa-circle-notch fa-spin" style={{fontSize:11}}></i> Processing...</>) : p.id==='free' ? 'Switch to Free' : (<>Get {p.name} <i className="fa-solid fa-arrow-right" style={{fontSize:11}}></i></>)}
                   </button>
-                }
+                )}
               </div>
             ))
           }
