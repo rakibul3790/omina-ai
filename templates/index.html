@@ -1686,7 +1686,7 @@ function CanvasPanel({content, onClose}) {
                             <span style={{color:'#444466'}}>[{l.time}]</span>
                             <span>{l.args.join(' ')}</span>
                           </div>
-                        );
+                        ))
                     ):(
                       errCount===0&&warnCount===0
                         ?<span style={{color:'#3fb950',fontFamily:'JetBrains Mono, monospace',fontSize:11}}>✓ No problems detected</span>
@@ -1695,7 +1695,7 @@ function CanvasPanel({content, onClose}) {
                             <i className={`fa-solid ${l.method==='error'?'fa-circle-xmark':'fa-triangle-exclamation'}`} style={{fontSize:10,marginTop:1,flexShrink:0}}></i>
                             <span>{l.args.join(' ')}</span>
                           </div>
-                        );
+                        ))
                     )}
                   </div>
                 </div>
@@ -9553,8 +9553,8 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       <p className="text-sm" style={{color:'var(--t1)',lineHeight:1.6,whiteSpace:'pre-wrap',wordBreak:'break-word'}}>{m.text?.slice(0,400)}{m.text?.length>400?'...':''}</p>
                     </div>
                   </div>
-                );
-              })}
+                ))
+              }
             </div>
             {/* Footer */}
             {allStarred.length>0&&<div className="p-4 border-t flex-shrink-0 flex items-center justify-between" style={{borderColor:'var(--br)'}}>
