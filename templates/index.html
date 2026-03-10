@@ -4329,6 +4329,61 @@ function App() {
     return false;
   };
 
+  // ── Image Generation Detection ──
+  const detectImageRequest = (text) => {
+    const t = text.toLowerCase().trim();
+    // English patterns
+    const enPatterns = [
+      /\b(generate|create|make|draw|design|produce|render|show|give me|get me)\b.{0,30}\b(image|photo|picture|pic|illustration|artwork|painting|poster|wallpaper|logo|icon|avatar|banner|thumbnail|graphic)\b/i,
+      /\b(image|photo|picture|pic|illustration|artwork|painting|poster|wallpaper|logo)\b.{0,20}\b(generate|create|make|draw|of|showing|with|about)\b/i,
+      /\bimage of\b/i, /\bpicture of\b/i, /\bphoto of\b/i, /\bdraw (?:me |a |an )/i,
+      /\bcreate (?:an? )?image\b/i, /\bgenerate (?:an? )?image\b/i, /\bmake (?:an? )?image\b/i,
+    ];
+    // Bengali patterns
+    const bnPatterns = [
+      /ছবি\s*(তৈরি|বানাও|বানা|দাও|দেখাও|এঁকে|আঁক|জেনারেট|বনাও)/,
+      /(তৈরি|বানাও|বানা|এঁকে দাও|এঁকে দে|আঁকো|জেনারেট)\s*(একটা|একটি|কোনো)?\s*ছবি/,
+      /একটা?\s*ছবি/, /ছবি\s*চাই/, /ছবি\s*লাগবে/,
+    ];
+    // Hindi patterns
+    const hiPatterns = [/तस्वीर\s*(बनाओ|बनाना|दिखाओ|चाहिए)/, /इमेज\s*(बनाओ|बनाना|चाहिए)/, /फोटो\s*(बनाओ|दिखाओ)/];
+    // Arabic patterns
+    const arPatterns = [/صورة|رسم|اصنع صورة|أنشئ صورة|ارسم/];
+    // Spanish patterns
+    const esPatterns = [/\b(crea|genera|haz|dibuja|diseña)\b.{0,20}\b(imagen|foto|ilustración)\b/i, /\bimagen de\b/i];
+    // French patterns
+    const frPatterns = [/\b(crée|génère|fais|dessine|créer|générer)\b.{0,20}\b(image|photo|illustration)\b/i, /\bimage de\b/i];
+    // German patterns
+    const dePatterns = [/\b(erstelle|erzeuge|zeichne|mach|generiere)\b.{0,20}\b(bild|foto|illustration)\b/i];
+    // Chinese patterns
+    const zhPatterns = [/生成图片|创建图片|画一张|画一幅|给我一张图|生成一张/];
+    // Japanese patterns
+    const jaPatterns = [/画像を(生成|作成|描いて)|絵を(描いて|作って)|イラスト(を作って|生成)/];
+    // Korean patterns
+    const koPatterns = [/이미지\s*(만들어|생성|그려)|사진\s*(만들어|생성)|그림\s*(그려|만들어)/];
+
+    const allPatterns = [...enPatterns, ...bnPatterns, ...hiPatterns, ...arPatterns, ...esPatterns, ...frPatterns, ...dePatterns, ...zhPatterns, ...jaPatterns, ...koPatterns];
+    return allPatterns.some(p => p.test(text));
+  };
+
+  // ── Extract image prompt from user message ──
+  const extractImagePrompt = (text) => {
+    // Remove the command part, keep the subject
+    let prompt = text
+      .replace(/^(please|plz|pls|kindly|can you|could you|would you|hey|hi)\s+/i, '')
+      .replace(/\b(generate|create|make|draw|design|produce|render|show me|give me|get me)\s+(an?\s+)?(image|photo|picture|pic|illustration|artwork|painting|poster|wallpaper|logo|icon|avatar|banner|thumbnail|graphic)\s+(of|showing|with|about|depicting|featuring)?\s*/i, '')
+      .replace(/\b(image|photo|picture|pic)\s+of\s+/i, '')
+      .replace(/\bdraw\s+(me\s+)?(an?\s+)?/i, '')
+      .replace(/ছবি\s*(তৈরি করো|তৈরি কর|বানাও|বানা|দাও|দেখাও|এঁকে দাও|আঁকো|জেনারেট করো)?/g, '')
+      .replace(/(তৈরি করো|বানাও|এঁকে দাও|আঁকো|জেনারেট করো)\s*(একটা|একটি)?\s*ছবি/g, '')
+      .replace(/একটা?\s*ছবি\s*(বানাও|দাও)?/g, '')
+      .replace(/\[IMPORTANT[^\]]*\]\n\n/g, '')
+      .trim();
+    // If prompt is too short after extraction, use the full text as prompt
+    if(prompt.length < 4) prompt = text.replace(/\[IMPORTANT[^\]]*\]\n\n/g,'').trim();
+    return prompt;
+  };
+
   const send=async(text=input)=>{
     if((!text.trim()&&!file)||typing) return;
     if(plan==='free'&&msgCount>=dayLimit){toast_(`Daily limit reached. Upgrade!`,'warning');setShowPricing(true);return;}
@@ -4355,9 +4410,44 @@ function App() {
 
     setInput('');setFile(null);setFilePreview(null);setFiles([]);setTyping(true);setGlobalTyping(true);setTypingSid(sessionId||sid);setMsgCount(c=>c+1);setActiveTool(webSearch?{id:'web',icon:'fa-solid fa-globe',color:'#34D399',label:'Web Search'}:null);
     if(inputRef.current){inputRef.current.value='';inputRef.current.style.height='auto';}
-    // Auto detect memory from user message
     autoDetectAndSaveMemory(text, aiMemories, setAiMemories, toast_);
-    // abortRef is set inside XHR promise below (xhr.abort wrapper)
+
+    // ── IMAGE GENERATION INTERCEPT ──
+    if(detectImageRequest(text) && !webSearch && !file) {
+      try {
+        const imgPrompt = extractImagePrompt(text);
+        toast_('🎨 Generating image…', 'info');
+        const res = await fetch('/api/generate-image', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({prompt: imgPrompt, width:1024, height:1024})
+        });
+        const data = await res.json();
+        if(data.success && data.image) {
+          const botMsgId = Date.now()+1;
+          const botMsg = {
+            id: botMsgId,
+            text: `Here is your generated image! ✨`,
+            sender: 'bot',
+            model,
+            timestamp: Date.now(),
+            language,
+            imageUrl: data.image,
+            imagePrompt: imgPrompt,
+          };
+          setSessions(prev=>{const u=[...prev];const i=u.findIndex(s=>s.id===sessionId);if(i!==-1)u[i].messages.push(botMsg);return u;});
+          setTyping(false);setGlobalTyping(false);setTypingSid(null);
+          ding(440,0.07);
+        } else {
+          throw new Error(data.error||'Image generation failed');
+        }
+      } catch(e) {
+        const errMsg = {id:Date.now()+1,text:`❌ Image generation failed: ${e.message}`,sender:'bot',model,timestamp:Date.now()};
+        setSessions(prev=>{const u=[...prev];const i=u.findIndex(s=>s.id===sessionId);if(i!==-1)u[i].messages.push(errMsg);return u;});
+        setTyping(false);setGlobalTyping(false);setTypingSid(null);
+      }
+      return;
+    }
 
     try {
       // ── Multi-turn memory: build conversation history ──
@@ -9483,6 +9573,40 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                         </div>}
                         {msg.fp&&<div className="mb-3 rounded-xl overflow-hidden border max-w-[220px]" style={{borderColor:'var(--br)'}}><img src={msg.fp} className="w-full h-auto" alt=""/></div>}
                         {msg.fn&&!msg.fp&&<div className="mb-2 flex items-center gap-2 text-xs text-blue-400 w-fit px-3 py-1.5 rounded-lg border border-blue-400/20" style={{background:'rgba(59,130,246,.1)'}}><i className="fa-solid fa-paperclip"></i>{msg.fn}</div>}
+                        {/* ── Generated Image ── */}
+                        {msg.imageUrl&&(
+                          <div className="mb-3 space-y-2">
+                            <div className="rounded-2xl overflow-hidden border" style={{borderColor:'rgba(139,92,246,.25)',maxWidth:380}}>
+                              <img src={msg.imageUrl} alt={msg.imagePrompt||'Generated image'} className="w-full h-auto block" style={{borderRadius:'inherit'}} onError={e=>{e.target.style.display='none';}}/>
+                            </div>
+                            {msg.imagePrompt&&<p className="text-[10px] px-1" style={{color:'var(--t3)'}}>🎨 "{msg.imagePrompt.slice(0,80)}{msg.imagePrompt.length>80?'…':''}"</p>}
+                            <div className="flex gap-2 flex-wrap">
+                              <button onClick={()=>{
+                                const a=document.createElement('a');
+                                a.href=msg.imageUrl;
+                                a.download=`omina-image-${msg.id}.png`;
+                                a.click();
+                              }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all"
+                                style={{background:'linear-gradient(135deg,#7C3AED,#4F46E5)',color:'white',boxShadow:'0 2px 8px rgba(124,58,237,.3)'}}>
+                                <i className="fa-solid fa-download text-[10px]"></i>Download PNG
+                              </button>
+                              <button onClick={()=>{
+                                const a=document.createElement('a');
+                                a.href=msg.imageUrl;
+                                a.download=`omina-image-${msg.id}.jpg`;
+                                a.click();
+                              }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all"
+                                style={{borderColor:'rgba(139,92,246,.3)',color:'#a78bfa',background:'rgba(139,92,246,.08)'}}>
+                                <i className="fa-solid fa-image text-[10px]"></i>JPG
+                              </button>
+                              <button onClick={()=>{navigator.clipboard.writeText(msg.imageUrl);toast_('Copied!','success');}}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all"
+                                style={{borderColor:'var(--br)',color:'var(--t2)',background:'transparent'}}>
+                                <i className="fa-regular fa-copy text-[10px]"></i>Copy URL
+                              </button>
+                            </div>
+                          </div>
+                        )}
                         {msg.text&&(
                           editMsgId===msg.id?(
                             <div>
