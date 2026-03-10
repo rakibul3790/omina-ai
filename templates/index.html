@@ -664,6 +664,24 @@ input:-webkit-autofill{-webkit-box-shadow:0 0 0 30px var(--bgi) inset!important;
 {% raw %}
 const { useState, useRef, useEffect, useCallback, useMemo } = React;
 
+const TLANG_LIST=[
+  {code:'Bengali',   flag:'🇧🇩', label:'বাংলা'},
+  {code:'English',   flag:'🇺🇸', label:'English'},
+  {code:'Hindi',     flag:'🇮🇳', label:'हिंदी'},
+  {code:'Arabic',    flag:'🇸🇦', label:'العربية'},
+  {code:'Chinese',   flag:'🇨🇳', label:'中文'},
+  {code:'Spanish',   flag:'🇪🇸', label:'Español'},
+  {code:'French',    flag:'🇫🇷', label:'Français'},
+  {code:'German',    flag:'🇩🇪', label:'Deutsch'},
+  {code:'Japanese',  flag:'🇯🇵', label:'日本語'},
+  {code:'Korean',    flag:'🇰🇷', label:'한국어'},
+  {code:'Russian',   flag:'🇷🇺', label:'Русский'},
+  {code:'Portuguese',flag:'🇧🇷', label:'Português'},
+  {code:'Turkish',   flag:'🇹🇷', label:'Türkçe'},
+  {code:'Italian',   flag:'🇮🇹', label:'Italiano'},
+  {code:'Urdu',      flag:'🇵🇰', label:'اردو'},
+];
+
 const UDATA = window.OMINA_USER || { name:'User', email:'' };
 
 const PLANS = {
@@ -3458,6 +3476,8 @@ function App() {
     {id:'modelcomp', ic:'fa-code-compare',      lbl:'Model Compare',  col:'#10B981', fn:'modelcomp'},
     {id:'dna',       ic:'fa-dna',               lbl:'DNA of Chat',    col:'#EC4899', fn:'dna'},
     {id:'collider',  ic:'fa-atom',              lbl:'Idea Collider',  col:'#F97316', fn:'collider'},
+    {id:'calculator', ic:'fa-calculator',         lbl:'Calculator',     col:'#34D399', fn:'calculator'},
+    {id:'tonedetect', ic:'fa-waveform-lines',     lbl:'Tone Detector',  col:'#a78bfa', fn:'tonedetect'},
   ];
   const [quickAccessIds,setQuickAccessIds] = useState(()=>{
     try{const saved=localStorage.getItem('omina_qa');return saved?JSON.parse(saved):['todo','sticky','aiagent','imageai','prompts','commands'];}catch{return['todo','sticky','aiagent','imageai','prompts','commands'];}
@@ -3926,8 +3946,8 @@ function App() {
         { key:'canvas',      isOpen:()=>showCanvas,       close:()=>setShowCanvas(false)     },
         { key:'profile',     isOpen:()=>showProfile,      close:()=>setShowProfile(false)    },
         { key:'settings',    isOpen:()=>showSettings,     close:()=>setShowSettings(false)   },
-        { key:'calc',        isOpen:()=>showCalc,          close:()=>setShowCalc(false)          },
-        { key:'toneDetector',isOpen:()=>showToneDetector,   close:()=>setShowToneDetector(false)   },
+        { key:'calc',        isOpen:()=>showCalc,          close:()=>closeFeatOrSettings(setShowCalc)          },
+        { key:'toneDetector',isOpen:()=>showToneDetector,   close:()=>closeFeatOrSettings(setShowToneDetector)   },
         { key:'sidebar',     isOpen:()=>sidebarOpen && window.innerWidth<=768, close:()=>setSidebarOpen(false) },
       ],
       anyOpen: ()=> window.__ominaNav.closers.some(c=>c.isOpen()),
@@ -3967,24 +3987,6 @@ function App() {
           setGlobalTyping(true);
           // Force React state sync
           try { 
-// ── Translate Language List (outside component for perf) ──
-const TLANG_LIST=[
-  {code:'Bengali',   flag:'🇧🇩', label:'বাংলা'},
-  {code:'English',   flag:'🇺🇸', label:'English'},
-  {code:'Hindi',     flag:'🇮🇳', label:'हिंदी'},
-  {code:'Arabic',    flag:'🇸🇦', label:'العربية'},
-  {code:'Chinese',   flag:'🇨🇳', label:'中文'},
-  {code:'Spanish',   flag:'🇪🇸', label:'Español'},
-  {code:'French',    flag:'🇫🇷', label:'Français'},
-  {code:'German',    flag:'🇩🇪', label:'Deutsch'},
-  {code:'Japanese',  flag:'🇯🇵', label:'日本語'},
-  {code:'Korean',    flag:'🇰🇷', label:'한국어'},
-  {code:'Russian',   flag:'🇷🇺', label:'Русский'},
-  {code:'Portuguese',flag:'🇧🇷', label:'Português'},
-  {code:'Turkish',   flag:'🇹🇷', label:'Türkçe'},
-  {code:'Italian',   flag:'🇮🇹', label:'Italiano'},
-  {code:'Urdu',      flag:'🇵🇰', label:'اردو'},
-];
 
 ReactDOM.flushSync(()=>{ setTyping(true); }); } catch(_){ setTyping(true); }
         }
@@ -8791,143 +8793,185 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
 
       {/* ── CALCULATOR MODAL ── */}
       {showCalc&&(
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.85)',backdropFilter:'blur(16px)'}} onClick={()=>setShowCalc(false)}>
-          <div className="rounded-3xl border shadow-2xl overflow-hidden" style={{background:'var(--bg2)',borderColor:'var(--br)',width:320}} onClick={e=>e.stopPropagation()}>
-            {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b" style={{borderColor:'var(--br)'}}>
-              <span className="flex items-center gap-2 font-bold text-sm" style={{color:'var(--t1)'}}><i className="fa-solid fa-calculator" style={{color:'#34D399'}}></i>Calculator</span>
-              <button onClick={()=>setShowCalc(false)} style={{color:'var(--t3)'}}><i className="fa-solid fa-xmark"></i></button>
-            </div>
+        <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-0 sm:p-4" style={{background:'rgba(0,0,0,.7)',backdropFilter:'blur(20px)'}} onClick={()=>setShowCalc(false)}>
+          <div className="w-full sm:w-auto rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl" style={{background:'#1a1a2e',border:'1px solid rgba(255,255,255,.08)',maxWidth:380}} onClick={e=>e.stopPropagation()}>
             {/* Display */}
-            <div className="px-4 py-3" style={{background:'rgba(0,0,0,.25)'}}>
-              <div className="text-right text-xs mb-1 h-4 truncate" style={{color:'var(--t3)'}}>{calcExpr||' '}</div>
-              <div className="text-right text-4xl font-bold truncate" style={{color:'var(--t1)',letterSpacing:'-1px'}}>{calcDisplay}</div>
-            </div>
-            {/* Buttons */}
-            <div className="p-3 grid grid-cols-4 gap-2">
-              {[
-                ['AC','#EF4444'],['±','#6B7280'],['%','#6B7280'],['÷','#F59E0B'],
-                ['7',null],['8',null],['9',null],['×','#F59E0B'],
-                ['4',null],['5',null],['6',null],['-','#F59E0B'],
-                ['1',null],['2',null],['3',null],['+','#F59E0B'],
-                ['0',null,true],['.', null],['⌫','#6B7280'],['=','#6366F1'],
-              ].map((btn,i)=>{
-                const [val, col, wide] = btn;
-                return(
-                  <button key={i} onClick={()=>calcPress(val)}
-                    style={{
-                      gridColumn: wide ? 'span 2' : 'span 1',
-                      padding:'16px 8px',
-                      borderRadius:14,
-                      border:'1px solid var(--br)',
-                      background: col ? col+'22' : 'var(--bg3)',
-                      color: col || 'var(--t1)',
-                      fontWeight: 700,
-                      fontSize: val==='AC'||val==='='?14:16,
-                      cursor:'pointer',
-                      transition:'all .1s',
-                    }}
-                    onMouseEnter={e=>{e.currentTarget.style.filter='brightness(1.2)';e.currentTarget.style.transform='scale(1.04)';}}
-                    onMouseLeave={e=>{e.currentTarget.style.filter='none';e.currentTarget.style.transform='scale(1)';}}>
-                    {val}
-                  </button>
-                );
-              })}
-            </div>
-            {/* History */}
-            {calcHistory.length>0&&(
-              <div className="px-4 pb-3 border-t" style={{borderColor:'var(--br)'}}>
-                <p className="text-[10px] font-bold uppercase tracking-widest py-2" style={{color:'var(--t3)'}}>History</p>
-                <div className="space-y-1 max-h-24 overflow-y-auto">
-                  {calcHistory.slice(0,5).map((h,i)=>(
-                    <div key={i} className="flex justify-between text-xs px-1" style={{color:'var(--t2)'}}>
-                      <span style={{color:'var(--t3)'}}>{h.expr?.split('=')[0]}</span>
-                      <span className="font-bold" style={{color:'#34D399'}}>{h.expr?.split('=')[1]}</span>
-                    </div>
+            <div className="px-5 pt-5 pb-4" style={{background:'linear-gradient(180deg,#16213e,#1a1a2e)'}}>
+              <div className="flex items-center justify-between mb-2">
+                <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest" style={{color:'rgba(255,255,255,.3)'}}>
+                  <i className="fa-solid fa-calculator" style={{color:'#34D399'}}></i>Calculator
+                </span>
+                <button onClick={()=>setShowCalc(false)} className="w-7 h-7 rounded-full flex items-center justify-center" style={{background:'rgba(255,255,255,.08)',color:'rgba(255,255,255,.4)'}}><i className="fa-solid fa-xmark text-xs"></i></button>
+              </div>
+              <div className="text-right mt-4">
+                <div className="text-sm h-5 truncate" style={{color:'rgba(255,255,255,.3)',fontFamily:'monospace'}}>{calcExpr||' '}</div>
+                <div className="text-5xl font-thin mt-1 truncate" style={{color:'#fff',letterSpacing:'-2px',fontFamily:"'SF Pro Display',system-ui,sans-serif"}}>{calcDisplay}</div>
+              </div>
+              {calcHistory.length>0&&(
+                <div className="mt-3 flex gap-2 overflow-x-auto pb-1" style={{scrollbarWidth:'none'}}>
+                  {calcHistory.slice(0,4).map((h,i)=>(
+                    <button key={i} onClick={()=>{setCalcDisplay(h.expr?.split('=')[1]||'0');setCalcNewNum(true);}}
+                      className="flex-shrink-0 px-2.5 py-1 rounded-full text-xs" style={{background:'rgba(52,211,153,.12)',color:'#34D399',border:'1px solid rgba(52,211,153,.2)'}}>
+                      {h.expr}
+                    </button>
                   ))}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
+            {/* Buttons */}
+            <div className="p-4 grid grid-cols-4 gap-2.5" style={{background:'#1a1a2e'}}>
+              {[
+                {v:'AC',  bg:'rgba(255,255,255,.1)',  c:'#fff',     span:1},
+                {v:'±',   bg:'rgba(255,255,255,.1)',  c:'#fff',     span:1},
+                {v:'%',   bg:'rgba(255,255,255,.1)',  c:'#fff',     span:1},
+                {v:'÷',   bg:'rgba(255,165,0,.18)',   c:'#FFA500',  span:1},
+                {v:'7',   bg:'rgba(255,255,255,.06)', c:'#fff',     span:1},
+                {v:'8',   bg:'rgba(255,255,255,.06)', c:'#fff',     span:1},
+                {v:'9',   bg:'rgba(255,255,255,.06)', c:'#fff',     span:1},
+                {v:'×',   bg:'rgba(255,165,0,.18)',   c:'#FFA500',  span:1},
+                {v:'4',   bg:'rgba(255,255,255,.06)', c:'#fff',     span:1},
+                {v:'5',   bg:'rgba(255,255,255,.06)', c:'#fff',     span:1},
+                {v:'6',   bg:'rgba(255,255,255,.06)', c:'#fff',     span:1},
+                {v:'-',   bg:'rgba(255,165,0,.18)',   c:'#FFA500',  span:1},
+                {v:'1',   bg:'rgba(255,255,255,.06)', c:'#fff',     span:1},
+                {v:'2',   bg:'rgba(255,255,255,.06)', c:'#fff',     span:1},
+                {v:'3',   bg:'rgba(255,255,255,.06)', c:'#fff',     span:1},
+                {v:'+',   bg:'rgba(255,165,0,.18)',   c:'#FFA500',  span:1},
+                {v:'0',   bg:'rgba(255,255,255,.06)', c:'#fff',     span:2},
+                {v:'.',   bg:'rgba(255,255,255,.06)', c:'#fff',     span:1},
+                {v:'=',   bg:'#FFA500',               c:'#fff',     span:1},
+              ].map((btn,i)=>(
+                <button key={i} onClick={()=>calcPress(btn.v)}
+                  style={{
+                    gridColumn:`span ${btn.span}`,padding:'18px 8px',borderRadius:18,
+                    background:btn.bg,color:btn.c,fontWeight:400,fontSize:20,
+                    cursor:'pointer',transition:'all .1s',border:'none',
+                    fontFamily:"'SF Pro Display',system-ui",
+                  }}
+                  onMouseEnter={e=>{e.currentTarget.style.filter='brightness(1.3)';e.currentTarget.style.transform='scale(.97)';}}
+                  onMouseLeave={e=>{e.currentTarget.style.filter='none';e.currentTarget.style.transform='scale(1)';}}>
+                  {btn.v==='⌫'?<i className="fa-solid fa-delete-left" style={{fontSize:16}}></i>:btn.v}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}
 
       {/* ── TONE DETECTOR MODAL ── */}
       {showToneDetector&&(
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.85)',backdropFilter:'blur(16px)'}} onClick={()=>setShowToneDetector(false)}>
-          <div className="w-full max-w-lg rounded-3xl border shadow-2xl overflow-hidden" style={{background:'var(--bg2)',borderColor:'var(--br)'}} onClick={e=>e.stopPropagation()}>
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.8)',backdropFilter:'blur(20px)'}} onClick={()=>setShowToneDetector(false)}>
+          <div className="w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl" style={{background:'#0f0f1a',border:'1px solid rgba(167,139,250,.2)'}} onClick={e=>e.stopPropagation()}>
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b" style={{borderColor:'var(--br)'}}>
-              <span className="flex items-center gap-2 font-bold" style={{color:'var(--t1)'}}><i className="fa-solid fa-waveform-lines" style={{color:'#a78bfa'}}></i>Tone Detector</span>
-              <button onClick={()=>setShowToneDetector(false)} style={{color:'var(--t3)'}}><i className="fa-solid fa-xmark"></i></button>
-            </div>
-            <div className="p-5 space-y-4">
-              {/* Input */}
-              <div>
-                <label className="text-[11px] font-bold uppercase tracking-widest block mb-2" style={{color:'var(--t3)'}}>Paste your text</label>
-                <textarea
-                  value={toneText} onChange={e=>setToneText(e.target.value)}
-                  placeholder="Paste any text — email, message, essay, tweet…"
-                  rows={5}
-                  className="w-full rounded-xl border px-4 py-3 text-sm resize-none outline-none transition-all"
-                  style={{background:'var(--bg3)',borderColor:'var(--br)',color:'var(--t1)',lineHeight:1.7}}
-                  onFocus={e=>e.target.style.borderColor='#a78bfa'}
-                  onBlur={e=>e.target.style.borderColor='var(--br)'}
-                />
-                <div className="flex justify-between items-center mt-1">
-                  <span className="text-[10px]" style={{color:'var(--t3)'}}>{toneText.length} chars</span>
-                  <button onClick={detectTone} disabled={toneLoading||!toneText.trim()} className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all disabled:opacity-50"
-                    style={{background:'linear-gradient(135deg,#7C3AED,#4F46E5)',color:'white',boxShadow:'0 2px 8px rgba(124,58,237,.35)'}}>
-                    {toneLoading?<><i className="fa-solid fa-spinner fa-spin text-xs"></i>Analyzing…</>:<><i className="fa-solid fa-waveform-lines text-xs"></i>Detect Tone</>}
-                  </button>
+            <div className="flex items-center justify-between px-6 py-4" style={{background:'linear-gradient(135deg,rgba(124,58,237,.15),rgba(79,70,229,.08))',borderBottom:'1px solid rgba(167,139,250,.12)'}}>
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{background:'linear-gradient(135deg,#7C3AED,#4F46E5)'}}>
+                  <i className="fa-solid fa-waveform-lines text-white" style={{fontSize:14}}></i>
+                </div>
+                <div>
+                  <p className="font-bold text-sm" style={{color:'#fff'}}>Tone Detector</p>
+                  <p className="text-[10px]" style={{color:'rgba(255,255,255,.4)'}}>AI-powered writing analysis</p>
                 </div>
               </div>
+              <button onClick={()=>setShowToneDetector(false)} className="w-8 h-8 rounded-xl flex items-center justify-center" style={{background:'rgba(255,255,255,.07)',color:'rgba(255,255,255,.4)'}}><i className="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              {/* Input area */}
+              <div className="relative">
+                <textarea
+                  value={toneText} onChange={e=>setToneText(e.target.value)}
+                  placeholder="Paste any text — email, tweet, essay, message…"
+                  rows={4}
+                  className="w-full rounded-2xl px-4 py-3.5 text-sm resize-none outline-none"
+                  style={{background:'rgba(255,255,255,.05)',border:'1px solid rgba(167,139,250,.2)',color:'#fff',lineHeight:1.7,fontFamily:'inherit',transition:'border-color .2s'}}
+                  onFocus={e=>e.target.style.borderColor='rgba(167,139,250,.6)'}
+                  onBlur={e=>e.target.style.borderColor='rgba(167,139,250,.2)'}
+                />
+                <span className="absolute bottom-3 right-3 text-[10px]" style={{color:'rgba(255,255,255,.25)'}}>{toneText.length} chars</span>
+              </div>
+
+              <button onClick={detectTone} disabled={toneLoading||!toneText.trim()}
+                className="w-full py-3 rounded-2xl font-bold text-sm transition-all disabled:opacity-40 flex items-center justify-center gap-2"
+                style={{background:'linear-gradient(135deg,#7C3AED,#4F46E5)',color:'white',boxShadow:toneText.trim()?'0 4px 20px rgba(124,58,237,.4)':'none'}}>
+                {toneLoading
+                  ?<><div style={{width:14,height:14,border:'2px solid rgba(255,255,255,.3)',borderTopColor:'#fff',borderRadius:'50%',animation:'spin 1s linear infinite'}}></div>Analyzing…</>
+                  :<><i className="fa-solid fa-waveform-lines"></i>Analyze Tone</>
+                }
+              </button>
+
               {/* Result */}
               {toneResult&&(()=>{
-                const TONE_COLORS={
-                  Formal:'#60a5fa',Professional:'#60a5fa',Neutral:'#94a3b8',
-                  Happy:'#34d399',Excited:'#fbbf24',Confident:'#f59e0b',Friendly:'#4ade80',Empathetic:'#22d3ee',
-                  Casual:'#a78bfa',Persuasive:'#c084fc',
-                  Angry:'#f87171',Sad:'#93c5fd',Anxious:'#fb923c',Sarcastic:'#e879f9',
+                const TONE_META={
+                  Formal:      {c:'#60a5fa', icon:'fa-briefcase',      bg:'rgba(96,165,250,.1)'},
+                  Professional:{c:'#60a5fa', icon:'fa-tie',             bg:'rgba(96,165,250,.1)'},
+                  Neutral:     {c:'#94a3b8', icon:'fa-minus',           bg:'rgba(148,163,184,.1)'},
+                  Happy:       {c:'#34d399', icon:'fa-face-smile-beam', bg:'rgba(52,211,153,.1)'},
+                  Excited:     {c:'#fbbf24', icon:'fa-bolt',            bg:'rgba(251,191,36,.1)'},
+                  Confident:   {c:'#f59e0b', icon:'fa-fist-raised',     bg:'rgba(245,158,11,.1)'},
+                  Friendly:    {c:'#4ade80', icon:'fa-handshake',       bg:'rgba(74,222,128,.1)'},
+                  Empathetic:  {c:'#22d3ee', icon:'fa-heart',           bg:'rgba(34,211,238,.1)'},
+                  Casual:      {c:'#a78bfa', icon:'fa-comment',         bg:'rgba(167,139,250,.1)'},
+                  Persuasive:  {c:'#c084fc', icon:'fa-bullhorn',        bg:'rgba(192,132,252,.1)'},
+                  Angry:       {c:'#f87171', icon:'fa-fire',            bg:'rgba(248,113,113,.1)'},
+                  Sad:         {c:'#93c5fd', icon:'fa-cloud-rain',      bg:'rgba(147,197,253,.1)'},
+                  Anxious:     {c:'#fb923c', icon:'fa-face-anxious-sweat',bg:'rgba(251,146,60,.1)'},
+                  Sarcastic:   {c:'#e879f9', icon:'fa-face-rolling-eyes',bg:'rgba(232,121,249,.1)'},
                 };
-                const col = TONE_COLORS[toneResult.primary_tone]||'#a78bfa';
+                const meta = TONE_META[toneResult.primary_tone]||{c:'#a78bfa',icon:'fa-waveform-lines',bg:'rgba(167,139,250,.1)'};
                 const sentCol = {Positive:'#34d399',Negative:'#f87171',Neutral:'#94a3b8',Mixed:'#fbbf24'}[toneResult.sentiment]||'#a78bfa';
+                const conf = Math.min(100, Math.max(0, parseInt(toneResult.confidence)||75));
                 return(
-                  <div className="rounded-2xl border p-4 space-y-3" style={{borderColor:col+'40',background:col+'08'}}>
-                    {/* Primary tone */}
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{color:'var(--t3)'}}>Primary Tone</p>
-                        <span className="text-2xl font-black" style={{color:col}}>{toneResult.primary_tone}</span>
+                  <div className="rounded-2xl overflow-hidden" style={{border:'1px solid '+meta.c+'30',background:meta.bg}}>
+                    {/* Top: Primary tone hero */}
+                    <div className="flex items-center gap-4 p-4" style={{borderBottom:'1px solid '+meta.c+'20'}}>
+                      <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0" style={{background:'linear-gradient(135deg,'+meta.c+'30,'+meta.c+'15)',border:'1px solid '+meta.c+'30'}}>
+                        <i className={`fa-solid ${meta.icon}`} style={{fontSize:22,color:meta.c}}></i>
                       </div>
-                      <div className="text-right">
-                        <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{color:'var(--t3)'}}>Confidence</p>
-                        <span className="text-xl font-black" style={{color:col}}>{toneResult.confidence}%</span>
+                      <div className="flex-1">
+                        <p className="text-2xl font-black" style={{color:meta.c,lineHeight:1}}>{toneResult.primary_tone}</p>
+                        <p className="text-xs mt-1" style={{color:'rgba(255,255,255,.5)'}}>{toneResult.summary}</p>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <div className="text-3xl font-black" style={{color:meta.c}}>{conf}%</div>
+                        <p className="text-[9px] uppercase tracking-widest" style={{color:'rgba(255,255,255,.3)'}}>confidence</p>
                       </div>
                     </div>
-                    {/* Tags row */}
-                    <div className="flex flex-wrap gap-2">
-                      <span className="text-xs px-2.5 py-1 rounded-full font-bold" style={{background:sentCol+'20',color:sentCol}}>{toneResult.sentiment}</span>
-                      <span className="text-xs px-2.5 py-1 rounded-full font-bold" style={{background:'rgba(148,163,184,.15)',color:'#94a3b8'}}>{toneResult.formality}</span>
-                      <span className="text-xs px-2.5 py-1 rounded-full font-bold" style={{background:'rgba(251,191,36,.12)',color:'#fbbf24'}}>⚡ {toneResult.energy} Energy</span>
+                    {/* Confidence bar */}
+                    <div className="px-4 pt-3">
+                      <div className="w-full rounded-full overflow-hidden" style={{height:4,background:'rgba(255,255,255,.07)'}}>
+                        <div className="h-full rounded-full transition-all" style={{width:conf+'%',background:'linear-gradient(90deg,'+meta.c+','+meta.c+'aa)'}}></div>
+                      </div>
+                    </div>
+                    {/* Stats pills */}
+                    <div className="p-4 flex flex-wrap gap-2">
+                      <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold" style={{background:sentCol+'18',color:sentCol,border:'1px solid '+sentCol+'30'}}>
+                        <i className="fa-solid fa-circle-dot" style={{fontSize:8}}></i>{toneResult.sentiment}
+                      </span>
+                      <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold" style={{background:'rgba(148,163,184,.12)',color:'#94a3b8',border:'1px solid rgba(148,163,184,.2)'}}>
+                        <i className="fa-solid fa-building-columns" style={{fontSize:8}}></i>{toneResult.formality}
+                      </span>
+                      <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold" style={{background:'rgba(251,191,36,.12)',color:'#fbbf24',border:'1px solid rgba(251,191,36,.2)'}}>
+                        <i className="fa-solid fa-bolt" style={{fontSize:8}}></i>{toneResult.energy} Energy
+                      </span>
                       {(toneResult.secondary_tones||[]).map(t=>(
-                        <span key={t} className="text-xs px-2.5 py-1 rounded-full" style={{background:'rgba(255,255,255,.07)',color:'var(--t2)'}}>{t}</span>
+                        <span key={t} className="px-3 py-1.5 rounded-full text-xs" style={{background:'rgba(255,255,255,.06)',color:'rgba(255,255,255,.5)',border:'1px solid rgba(255,255,255,.08)'}}>{t}</span>
                       ))}
                     </div>
-                    {/* Summary */}
-                    <p className="text-sm" style={{color:'var(--t2)',lineHeight:1.6}}>{toneResult.summary}</p>
-                    {/* Send to chat */}
-                    <button onClick={()=>{
-                      const summary = `Tone Analysis Result:
-- Primary: ${toneResult.primary_tone} (${toneResult.confidence}% confidence)
-- Sentiment: ${toneResult.sentiment} | Formality: ${toneResult.formality} | Energy: ${toneResult.energy}
-- Summary: ${toneResult.summary}`;
-                      setInput(summary);
-                      setShowToneDetector(false);
-                      toast_('Result sent to chat input','success');
-                    }} className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-bold transition-all border" style={{borderColor:col+'40',color:col,background:col+'10'}}>
-                      <i className="fa-solid fa-paper-plane text-[10px]"></i>Send result to chat
-                    </button>
+                    {/* Actions */}
+                    <div className="px-4 pb-4 flex gap-2">
+                      <button onClick={()=>{
+                        setInput(`Tone Analysis:\n• Primary: ${toneResult.primary_tone} (${conf}%)\n• Sentiment: ${toneResult.sentiment} | Formality: ${toneResult.formality} | Energy: ${toneResult.energy}\n• ${toneResult.summary}`);
+                        setShowToneDetector(false);toast_('Result sent to chat','success');
+                      }} className="flex-1 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all"
+                        style={{background:'rgba(255,255,255,.07)',color:'rgba(255,255,255,.7)',border:'1px solid rgba(255,255,255,.1)'}}>
+                        <i className="fa-solid fa-paper-plane text-[10px]"></i>Send to chat
+                      </button>
+                      <button onClick={()=>{setToneText('');setToneResult(null);}} className="py-2.5 px-4 rounded-xl text-xs font-bold transition-all"
+                        style={{background:'rgba(255,255,255,.05)',color:'rgba(255,255,255,.4)',border:'1px solid rgba(255,255,255,.08)'}}>
+                        Clear
+                      </button>
+                    </div>
                   </div>
                 );
               })()}
@@ -9761,6 +9805,8 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                                 digest:()=>{setShowProfile(false);setShowDigest(true);},
                                 randprompt:()=>{setShowProfile(false);setShowRandPrompt(true);},
                                 incognito:()=>{setIncognito(s=>!s);setShowProfile(false);toast_(incognito?'Incognito OFF':'Incognito ON — chats won\'t be saved',incognito?'info':'warning');},
+                                calculator:()=>{setShowProfile(false);setShowCalc(true);},
+                                tonedetect:()=>{setShowProfile(false);setShowToneDetector(true);},
                                 chain:()=>{setShowProfile(false);setShowChainViewer(true);},
                                 conceptmap:()=>{setShowProfile(false);setShowConceptMap(true);},
                                 storygen:()=>{setShowProfile(false);setShowStoryGen(true);},
@@ -10943,6 +10989,8 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       modelcomp:()=>{setFeatFromSettings(true);setShowSettings(false);setShowModelComp(true);},
                       dna:()=>{setFeatFromSettings(true);setShowSettings(false);setShowDNA(true);},
                       collider:()=>{setFeatFromSettings(true);setShowSettings(false);setShowCollider(true);},
+                      calculator:()=>{setFeatFromSettings(true);setShowSettings(false);setShowCalc(true);},
+                      tonedetect:()=>{setFeatFromSettings(true);setShowSettings(false);setShowToneDetector(true);},
                     };
                     const isMobile=window.innerWidth<=768;
 
