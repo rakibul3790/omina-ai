@@ -1781,7 +1781,8 @@ function CanvasPanel({content, onClose}) {
                       onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.borderColor='#1c1c2e';e.currentTarget.style.color='#555577';}}>
                       <i className="fa-solid fa-bolt" style={{fontSize:8,marginRight:6,color:'#333355'}}></i>{q}
                     </button>
-                  ))}
+                  );
+                  })}
                 </div>
               )}
 
@@ -3334,6 +3335,9 @@ function App() {
   const [input,setInput]         = useState('');
   const [typing,setTyping]       = useState(false);
   const [typingSid,setTypingSid] = useState(null); // which session is thinking
+  // ── Pagination: render last N messages, load more on demand ──
+  const MSG_PAGE = 30;
+  const [msgVisibleCount,setMsgVisibleCount] = useState(MSG_PAGE);
   const [sidebarOpen,setSidebarOpen] = useState(window.innerWidth>768);
   const [file,setFile]           = useState(null);
   const [filePreview,setFilePreview] = useState(null);
@@ -3341,6 +3345,8 @@ function App() {
   // Active tool from + menu shown in chatbox
   const [activeTool,setActiveTool] = useState(null); // {icon, color, label, id}
   const [sessions,setSessions]   = useState(()=>{try{const s=localStorage.getItem('omina_v4');return s?JSON.parse(s):[]}catch{return[]}});
+  // Reset pagination when session switches
+  React.useEffect(()=>{ setMsgVisibleCount(MSG_PAGE); },[sid]);
   const [sid,setSid]             = useState(()=>{
     try{const p=new URLSearchParams(window.location.search);return p.get('sid')||null;}catch{return null;}
   });
@@ -4079,8 +4085,31 @@ ReactDOM.flushSync(()=>{ setTyping(true); }); } catch(_){ setTyping(true); }
     const isImage = f.type.startsWith('image/');
 
     if (isImage) {
+      // ── Image Compression: resize large images before storing ──
       const reader = new FileReader();
-      reader.onload = e => resolve({ content: null, preview: e.target.result, type: 'image' });
+      reader.onload = ev => {
+        const img = new Image();
+        img.onload = () => {
+          const MAX = 1024; // max dimension px
+          let w = img.width, h = img.height;
+          if (w > MAX || h > MAX) {
+            const ratio = Math.min(MAX/w, MAX/h);
+            w = Math.round(w * ratio);
+            h = Math.round(h * ratio);
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          // Use JPEG for photos, PNG for small/transparent
+          const quality = f.size > 500*1024 ? 0.75 : 0.88;
+          const mimeOut = f.type === 'image/png' && f.size < 200*1024 ? 'image/png' : 'image/jpeg';
+          const compressed = canvas.toDataURL(mimeOut, quality);
+          resolve({ content: null, preview: compressed, type: 'image' });
+        };
+        img.onerror = () => resolve({ content: null, preview: ev.target.result, type: 'image' });
+        img.src = ev.target.result;
+      };
       reader.readAsDataURL(f);
     } else if (isText) {
       const reader = new FileReader();
@@ -4140,19 +4169,32 @@ ReactDOM.flushSync(()=>{ setTyping(true); }); } catch(_){ setTyping(true); }
     if (f.size > 2 * 1024 * 1024) { toast_('Image too large (max 2MB)', 'warning'); return; }
     const reader = new FileReader();
     reader.onload = async (ev) => {
-      const dataUrl = ev.target.result;
-      setAvatarUrl(dataUrl);
-      // sync to backend profile
-      try {
-        await fetch('/api/profile', {
-          method: 'PUT',
-          headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({avatar: dataUrl})
-        });
-        toast_('Avatar updated ✓', 'success');
-      } catch(_) {
-        toast_('Avatar saved locally', 'info');
-      }
+      // Compress avatar: max 256x256, JPEG quality 0.85
+      const img = new Image();
+      img.onload = async () => {
+        const SZ = 256;
+        const canvas = document.createElement('canvas');
+        canvas.width = SZ; canvas.height = SZ;
+        const ctx = canvas.getContext('2d');
+        // Center-crop to square
+        const side = Math.min(img.width, img.height);
+        const ox = (img.width - side) / 2;
+        const oy = (img.height - side) / 2;
+        ctx.drawImage(img, ox, oy, side, side, 0, 0, SZ, SZ);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        setAvatarUrl(dataUrl);
+        try {
+          await fetch('/api/profile', {
+            method: 'PUT',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({avatar: dataUrl})
+          });
+          toast_('Avatar updated ✓', 'success');
+        } catch(_) {
+          toast_('Avatar saved locally', 'info');
+        }
+      };
+      img.src = ev.target.result;
     };
     reader.readAsDataURL(f);
     e.target.value='';
@@ -10012,7 +10054,23 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
               ):(
                 /* MESSAGES */
                 <div className="w-full max-w-3xl flex-1 py-6 space-y-5">
-                  {msgs.map((msg,idx)=>(
+                  {/* ── Pagination: load older messages ── */}
+                  {msgs.length > msgVisibleCount && (
+                    <div style={{textAlign:'center',paddingBottom:8}}>
+                      <button
+                        onClick={()=>setMsgVisibleCount(c=>Math.min(c+MSG_PAGE, msgs.length))}
+                        style={{padding:'6px 20px',borderRadius:99,fontSize:11,fontWeight:700,background:'rgba(99,102,241,.1)',color:'#818cf8',border:'1px solid rgba(99,102,241,.25)',cursor:'pointer',transition:'all .18s',display:'inline-flex',alignItems:'center',gap:8}}
+                        onMouseEnter={e=>{e.currentTarget.style.background='rgba(99,102,241,.2)';e.currentTarget.style.borderColor='rgba(99,102,241,.4)';}}
+                        onMouseLeave={e=>{e.currentTarget.style.background='rgba(99,102,241,.1)';e.currentTarget.style.borderColor='rgba(99,102,241,.25)';}}>
+                        <i className="fa-solid fa-arrow-up" style={{fontSize:9}}></i>
+                        Load {Math.min(MSG_PAGE, msgs.length - msgVisibleCount)} older messages
+                        <span style={{fontSize:9,opacity:.55}}>({msgs.length - msgVisibleCount} hidden)</span>
+                      </button>
+                    </div>
+                  )}
+                  {msgs.slice(-msgVisibleCount).map((msg,idx)=>{
+                    const isLastMsg = msg.id === msgs[msgs.length-1]?.id;
+                    return (
                     <div key={msg.id} className={`mw flex gap-3 ${msg.sender==='user'?'justify-end':'justify-start'}`}>
                       {msg.sender==='bot'&&(()=>{
                         const msgPersona = PERSONAS.find(p=>p.id===(msg.persona||persona)) || PERSONAS[0];
@@ -10150,11 +10208,11 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                           {timestamps&&msg.timestamp&&<span className="text-[10px] mr-1" style={{color:'var(--t3)'}}>{fmtTime(msg.timestamp)}</span>}
                           <button onClick={()=>copyMsg(msg)} className="p-1 rounded-lg transition-all" style={{color:copiedId===msg.id?'#10B981':'var(--t3)'}} title="Copy"><i className={`fa-${copiedId===msg.id?'solid fa-check':'regular fa-copy'} text-xs`}></i></button>
                           {msg.sender==='user'&&editMsgId!==msg.id&&<button onClick={()=>startEdit(msg)} className="p-1 rounded-lg transition-all hover:text-slate-300" style={{color:'var(--t3)'}} title="Edit"><i className="fa-solid fa-pen text-xs"></i></button>}
-                          {msg.sender==='bot'&&idx===msgs.length-1&&<button onClick={regen} className="p-1 rounded-lg transition-all hover:text-slate-300" style={{color:'var(--t3)'}} title="Regenerate"><i className="fa-solid fa-rotate-right text-xs"></i></button>}
+                          {msg.sender==='bot'&&isLastMsg&&<button onClick={regen} className="p-1 rounded-lg transition-all hover:text-slate-300" style={{color:'var(--t3)'}} title="Regenerate"><i className="fa-solid fa-rotate-right text-xs"></i></button>}
                           {msg.sender==='bot'&&<button onClick={()=>createBranch(msg)} disabled={typing} className="p-1 rounded-lg transition-all hover:text-purple-400 disabled:opacity-30" style={{color:'var(--t3)'}} title="Alternate reply"><i className="fa-solid fa-code-branch text-xs"></i></button>}
                           {msg.sender==='bot'&&<button onClick={()=>summarizeMsg(msg)} disabled={summarizing===msg.id} className="p-1 rounded-lg transition-all hover:text-cyan-400 disabled:opacity-40" style={{color:msgSummary[msg.id]?'#22d3ee':'var(--t3)'}} title="Summarize this reply"><i className={`fa-solid ${summarizing===msg.id?'fa-spinner fa-spin':'fa-compress-alt'} text-xs`}></i></button>}
                           {msg.sender==='bot'&&ttsVoices.length>0&&<button onClick={()=>ttsSpeaking?ttsStop():ttsSpeak(msg.text||'')} className="p-1 rounded-lg transition-all" style={{color:ttsSpeaking?'#3B82F6':'var(--t3)'}} title={ttsSpeaking?'Stop':'Read aloud'}><i className={`fa-solid ${ttsSpeaking?'fa-stop':'fa-volume-high'} text-xs`}></i></button>}
-                          {msg.sender==='bot'&&idx===msgs.length-1&&!typing&&<button onClick={()=>genFollowUps(msg.text,msg.id)} className="p-1 rounded-lg transition-all hover:text-violet-400" style={{color:followUpMsgId===msg.id?'#a78bfa':'var(--t3)'}} title="Follow-up suggestions"><i className="fa-solid fa-wand-magic-sparkles text-xs"></i></button>}
+                          {msg.sender==='bot'&&isLastMsg&&!typing&&<button onClick={()=>genFollowUps(msg.text,msg.id)} className="p-1 rounded-lg transition-all hover:text-violet-400" style={{color:followUpMsgId===msg.id?'#a78bfa':'var(--t3)'}} title="Follow-up suggestions"><i className="fa-solid fa-wand-magic-sparkles text-xs"></i></button>}
                           <button onClick={()=>toggleStar(msg.id)} className={`p-1 rounded-lg transition-all ${starred[msg.id]?'star-on':'hover:text-amber-400'}`} style={!starred[msg.id]?{color:'var(--t3)'}:{}} title="Star"><i className="fa-solid fa-star text-xs"></i></button>
 
                           {/* Voting */}
@@ -10259,7 +10317,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                           </div>
                         )}
                         {/* Follow-up suggestions — show after last bot msg */}
-                        {msg.sender==='bot'&&idx===msgs.length-1&&followUpMsgId===msg.id&&followUps.length>0&&!typing&&(
+                        {msg.sender==='bot'&&isLastMsg&&followUpMsgId===msg.id&&followUps.length>0&&!typing&&(
                           <div className="mt-3">
                             <p className="text-[10px] font-bold tracking-widest uppercase mb-2 flex items-center gap-1.5" style={{color:'var(--t3)'}}><i className="fa-solid fa-wand-magic-sparkles" style={{color:'#a78bfa'}}></i>Follow-up suggestions</p>
                             <div className="flex flex-wrap gap-2">
@@ -10275,7 +10333,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                         )}
                       </div>
                     </div>
-                  ))}
+                  ); })}
                   {/* Image Analysis indicator */}
                   {analyzingImg&&(
                     <div className="flex gap-3 justify-start">
@@ -10868,183 +10926,92 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                     )}
                   </div>
 
-                  {/* ── API KEY MANAGEMENT ── REDESIGNED ── */}
-                  {(()=>{
-                    const PROVIDERS=[
-                      {id:'OpenAI',   label:'OpenAI',    icon:'fa-robot',        color:'#10B981', accent:'rgba(16,185,129,',  desc:'GPT-4o, GPT-4, GPT-3.5'},
-                      {id:'Anthropic',label:'Anthropic', icon:'fa-a',            color:'#F59E0B', accent:'rgba(245,158,11,',  desc:'Claude 3.5, Claude 3'},
-                      {id:'Google',   label:'Google',    icon:'fa-google',       color:'#3B82F6', accent:'rgba(59,130,246,',  desc:'Gemini Pro, Gemini Ultra'},
-                      {id:'Groq',     label:'Groq',      icon:'fa-bolt',         color:'#8B5CF6', accent:'rgba(139,92,246,',  desc:'LLaMA, Mixtral — ultra fast'},
-                      {id:'Mistral',  label:'Mistral',   icon:'fa-wind',         color:'#EC4899', accent:'rgba(236,72,153,',  desc:'Mistral Large, Codestral'},
-                      {id:'Custom',   label:'Custom',    icon:'fa-code',         color:'#64748B', accent:'rgba(100,116,139,', desc:'Any OpenAI-compatible API'},
-                    ];
-                    const selProv=apiKeySelProv, setSelProv=setApiKeySelProv;
-                    const apiTab=apiKeyTab,     setApiTab=setApiKeyTab;
-                    const selProvObj=PROVIDERS.find(p=>p.id===selProv)||null;
-                    return(
-                    <div style={{borderRadius:18,border:'1px solid rgba(99,102,241,.2)',overflow:'hidden',background:'var(--bg2)'}}>
+                  {/* ── API KEY MANAGEMENT ── NEW DESIGN ── */}
+                  <div className="rounded-2xl border overflow-hidden" style={{borderColor:'rgba(59,130,246,.25)',background:'var(--bg2)'}}>
+                    {/* Header */}
+                    <div className="flex items-center gap-3 px-4 py-3" style={{background:'linear-gradient(90deg,rgba(37,99,235,.1),rgba(99,102,241,.06))'}}>
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{background:'linear-gradient(135deg,#1D4ED8,#4F46E5)',boxShadow:'0 4px 14px rgba(29,78,216,.4)'}}>
+                        <i className="fa-solid fa-key text-white text-sm"></i>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold" style={{color:'var(--t1)'}}>API Keys</p>
+                        <p className="text-[10px]" style={{color:'var(--t3)'}}>Manage keys for OpenAI, Groq, Anthropic & more</p>
+                      </div>
+                      <span className="text-xs font-black px-2.5 py-1 rounded-xl" style={{background:'rgba(59,130,246,.15)',color:'#60a5fa',border:'1px solid rgba(59,130,246,.2)'}}>{apiKeys.length}</span>
+                    </div>
 
-                      {/* ── Top bar ── */}
-                      <div style={{background:'linear-gradient(135deg,rgba(15,10,35,.9),rgba(30,20,60,.85))',padding:'16px 18px 14px',borderBottom:'1px solid rgba(99,102,241,.15)',position:'relative',overflow:'hidden'}}>
-                        {/* bg orbs */}
-                        <div style={{position:'absolute',top:-30,right:-20,width:100,height:100,borderRadius:'50%',background:'radial-gradient(circle,rgba(99,102,241,.18),transparent 70%)',pointerEvents:'none'}}/>
-                        <div style={{position:'absolute',bottom:-20,left:10,width:70,height:70,borderRadius:'50%',background:'radial-gradient(circle,rgba(139,92,246,.12),transparent 70%)',pointerEvents:'none'}}/>
-                        <div style={{display:'flex',alignItems:'center',gap:12,position:'relative'}}>
-                          <div style={{width:40,height:40,borderRadius:13,background:'linear-gradient(135deg,#4F46E5,#7C3AED)',boxShadow:'0 6px 20px rgba(79,70,229,.45)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-                            <i className="fa-solid fa-key" style={{color:'#fff',fontSize:15,transform:'rotate(-45deg)'}}></i>
-                          </div>
-                          <div style={{flex:1,minWidth:0}}>
-                            <div style={{display:'flex',alignItems:'center',gap:8}}>
-                              <p style={{fontSize:14,fontWeight:700,color:'#e2e8f0',margin:0}}>API Key Vault</p>
-                              {apiKeys.length>0&&<span style={{fontSize:10,fontWeight:800,padding:'2px 8px',borderRadius:99,background:'rgba(99,102,241,.25)',color:'#a5b4fc',border:'1px solid rgba(99,102,241,.3)'}}>{apiKeys.length} key{apiKeys.length>1?'s':''}</span>}
-                            </div>
-                            <p style={{fontSize:10,color:'rgba(148,163,184,.7)',margin:'2px 0 0'}}>Securely stored on your device only</p>
-                          </div>
-                          <div style={{display:'flex',gap:4,flexShrink:0}}>
-                            {['keys','add'].map(t=>(
-                              <button key={t} onClick={()=>setApiTab(t)} style={{padding:'5px 12px',borderRadius:9,fontSize:10,fontWeight:700,cursor:'pointer',transition:'all .18s',background:apiTab===t?'rgba(99,102,241,.3)':'transparent',color:apiTab===t?'#a5b4fc':'rgba(148,163,184,.6)',border:apiTab===t?'1px solid rgba(99,102,241,.4)':'1px solid transparent',textTransform:'capitalize'}}>
-                                {t==='add'?'+ Add':t==='keys'?<span style={{display:'flex',alignItems:'center',gap:5}}><i className="fa-solid fa-list-ul" style={{fontSize:9}}></i>Keys</span>:t}
-                              </button>
-                            ))}
-                          </div>
+                    <div className="p-3 space-y-3 border-t" style={{borderColor:'var(--br)'}}>
+
+                      {/* Key list */}
+                      {apiKeys.length>0&&(
+                        <div className="space-y-2 max-h-52 overflow-y-auto sb">
+                          {apiKeys.map(k=>{
+                            const PROVIDER_COLORS={OpenAI:'#10B981',Anthropic:'#F59E0B',Google:'#3B82F6',Groq:'#8B5CF6',Mistral:'#EC4899',Custom:'#6B7280'};
+                            const col=PROVIDER_COLORS[k.provider]||'#6B7280';
+                            return(
+                              <div key={k.id} className="group flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all" style={{background:'var(--bg)',borderColor:'var(--br)'}} onMouseEnter={e=>e.currentTarget.style.borderColor='rgba(59,130,246,.3)'} onMouseLeave={e=>e.currentTarget.style.borderColor='var(--br)'}>
+                                <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 font-black text-[10px] text-white" style={{background:col}}>{(k.provider||'?')[0]}</div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2">
+                                    <p className="text-xs font-semibold truncate" style={{color:'var(--t1)'}}>{k.name}</p>
+                                    {k.tested&&<span className="text-[8px] px-1.5 py-0.5 rounded-full font-bold flex-shrink-0" style={{background:'rgba(16,185,129,.12)',color:'#34d399'}}>✓</span>}
+                                  </div>
+                                  <p className="text-[10px] font-mono mt-0.5" style={{color:'var(--t3)'}}>
+                                    {showKeyVal[k.id]?k.value:k.value.slice(0,8)+'••••'+k.value.slice(-3)}
+                                  </p>
+                                </div>
+                                <div className="flex items-center gap-0.5 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <button onClick={()=>setShowKeyVal(p=>({...p,[k.id]:!p[k.id]}))} className="w-7 h-7 rounded-lg flex items-center justify-center" style={{color:'var(--t3)'}} title={showKeyVal[k.id]?'Hide':'Show'} onMouseEnter={e=>e.currentTarget.style.background='var(--bg3)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                                    <i className={`fa-solid ${showKeyVal[k.id]?'fa-eye-slash':'fa-eye'} text-[10px]`}></i>
+                                  </button>
+                                  <button onClick={()=>{navigator.clipboard.writeText(k.value);toast_('Copied!','success');}} className="w-7 h-7 rounded-lg flex items-center justify-center" style={{color:'var(--t3)'}} title="Copy" onMouseEnter={e=>e.currentTarget.style.background='var(--bg3)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                                    <i className="fa-regular fa-copy text-[10px]"></i>
+                                  </button>
+                                  <button onClick={()=>{if(window.confirm('Delete this key?')){setApiKeys(p=>p.filter(x=>x.id!==k.id));toast_('Deleted','info');}}} className="w-7 h-7 rounded-lg flex items-center justify-center" style={{color:'#f87171'}} title="Delete" onMouseEnter={e=>e.currentTarget.style.background='rgba(239,68,68,.1)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                                    <i className="fa-solid fa-trash-can text-[10px]"></i>
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
                         </div>
+                      )}
+
+                      {/* Add new key form */}
+                      <div className="rounded-xl border p-3 space-y-2" style={{borderColor:'rgba(59,130,246,.15)',background:'rgba(59,130,246,.03)'}}>
+                        <p className="text-[10px] font-bold uppercase tracking-widest" style={{color:'var(--t3)'}}>Add New Key</p>
+                        <div className="grid grid-cols-2 gap-2">
+                          <input value={newKeyName} onChange={e=>setNewKeyName(e.target.value)} placeholder="Key name (e.g. My Groq)"
+                            className="px-3 py-2 rounded-xl text-xs outline-none border" style={{background:'var(--bg)',borderColor:'rgba(59,130,246,.2)',color:'var(--t1)'}}
+                            onFocus={e=>e.target.style.borderColor='rgba(59,130,246,.5)'} onBlur={e=>e.target.style.borderColor='rgba(59,130,246,.2)'}/>
+                          <select value={newKeyName} onChange={e=>{if(e.target.value)setNewKeyName(e.target.value);}} className="px-3 py-2 rounded-xl text-xs outline-none border" style={{background:'var(--bg)',borderColor:'rgba(59,130,246,.2)',color:'var(--t2)'}}>
+                            <option value="">Provider...</option>
+                            {['OpenAI','Anthropic','Google','Groq','Mistral','Custom'].map(p=><option key={p}>{p}</option>)}
+                          </select>
+                        </div>
+                        <div className="relative">
+                          <input value={newKeyVal} onChange={e=>setNewKeyVal(e.target.value)} placeholder="sk-••••••••••••••••••••••••"
+                            type="password" className="w-full px-3 py-2 pr-10 rounded-xl text-xs outline-none border font-mono"
+                            style={{background:'var(--bg)',borderColor:'rgba(59,130,246,.2)',color:'var(--t1)'}}
+                            onFocus={e=>e.target.style.borderColor='rgba(59,130,246,.5)'} onBlur={e=>e.target.style.borderColor='rgba(59,130,246,.2)'}/>
+                        </div>
+                        <button onClick={()=>{
+                          if(!newKeyName.trim()||!newKeyVal.trim()){toast_('Fill all fields','warning');return;}
+                          const provider=['OpenAI','Anthropic','Google','Groq','Mistral'].find(p=>newKeyName.includes(p))||'Custom';
+                          setApiKeys(p=>[...p,{id:Date.now(),name:newKeyName.trim(),value:newKeyVal.trim(),provider,createdAt:new Date().toLocaleDateString(),tested:false}]);
+                          setNewKeyName('');setNewKeyVal('');toast_('API key saved 🔑','success');
+                        }} className="w-full py-2.5 rounded-xl text-xs font-bold text-white transition-all flex items-center justify-center gap-2" style={{background:'linear-gradient(135deg,#1D4ED8,#4F46E5)',boxShadow:'0 2px 10px rgba(29,78,216,.3)'}}>
+                          <i className="fa-solid fa-plus text-[10px]"></i>Save API Key
+                        </button>
                       </div>
 
-                      {/* ── Keys list tab ── */}
-                      {apiTab==='keys'&&(
-                        <div style={{padding:'12px 14px'}}>
-                          {apiKeys.length===0?(
-                            <div style={{textAlign:'center',padding:'28px 16px'}}>
-                              <div style={{width:52,height:52,borderRadius:16,background:'rgba(99,102,241,.1)',border:'1px dashed rgba(99,102,241,.25)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 12px'}}>
-                                <i className="fa-solid fa-key" style={{fontSize:20,color:'rgba(99,102,241,.4)',transform:'rotate(-45deg)'}}></i>
-                              </div>
-                              <p style={{fontSize:12,fontWeight:600,color:'var(--t2)',margin:'0 0 4px'}}>No API keys yet</p>
-                              <p style={{fontSize:10,color:'var(--t3)',margin:'0 0 14px'}}>Add your first key to unlock external AI models</p>
-                              <button onClick={()=>setApiTab('add')} style={{padding:'7px 18px',borderRadius:10,fontSize:11,fontWeight:700,background:'linear-gradient(135deg,#4F46E5,#7C3AED)',color:'#fff',border:'none',cursor:'pointer',boxShadow:'0 4px 14px rgba(79,70,229,.35)'}}>
-                                <i className="fa-solid fa-plus" style={{marginRight:6,fontSize:9}}></i>Add First Key
-                              </button>
-                            </div>
-                          ):(
-                            <div style={{display:'flex',flexDirection:'column',gap:6,maxHeight:220,overflowY:'auto'}} className="sb">
-                              {apiKeys.map(k=>{
-                                const pObj=PROVIDERS.find(p=>p.id===k.provider)||PROVIDERS[5];
-                                return(
-                                  <div key={k.id} style={{display:'flex',alignItems:'center',gap:10,padding:'9px 12px',borderRadius:13,background:'var(--bg)',border:'1px solid var(--br)',transition:'all .18s',cursor:'default'}}
-                                    onMouseEnter={e=>{e.currentTarget.style.borderColor=pObj.accent+'.35)';e.currentTarget.style.background=pObj.accent+'.04)';const acts=e.currentTarget.querySelector('.api-acts');if(acts)acts.style.opacity='1';}}
-                                    onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--br)';e.currentTarget.style.background='var(--bg)';const acts=e.currentTarget.querySelector('.api-acts');if(acts)acts.style.opacity='0';}}>
-                                    {/* provider badge */}
-                                    <div style={{width:32,height:32,borderRadius:10,background:pObj.accent+'.12)',border:'1px solid '+pObj.accent+'.2)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-                                      <i className={`fa-solid ${pObj.icon}`} style={{fontSize:12,color:pObj.color}}></i>
-                                    </div>
-                                    <div style={{flex:1,minWidth:0}}>
-                                      <div style={{display:'flex',alignItems:'center',gap:6}}>
-                                        <span style={{fontSize:11,fontWeight:700,color:'var(--t1)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{k.name}</span>
-                                        <span style={{fontSize:9,padding:'1px 6px',borderRadius:99,background:pObj.accent+'.12)',color:pObj.color,border:'1px solid '+pObj.accent+'.2)',flexShrink:0,fontWeight:700}}>{k.provider}</span>
-                                        {k.tested&&<span style={{fontSize:9,padding:'1px 6px',borderRadius:99,background:'rgba(16,185,129,.1)',color:'#34d399',border:'1px solid rgba(16,185,129,.2)',flexShrink:0,fontWeight:700}}>✓ tested</span>}
-                                      </div>
-                                      <p style={{fontSize:9,color:'var(--t3)',fontFamily:'monospace',margin:'3px 0 0',letterSpacing:'.03em'}}>
-                                        {showKeyVal[k.id]?k.value:k.value.slice(0,10)+'•••••••••'+k.value.slice(-4)}
-                                      </p>
-                                    </div>
-                                    <div className="api-acts" style={{display:'flex',gap:2,flexShrink:0,opacity:0,transition:'opacity .15s'}}>
-                                      <button onClick={()=>setShowKeyVal(p=>({...p,[k.id]:!p[k.id]}))} title={showKeyVal[k.id]?'Hide':'Show'}
-                                        style={{width:26,height:26,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',background:'transparent',border:'none',cursor:'pointer',color:'var(--t3)'}}
-                                        onMouseEnter={e=>e.currentTarget.style.background='var(--bg3)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
-                                        <i className={`fa-solid ${showKeyVal[k.id]?'fa-eye-slash':'fa-eye'}`} style={{fontSize:9}}></i>
-                                      </button>
-                                      <button onClick={()=>{navigator.clipboard.writeText(k.value);toast_('Copied!','success');}} title="Copy"
-                                        style={{width:26,height:26,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',background:'transparent',border:'none',cursor:'pointer',color:'var(--t3)'}}
-                                        onMouseEnter={e=>e.currentTarget.style.background='var(--bg3)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
-                                        <i className="fa-regular fa-copy" style={{fontSize:9}}></i>
-                                      </button>
-                                      <button onClick={()=>{if(window.confirm('Delete this key?')){setApiKeys(p=>p.filter(x=>x.id!==k.id));toast_('Key removed','info');}}} title="Delete"
-                                        style={{width:26,height:26,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',background:'transparent',border:'none',cursor:'pointer',color:'#f87171'}}
-                                        onMouseEnter={e=>e.currentTarget.style.background='rgba(239,68,68,.1)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
-                                        <i className="fa-solid fa-trash-can" style={{fontSize:9}}></i>
-                                      </button>
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          )}
-                          {apiKeys.length>0&&(
-                            <button onClick={()=>setApiTab('add')} style={{width:'100%',marginTop:8,padding:'7px',borderRadius:10,fontSize:10,fontWeight:700,background:'rgba(99,102,241,.08)',color:'#818cf8',border:'1px dashed rgba(99,102,241,.25)',cursor:'pointer',transition:'all .15s',display:'flex',alignItems:'center',justifyContent:'center',gap:6}}
-                              onMouseEnter={e=>{e.currentTarget.style.background='rgba(99,102,241,.14)';e.currentTarget.style.borderColor='rgba(99,102,241,.45)';}}
-                              onMouseLeave={e=>{e.currentTarget.style.background='rgba(99,102,241,.08)';e.currentTarget.style.borderColor='rgba(99,102,241,.25)';}}>
-                              <i className="fa-solid fa-plus" style={{fontSize:9}}></i>Add Another Key
-                            </button>
-                          )}
-                        </div>
-                      )}
-
-                      {/* ── Add key tab ── */}
-                      {apiTab==='add'&&(
-                        <div style={{padding:'14px 14px 16px'}}>
-                          {/* Provider picker */}
-                          <p style={{fontSize:9,fontWeight:800,textTransform:'uppercase',letterSpacing:'.1em',color:'var(--t3)',margin:'0 0 8px'}}>Select Provider</p>
-                          <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:6,marginBottom:14}}>
-                            {PROVIDERS.map(p=>(
-                              <button key={p.id} onClick={()=>{setSelProv(p.id);setNewKeyName(p.label);}}
-                                style={{padding:'10px 6px 8px',borderRadius:12,border:'1px solid '+(selProv===p.id?p.accent+'.45)':'rgba(255,255,255,.06)'),background:selProv===p.id?p.accent+'.1)':'rgba(255,255,255,.02)',cursor:'pointer',transition:'all .18s',display:'flex',flexDirection:'column',alignItems:'center',gap:5}}
-                                onMouseEnter={e=>{if(selProv!==p.id){e.currentTarget.style.background=p.accent+'.07)';e.currentTarget.style.borderColor=p.accent+'.25)';}}}
-                                onMouseLeave={e=>{if(selProv!==p.id){e.currentTarget.style.background='rgba(255,255,255,.02)';e.currentTarget.style.borderColor='rgba(255,255,255,.06)';}}}
-                              >
-                                <div style={{width:28,height:28,borderRadius:9,background:p.accent+'.15)',display:'flex',alignItems:'center',justifyContent:'center'}}>
-                                  <i className={`fa-${p.id==='Google'?'brands':'solid'} ${p.icon}`} style={{fontSize:12,color:selProv===p.id?p.color:p.accent+'0.5)'}}></i>
-                                </div>
-                                <span style={{fontSize:9,fontWeight:700,color:selProv===p.id?p.color:'var(--t3)'}}>{p.label}</span>
-                              </button>
-                            ))}
-                          </div>
-                          {selProvObj&&<p style={{fontSize:9,color:selProvObj.color,margin:'0 0 10px',background:selProvObj.accent+'.08)',padding:'5px 10px',borderRadius:8,border:'1px solid '+selProvObj.accent+'.18)'}}><i className="fa-solid fa-circle-info" style={{marginRight:5}}></i>{selProvObj.desc}</p>}
-
-                          {/* Inputs */}
-                          <div style={{display:'flex',flexDirection:'column',gap:8}}>
-                            <div>
-                              <p style={{fontSize:9,fontWeight:700,textTransform:'uppercase',letterSpacing:'.08em',color:'var(--t3)',margin:'0 0 5px'}}>Key Label</p>
-                              <input value={newKeyName} onChange={e=>setNewKeyName(e.target.value)} placeholder={selProvObj?`e.g. My ${selProvObj.label} Key`:'Key nickname...'}
-                                style={{width:'100%',padding:'9px 12px',borderRadius:10,fontSize:11,background:'var(--bg)',border:'1px solid rgba(99,102,241,.2)',color:'var(--t1)',outline:'none',boxSizing:'border-box',transition:'border-color .15s'}}
-                                onFocus={e=>e.target.style.borderColor='rgba(99,102,241,.5)'} onBlur={e=>e.target.style.borderColor='rgba(99,102,241,.2)'}/>
-                            </div>
-                            <div>
-                              <p style={{fontSize:9,fontWeight:700,textTransform:'uppercase',letterSpacing:'.08em',color:'var(--t3)',margin:'0 0 5px'}}>API Key</p>
-                              <div style={{position:'relative'}}>
-                                <input value={newKeyVal} onChange={e=>setNewKeyVal(e.target.value)} placeholder="sk-••••••••••••••••••••••••••••••"
-                                  type="password" style={{width:'100%',padding:'9px 36px 9px 12px',borderRadius:10,fontSize:11,fontFamily:'monospace',background:'var(--bg)',border:'1px solid rgba(99,102,241,.2)',color:'var(--t1)',outline:'none',boxSizing:'border-box',transition:'border-color .15s'}}
-                                  onFocus={e=>e.target.style.borderColor='rgba(99,102,241,.5)'} onBlur={e=>e.target.style.borderColor='rgba(99,102,241,.2)'}/>
-                                <i className="fa-solid fa-lock" style={{position:'absolute',right:11,top:'50%',transform:'translateY(-50%)',fontSize:9,color:'rgba(99,102,241,.4)',pointerEvents:'none'}}></i>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Actions */}
-                          <div style={{display:'flex',gap:8,marginTop:12}}>
-                            <button onClick={()=>setApiTab('keys')} style={{flex:1,padding:'9px',borderRadius:10,fontSize:11,fontWeight:700,background:'transparent',color:'var(--t2)',border:'1px solid var(--br)',cursor:'pointer',transition:'all .15s'}}
-                              onMouseEnter={e=>e.currentTarget.style.background='var(--bg3)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
-                              Cancel
-                            </button>
-                            <button onClick={()=>{
-                              if(!newKeyName.trim()||!newKeyVal.trim()){toast_('Fill all fields','warning');return;}
-                              const provider=selProv||(['OpenAI','Anthropic','Google','Groq','Mistral'].find(p=>newKeyName.includes(p))||'Custom');
-                              setApiKeys(p=>[...p,{id:Date.now(),name:newKeyName.trim(),value:newKeyVal.trim(),provider,createdAt:new Date().toLocaleDateString(),tested:false}]);
-                              setNewKeyName('');setNewKeyVal('');setSelProv('');setApiTab('keys');toast_('API key saved 🔑','success');
-                            }} style={{flex:2,padding:'9px',borderRadius:10,fontSize:11,fontWeight:800,background:'linear-gradient(135deg,#4F46E5,#7C3AED)',color:'#fff',border:'none',cursor:'pointer',boxShadow:'0 4px 14px rgba(79,70,229,.38)',transition:'all .15s',display:'flex',alignItems:'center',justifyContent:'center',gap:6}}
-                              onMouseEnter={e=>e.currentTarget.style.boxShadow='0 6px 20px rgba(79,70,229,.55)'} onMouseLeave={e=>e.currentTarget.style.boxShadow='0 4px 14px rgba(79,70,229,.38)'}>
-                              <i className="fa-solid fa-shield-halved" style={{fontSize:10}}></i>Save Securely
-                            </button>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* ── Footer info bar ── */}
-                      <div style={{display:'flex',alignItems:'center',gap:8,padding:'8px 14px',borderTop:'1px solid rgba(99,102,241,.1)',background:'rgba(0,0,0,.2)'}}>
-                        <i className="fa-solid fa-shield-check" style={{fontSize:10,color:'rgba(99,102,241,.5)',flexShrink:0}}></i>
-                        <p style={{fontSize:9,color:'rgba(148,163,184,.5)',margin:0}}>Keys never leave your device · Use <strong style={{color:'rgba(148,163,184,.7)'}}>@openai</strong>, <strong style={{color:'rgba(148,163,184,.7)'}}>@groq</strong>, <strong style={{color:'rgba(148,163,184,.7)'}}>@anthropic</strong> in chat to switch providers</p>
+                      {/* Usage note */}
+                      <div className="flex items-start gap-2 p-2.5 rounded-xl" style={{background:'rgba(245,158,11,.06)',border:'1px solid rgba(245,158,11,.15)'}}>
+                        <i className="fa-solid fa-circle-info text-[10px] flex-shrink-0 mt-0.5" style={{color:'#fbbf24'}}></i>
+                        <p className="text-[10px] leading-relaxed" style={{color:'var(--t3)'}}>Keys are stored locally on your device. Use the chat input to switch AI provider: type <strong style={{color:'var(--t2)'}}>@openai</strong>, <strong style={{color:'var(--t2)'}}>@groq</strong>, or <strong style={{color:'var(--t2)'}}>@anthropic</strong> to activate a saved key.</p>
                       </div>
                     </div>
-                    );
-                  })()}
+                  </div>
 
 
                 </div>
@@ -11287,7 +11254,111 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
   );
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+// ── Error Boundary ──────────────────────────────────────────
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null, info: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, info) {
+    this.setState({ info });
+    console.error('[Omina AI] Uncaught error:', error, info);
+  }
+  handleReload() { window.location.reload(); }
+  handleReset() {
+    if (window.confirm('This will clear all local data and reload. Continue?')) {
+      localStorage.clear();
+      window.location.reload();
+    }
+  }
+  render() {
+    if (!this.state.hasError) return this.props.children;
+    const err = this.state.error;
+    return React.createElement('div', {
+      style: {
+        minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center',
+        background:'#080B14', fontFamily:"'DM Sans',sans-serif", padding:24
+      }
+    },
+      React.createElement('div', {
+        style: {
+          maxWidth:480, width:'100%', borderRadius:24, overflow:'hidden',
+          border:'1px solid rgba(239,68,68,.2)', background:'#0D1117'
+        }
+      },
+        // Red top bar
+        React.createElement('div', {
+          style: {
+            background:'linear-gradient(135deg,rgba(239,68,68,.15),rgba(220,38,38,.08))',
+            borderBottom:'1px solid rgba(239,68,68,.15)', padding:'20px 24px',
+            display:'flex', alignItems:'center', gap:14
+          }
+        },
+          React.createElement('div', {
+            style: {
+              width:44, height:44, borderRadius:14, flexShrink:0,
+              background:'rgba(239,68,68,.15)', border:'1px solid rgba(239,68,68,.3)',
+              display:'flex', alignItems:'center', justifyContent:'center'
+            }
+          },
+            React.createElement('i', { className:'fa-solid fa-triangle-exclamation', style:{fontSize:18, color:'#f87171'} })
+          ),
+          React.createElement('div', null,
+            React.createElement('p', { style:{fontSize:15, fontWeight:700, color:'#f1f5f9', margin:0} }, 'Something went wrong'),
+            React.createElement('p', { style:{fontSize:11, color:'rgba(148,163,184,.6)', margin:'3px 0 0'} }, 'Omina AI ran into an unexpected error')
+          )
+        ),
+        // Error detail
+        React.createElement('div', { style:{padding:'18px 24px'} },
+          React.createElement('div', {
+            style: {
+              background:'rgba(0,0,0,.3)', border:'1px solid rgba(239,68,68,.1)',
+              borderRadius:10, padding:'10px 14px', marginBottom:18
+            }
+          },
+            React.createElement('p', { style:{fontSize:10, fontWeight:700, color:'rgba(248,113,113,.6)', textTransform:'uppercase', letterSpacing:'.08em', margin:'0 0 5px'} }, 'Error'),
+            React.createElement('p', { style:{fontSize:11, color:'rgba(148,163,184,.7)', fontFamily:'monospace', margin:0, wordBreak:'break-word'} },
+              err ? err.toString() : 'Unknown error'
+            )
+          ),
+          React.createElement('p', { style:{fontSize:12, color:'rgba(148,163,184,.55)', marginBottom:18, lineHeight:1.6} },
+            'Your chats and data are safe. Try reloading — if the problem persists, use Reset to clear corrupted data.'
+          ),
+          // Buttons
+          React.createElement('div', { style:{display:'flex', gap:10} },
+            React.createElement('button', {
+              onClick: () => this.handleReload(),
+              style: {
+                flex:2, padding:'10px', borderRadius:12, fontSize:12, fontWeight:700,
+                background:'linear-gradient(135deg,#4F46E5,#7C3AED)', color:'#fff',
+                border:'none', cursor:'pointer', display:'flex', alignItems:'center',
+                justifyContent:'center', gap:8, boxShadow:'0 4px 14px rgba(79,70,229,.35)'
+              }
+            },
+              React.createElement('i', { className:'fa-solid fa-rotate-right', style:{fontSize:11} }),
+              'Reload App'
+            ),
+            React.createElement('button', {
+              onClick: () => this.handleReset(),
+              style: {
+                flex:1, padding:'10px', borderRadius:12, fontSize:12, fontWeight:700,
+                background:'transparent', color:'#f87171',
+                border:'1px solid rgba(239,68,68,.3)', cursor:'pointer'
+              }
+            }, 'Reset Data')
+          )
+        )
+      )
+    );
+  }
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  React.createElement(ErrorBoundary, null, React.createElement(App, null))
+);
 
 // Hide page loader after React mounts
 (function(){
