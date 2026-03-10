@@ -3475,6 +3475,9 @@ function App() {
   // ── Language Learning Mode ──
   const [showLangLearn,setShowLangLearn]     = useState(false);
   const [featFromSettings,setFeatFromSettings] = useState(false);
+  const featFromSettingsRef = React.useRef(false);
+  // keep ref in sync with state
+  React.useEffect(()=>{ featFromSettingsRef.current = featFromSettings; },[featFromSettings]);
   const [showDNA,setShowDNA]                   = useState(false);
   const [dnaTab,setDnaTab]                     = useState('overview');
   const [showCollider,setShowCollider]         = useState(false);
@@ -3852,9 +3855,15 @@ function App() {
   // ── Mobile Back Button Navigation ───────────────────────────
   useEffect(()=>{
     // helper: close a feat-from-settings panel → go back to settings
+    // uses featFromSettingsRef so popstate always reads the latest value
     const closeFeatOrSettings = (setter) => {
       setter(false);
-      if(featFromSettings){ setFeatFromSettings(false); setShowSettings(true); setSettingsTab('quickaccess'); }
+      if(featFromSettingsRef.current){
+        setFeatFromSettings(false);
+        featFromSettingsRef.current = false;
+        setShowSettings(true);
+        setSettingsTab('quickaccess');
+      }
     };
 
     // Expose all panel closers so the back handler (outside React) can call them
