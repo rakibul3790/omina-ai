@@ -3572,6 +3572,17 @@ function App() {
   const [translations,setTranslations]             = useState({});
   const [showTranslatePicker,setShowTranslatePicker] = useState(null);
   const [analyzingImg,setAnalyzingImg]             = useState(false);
+  // ── Calculator ──
+  const [showCalc,setShowCalc]         = useState(false);
+  const [calcDisplay,setCalcDisplay]   = useState('0');
+  const [calcExpr,setCalcExpr]         = useState('');
+  const [calcHistory,setCalcHistory]   = useState([]);
+  const [calcNewNum,setCalcNewNum]     = useState(true);
+  // ── Tone Detector ──
+  const [showToneDetector,setShowToneDetector] = useState(false);
+  const [toneText,setToneText]                 = useState('');
+  const [toneResult,setToneResult]             = useState(null);
+  const [toneLoading,setToneLoading]           = useState(false);
   const [folders,setFolders]         = useState(()=>{try{const f=localStorage.getItem('omina_folders');return f?JSON.parse(f):[]}catch{return[]}});
   const [folderExpand,setFolderExpand] = useState({});
   const [newFName,setNewFName]       = useState('');
@@ -3915,6 +3926,8 @@ function App() {
         { key:'canvas',      isOpen:()=>showCanvas,       close:()=>setShowCanvas(false)     },
         { key:'profile',     isOpen:()=>showProfile,      close:()=>setShowProfile(false)    },
         { key:'settings',    isOpen:()=>showSettings,     close:()=>setShowSettings(false)   },
+        { key:'calc',        isOpen:()=>showCalc,          close:()=>setShowCalc(false)          },
+        { key:'toneDetector',isOpen:()=>showToneDetector,   close:()=>setShowToneDetector(false)   },
         { key:'sidebar',     isOpen:()=>sidebarOpen && window.innerWidth<=768, close:()=>setSidebarOpen(false) },
       ],
       anyOpen: ()=> window.__ominaNav.closers.some(c=>c.isOpen()),
@@ -3953,7 +3966,27 @@ function App() {
         if(_globalTyping || typingRef.current){
           setGlobalTyping(true);
           // Force React state sync
-          try { ReactDOM.flushSync(()=>{ setTyping(true); }); } catch(_){ setTyping(true); }
+          try { 
+// ── Translate Language List (outside component for perf) ──
+const TLANG_LIST=[
+  {code:'Bengali',   flag:'🇧🇩', label:'বাংলা'},
+  {code:'English',   flag:'🇺🇸', label:'English'},
+  {code:'Hindi',     flag:'🇮🇳', label:'हिंदी'},
+  {code:'Arabic',    flag:'🇸🇦', label:'العربية'},
+  {code:'Chinese',   flag:'🇨🇳', label:'中文'},
+  {code:'Spanish',   flag:'🇪🇸', label:'Español'},
+  {code:'French',    flag:'🇫🇷', label:'Français'},
+  {code:'German',    flag:'🇩🇪', label:'Deutsch'},
+  {code:'Japanese',  flag:'🇯🇵', label:'日本語'},
+  {code:'Korean',    flag:'🇰🇷', label:'한국어'},
+  {code:'Russian',   flag:'🇷🇺', label:'Русский'},
+  {code:'Portuguese',flag:'🇧🇷', label:'Português'},
+  {code:'Turkish',   flag:'🇹🇷', label:'Türkçe'},
+  {code:'Italian',   flag:'🇮🇹', label:'Italiano'},
+  {code:'Urdu',      flag:'🇵🇰', label:'اردو'},
+];
+
+ReactDOM.flushSync(()=>{ setTyping(true); }); } catch(_){ setTyping(true); }
         }
         // Always scroll to bottom when returning to tab
         setTimeout(()=>{ endRef.current?.scrollIntoView({behavior:'smooth'}); }, 50);
@@ -5312,6 +5345,82 @@ Reply: ${botText.slice(0,800)}`,
       </p>
     </div>
   );
+
+  // ── Calculator Logic ──
+  const calcPress = (val) => {
+    if(val==='AC'){setCalcDisplay('0');setCalcExpr('');setCalcNewNum(true);return;}
+    if(val==='⌫'){
+      if(calcNewNum){setCalcDisplay('0');return;}
+      const d=calcDisplay.length>1?calcDisplay.slice(0,-1):'0';
+      setCalcDisplay(d);
+      if(d==='0')setCalcNewNum(true);
+      return;
+    }
+    if(val==='±'){setCalcDisplay(d=>d.startsWith('-')?d.slice(1):d==='0'?'0':'-'+d);return;}
+    if(val==='%'){
+      try{const v=parseFloat(calcDisplay)/100;setCalcDisplay(String(v));}catch(_){}
+      return;
+    }
+    if(val==='='){
+      try{
+        const expr = calcExpr + calcDisplay;
+        // Safe eval using Function
+        const result = Function('"use strict";return ('+expr.replace(/×/g,'*').replace(/÷/g,'/')+')')();
+        const res = parseFloat(result.toFixed(10)).toString();
+        setCalcHistory(h=>[{expr:expr+'='+res, time:new Date().toLocaleTimeString()},...h].slice(0,20));
+        setCalcDisplay(res);
+        setCalcExpr('');
+        setCalcNewNum(true);
+      }catch(_){setCalcDisplay('Error');setCalcExpr('');setCalcNewNum(true);}
+      return;
+    }
+    if(['+','-','×','÷'].includes(val)){
+      setCalcExpr((calcNewNum?'':calcDisplay)+val);
+      setCalcNewNum(true);
+      return;
+    }
+    if(val==='.'){
+      if(calcDisplay.includes('.')){return;}
+      setCalcDisplay(d=>calcNewNum?'0.':d+'.');
+      setCalcNewNum(false);
+      return;
+    }
+    // Number
+    if(calcNewNum){setCalcDisplay(val);setCalcNewNum(false);}
+    else{setCalcDisplay(d=>d==='0'?val:d.length<15?d+val:d);}
+  };
+
+  // ── Tone Detect function ──
+  const detectTone = async () => {
+    if(!toneText.trim()){toast_('Enter some text first','warning');return;}
+    setToneLoading(true);setToneResult(null);
+    try{
+      const res = await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          message: `[TONE ANALYSIS TASK] Analyze the emotional tone and writing style of this text. Return a JSON object ONLY (no markdown, no explanation) with these exact keys:
+{
+  "primary_tone": "one word (e.g. Formal, Casual, Angry, Sad, Happy, Excited, Sarcastic, Neutral, Professional, Persuasive, Friendly, Anxious, Confident, Empathetic)",
+  "secondary_tones": ["up to 3 secondary tones as strings"],
+  "formality": "Formal | Semi-formal | Informal",
+  "sentiment": "Positive | Negative | Neutral | Mixed",
+  "energy": "High | Medium | Low",
+  "confidence": 85,
+  "summary": "One sentence description of the tone"
+}
+
+Text to analyze:
+"""${toneText}"""`,
+          system_prompt:'You are a tone analysis expert. Return ONLY valid JSON. No markdown code blocks. No explanation.',
+          history:[],mood:'professional',model:'llama-3.3-70b-versatile'
+        })
+      });
+      const data = await res.json();
+      const raw = (data.reply||'').replace(/\`\`\`json|\`\`\`/g,'').trim();
+      const json = JSON.parse(raw);
+      setToneResult(json);
+    }catch(e){toast_('Analysis failed — try again','error');}
+    setToneLoading(false);
+  };
 
   const VoiceBar=()=>(
     <>
@@ -8679,6 +8788,154 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
       {showSticky&&<StickyModal notes={stickyNotes} setNotes={setStickyNotes} onClose={()=>{setShowSticky(false);if(featFromSettings){setFeatFromSettings(false);setShowSettings(true);setSettingsTab('quickaccess');}}}/>}
       {showAIAgent&&<AIAgentModal onClose={()=>{setShowAIAgent(false);if(featFromSettings){setFeatFromSettings(false);setShowSettings(true);setSettingsTab('quickaccess');}}} sysPrompt={sysPrompt} language={language}/>}
 
+
+      {/* ── CALCULATOR MODAL ── */}
+      {showCalc&&(
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.85)',backdropFilter:'blur(16px)'}} onClick={()=>setShowCalc(false)}>
+          <div className="rounded-3xl border shadow-2xl overflow-hidden" style={{background:'var(--bg2)',borderColor:'var(--br)',width:320}} onClick={e=>e.stopPropagation()}>
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 py-3 border-b" style={{borderColor:'var(--br)'}}>
+              <span className="flex items-center gap-2 font-bold text-sm" style={{color:'var(--t1)'}}><i className="fa-solid fa-calculator" style={{color:'#34D399'}}></i>Calculator</span>
+              <button onClick={()=>setShowCalc(false)} style={{color:'var(--t3)'}}><i className="fa-solid fa-xmark"></i></button>
+            </div>
+            {/* Display */}
+            <div className="px-4 py-3" style={{background:'rgba(0,0,0,.25)'}}>
+              <div className="text-right text-xs mb-1 h-4 truncate" style={{color:'var(--t3)'}}>{calcExpr||' '}</div>
+              <div className="text-right text-4xl font-bold truncate" style={{color:'var(--t1)',letterSpacing:'-1px'}}>{calcDisplay}</div>
+            </div>
+            {/* Buttons */}
+            <div className="p-3 grid grid-cols-4 gap-2">
+              {[
+                ['AC','#EF4444'],['±','#6B7280'],['%','#6B7280'],['÷','#F59E0B'],
+                ['7',null],['8',null],['9',null],['×','#F59E0B'],
+                ['4',null],['5',null],['6',null],['-','#F59E0B'],
+                ['1',null],['2',null],['3',null],['+','#F59E0B'],
+                ['0',null,true],['.', null],['⌫','#6B7280'],['=','#6366F1'],
+              ].map((btn,i)=>{
+                const [val, col, wide] = btn;
+                return(
+                  <button key={i} onClick={()=>calcPress(val)}
+                    style={{
+                      gridColumn: wide ? 'span 2' : 'span 1',
+                      padding:'16px 8px',
+                      borderRadius:14,
+                      border:'1px solid var(--br)',
+                      background: col ? col+'22' : 'var(--bg3)',
+                      color: col || 'var(--t1)',
+                      fontWeight: 700,
+                      fontSize: val==='AC'||val==='='?14:16,
+                      cursor:'pointer',
+                      transition:'all .1s',
+                    }}
+                    onMouseEnter={e=>{e.currentTarget.style.filter='brightness(1.2)';e.currentTarget.style.transform='scale(1.04)';}}
+                    onMouseLeave={e=>{e.currentTarget.style.filter='none';e.currentTarget.style.transform='scale(1)';}}>
+                    {val}
+                  </button>
+                );
+              })}
+            </div>
+            {/* History */}
+            {calcHistory.length>0&&(
+              <div className="px-4 pb-3 border-t" style={{borderColor:'var(--br)'}}>
+                <p className="text-[10px] font-bold uppercase tracking-widest py-2" style={{color:'var(--t3)'}}>History</p>
+                <div className="space-y-1 max-h-24 overflow-y-auto">
+                  {calcHistory.slice(0,5).map((h,i)=>(
+                    <div key={i} className="flex justify-between text-xs px-1" style={{color:'var(--t2)'}}>
+                      <span style={{color:'var(--t3)'}}>{h.expr?.split('=')[0]}</span>
+                      <span className="font-bold" style={{color:'#34D399'}}>{h.expr?.split('=')[1]}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── TONE DETECTOR MODAL ── */}
+      {showToneDetector&&(
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" style={{background:'rgba(0,0,0,.85)',backdropFilter:'blur(16px)'}} onClick={()=>setShowToneDetector(false)}>
+          <div className="w-full max-w-lg rounded-3xl border shadow-2xl overflow-hidden" style={{background:'var(--bg2)',borderColor:'var(--br)'}} onClick={e=>e.stopPropagation()}>
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b" style={{borderColor:'var(--br)'}}>
+              <span className="flex items-center gap-2 font-bold" style={{color:'var(--t1)'}}><i className="fa-solid fa-waveform-lines" style={{color:'#a78bfa'}}></i>Tone Detector</span>
+              <button onClick={()=>setShowToneDetector(false)} style={{color:'var(--t3)'}}><i className="fa-solid fa-xmark"></i></button>
+            </div>
+            <div className="p-5 space-y-4">
+              {/* Input */}
+              <div>
+                <label className="text-[11px] font-bold uppercase tracking-widest block mb-2" style={{color:'var(--t3)'}}>Paste your text</label>
+                <textarea
+                  value={toneText} onChange={e=>setToneText(e.target.value)}
+                  placeholder="Paste any text — email, message, essay, tweet…"
+                  rows={5}
+                  className="w-full rounded-xl border px-4 py-3 text-sm resize-none outline-none transition-all"
+                  style={{background:'var(--bg3)',borderColor:'var(--br)',color:'var(--t1)',lineHeight:1.7}}
+                  onFocus={e=>e.target.style.borderColor='#a78bfa'}
+                  onBlur={e=>e.target.style.borderColor='var(--br)'}
+                />
+                <div className="flex justify-between items-center mt-1">
+                  <span className="text-[10px]" style={{color:'var(--t3)'}}>{toneText.length} chars</span>
+                  <button onClick={detectTone} disabled={toneLoading||!toneText.trim()} className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all disabled:opacity-50"
+                    style={{background:'linear-gradient(135deg,#7C3AED,#4F46E5)',color:'white',boxShadow:'0 2px 8px rgba(124,58,237,.35)'}}>
+                    {toneLoading?<><i className="fa-solid fa-spinner fa-spin text-xs"></i>Analyzing…</>:<><i className="fa-solid fa-waveform-lines text-xs"></i>Detect Tone</>}
+                  </button>
+                </div>
+              </div>
+              {/* Result */}
+              {toneResult&&(()=>{
+                const TONE_COLORS={
+                  Formal:'#60a5fa',Professional:'#60a5fa',Neutral:'#94a3b8',
+                  Happy:'#34d399',Excited:'#fbbf24',Confident:'#f59e0b',Friendly:'#4ade80',Empathetic:'#22d3ee',
+                  Casual:'#a78bfa',Persuasive:'#c084fc',
+                  Angry:'#f87171',Sad:'#93c5fd',Anxious:'#fb923c',Sarcastic:'#e879f9',
+                };
+                const col = TONE_COLORS[toneResult.primary_tone]||'#a78bfa';
+                const sentCol = {Positive:'#34d399',Negative:'#f87171',Neutral:'#94a3b8',Mixed:'#fbbf24'}[toneResult.sentiment]||'#a78bfa';
+                return(
+                  <div className="rounded-2xl border p-4 space-y-3" style={{borderColor:col+'40',background:col+'08'}}>
+                    {/* Primary tone */}
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{color:'var(--t3)'}}>Primary Tone</p>
+                        <span className="text-2xl font-black" style={{color:col}}>{toneResult.primary_tone}</span>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{color:'var(--t3)'}}>Confidence</p>
+                        <span className="text-xl font-black" style={{color:col}}>{toneResult.confidence}%</span>
+                      </div>
+                    </div>
+                    {/* Tags row */}
+                    <div className="flex flex-wrap gap-2">
+                      <span className="text-xs px-2.5 py-1 rounded-full font-bold" style={{background:sentCol+'20',color:sentCol}}>{toneResult.sentiment}</span>
+                      <span className="text-xs px-2.5 py-1 rounded-full font-bold" style={{background:'rgba(148,163,184,.15)',color:'#94a3b8'}}>{toneResult.formality}</span>
+                      <span className="text-xs px-2.5 py-1 rounded-full font-bold" style={{background:'rgba(251,191,36,.12)',color:'#fbbf24'}}>⚡ {toneResult.energy} Energy</span>
+                      {(toneResult.secondary_tones||[]).map(t=>(
+                        <span key={t} className="text-xs px-2.5 py-1 rounded-full" style={{background:'rgba(255,255,255,.07)',color:'var(--t2)'}}>{t}</span>
+                      ))}
+                    </div>
+                    {/* Summary */}
+                    <p className="text-sm" style={{color:'var(--t2)',lineHeight:1.6}}>{toneResult.summary}</p>
+                    {/* Send to chat */}
+                    <button onClick={()=>{
+                      const summary = `Tone Analysis Result:
+- Primary: ${toneResult.primary_tone} (${toneResult.confidence}% confidence)
+- Sentiment: ${toneResult.sentiment} | Formality: ${toneResult.formality} | Energy: ${toneResult.energy}
+- Summary: ${toneResult.summary}`;
+                      setInput(summary);
+                      setShowToneDetector(false);
+                      toast_('Result sent to chat input','success');
+                    }} className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-bold transition-all border" style={{borderColor:col+'40',color:col,background:col+'10'}}>
+                      <i className="fa-solid fa-paper-plane text-[10px]"></i>Send result to chat
+                    </button>
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── MESSAGE SEARCH MODAL ── */}
       {showMsgSearch&&(
         <div className="fixed inset-0 z-[150] flex items-start justify-center pt-12 px-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.80)'}} onClick={()=>setShowMsgSearch(false)}>
@@ -9323,30 +9580,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
           <span className="ml-auto px-2 py-0.5 rounded-full text-[10px] font-bold" style={{background:'rgba(234,179,8,.2)'}}>{Object.keys(offlineCache).length} cached</span>
         </div>}
 
-        {/* PWA Install Banner */}
-        {pwaInstallable&&!pwaInstalled&&(
-          <div className="flex items-center gap-3 px-4 py-2.5 text-xs flex-shrink-0 z-20 relative" style={{background:'linear-gradient(135deg,rgba(99,102,241,.15),rgba(139,92,246,.1))',borderBottom:'1px solid rgba(99,102,241,.25)'}}>
-            <div className="w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0" style={{background:'linear-gradient(135deg,#6366f1,#a855f7)'}}>
-              <i className="fa-solid fa-mobile-screen text-white" style={{fontSize:11}}></i>
-            </div>
-            <div className="flex-1 min-w-0">
-              <span className="font-semibold" style={{color:'var(--t1)'}}>Install Omina AI</span>
-              <span className="ml-2" style={{color:'var(--t3)'}}>Add to home screen for faster access</span>
-            </div>
-            <button onClick={async()=>{
-              if(window.__ominaInstallPrompt){
-                window.__ominaInstallPrompt.prompt();
-                const result = await window.__ominaInstallPrompt.userChoice;
-                if(result.outcome==='accepted') setPwaInstallable(false);
-              }
-            }} className="px-3 py-1.5 rounded-xl text-xs font-bold flex-shrink-0 transition-all" style={{background:'linear-gradient(135deg,#6366f1,#a855f7)',color:'#fff',boxShadow:'0 2px 8px rgba(99,102,241,.4)'}}>
-              <i className="fa-solid fa-download mr-1.5" style={{fontSize:9}}></i>Install
-            </button>
-            <button onClick={()=>setPwaInstallable(false)} className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0" style={{color:'var(--t3)'}}>
-              <i className="fa-solid fa-xmark" style={{fontSize:10}}></i>
-            </button>
-          </div>
-        )}
+
         {/* TAB BAR */}
         {chatTabs.length>0&&(
           <div className="flex items-center gap-1 px-3 border-b flex-shrink-0 overflow-x-auto" style={{background:'var(--bg3)',borderColor:'var(--br)',minHeight:38}}>
@@ -9595,6 +9829,8 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                           ['fa-list','#818cf8','Chat Summary',()=>{setShowProfile(false);generateSummary();}],
                           ['fa-share-nodes','#60a5fa','Share Chat',()=>{setShowProfile(false);setShowShare(true);}],
                           ['fa-download','#94a3b8','Export JSON',()=>{exportJSON();setShowProfile(false);}],
+          ['fa-calculator','#34D399','Calculator',()=>{setShowProfile(false);setShowCalc(true);}],
+          ['fa-waveform-lines','#a78bfa','Tone Detector',()=>{setShowProfile(false);setShowToneDetector(true);}],
                         ].map(([ic,col,lbl,fn])=>(
                           <button key={lbl} onClick={fn} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-sm" style={{color:'var(--t1)',background:'transparent'}} onMouseEnter={e=>e.currentTarget.style.background='var(--bg3)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
                             <div className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0" style={{background:col+'18'}}>
@@ -9604,6 +9840,26 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                           </button>
                         ))}
 
+                        <p className="text-[9px] font-bold tracking-widest uppercase px-3 pt-2 pb-1" style={{color:'var(--t3)'}}>App</p>
+                        {pwaInstallable&&!pwaInstalled&&(
+                          <button onClick={async()=>{
+                            if(window.__ominaInstallPrompt){
+                              window.__ominaInstallPrompt.prompt();
+                              const result = await window.__ominaInstallPrompt.userChoice;
+                              if(result.outcome==='accepted'){setPwaInstallable(false);toast_('App installed! ✓','success');}
+                            } else { toast_('Install not available on this browser','info'); }
+                            setShowProfile(false);
+                          }} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all" style={{color:'var(--t1)',background:'transparent'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(99,102,241,.1)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                            <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{background:'linear-gradient(135deg,#6366f1,#a855f7)'}}>
+                              <i className="fa-solid fa-mobile-screen text-white" style={{fontSize:10}}></i>
+                            </div>
+                            <div className="flex-1 text-left">
+                              <span className="text-sm font-semibold">Install Omina AI</span>
+                              <span className="block text-[10px]" style={{color:'var(--t3)'}}>Add to home screen</span>
+                            </div>
+                            <span className="text-[10px] px-2 py-0.5 rounded-full font-bold" style={{background:'rgba(99,102,241,.15)',color:'#818cf8'}}>FREE</span>
+                          </button>
+                        )}
                         <p className="text-[9px] font-bold tracking-widest uppercase px-3 pt-2 pb-1" style={{color:'var(--t3)'}}>Help</p>
                         {[
                           ['fa-keyboard','#94a3b8','Keyboard Shortcuts',()=>{setShowProfile(false);setShowShortcuts(true);}],
@@ -9853,7 +10109,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                           {msg.sender==='bot'&&ttsVoices.length>0&&<button onClick={()=>ttsSpeaking?ttsStop():ttsSpeak(msg.text||'')} className="p-1 rounded-lg transition-all" style={{color:ttsSpeaking?'#3B82F6':'var(--t3)'}} title={ttsSpeaking?'Stop':'Read aloud'}><i className={`fa-solid ${ttsSpeaking?'fa-stop':'fa-volume-high'} text-xs`}></i></button>}
                           {msg.sender==='bot'&&idx===msgs.length-1&&!typing&&<button onClick={()=>genFollowUps(msg.text,msg.id)} className="p-1 rounded-lg transition-all hover:text-violet-400" style={{color:followUpMsgId===msg.id?'#a78bfa':'var(--t3)'}} title="Follow-up suggestions"><i className="fa-solid fa-wand-magic-sparkles text-xs"></i></button>}
                           <button onClick={()=>toggleStar(msg.id)} className={`p-1 rounded-lg transition-all ${starred[msg.id]?'star-on':'hover:text-amber-400'}`} style={!starred[msg.id]?{color:'var(--t3)'}:{}} title="Star"><i className="fa-solid fa-star text-xs"></i></button>
-                          {['👍','❤️','😂','🔥'].map(e=><button key={e} onClick={()=>react(msg.id,e)} className={`rb text-xs px-0.5 ${reactions[msg.id]===e?'opacity-100':'opacity-25 hover:opacity-100'}`}>{e}</button>)}
+
                           {/* Voting */}
                           {msg.sender==='bot'&&(()=>{
                             const v=msgVotes[msg.id]||{up:0,down:0,my:null};
@@ -9868,23 +10124,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                           })()}
                           {/* Translate */}
                           {(()=>{
-                            const TLANG_LIST=[
-                              {code:'Bengali',   flag:'🇧🇩', label:'বাংলা'},
-                              {code:'English',   flag:'🇺🇸', label:'English'},
-                              {code:'Hindi',     flag:'🇮🇳', label:'हिंदी'},
-                              {code:'Arabic',    flag:'🇸🇦', label:'العربية'},
-                              {code:'Chinese',   flag:'🇨🇳', label:'中文'},
-                              {code:'Spanish',   flag:'🇪🇸', label:'Español'},
-                              {code:'French',    flag:'🇫🇷', label:'Français'},
-                              {code:'German',    flag:'🇩🇪', label:'Deutsch'},
-                              {code:'Japanese',  flag:'🇯🇵', label:'日本語'},
-                              {code:'Korean',    flag:'🇰🇷', label:'한국어'},
-                              {code:'Russian',   flag:'🇷🇺', label:'Русский'},
-                              {code:'Portuguese',flag:'🇧🇷', label:'Português'},
-                              {code:'Turkish',   flag:'🇹🇷', label:'Türkçe'},
-                              {code:'Italian',   flag:'🇮🇹', label:'Italiano'},
-                              {code:'Urdu',      flag:'🇵🇰', label:'اردو'},
-                            ];
+
                             const hasTranslation = translations[msg.id];
                             return(
                               <div className="relative translate-picker-wrap">
