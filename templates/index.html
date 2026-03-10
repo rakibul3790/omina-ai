@@ -3562,6 +3562,16 @@ function App() {
   const [branches,setBranches]       = useState({});
   const [webSearch,setWebSearch]     = useState(false);
   const [voiceOn,setVoiceOn]         = useState(false);
+  const [audioRecording,setAudioRecording] = useState(false);
+  const [audioSeconds,setAudioSeconds]     = useState(0);
+  const mediaRecRef   = useRef(null);
+  const audioChunks   = useRef([]);
+  const audioTimerRef = useRef(null);
+  const [translateMsgId,setTranslateMsgId]         = useState(null);
+  const [translating,setTranslating]               = useState(null);
+  const [translations,setTranslations]             = useState({});
+  const [showTranslatePicker,setShowTranslatePicker] = useState(null);
+  const [analyzingImg,setAnalyzingImg]             = useState(false);
   const [folders,setFolders]         = useState(()=>{try{const f=localStorage.getItem('omina_folders');return f?JSON.parse(f):[]}catch{return[]}});
   const [folderExpand,setFolderExpand] = useState({});
   const [newFName,setNewFName]       = useState('');
@@ -4012,6 +4022,16 @@ function App() {
   };
 
   const handleInput=e=>{setInput(e.target.value);e.target.style.height='auto';e.target.style.height=`${Math.min(e.target.scrollHeight,160)}px`;};
+
+  // Close translate picker on outside click
+  React.useEffect(()=>{
+    if(!showTranslatePicker) return;
+    const handler=(e)=>{
+      if(!e.target.closest('.translate-picker-wrap')) setShowTranslatePicker(null);
+    };
+    document.addEventListener('mousedown',handler);
+    return ()=>document.removeEventListener('mousedown',handler);
+  },[showTranslatePicker]);
   const pickFile=()=>fileRef.current?.click();
 
   // ── Read file content for AI analysis ──
@@ -4110,6 +4130,84 @@ function App() {
     r.onresult=e=>{const t=Array.from(e.results).map(x=>x[0].transcript).join('');setInput(t);};
     r.onend=()=>setVoiceOn(false);r.onerror=()=>{setVoiceOn(false);toast_('Voice failed','error');};
     recRef.current=r;r.start();setVoiceOn(true);toast_('Listening…','info');
+  };
+
+  // ── Audio Voice Message (MediaRecorder → Whisper) ──────────
+  const startAudioRecord = async () => {
+    if(!navigator.mediaDevices?.getUserMedia){toast_("Microphone not supported","warning");return;}
+    try{
+      const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+      const mime   = MediaRecorder.isTypeSupported("audio/webm;codecs=opus") ? "audio/webm;codecs=opus"
+                   : MediaRecorder.isTypeSupported("audio/webm") ? "audio/webm" : "audio/ogg";
+      const mr = new MediaRecorder(stream,{mimeType:mime});
+      audioChunks.current=[];
+      mr.ondataavailable = e => { if(e.data.size>0) audioChunks.current.push(e.data); };
+      mr.onstop = async () => {
+        stream.getTracks().forEach(t=>t.stop());
+        clearInterval(audioTimerRef.current);
+        setAudioSeconds(0);
+        setAudioRecording(false);
+        const blob = new Blob(audioChunks.current,{type:mime});
+        toast_("Transcribing…","info");
+        try{
+          const fd = new FormData();
+          fd.append("audio", blob, "voice.webm");
+          const langMap={bn:"bn",hi:"hi",zh:"zh",es:"es",ar:"ar",fr:"fr",de:"de",ja:"ja",ko:"ko",tr:"tr"};
+          fd.append("lang", langMap[language]||"en");
+          const res  = await fetch("/api/transcribe",{method:"POST",body:fd});
+          const data = await res.json();
+          if(data.success && data.text){
+            setInput(prev=>(prev?prev+" ":"")+data.text);
+            if(inputRef.current){ inputRef.current.style.height="auto"; inputRef.current.style.height=Math.min(inputRef.current.scrollHeight,160)+"px"; }
+            toast_("✓ Transcribed","success");
+          } else { toast_("Transcription failed: "+( data.error||"unknown"),"error"); }
+        }catch(e){ toast_("Transcription error: "+e.message,"error"); }
+      };
+      mr.start(200);
+      mediaRecRef.current = mr;
+      setAudioRecording(true);
+      setAudioSeconds(0);
+      audioTimerRef.current = setInterval(()=>setAudioSeconds(s=>s+1),1000);
+      toast_("🎙️ Recording…","info");
+    }catch(e){
+      toast_("Microphone access denied","error");
+    }
+  };
+
+  const stopAudioRecord = () => {
+    mediaRecRef.current?.stop();
+  };
+
+  // ── Message Translate ───────────────────────────────────────
+  const translateMsg = async (msgId, msgText, targetLang) => {
+    setTranslating(msgId);
+    setShowTranslatePicker(null);
+    try{
+      const res  = await fetch("/api/translate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:msgText,target:targetLang})});
+      const data = await res.json();
+      if(data.success){ setTranslations(p=>({...p,[msgId]:{lang:targetLang,text:data.translated}})); }
+      else { toast_("Translation failed","error"); }
+    }catch(e){ toast_("Translation error","error"); }
+    setTranslating(null);
+  };
+
+  // ── Auto Image Analysis on upload ──────────────────────────
+  const analyzeUploadedImage = async (imgBase64, imgName, userPrompt, sessionId, curLangInstruction) => {
+    setAnalyzingImg(true);
+    try{
+      const prompt = userPrompt && userPrompt.trim().length > 2 ? userPrompt : "Describe and analyze this image in detail.";
+      const res  = await fetch("/api/analyze-image",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({image:imgBase64,prompt,lang_instruction:curLangInstruction})});
+      const data = await res.json();
+      if(data.success){
+        const botMsgId = Date.now()+1;
+        const botMsg = {id:botMsgId,text:data.reply,sender:"bot",model,timestamp:Date.now(),language,isImageAnalysis:true};
+        setSessions(prev=>{const u=[...prev];const i=u.findIndex(s=>s.id===sessionId);if(i!==-1)u[i].messages.push(botMsg);return u;});
+        setTypewriterMsgId(botMsgId);
+        ding(440,0.07);
+      } else { toast_("Image analysis failed","error"); }
+    }catch(e){ toast_("Image analysis error: "+e.message,"error"); }
+    setAnalyzingImg(false);
+    setTyping(false);setGlobalTyping(false);setTypingSid(null);
   };
 
   const stopGen=()=>{
@@ -4420,6 +4518,23 @@ function App() {
     setInput('');setFile(null);setFilePreview(null);setFiles([]);setTyping(true);setGlobalTyping(true);setTypingSid(sessionId||sid);setMsgCount(c=>c+1);setActiveTool(webSearch?{id:'web',icon:'fa-solid fa-globe',color:'#34D399',label:'Web Search'}:null);
     if(inputRef.current){inputRef.current.value='';inputRef.current.style.height='auto';}
     autoDetectAndSaveMemory(text, aiMemories, setAiMemories, toast_);
+
+    // ── IMAGE ANALYSIS INTERCEPT (image uploaded) ──
+    const uploadedImages = files.filter(f=>f.fileType==='image' && f.preview);
+    if(uploadedImages.length > 0 && !webSearch) {
+      // Build lang instruction for image analysis
+      const activeLangA = LANGS ? LANGS.find(l=>l&&l.id===language) : null;
+      let liForImg = activeLangA?.instruction ? activeLangA.instruction : '';
+      // Auto-detect language from text for analysis reply
+      if(language==='auto' && text && /[ঀ-৿]/.test(text)){
+        liForImg = 'CRITICAL: Respond in Bengali (বাংলা) only.';
+      } else if(language==='auto'){
+        liForImg = 'Respond in the same language the user wrote in.';
+      }
+      const imgPrompt = text.trim() || 'Analyze and describe this image in detail.';
+      await analyzeUploadedImage(uploadedImages[0].preview, uploadedImages[0].name, imgPrompt, sessionId, liForImg);
+      return;
+    }
 
     // ── IMAGE GENERATION INTERCEPT ──
     if(detectImageRequest(text) && !webSearch && !file) {
@@ -5030,15 +5145,30 @@ Reply: ${botText.slice(0,800)}`,
           )}
         </div>
 
-        {/* ── VOICE ── */}
+        {/* ── VOICE (STT) ── */}
         <button onClick={toggleVoice} className={voiceOn?'vp':''}
-          title={voiceOn?'Stop Recording':'Start Voice Input'}
+          title={voiceOn?'Stop Listening':'Voice Input (Speech-to-Text)'}
           style={{width:34,height:34,borderRadius:10,border:voiceOn?'1px solid #F87171':'1px solid var(--br)',background:voiceOn?'rgba(248,113,113,.1)':'var(--bg3)',
             color:voiceOn?'#F87171':'var(--t2)',display:'flex',alignItems:'center',justifyContent:'center',
             cursor:'pointer',flexShrink:0,transition:'all .2s'}}>
           {voiceOn
             ? <div className="voice-wave"><span/><span/><span/><span/><span/></div>
             : <i className="fa-solid fa-microphone" style={{fontSize:13,pointerEvents:'none'}}></i>
+          }
+        </button>
+        {/* ── AUDIO MESSAGE (MediaRecorder → Whisper) ── */}
+        <button
+          onClick={audioRecording ? stopAudioRecord : startAudioRecord}
+          title={audioRecording?'Stop & Send Voice Message':'Send Voice Message (AI Transcription)'}
+          style={{width:34,height:34,borderRadius:10,flexShrink:0,cursor:'pointer',transition:'all .2s',display:'flex',alignItems:'center',justifyContent:'center',
+            border:audioRecording?'1px solid #EF4444':'1px solid var(--br)',
+            background:audioRecording?'rgba(239,68,68,.15)':'var(--bg3)',
+            color:audioRecording?'#EF4444':'var(--t2)',
+            boxShadow:audioRecording?'0 0 8px rgba(239,68,68,.3)':'none'
+          }}>
+          {audioRecording
+            ? <i className="fa-solid fa-stop" style={{fontSize:11}}></i>
+            : <i className="fa-solid fa-record-vinyl" style={{fontSize:13}}></i>
           }
         </button>
 
@@ -5183,13 +5313,27 @@ Reply: ${botText.slice(0,800)}`,
     </div>
   );
 
-  const VoiceBar=()=>voiceOn&&(
-    <div className="flex items-center gap-3 px-4 py-2 border-b" style={{borderColor:'rgba(248,113,113,.3)',background:'rgba(248,113,113,.06)'}}>
-      <div className="w-2 h-2 rounded-full bg-red-400" style={{animation:'pulse 1s infinite'}}></div>
-      <div className="voice-wave flex-shrink-0"><span/><span/><span/><span/><span/></div>
-      <span className="text-xs font-medium" style={{color:'#F87171'}}>Recording… speak now</span>
-      <button onClick={toggleVoice} className="ml-auto text-xs px-2 py-0.5 rounded-lg border transition-all hover:bg-red-500 hover:text-white" style={{borderColor:'rgba(248,113,113,.4)',color:'#F87171'}}>Stop</button>
-    </div>
+  const VoiceBar=()=>(
+    <>
+      {voiceOn&&(
+        <div className="flex items-center gap-3 px-4 py-2 border-b" style={{borderColor:'rgba(248,113,113,.3)',background:'rgba(248,113,113,.06)'}}>
+          <div className="w-2 h-2 rounded-full bg-red-400" style={{animation:'pulse 1s infinite'}}></div>
+          <div className="voice-wave flex-shrink-0"><span/><span/><span/><span/><span/></div>
+          <span className="text-xs font-medium" style={{color:'#F87171'}}>Listening… speak now</span>
+          <button onClick={toggleVoice} className="ml-auto text-xs px-2 py-0.5 rounded-lg border transition-all hover:bg-red-500 hover:text-white" style={{borderColor:'rgba(248,113,113,.4)',color:'#F87171'}}>Stop</button>
+        </div>
+      )}
+      {audioRecording&&(
+        <div className="flex items-center gap-3 px-4 py-2 border-b" style={{borderColor:'rgba(239,68,68,.4)',background:'rgba(239,68,68,.06)'}}>
+          <div style={{width:10,height:10,borderRadius:'50%',background:'#EF4444',animation:'pulse 1s infinite'}}></div>
+          <div className="voice-wave flex-shrink-0"><span/><span/><span/><span/><span/></div>
+          <span className="text-xs font-bold" style={{color:'#EF4444'}}>🎙️ {Math.floor(audioSeconds/60).toString().padStart(2,'0')}:{(audioSeconds%60).toString().padStart(2,'0')} — Voice message</span>
+          <button onClick={stopAudioRecord} className="ml-auto flex items-center gap-1.5 text-xs px-3 py-1 rounded-lg font-bold transition-all" style={{background:'#EF4444',color:'white'}}>
+            <i className="fa-solid fa-stop text-[9px]"></i>Send
+          </button>
+        </div>
+      )}
+    </>
   );
 
   const ChatItem=({session,folderId=null})=>{
@@ -9579,6 +9723,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                         {msg.sender==='bot'&&<div className="flex items-center gap-2 mb-1.5">
                           <p className="text-[10px] font-bold tracking-widest uppercase" style={{color:'var(--t3)'}}>{msg.model?.name||model.name}</p>
                           {msg.webSearch&&<span className="text-[9px] px-1.5 py-0.5 rounded-full flex items-center gap-1 border" style={{background:'rgba(59,130,246,.1)',color:'#60A5FA',borderColor:'rgba(59,130,246,.2)'}}><i className="fa-solid fa-globe text-[8px]"></i>Web</span>}
+                          {msg.isImageAnalysis&&<span className="text-[9px] px-1.5 py-0.5 rounded-full flex items-center gap-1 border" style={{background:'rgba(139,92,246,.1)',color:'#a78bfa',borderColor:'rgba(139,92,246,.2)'}}><i className="fa-solid fa-eye text-[8px]"></i>Image Analysis</span>}
                         </div>}
                         {msg.fp&&<div className="mb-3 rounded-xl overflow-hidden border max-w-[220px]" style={{borderColor:'var(--br)'}}><img src={msg.fp} className="w-full h-auto" alt=""/></div>}
                         {msg.fn&&!msg.fp&&<div className="mb-2 flex items-center gap-2 text-xs text-blue-400 w-fit px-3 py-1.5 rounded-lg border border-blue-400/20" style={{background:'rgba(59,130,246,.1)'}}><i className="fa-solid fa-paperclip"></i>{msg.fn}</div>}
@@ -9721,12 +9866,74 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                               </button>
                             </>);
                           })()}
+                          {/* Translate */}
+                          {(()=>{
+                            const TLANG_LIST=[
+                              {code:'Bengali',   flag:'🇧🇩', label:'বাংলা'},
+                              {code:'English',   flag:'🇺🇸', label:'English'},
+                              {code:'Hindi',     flag:'🇮🇳', label:'हिंदी'},
+                              {code:'Arabic',    flag:'🇸🇦', label:'العربية'},
+                              {code:'Chinese',   flag:'🇨🇳', label:'中文'},
+                              {code:'Spanish',   flag:'🇪🇸', label:'Español'},
+                              {code:'French',    flag:'🇫🇷', label:'Français'},
+                              {code:'German',    flag:'🇩🇪', label:'Deutsch'},
+                              {code:'Japanese',  flag:'🇯🇵', label:'日本語'},
+                              {code:'Korean',    flag:'🇰🇷', label:'한국어'},
+                              {code:'Russian',   flag:'🇷🇺', label:'Русский'},
+                              {code:'Portuguese',flag:'🇧🇷', label:'Português'},
+                              {code:'Turkish',   flag:'🇹🇷', label:'Türkçe'},
+                              {code:'Italian',   flag:'🇮🇹', label:'Italiano'},
+                              {code:'Urdu',      flag:'🇵🇰', label:'اردو'},
+                            ];
+                            const hasTranslation = translations[msg.id];
+                            return(
+                              <div className="relative translate-picker-wrap">
+                                <button
+                                  onClick={()=>setShowTranslatePicker(showTranslatePicker===msg.id?null:msg.id)}
+                                  disabled={translating===msg.id}
+                                  className="p-1 rounded-lg transition-all"
+                                  style={{color:hasTranslation?'#34D399':translating===msg.id?'#a78bfa':'var(--t3)'}}
+                                  title="Translate message">
+                                  <i className={`fa-solid ${translating===msg.id?'fa-spinner fa-spin':'fa-language'} text-xs`}></i>
+                                </button>
+                                {showTranslatePicker===msg.id&&(
+                                  <div className="absolute bottom-8 left-0 z-50 rounded-2xl border shadow-2xl p-2" style={{background:'var(--bg2)',borderColor:'var(--br)',minWidth:200,maxHeight:280,overflowY:'auto'}}>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest px-2 py-1 mb-1" style={{color:'var(--t3)'}}>Translate to</p>
+                                    {TLANG_LIST.map(l=>(
+                                      <button key={l.code} onClick={()=>translateMsg(msg.id, msg.text||'', l.code)}
+                                        className="w-full flex items-center gap-2 px-2 py-1.5 rounded-xl text-xs transition-all text-left"
+                                        style={{color:'var(--t1)'}}
+                                        onMouseEnter={e=>e.currentTarget.style.background='var(--bg3)'}
+                                        onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                                        <span style={{fontSize:14}}>{l.flag}</span>
+                                        <span className="font-medium">{l.label}</span>
+                                        <span className="ml-auto opacity-50" style={{fontSize:10}}>{l.code}</span>
+                                      </button>
+                                    ))}
+                                    {hasTranslation&&<button onClick={()=>{setTranslations(p=>{const n={...p};delete n[msg.id];return n;});setShowTranslatePicker(null);}} className="w-full mt-1 text-xs px-2 py-1.5 rounded-xl transition-all" style={{color:'#EF4444'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(239,68,68,.1)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>✕ Remove translation</button>}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })()}
                           {/* Review comment */}
                           <button onClick={()=>{setReviewMsgId(msg.id);setShowReview(true);setReviewSid(sid);}} className="p-1 rounded-lg transition-all" style={{color:reviewComments[msg.id]?.length>0?'#60a5fa':'var(--t3)'}} title="Add review comment">
                             <i className="fa-solid fa-comment-pen text-xs"></i>
                             {reviewComments[msg.id]?.length>0&&<span style={{fontSize:9,color:'#60a5fa',marginLeft:2}}>{reviewComments[msg.id].length}</span>}
                           </button>
                         </div>
+                        {/* Translation result */}
+                        {translations[msg.id]&&(
+                          <div className="mt-2 rounded-xl border px-3 py-2.5" style={{background:'rgba(52,211,153,.05)',borderColor:'rgba(52,211,153,.2)'}}>
+                            <div className="flex items-center justify-between mb-1.5">
+                              <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest" style={{color:'#34D399'}}>
+                                <i className="fa-solid fa-language text-xs"></i>{translations[msg.id].lang}
+                              </span>
+                              <button onClick={()=>setTranslations(p=>{const n={...p};delete n[msg.id];return n;})} style={{color:'var(--t3)'}} title="Remove translation"><i className="fa-solid fa-xmark text-xs"></i></button>
+                            </div>
+                            <p className="text-sm" style={{color:'var(--t1)',lineHeight:1.7}}>{translations[msg.id].text}</p>
+                          </div>
+                        )}
                         {/* Per-message summary */}
                         {msg.sender==='bot'&&msgSummary[msg.id]&&(
                           <div className="mt-2 rounded-xl border px-3 py-2.5 text-xs" style={{background:'rgba(6,182,212,.06)',borderColor:'rgba(6,182,212,.2)',color:'var(--t2)'}}>
@@ -9755,6 +9962,18 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       </div>
                     </div>
                   ))}
+                  {/* Image Analysis indicator */}
+                  {analyzingImg&&(
+                    <div className="flex gap-3 justify-start">
+                      <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 border-2" style={{background:'rgba(139,92,246,.15)',borderColor:'#8B5CF6'}}>
+                        <i className="fa-solid fa-eye" style={{fontSize:11,color:'#8B5CF6'}}></i>
+                      </div>
+                      <div className="flex items-center gap-2 rounded-2xl border px-3 py-2" style={{background:'var(--bg3)',borderColor:'rgba(139,92,246,.25)'}}>
+                        <i className="fa-solid fa-spinner fa-spin text-xs" style={{color:'#8B5CF6'}}></i>
+                        <span className="text-xs" style={{color:'var(--t2)'}}>Analyzing image…</span>
+                      </div>
+                    </div>
+                  )}
                   <div id="omina-typing-indicator" className="flex gap-3 justify-start" style={{display: typing ? 'flex' : 'none'}}>
                     <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 border-2" style={{background:(PERSONAS.find(p=>p.id===persona)||PERSONAS[0]).color+'18',borderColor:(PERSONAS.find(p=>p.id===persona)||PERSONAS[0]).color}}><i className={`fa-solid ${(PERSONAS.find(p=>p.id===persona)||PERSONAS[0]).icon}`} style={{fontSize:11,color:(PERSONAS.find(p=>p.id===persona)||PERSONAS[0]).color}}></i></div>
                     <div className="flex items-center rounded-2xl border" style={{background:'var(--bg3)',borderColor:'var(--br)'}}>
