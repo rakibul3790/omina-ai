@@ -10124,20 +10124,46 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                           })()}
                           {/* Translate */}
                           {(()=>{
-
                             const hasTranslation = translations[msg.id];
                             return(
                               <div className="relative translate-picker-wrap">
                                 <button
-                                  onClick={()=>setShowTranslatePicker(showTranslatePicker===msg.id?null:msg.id)}
+                                  onClick={(e)=>{
+                                    if(showTranslatePicker===msg.id){setShowTranslatePicker(null);return;}
+                                    // Calculate position so dropdown never goes off-screen
+                                    const rect = e.currentTarget.getBoundingClientRect();
+                                    const dropH = 320; // approx dropdown height
+                                    const dropW = 220;
+                                    const spaceBelow = window.innerHeight - rect.bottom;
+                                    const spaceRight = window.innerWidth - rect.left;
+                                    const top = spaceBelow >= dropH ? rect.bottom + 6 : rect.top - dropH - 6;
+                                    const left = spaceRight >= dropW ? rect.left : rect.right - dropW;
+                                    window.__tPickerPos = {top: Math.max(8, top), left: Math.max(8, Math.min(left, window.innerWidth - dropW - 8))};
+                                    setShowTranslatePicker(msg.id);
+                                  }}
                                   disabled={translating===msg.id}
                                   className="p-1 rounded-lg transition-all"
                                   style={{color:hasTranslation?'#34D399':translating===msg.id?'#a78bfa':'var(--t3)'}}
                                   title="Translate message">
                                   <i className={`fa-solid ${translating===msg.id?'fa-spinner fa-spin':'fa-language'} text-xs`}></i>
                                 </button>
-                                {showTranslatePicker===msg.id&&(
-                                  <div className="absolute bottom-8 left-0 z-50 rounded-2xl border shadow-2xl p-2" style={{background:'var(--bg2)',borderColor:'var(--br)',minWidth:200,maxHeight:280,overflowY:'auto'}}>
+                                {showTranslatePicker===msg.id&&ReactDOM.createPortal(
+                                  <div
+                                    className="translate-picker-wrap"
+                                    style={{
+                                      position:'fixed',
+                                      top: (window.__tPickerPos||{}).top||100,
+                                      left: (window.__tPickerPos||{}).left||100,
+                                      zIndex:9999,
+                                      background:'var(--bg2)',
+                                      border:'1px solid var(--br)',
+                                      borderRadius:16,
+                                      boxShadow:'0 16px 48px rgba(0,0,0,.6)',
+                                      minWidth:220,
+                                      maxHeight:320,
+                                      overflowY:'auto',
+                                      padding:8,
+                                    }}>
                                     <p className="text-[10px] font-bold uppercase tracking-widest px-2 py-1 mb-1" style={{color:'var(--t3)'}}>Translate to</p>
                                     {TLANG_LIST.map(l=>(
                                       <button key={l.code} onClick={()=>translateMsg(msg.id, msg.text||'', l.code)}
@@ -10151,7 +10177,8 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                                       </button>
                                     ))}
                                     {hasTranslation&&<button onClick={()=>{setTranslations(p=>{const n={...p};delete n[msg.id];return n;});setShowTranslatePicker(null);}} className="w-full mt-1 text-xs px-2 py-1.5 rounded-xl transition-all" style={{color:'#EF4444'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(239,68,68,.1)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>✕ Remove translation</button>}
-                                  </div>
+                                  </div>,
+                                  document.body
                                 )}
                               </div>
                             );
