@@ -5,3 +5,4 @@ firebase-admin==6.5.0
 gunicorn==22.0.0
 requests==2.31.0
 stripe==8.9.0
+duckduckgo-search>=6.0.0
