@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Omina AI &mdash; Your Intelligent Assistant</title>
+<title>Omina AI — Your Intelligent Assistant</title>
 
 <!-- SEO -->
-<meta name="description" content="Omina AI &mdash; a powerful AI assistant for chat, coding, creativity, and productivity. Powered by advanced language models.">
+<meta name="description" content="Omina AI — a powerful AI assistant for chat, coding, creativity, and productivity. Powered by advanced language models.">
 <meta name="keywords" content="AI assistant, chatbot, Omina AI, artificial intelligence, productivity">
 <meta name="author" content="Omina AI">
 <meta name="robots" content="index, follow">
- 
+
 <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="mobile-web-app-capable" content="yes">
@@ -28,7 +28,7 @@
 
 <!-- Open Graph -->
 <meta property="og:type" content="website">
-<meta property="og:title" content="Omina AI &mdash; Your Intelligent Assistant">
+<meta property="og:title" content="Omina AI — Your Intelligent Assistant">
 <meta property="og:description" content="Chat, create, and explore with Omina AI. Powered by advanced language models.">
 <meta property="og:image" content="https://ui-avatars.com/api/?name=Omina+AI&size=512&background=7c3aed&color=fff&rounded=true&bold=true">
 <meta property="og:url" content="https://omina-ai.onrender.com">
@@ -44,7 +44,7 @@
 <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<link href="https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Inter:wght@200;300;400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <!-- highlight.js for syntax highlighting -->
@@ -357,7 +357,7 @@ input:-webkit-autofill{-webkit-box-shadow:0 0 0 30px var(--bgi) inset!important;
   .feat-grid{grid-template-columns:repeat(2,1fr)!important;gap:8px!important;}
   .feat-pin-mobile{font-size:10px!important;}
 
-  /* ── Settings modal &mdash; slide up from bottom ── */
+  /* ── Settings modal — slide up from bottom ── */
   .settings-modal{
     position:fixed!important;
     bottom:0!important;left:0!important;right:0!important;
@@ -398,7 +398,7 @@ input:-webkit-autofill{-webkit-box-shadow:0 0 0 30px var(--bgi) inset!important;
   /* ── Chat messages ── */
   .msg-bubble{max-width:92%!important;}
 
-  /* ── Feature modals &mdash; full screen on mobile ── */
+  /* ── Feature modals — full screen on mobile ── */
   .feat-modal-wrap{
     position:fixed!important;inset:0!important;
     padding:0!important;
@@ -411,7 +411,7 @@ input:-webkit-autofill{-webkit-box-shadow:0 0 0 30px var(--bgi) inset!important;
     margin:0!important;
   }
 
-  /* ── Input toolbar &mdash; tighter on mobile ── */
+  /* ── Input toolbar — tighter on mobile ── */
   .ib{border-radius:18px!important;}
   .input-toolbar-row{padding:4px 8px 10px!important;gap:4px!important;}
 
@@ -448,6 +448,7 @@ input:-webkit-autofill{-webkit-box-shadow:0 0 0 30px var(--bgi) inset!important;
 .img-preset-btn{transition:transform .12s, border-color .2s, color .15s, background .15s !important;}
 .img-preset-btn:hover{transform:translateY(-1px) !important;border-color:rgba(124,58,237,.5) !important;color:#a78bfa !important;background:rgba(124,58,237,.08) !important;}
 .img-preset-btn:active{transform:scale(.97) !important;}
+
 .img-chip-btn{transition:transform .1s, border-color .15s, background .15s, color .15s !important;}
 .img-chip-btn:hover{transform:scale(1.06) !important;}
 
@@ -712,7 +713,7 @@ const PERSONAS = [
   {id:'doctor',    label:'Health Advisor',  icon:'fa-stethoscope',        color:'#EF4444', desc:'Health info & wellness tips',    prompt:'You are a knowledgeable Health Advisor AI. Provide health information, wellness tips, and symptom explanations. Always recommend consulting a real doctor for serious concerns. Be empathetic and responsible.'},
   {id:'writer',    label:'Writer',          icon:'fa-pen-fancy',          color:'#F59E0B', desc:'Creative writing & storytelling',prompt:'You are a Creative Writer AI. Help with stories, essays, poems, scripts, and creative writing. Be imaginative, use vivid language, and adapt your style to what the user needs.'},
   {id:'analyst',   label:'Analyst',         icon:'fa-chart-line',         color:'#06B6D4', desc:'Data analysis & research',       prompt:'You are a Data Analyst AI. Analyze data, find patterns, explain statistics, provide research summaries. Be precise, use structured markdown with tables and lists.'},
-  {id:'friend',    label:'Best Friend',     icon:'fa-user-group',         color:'#EC4899', desc:'Casual, fun & supportive chat',  prompt:'You are a friendly, supportive AI companion. Chat casually like a best friend &mdash; use informal language, show empathy, be funny when appropriate, use emojis naturally.'},
+  {id:'friend',    label:'Best Friend',     icon:'fa-user-group',         color:'#EC4899', desc:'Casual, fun & supportive chat',  prompt:'You are a friendly, supportive AI companion. Chat casually like a best friend — use informal language, show empathy, be funny when appropriate, use emojis naturally.'},
   {id:'lawyer',    label:'Legal Advisor',   icon:'fa-gavel',              color:'#64748B', desc:'Legal info & document help',     prompt:'You are a Legal Advisor AI. Explain legal concepts, help draft documents, clarify rights. Note you provide general info, not formal legal advice.'},
 ];
 const PB = {free:'pb-free',pro:'pb-pro',max:'pb-max',code:'pb-code'};
@@ -720,7 +721,7 @@ const LANGS=[
   {id:'auto',      label:'Auto Detect',   flag:'🌐', instruction:''},
   {id:'en',        label:'English',       flag:'🇬🇧', instruction:'Always respond in English.'},
   {id:'bn',        label:'বাংলা',          flag:'🇧🇩', instruction:'সবসময় বাংলায় উত্তর দাও। বাংলা স্ক্রিপ্ট ব্যবহার করো।'},
-  {id:'banglish',  label:'Banglish',      flag:'🇧🇩', instruction:`You are a Banglish expert. ALWAYS respond in Banglish &mdash; Bengali language written in Roman/English script. Rules: 1) NEVER use Bengali script (বাংলা হরফ). 2) Write exactly like Bangladeshis text in Banglish, e.g. "Ami tomake bhalobashi", "Kemon acho bhai?", "Eta onek valo hoise", "Ki korcho ekhon?", "Bujhte parso?", "Thik ache, cholo shuru kori". 3) Use casual Bangladeshi tone &mdash; "tumi", "apni", "bhai", "vai", "re", "na", "to", "ki", "je", "ar", "o", "e". 4) Technical words stay in English. 5) Sound natural, like a friend texting. Example: "Bhai, eta dekho &mdash; ei code ta onek simple. Prothome variable declare koro, tarpor loop chalao. Bujhte parso? Kono problem hole bolish."`},
+  {id:'banglish',  label:'Banglish',      flag:'🇧🇩', instruction:`You are a Banglish expert. ALWAYS respond in Banglish — Bengali language written in Roman/English script. Rules: 1) NEVER use Bengali script (বাংলা হরফ). 2) Write exactly like Bangladeshis text in Banglish, e.g. "Ami tomake bhalobashi", "Kemon acho bhai?", "Eta onek valo hoise", "Ki korcho ekhon?", "Bujhte parso?", "Thik ache, cholo shuru kori". 3) Use casual Bangladeshi tone — "tumi", "apni", "bhai", "vai", "re", "na", "to", "ki", "je", "ar", "o", "e". 4) Technical words stay in English. 5) Sound natural, like a friend texting. Example: "Bhai, eta dekho — ei code ta onek simple. Prothome variable declare koro, tarpor loop chalao. Bujhte parso? Kono problem hole bolish."`},
   {id:'hi',        label:'हिंदी',           flag:'🇮🇳', instruction:'हमेशा हिंदी में जवाब दो।'},
   {id:'zh',        label:'中文',            flag:'🇨🇳', instruction:'请始终用中文回答。'},
   {id:'es',        label:'Español',       flag:'🇪🇸', instruction:'Responde siempre en español.'},
@@ -812,7 +813,7 @@ function InlineSourceIcon({title, url}) {
             onMouseEnter={e=>e.currentTarget.style.textDecoration='underline'}
             onMouseLeave={e=>e.currentTarget.style.textDecoration='none'}>
             <i className="fa-solid fa-arrow-up-right-from-square" style={{fontSize:9,flexShrink:0}}></i>
-            {url.length>45?url.slice(0,45)+'...':url}
+            {url.length>45?url.slice(0,45)+'…':url}
           </a>
           {/* Arrow */}
           <span style={{position:'absolute',bottom:-5,left:'50%',transform:'translateX(-50%)',
@@ -843,7 +844,7 @@ function renderWithInlineSources(text, inlineSources) {
           return <InlineSourceIcon key={i} title={title} url={url}/>;
         }
         if(!part) return null;
-        // Use parseInline to avoid wrapping <p> tags &mdash; keeps icons inline
+        // Use parseInline to avoid wrapping <p> tags — keeps icons inline
         const inlineHtml = marked.parseInline(part);
         // For block-level content (headers, lists etc), fall back to parse
         const hasBlock = /^\s*(#{1,6} |\*\*\*|---|\* |- |\d+\. |```|>)/m.test(part);
@@ -855,7 +856,7 @@ function renderWithInlineSources(text, inlineSources) {
 }
 
 // ── Web Worker blob for typewriter timing ──────────────────
-// Runs in a separate thread &mdash; NOT throttled by tab visibility
+// Runs in a separate thread — NOT throttled by tab visibility
 const _twWorkerCode = `
   let timer = null;
   self.onmessage = function(e) {
@@ -900,7 +901,7 @@ function TypewriterText({text, onDone, speed=18, inlineSources={}}) {
     workerRef.current = worker;
 
     if(worker) {
-      // Web Worker path &mdash; not throttled by browser
+      // Web Worker path — not throttled by browser
       worker.onmessage = () => {
         if(doneRef.current) return;
         if(idx.current < textRef.current.length) {
@@ -1031,7 +1032,7 @@ function PricingModal({onClose,currentPlan,onSelectPlan}) {
         }
       }
     } catch(e){
-      toast_('Network error &mdash; please try again','error');
+      toast_('Network error — please try again','error');
       setBuying(null);
     }
   };
@@ -1065,7 +1066,7 @@ function PricingModal({onClose,currentPlan,onSelectPlan}) {
           <div style={{display:'inline-flex',alignItems:'center',gap:12,padding:'6px 8px',borderRadius:99,border:'1px solid var(--br)',background:'var(--bg3)'}}>
             <button onClick={()=>setBill('m')} style={{padding:'6px 16px',borderRadius:99,border:'none',background:bill==='m'?'var(--bg2)':'transparent',color:bill==='m'?'var(--t1)':'var(--t3)',fontSize:13,fontWeight:600,cursor:'pointer',transition:'all .2s'}}>Monthly</button>
             <button onClick={()=>setBill('y')} style={{display:'flex',alignItems:'center',gap:6,padding:'6px 16px',borderRadius:99,border:'none',background:bill==='y'?'var(--bg2)':'transparent',color:bill==='y'?'var(--t1)':'var(--t3)',fontSize:13,fontWeight:600,cursor:'pointer',transition:'all .2s'}}>
-              Yearly<span style={{fontSize:10,fontWeight:800,padding:'2px 7px',borderRadius:99,background:'rgba(16,185,129,.2)',color:'#34D399',border:'1px solid rgba(16,185,129,.3)'}}>&#x2212;25%</span>
+              Yearly<span style={{fontSize:10,fontWeight:800,padding:'2px 7px',borderRadius:99,background:'rgba(16,185,129,.2)',color:'#34D399',border:'1px solid rgba(16,185,129,.3)'}}>−25%</span>
             </button>
           </div>
         </div>
@@ -1085,10 +1086,10 @@ function PricingModal({onClose,currentPlan,onSelectPlan}) {
                 </div>
                 <div style={{marginBottom:20}}>
                   <div style={{display:'flex',alignItems:'baseline',gap:4}}>
-                    <span style={{fontSize:36,fontWeight:800,color:'#F1F5F9',lineHeight:1}}>$</span><span style={{fontSize:36,fontWeight:800,color:'#F1F5F9',lineHeight:1}}>{price}</span>
+                    <span style={{fontSize:36,fontWeight:800,color:'#F1F5F9',lineHeight:1}}>${price}</span>
                     {price>0&&<span style={{fontSize:12,color:'rgba(255,255,255,.4)',fontWeight:500}}>/mo</span>}
                   </div>
-                  {bill==='y'&&price>0&&<p style={{margin:'4px 0 0',fontSize:11,color:'#34D399',fontWeight:600}}>Billed {'$'}{price*12}/year</p>}
+                  {bill==='y'&&price>0&&<p style={{margin:'4px 0 0',fontSize:11,color:'#34D399',fontWeight:600}}>Billed ${price*12}/year</p>}
                   {price===0&&<p style={{margin:'4px 0 0',fontSize:11,color:'rgba(255,255,255,.4)'}}>Always free</p>}
                 </div>
                 <ul style={{listStyle:'none',margin:'0 0 20px',padding:0,display:'flex',flexDirection:'column',gap:8,flex:1}}>
@@ -1098,21 +1099,16 @@ function PricingModal({onClose,currentPlan,onSelectPlan}) {
                     </li>
                   ))}
                 </ul>
-                {isBought && (
-                  <div className="sp" style={{padding:'11px',borderRadius:12,textAlign:'center',fontSize:13,fontWeight:700,color:'#fff',background:'#059669',display:'flex',alignItems:'center',justifyContent:'center',gap:6}}>
-                    <i className="fa-solid fa-check"></i> Activated!
-                  </div>
-                )}
-                {!isBought && isCurr && (
-                  <div style={{padding:'11px',borderRadius:12,textAlign:'center',fontSize:13,fontWeight:600,color:'rgba(255,255,255,.4)',background:'rgba(255,255,255,.05)',border:'1px solid rgba(255,255,255,.1)'}}>
-                    <i className="fa-solid fa-circle-check" style={{marginRight:6}}></i>Current Plan
-                  </div>
-                )}
-                {!isBought && !isCurr && (
-                  <button onClick={()=>buy(p.id)} disabled={!!buying} style={{...p.btnStyle,padding:'11px',borderRadius:12,fontSize:13,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:6,opacity:buying&&buying!==p.id?0.5:1,transition:'all .15s'}} onMouseEnter={e=>{if(!buying)e.currentTarget.style.opacity='.85'}} onMouseLeave={e=>{e.currentTarget.style.opacity='1'}}>
-                    {isBuying ? (<><i className="fa-solid fa-circle-notch fa-spin" style={{fontSize:11}}></i> Processing...</>) : p.id==='free' ? 'Switch to Free' : (<>Get {p.name} <i className="fa-solid fa-arrow-right" style={{fontSize:11}}></i></>)}
+                {isBought
+                  ?<div className="sp" style={{padding:'11px',borderRadius:12,textAlign:'center',fontSize:13,fontWeight:700,color:'#fff',background:'#059669',display:'flex',alignItems:'center',justifyContent:'center',gap:6}}><i className="fa-solid fa-check"></i> Activated!</div>
+                  :isCurr
+                  ?<div style={{padding:'11px',borderRadius:12,textAlign:'center',fontSize:13,fontWeight:600,color:'rgba(255,255,255,.4)',background:'rgba(255,255,255,.05)',border:'1px solid rgba(255,255,255,.1)'}}><i className="fa-solid fa-circle-check" style={{marginRight:6}}></i>Current Plan</div>
+                  :<button onClick={()=>buy(p.id)} disabled={!!buying} style={{...p.btnStyle,padding:'11px',borderRadius:12,fontSize:13,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:6,opacity:buying&&buying!==p.id?.5:1,transition:'all .15s'}}
+                    onMouseEnter={e=>!buying&&(e.currentTarget.style.opacity='.85')}
+                    onMouseLeave={e=>e.currentTarget.style.opacity='1'}>
+                    {isBuying?<><i className="fa-solid fa-circle-notch fa-spin" style={{fontSize:11}}></i> Processing…</>:p.id==='free'?'Switch to Free':<>Get {p.name} <i className="fa-solid fa-arrow-right" style={{fontSize:11}}></i></>}
                   </button>
-                )}
+                }
               </div>
             );
           })}
@@ -1133,7 +1129,7 @@ function PricingModal({onClose,currentPlan,onSelectPlan}) {
               </div>
               <h3 style={{margin:'0 0 6px',fontSize:22,fontWeight:800,color:'#F1F5F9'}}>Complete Payment</h3>
               <p style={{margin:0,fontSize:13,color:'rgba(255,255,255,.4)'}}>
-                {payModal.planName} Plan · <strong style={{color:'#34D399'}}>{'$'}{payModal.price}/mo</strong>
+                {payModal.planName} Plan · <strong style={{color:'#34D399'}}>${payModal.price}/mo</strong>
                 {payModal.billing==='y'&&<span style={{color:'rgba(255,255,255,.35)'}}> · billed yearly</span>}
               </p>
             </div>
@@ -1327,7 +1323,7 @@ function CanvasPanel({content, onClose}) {
       css: '',
       js: '',
       css_external: '',
-      css_external: 'https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css',
+      js_external: 'https://cdn.tailwindcss.com',
     };
     const form = document.createElement('form');
     form.method = 'POST';
@@ -1354,7 +1350,7 @@ function CanvasPanel({content, onClose}) {
       css: '',
       js: '',
       title: activeTab,
-      resources: 'https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css',
+      resources: 'https://cdn.tailwindcss.com',
     };
     Object.entries(fields).forEach(([k,v])=>{
       const inp = document.createElement('input');
@@ -1428,7 +1424,7 @@ function CanvasPanel({content, onClose}) {
     let c=liveCode;
     if(previewTheme==='light') c=c.replace(/class="([^"]*)dark([^"]*)"/,'class="$1$2"');
     else if(!c.includes('class="dark"')) c=c.replace(/<html(.*?)>/,'<html$1 class="dark">');
-    if(!c.includes('tailwind')) c=c.replace('<head>','<head><link href="https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">');
+    if(!c.includes('cdn.tailwindcss.com')) c=c.replace('<head>','<head><script src="https://cdn.tailwindcss.com"><\/script>');
     return injectConsole(c);
   })();
 
@@ -1518,10 +1514,10 @@ function CanvasPanel({content, onClose}) {
         </div>
         <div style={{flex:1,display:'flex',alignItems:'center',gap:6,paddingLeft:12,overflow:'hidden'}}>
           <i className="fa-solid fa-cube" style={{color:'#6366f1',fontSize:12,flexShrink:0}}></i>
-          <span style={{fontSize:12,color:'#444466',fontFamily:'JetBrains Mono, monospace',flexShrink:0}}>omina-canvas</span>
+          <span style={{fontSize:12,color:'#444466',fontFamily:"'JetBrains Mono',monospace",flexShrink:0}}>omina-canvas</span>
           <i className="fa-solid fa-chevron-right" style={{color:'#333355',fontSize:9,flexShrink:0}}></i>
           <i className={fi.i} style={{color:fi.c,fontSize:11,flexShrink:0}}></i>
-          <span style={{fontSize:12,color:'#cdd6f4',fontFamily:'JetBrains Mono, monospace',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{activeTab}</span>
+          <span style={{fontSize:12,color:'#cdd6f4',fontFamily:"'JetBrains Mono',monospace",overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{activeTab}</span>
         </div>
         <div style={{display:'flex',alignItems:'center',gap:4,flexShrink:0}}>
           {/* NEW: AI Chat toggle in title bar */}
@@ -1634,8 +1630,8 @@ function CanvasPanel({content, onClose}) {
       {showFind&&tab==='code'&&(
         <div className="cv-findbar">
           <i className="fa-solid fa-magnifying-glass" style={{fontSize:11,color:'#444466'}}></i>
-          <input ref={findRef} className="cv-find-input" value={findQ} onChange={e=>setFindQ(e.target.value)} placeholder="Search in file..." onKeyDown={e=>e.key==='Escape'&&setShowFind(false)}/>
-          <span style={{fontSize:11,color:'#444466',fontFamily:'JetBrains Mono, monospace',minWidth:60}}>
+          <input ref={findRef} className="cv-find-input" value={findQ} onChange={e=>setFindQ(e.target.value)} placeholder="Search in file…" onKeyDown={e=>e.key==='Escape'&&setShowFind(false)}/>
+          <span style={{fontSize:11,color:'#444466',fontFamily:"'JetBrains Mono',monospace",minWidth:60}}>
             {findQ ? (findCount>0?`${findCount} match${findCount>1?'es':''}`: '0 matches') : ''}
           </span>
           <button className="cv-btn" onClick={()=>setShowFind(false)} style={{padding:'2px 6px',marginLeft:4}}><i className="fa-solid fa-xmark" style={{fontSize:10}}></i></button>
@@ -1657,7 +1653,7 @@ function CanvasPanel({content, onClose}) {
                       style={{width:'100%',height:'100%',border:'none',display:'block'}} title="Canvas Preview"/>
                   ) : (
                     <div className="sb" style={{height:'100%',overflow:'auto',padding:'20px 24px'}}>
-                      <pre style={{whiteSpace:'pre-wrap',wordBreak:'break-word',fontFamily:'JetBrains Mono, monospace',fontSize:13,lineHeight:1.7,color:'#cdd6f4',margin:0}}>{liveCode}</pre>
+                      <pre style={{whiteSpace:'pre-wrap',wordBreak:'break-word',fontFamily:"'JetBrains Mono',monospace",fontSize:13,lineHeight:1.7,color:'#cdd6f4',margin:0}}>{liveCode}</pre>
                     </div>
                   )}
                 </div>
@@ -1672,25 +1668,25 @@ function CanvasPanel({content, onClose}) {
                         {t==='problems'&&errCount>0&&<span style={{marginLeft:6,background:'#f85149',color:'#fff',borderRadius:99,padding:'0 5px',fontSize:9,fontWeight:700}}>{errCount}</span>}
                       </button>
                     ))}
-                    <button onClick={()=>setConsoleLogs([])} style={{marginLeft:'auto',fontSize:10,color:'#444466',background:'none',border:'none',cursor:'pointer',fontFamily:'JetBrains Mono, monospace',padding:'2px 6px',borderRadius:4}} onMouseEnter={e=>e.currentTarget.style.color='#818cf8'} onMouseLeave={e=>e.currentTarget.style.color='#444466'}>
+                    <button onClick={()=>setConsoleLogs([])} style={{marginLeft:'auto',fontSize:10,color:'#444466',background:'none',border:'none',cursor:'pointer',fontFamily:"'JetBrains Mono',monospace",padding:'2px 6px',borderRadius:4}} onMouseEnter={e=>e.currentTarget.style.color='#818cf8'} onMouseLeave={e=>e.currentTarget.style.color='#444466'}>
                       <i className="fa-solid fa-trash-can" style={{marginRight:4,fontSize:9}}></i>Clear
                     </button>
                   </div>
                   <div className="sb" style={{flex:1,overflow:'auto',padding:'6px 12px',background:'#08080f'}}>
                     {consoleTab==='console'?(
                       consoleLogs.length===0
-                        ?<span style={{color:'#333355',fontFamily:'JetBrains Mono, monospace',fontSize:11,fontStyle:'italic'}}>No output yet...</span>
+                        ?<span style={{color:'#333355',fontFamily:"'JetBrains Mono',monospace",fontSize:11,fontStyle:'italic'}}>No output yet…</span>
                         :consoleLogs.map((l,i)=>(
-                          <div key={i} style={{fontFamily:'JetBrains Mono, monospace',fontSize:11,color:l.method==='error'?'#f85149':l.method==='warn'?'#e3b341':'#8b949e',padding:'2px 0',display:'flex',gap:8}}>
+                          <div key={i} style={{fontFamily:"'JetBrains Mono',monospace",fontSize:11,color:l.method==='error'?'#f85149':l.method==='warn'?'#e3b341':'#8b949e',padding:'2px 0',display:'flex',gap:8}}>
                             <span style={{color:'#444466'}}>[{l.time}]</span>
                             <span>{l.args.join(' ')}</span>
                           </div>
                         ))
                     ):(
                       errCount===0&&warnCount===0
-                        ?<span style={{color:'#3fb950',fontFamily:'JetBrains Mono, monospace',fontSize:11}}>✓ No problems detected</span>
+                        ?<span style={{color:'#3fb950',fontFamily:"'JetBrains Mono',monospace",fontSize:11}}>✓ No problems detected</span>
                         :consoleLogs.filter(l=>l.method==='error'||l.method==='warn').map((l,i)=>(
-                          <div key={i} style={{fontFamily:'JetBrains Mono, monospace',fontSize:11,color:l.method==='error'?'#f85149':'#e3b341',padding:'2px 0',display:'flex',gap:8,alignItems:'flex-start'}}>
+                          <div key={i} style={{fontFamily:"'JetBrains Mono',monospace",fontSize:11,color:l.method==='error'?'#f85149':'#e3b341',padding:'2px 0',display:'flex',gap:8,alignItems:'flex-start'}}>
                             <i className={`fa-solid ${l.method==='error'?'fa-circle-xmark':'fa-triangle-exclamation'}`} style={{fontSize:10,marginTop:1,flexShrink:0}}></i>
                             <span>{l.args.join(' ')}</span>
                           </div>
@@ -1727,8 +1723,8 @@ function CanvasPanel({content, onClose}) {
                 <i className="fa-solid fa-code" style={{fontSize:28,color:'rgba(99,102,241,.4)'}}></i>
               </div>
               <div style={{textAlign:'center'}}>
-                <p style={{margin:'0 0 4px',fontSize:14,fontWeight:600,color:'#333355',fontFamily:'JetBrains Mono, monospace'}}>Canvas is ready</p>
-                <p style={{margin:0,fontSize:12,color:'#22223a',fontFamily:'JetBrains Mono, monospace'}}>Send code to see it here</p>
+                <p style={{margin:'0 0 4px',fontSize:14,fontWeight:600,color:'#333355',fontFamily:"'JetBrains Mono',monospace"}}>Canvas is ready</p>
+                <p style={{margin:0,fontSize:12,color:'#22223a',fontFamily:"'JetBrains Mono',monospace"}}>Send code to see it here</p>
               </div>
             </div>
           )}
@@ -1751,12 +1747,12 @@ function CanvasPanel({content, onClose}) {
                 <i className="fa-solid fa-robot" style={{fontSize:11,color:'#818cf8'}}></i>
               </div>
               <div style={{flex:1,minWidth:0}}>
-                <p style={{margin:0,fontSize:12,fontWeight:700,color:'#cdd6f4',fontFamily:'JetBrains Mono, monospace'}}>AI Code Assistant</p>
+                <p style={{margin:0,fontSize:12,fontWeight:700,color:'#cdd6f4',fontFamily:"'JetBrains Mono',monospace"}}>AI Code Assistant</p>
                 <p style={{margin:0,fontSize:10,color:'#444466'}}>Ask about your code</p>
               </div>
               {aiMessages.length>0&&(
                 <button onClick={()=>setAiMessages([])}
-                  style={{background:'none',border:'none',cursor:'pointer',color:'#333355',padding:'3px 5px',borderRadius:5,fontSize:10,fontFamily:'JetBrains Mono, monospace',transition:'all .1s'}}
+                  style={{background:'none',border:'none',cursor:'pointer',color:'#333355',padding:'3px 5px',borderRadius:5,fontSize:10,fontFamily:"'JetBrains Mono',monospace",transition:'all .1s'}}
                   onMouseEnter={e=>{e.currentTarget.style.color='#f87171';e.currentTarget.style.background='rgba(239,68,68,.08)';}}
                   onMouseLeave={e=>{e.currentTarget.style.color='#333355';e.currentTarget.style.background='none';}}>
                   <i className="fa-solid fa-trash-can" style={{fontSize:9,marginRight:3}}></i>Clear
@@ -1773,14 +1769,14 @@ function CanvasPanel({content, onClose}) {
                     <div style={{width:44,height:44,borderRadius:14,background:'rgba(99,102,241,.1)',border:'1px solid rgba(99,102,241,.15)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 10px'}}>
                       <i className="fa-solid fa-wand-magic-sparkles" style={{fontSize:18,color:'rgba(99,102,241,.6)'}}></i>
                     </div>
-                    <p style={{margin:'0 0 4px',fontSize:12,fontWeight:600,color:'#4a4a6a',fontFamily:'JetBrains Mono, monospace'}}>Ask about your code</p>
+                    <p style={{margin:'0 0 4px',fontSize:12,fontWeight:600,color:'#4a4a6a',fontFamily:"'JetBrains Mono',monospace"}}>Ask about your code</p>
                     <p style={{margin:0,fontSize:10,color:'#2a2a40',lineHeight:1.5}}>I can explain, debug, improve, or help you add features to the current code.</p>
                   </div>
                   {/* Quick prompts */}
-                  <p style={{margin:'4px 0 6px',fontSize:10,fontWeight:700,color:'#333355',fontFamily:'JetBrains Mono, monospace',letterSpacing:'.06em',textTransform:'uppercase'}}>Quick prompts</p>
+                  <p style={{margin:'4px 0 6px',fontSize:10,fontWeight:700,color:'#333355',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'.06em',textTransform:'uppercase'}}>Quick prompts</p>
                   {quickPrompts.map((q,i)=>(
                     <button key={i} onClick={()=>{setAiInput(q);setTimeout(()=>aiInputRef.current?.focus(),50);}}
-                      style={{textAlign:'left',padding:'8px 10px',borderRadius:8,border:'1px solid #1c1c2e',background:'transparent',color:'#555577',fontSize:11,cursor:'pointer',fontFamily:'JetBrains Mono, monospace',transition:'all .12s',lineHeight:1.4}}
+                      style={{textAlign:'left',padding:'8px 10px',borderRadius:8,border:'1px solid #1c1c2e',background:'transparent',color:'#555577',fontSize:11,cursor:'pointer',fontFamily:"'JetBrains Mono',monospace",transition:'all .12s',lineHeight:1.4}}
                       onMouseEnter={e=>{e.currentTarget.style.background='rgba(99,102,241,.08)';e.currentTarget.style.borderColor='rgba(99,102,241,.2)';e.currentTarget.style.color='#818cf8';}}
                       onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.borderColor='#1c1c2e';e.currentTarget.style.color='#555577';}}>
                       <i className="fa-solid fa-bolt" style={{fontSize:8,marginRight:6,color:'#333355'}}></i>{q}
@@ -1796,8 +1792,8 @@ function CanvasPanel({content, onClose}) {
                     display:'flex',alignItems:'center',gap:6,marginBottom:3
                   }}>
                     {msg.role==='user'
-                      ?<><div style={{width:16,height:16,borderRadius:5,background:'#2563eb',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}><i className="fa-solid fa-user" style={{fontSize:7,color:'#fff'}}></i></div><span style={{fontSize:9,fontWeight:700,color:'#3b82f6',fontFamily:'JetBrains Mono, monospace',letterSpacing:'.04em'}}>YOU</span></>
-                      :<><div style={{width:16,height:16,borderRadius:5,background:'rgba(99,102,241,.2)',border:'1px solid rgba(99,102,241,.25)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}><i className="fa-solid fa-robot" style={{fontSize:7,color:'#818cf8'}}></i></div><span style={{fontSize:9,fontWeight:700,color:'#6366f1',fontFamily:'JetBrains Mono, monospace',letterSpacing:'.04em'}}>OMINA AI</span></>
+                      ?<><div style={{width:16,height:16,borderRadius:5,background:'#2563eb',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}><i className="fa-solid fa-user" style={{fontSize:7,color:'#fff'}}></i></div><span style={{fontSize:9,fontWeight:700,color:'#3b82f6',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'.04em'}}>YOU</span></>
+                      :<><div style={{width:16,height:16,borderRadius:5,background:'rgba(99,102,241,.2)',border:'1px solid rgba(99,102,241,.25)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}><i className="fa-solid fa-robot" style={{fontSize:7,color:'#818cf8'}}></i></div><span style={{fontSize:9,fontWeight:700,color:'#6366f1',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'.04em'}}>OMINA AI</span></>
                     }
                   </div>
                   {msg.role==='user'
@@ -1812,7 +1808,7 @@ function CanvasPanel({content, onClose}) {
               {/* Typing indicator */}
               {aiTyping&&(
                 <div style={{display:'flex',alignItems:'center',gap:6,padding:'8px 10px',borderRadius:10,background:'rgba(99,102,241,.06)',border:'1px solid #1c1c2e',width:'fit-content'}}>
-                  <span style={{fontFamily:'JetBrains Mono, monospace',fontSize:11,color:'#444466'}}>thinking</span>
+                  <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:11,color:'#444466'}}>thinking</span>
                   <span className="tw-cursor" style={{marginLeft:2}}/>
                 </div>
               )}
@@ -1829,11 +1825,11 @@ function CanvasPanel({content, onClose}) {
                   value={aiInput}
                   onChange={e=>setAiInput(e.target.value)}
                   onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendAiMessage();}}}
-                  placeholder="Ask about the code..."
+                  placeholder="Ask about the code…"
                   rows={1}
                   style={{
                     flex:1,background:'transparent',border:'none',outline:'none',resize:'none',
-                    fontFamily:'JetBrains Mono, monospace',fontSize:11,color:'#8888aa',
+                    fontFamily:"'JetBrains Mono',monospace",fontSize:11,color:'#8888aa',
                     lineHeight:1.5,maxHeight:80,overflowY:'auto',
                     scrollbarWidth:'none'
                   }}
@@ -1855,7 +1851,7 @@ function CanvasPanel({content, onClose}) {
                   }
                 </button>
               </div>
-              <p style={{margin:'5px 0 0',fontSize:9,color:'#22223a',textAlign:'center',fontFamily:'JetBrains Mono, monospace'}}>Enter to send · Shift+Enter new line</p>
+              <p style={{margin:'5px 0 0',fontSize:9,color:'#22223a',textAlign:'center',fontFamily:"'JetBrains Mono',monospace"}}>Enter to send · Shift+Enter new line</p>
             </div>
           </div>
         )}
@@ -2171,7 +2167,7 @@ function ImageGenModal({onClose,onGenerate,history,setHistory,initialPrompt}) {
                 {/* Seed (advanced) */}
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{color:'var(--t3)'}}>
-                    <i className="fa-solid fa-dice mr-1" style={{color:'#8B5CF6',fontSize:9}}></i>Seed <span style={{fontWeight:400,opacity:.6}}>(optional &mdash; for reproducibility)</span>
+                    <i className="fa-solid fa-dice mr-1" style={{color:'#8B5CF6',fontSize:9}}></i>Seed <span style={{fontWeight:400,opacity:.6}}>(optional — for reproducibility)</span>
                   </p>
                   <input value={seed} onChange={e=>setSeed(e.target.value.replace(/\D/g,''))}
                     placeholder="Leave blank for random"
@@ -2200,7 +2196,7 @@ function ImageGenModal({onClose,onGenerate,history,setHistory,initialPrompt}) {
               </div>
             </div>
 
-            {/* RIGHT PANEL &mdash; desktop only preview + info */}
+            {/* RIGHT PANEL — desktop only preview + info */}
             <div className="hidden sm:flex flex-col border-l flex-shrink-0" style={{width:220,borderColor:'var(--br)'}}>
               {/* Style preview */}
               <div className="p-4 border-b" style={{borderColor:'var(--br)'}}>
@@ -2215,7 +2211,7 @@ function ImageGenModal({onClose,onGenerate,history,setHistory,initialPrompt}) {
                     {lighting&&<span className="text-[9px] px-1.5 py-0.5 rounded-full" style={{background:'rgba(245,158,11,.12)',color:'#F59E0B'}}>{lighting}</span>}
                     {color&&<span className="text-[9px] px-1.5 py-0.5 rounded-full" style={{background:'rgba(6,182,212,.12)',color:'#06B6D4'}}>{color}</span>}
                   </div>
-                  {prompt&&<p className="text-[9px] text-center leading-relaxed" style={{color:'var(--t3)'}}>{prompt.slice(0,80)}{prompt.length>80?'...':''}</p>}
+                  {prompt&&<p className="text-[9px] text-center leading-relaxed" style={{color:'var(--t3)'}}>{prompt.slice(0,80)}{prompt.length>80?'…':''}</p>}
                 </div>
               </div>
               {/* Tips */}
@@ -2398,8 +2394,8 @@ function ImageGenModal({onClose,onGenerate,history,setHistory,initialPrompt}) {
               <div className="w-full py-3.5 rounded-xl flex items-center justify-center gap-3" style={{background:'rgba(124,58,237,.08)',border:'1px solid rgba(124,58,237,.25)'}}>
                 <div style={{width:18,height:18,borderRadius:'50%',border:'2.5px solid rgba(124,58,237,.25)',borderTopColor:'#a78bfa',animation:'spin 0.7s linear infinite',flexShrink:0}}></div>
                 <div>
-                  <span className="text-sm font-bold block" style={{color:'#a78bfa'}}>Generating your image...</span>
-                  <span className="text-[10px]" style={{color:'var(--t3)'}}>Usually takes 15-40 seconds</span>
+                  <span className="text-sm font-bold block" style={{color:'#a78bfa'}}>Generating your image…</span>
+                  <span className="text-[10px]" style={{color:'var(--t3)'}}>Usually takes 15–40 seconds</span>
                 </div>
               </div>
             ):(
@@ -2549,7 +2545,7 @@ function TodoModal({todos,setTodos,onClose}) {
           ):filtered.map(t=>{
             const pc = PRIORITIES.find(p=>p.id===t.priority)?.color||'#94a3b8';
             return (
-              <div key={t.id} className="flex items-start gap-3 px-3 py-3 rounded-xl border group transition-all" style={{background:'var(--bg3)',borderColor:t.done?'var(--br)':'var(--br)',opacity:t.done?0.65:1}}>
+              <div key={t.id} className="flex items-start gap-3 px-3 py-3 rounded-xl border group transition-all" style={{background:'var(--bg3)',borderColor:t.done?'var(--br)':'var(--br)',opacity:t.done?.65:1}}>
                 <button onClick={()=>toggle(t.id)} className="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all" style={{borderColor:t.done?'#34d399':pc,background:t.done?'#34d399':'transparent',cursor:'pointer'}}>
                   {t.done&&<i className="fa-solid fa-check" style={{color:'#000',fontSize:7}}></i>}
                 </button>
@@ -2646,7 +2642,7 @@ function StickyModal({notes,setNotes,onClose}) {
                       onChange={e=>update(n.id,'title',e.target.value)}
                       placeholder="Title..."
                       className="bg-transparent border-none outline-none text-xs font-bold w-full mr-2"
-                      style={{color:'rgba(0,0,0,.55)',fontFamily:'DM Sans, sans-serif'}}
+                      style={{color:'rgba(0,0,0,.55)',fontFamily:"'DM Sans',sans-serif"}}
                     />
                     {n.pinned&&<i className="fa-solid fa-thumbtack text-[9px] flex-shrink-0" style={{color:'rgba(0,0,0,.45)'}}></i>}
                   </div>
@@ -2657,7 +2653,7 @@ function StickyModal({notes,setNotes,onClose}) {
                     onChange={e=>update(n.id,'text',e.target.value)}
                     placeholder="Write your note..."
                     className="flex-1 bg-transparent border-none outline-none resize-none text-sm px-3 pb-2"
-                    style={{color:'#1a1a1a',fontFamily:'DM Sans, sans-serif',lineHeight:1.65,minHeight:90}}
+                    style={{color:'#1a1a1a',fontFamily:"'DM Sans',sans-serif",lineHeight:1.65,minHeight:90}}
                   />
 
                   {/* Color picker + actions */}
@@ -2724,7 +2720,7 @@ function AIAgentModal({onClose,sysPrompt,language}) {
     {id:'analyze',  label:'Analyze & Report',      icon:'fa-chart-bar',        color:'#ef4444', prompt:'Perform a deep analysis and generate a comprehensive report on: ',       steps:['Collecting data points','Identifying patterns','Running analysis','Drawing conclusions','Generating report']},
     {id:'brainstorm',label:'Brainstorm Ideas',     icon:'fa-lightbulb',        color:'#ec4899', prompt:'Generate 10 highly creative, unique, and actionable ideas for: ',         steps:['Understanding context','Exploring angles','Generating concepts','Filtering best ideas','Expanding top picks']},
     {id:'compare',  label:'Compare & Contrast',    icon:'fa-scale-balanced',   color:'#06B6D4', prompt:'Provide a thorough comparison and contrast analysis of: ',                steps:['Identifying criteria','Gathering facts','Side-by-side analysis','Scoring options','Final recommendation']},
-    {id:'explain',  label:'Explain & Teach',       icon:'fa-chalkboard',       color:'#F59E0B', prompt:'Explain this topic clearly for different levels of understanding &mdash; beginner to expert: ', steps:['Simplifying core concept','Building from basics','Adding examples','Covering edge cases','Summarizing key points']},
+    {id:'explain',  label:'Explain & Teach',       icon:'fa-chalkboard',       color:'#F59E0B', prompt:'Explain this topic clearly for different levels of understanding — beginner to expert: ', steps:['Simplifying core concept','Building from basics','Adding examples','Covering edge cases','Summarizing key points']},
   ];
 
   React.useEffect(()=>{if(logsRef.current)logsRef.current.scrollTop=logsRef.current.scrollHeight;},[steps]);
@@ -2747,7 +2743,7 @@ function AIAgentModal({onClose,sysPrompt,language}) {
     const modePromptSuffix = agentMode==='deep' ? ' Be extremely thorough and detailed.' : agentMode==='creative' ? ' Be imaginative, bold, and expansive.' : agentMode==='precise' ? ' Be concise, accurate, and factual.' : '';
 
     try {
-      addStep('Initializing agent...','thinking');
+      addStep('Initializing agent…','thinking');
       await sleep(300);
       addStep('Mode: '+curMode.lbl+' · Task: '+(curTask?.label||'Custom'),'info');
       await sleep(250);
@@ -2758,7 +2754,7 @@ function AIAgentModal({onClose,sysPrompt,language}) {
       const planRes = await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'Break this goal into exactly 4 clear execution steps (numbered list only, one line each): "'+goal+'"',system_prompt:'You are an expert AI agent planner. Be concise.',mood:'professional'})});
       if(abortRef.aborted){addStep('Aborted by user','error');setRunning(false);return;}
       const planData = await planRes.json();
-      addStep('Plan ready &mdash; '+( planData.reply?.split('\n')[0]||'').slice(0,80),'result', planData.reply||'');
+      addStep('Plan ready — '+( planData.reply?.split('\n')[0]||'').slice(0,80),'result', planData.reply||'');
       setProgress(25);
       await sleep(200);
 
@@ -2905,7 +2901,7 @@ function AIAgentModal({onClose,sysPrompt,language}) {
           {!running&&!done&&(
             <div>
               <p className="text-[10px] font-bold uppercase tracking-widest mb-2.5" style={{color:'var(--t3)'}}>Goal / Task Description</p>
-              <textarea value={goal} onChange={e=>setGoal(e.target.value)} placeholder="Describe exactly what you want the AI agent to accomplish..." rows={3} className="w-full px-4 py-3 rounded-2xl border outline-none resize-none text-sm transition-all" style={{background:'rgba(167,139,250,.06)',borderColor:'rgba(167,139,250,.2)',color:'var(--t1)',lineHeight:1.6}} onFocus={e=>e.target.style.borderColor='rgba(167,139,250,.5)'} onBlur={e=>e.target.style.borderColor='rgba(167,139,250,.2)'}/>
+              <textarea value={goal} onChange={e=>setGoal(e.target.value)} placeholder="Describe exactly what you want the AI agent to accomplish…" rows={3} className="w-full px-4 py-3 rounded-2xl border outline-none resize-none text-sm transition-all" style={{background:'rgba(167,139,250,.06)',borderColor:'rgba(167,139,250,.2)',color:'var(--t1)',lineHeight:1.6}} onFocus={e=>e.target.style.borderColor='rgba(167,139,250,.5)'} onBlur={e=>e.target.style.borderColor='rgba(167,139,250,.2)'}/>
               <button onClick={runAgent} disabled={!goal.trim()} className="mt-2.5 w-full py-3.5 rounded-2xl text-sm font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-30" style={{background:goal.trim()?'linear-gradient(135deg,#7c3aed,#a855f7)':'rgba(255,255,255,.05)',color:goal.trim()?'#fff':'var(--t3)',border:goal.trim()?'none':'1px solid rgba(255,255,255,.06)',boxShadow:goal.trim()?'0 6px 20px rgba(139,92,246,.4)':'none'}}>
                 <i className="fa-solid fa-bolt text-sm"></i>Launch Agent
               </button>
@@ -2930,7 +2926,7 @@ function AIAgentModal({onClose,sysPrompt,language}) {
                     <span className="flex-shrink-0 text-[9px]" style={{color:'var(--t3)'}}>{s.time}</span>
                   </div>
                 ))}
-                {running&&<div className="flex items-center gap-2 px-2 py-1.5 text-[11px]" style={{color:'#a78bfa'}}><i className="fa-solid fa-circle-notch fa-spin" style={{fontSize:9}}></i>Processing...</div>}
+                {running&&<div className="flex items-center gap-2 px-2 py-1.5 text-[11px]" style={{color:'#a78bfa'}}><i className="fa-solid fa-circle-notch fa-spin" style={{fontSize:9}}></i>Processing…</div>}
               </div>
             </div>
           )}
@@ -2996,7 +2992,7 @@ function AIAgentModal({onClose,sysPrompt,language}) {
                       {h.mode&&<span className="text-[9px] px-1.5 py-0.5 rounded-lg font-bold" style={{background:modeData.col+'15',color:modeData.col}}>{modeData.lbl}</span>}
                       {h.steps&&<span className="text-[9px]" style={{color:'var(--t3)'}}>{h.steps} steps</span>}
                     </div>
-                    <p className="text-[11px] line-clamp-2 mb-2.5" style={{color:'var(--t2)',lineHeight:1.5}}>{(h.result||'').slice(0,150)}...</p>
+                    <p className="text-[11px] line-clamp-2 mb-2.5" style={{color:'var(--t2)',lineHeight:1.5}}>{(h.result||'').slice(0,150)}…</p>
                     <div className="flex gap-2">
                       <button onClick={()=>{setGoal(h.goal);setTab('run');setSteps([]);setDone(false);setResult('');setSubResults([]);setProgress(0);}} className="text-[10px] font-bold px-3 py-1 rounded-xl border transition-all" style={{borderColor:'rgba(167,139,250,.25)',color:'#a78bfa',background:'rgba(167,139,250,.06)'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(167,139,250,.14)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(167,139,250,.06)'}>
                         <i className="fa-solid fa-rotate-right mr-1 text-[9px]"></i>Re-run
@@ -3049,7 +3045,7 @@ function ShareModal({session, onClose}) {
         <div className="rounded-xl p-4 border" style={{background:'var(--bg3)',borderColor:'var(--br)'}}>
           <p className="text-xs mb-2 font-medium" style={{color:'var(--t2)'}}>Shareable link</p>
           <div className="flex items-center gap-2">
-            <input readOnly value={shareUrl} className="flex-1 text-xs rounded-lg px-3 py-2 border outline-none" style={{background:'var(--bg2)',borderColor:'var(--br)',color:'var(--t1)',fontFamily:'JetBrains Mono, monospace'}}/>
+            <input readOnly value={shareUrl} className="flex-1 text-xs rounded-lg px-3 py-2 border outline-none" style={{background:'var(--bg2)',borderColor:'var(--br)',color:'var(--t1)',fontFamily:"'JetBrains Mono',monospace"}}/>
             <button onClick={copyLink} className={`px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${copied?'bg-emerald-600 text-white':'bg-blue-600 text-white hover:bg-blue-500'}`}>
               <i className={`fa-solid ${copied?'fa-check':'fa-copy'} text-xs`}></i>{copied?'Copied!':'Copy'}
             </button>
@@ -3150,7 +3146,7 @@ function FileCard({ block, onOpen, canvasMode }) {
             <i className={block.meta.icon} style={{fontSize:14,color:block.meta.color}}></i>
           </div>
           <div style={{minWidth:0}}>
-            <p style={{margin:0,fontSize:12,fontWeight:600,color:'var(--t1)',fontFamily:'JetBrains Mono, monospace',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+            <p style={{margin:0,fontSize:12,fontWeight:600,color:'var(--t1)',fontFamily:"'JetBrains Mono',monospace",overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
               {block.meta.ext}
             </p>
             <p style={{margin:0,fontSize:10,color:'var(--t3)'}}>
@@ -3176,7 +3172,7 @@ function FileCard({ block, onOpen, canvasMode }) {
             <i className="fa-solid fa-download" style={{fontSize:9}}></i>
             Save
           </button>
-          {/* Open in Canvas &mdash; only if canvasMode is ON */}
+          {/* Open in Canvas — only if canvasMode is ON */}
           {canvasMode && (
             <button onClick={()=>onOpen(block.code)} title="Open in Canvas"
               style={{display:'flex',alignItems:'center',gap:4,padding:'4px 10px',borderRadius:7,border:'none',
@@ -3194,7 +3190,7 @@ function FileCard({ block, onOpen, canvasMode }) {
 
 /* ── MAIN APP ──────────────────────────────────────────── */
 
-// Global typing flag &mdash; lives outside React, not throttled by background tab
+// Global typing flag — lives outside React, not throttled by background tab
 let _globalTyping = false;
 function setGlobalTyping(val) {
   _globalTyping = val;
@@ -3288,7 +3284,7 @@ function AiPromptTab({setInput, setShowPromptLib, setCustomPrompts, toast_}) {
         )}
         {aiGenResults.length>0&&(
           <div className="space-y-2.5">
-            <p className="text-[10px] uppercase tracking-widest font-bold" style={{color:'rgba(255,255,255,.3)'}}>Generated Prompts &mdash; click to use</p>
+            <p className="text-[10px] uppercase tracking-widest font-bold" style={{color:'rgba(255,255,255,.3)'}}>Generated Prompts — click to use</p>
             {aiGenResults.map((r,i)=>(
               <div key={i} className="rounded-2xl border p-4 transition-all group"
                 style={{background:'rgba(255,255,255,.02)',borderColor:'rgba(59,130,246,.15)'}}
@@ -3338,9 +3334,6 @@ function App() {
   const [input,setInput]         = useState('');
   const [typing,setTyping]       = useState(false);
   const [typingSid,setTypingSid] = useState(null); // which session is thinking
-  // ── Pagination: render last N messages, load more on demand ──
-  const MSG_PAGE = 30;
-  const [msgVisibleCount,setMsgVisibleCount] = useState(MSG_PAGE);
   const [sidebarOpen,setSidebarOpen] = useState(window.innerWidth>768);
   const [file,setFile]           = useState(null);
   const [filePreview,setFilePreview] = useState(null);
@@ -3348,8 +3341,6 @@ function App() {
   // Active tool from + menu shown in chatbox
   const [activeTool,setActiveTool] = useState(null); // {icon, color, label, id}
   const [sessions,setSessions]   = useState(()=>{try{const s=localStorage.getItem('omina_v4');return s?JSON.parse(s):[]}catch{return[]}});
-  // Reset pagination when session switches
-  React.useEffect(()=>{ setMsgVisibleCount(MSG_PAGE); },[sid]);
   const [sid,setSid]             = useState(()=>{
     try{const p=new URLSearchParams(window.location.search);return p.get('sid')||null;}catch{return null;}
   });
@@ -3551,8 +3542,6 @@ function App() {
   });
   // ── Tools: API Key Management ──
   const [apiKeys,setApiKeys]             = useState(()=>{try{return JSON.parse(localStorage.getItem('omina_apikeys')||'[]')}catch{return[]}});
-  const [apiKeySelProv,setApiKeySelProv] = useState('');
-  const [apiKeyTab,setApiKeyTab]         = useState('keys');
   const [newKeyName,setNewKeyName]       = useState('');
   const [newKeyVal,setNewKeyVal]         = useState('');
   const [showKeyVal,setShowKeyVal]       = useState({});
@@ -3762,7 +3751,7 @@ function App() {
         if(d.omina_agent_hist !== undefined){ try{localStorage.setItem('omina_agent_hist',JSON.stringify(d.omina_agent_hist));}catch{} }
         if(d.omina_mc_hist  !== undefined){ try{localStorage.setItem('omina_mc_hist',JSON.stringify(d.omina_mc_hist));}catch{} }
       }catch(e){ console.warn('Sync pull failed:',e); }
-      finally{ setSyncReady(true); } // pull done &mdash; এখন push allow
+      finally{ setSyncReady(true); } // pull done — এখন push allow
     };
     pullSync();
   },[]);
@@ -3859,7 +3848,7 @@ function App() {
       }, 2800);
     }
     const goOnline  = ()=>{ setIsOnline(true);  toast_('Back online ✓','success'); };
-    const goOffline = ()=>{ setIsOnline(false); toast_('You are offline &mdash; cached mode','warning'); };
+    const goOffline = ()=>{ setIsOnline(false); toast_('You are offline — cached mode','warning'); };
     window.addEventListener('online',  goOnline);
     window.addEventListener('offline', goOffline);
     return()=>{ window.removeEventListener('online',goOnline); window.removeEventListener('offline',goOffline); };
@@ -3980,20 +3969,20 @@ function App() {
         // Push sentinel again so next back press is also caught
         window.history.pushState({__omina:true, panel:openPanel.key}, '');
       }
-      // If nothing is open &mdash; let browser/system handle it naturally (app exits)
+      // If nothing is open — let browser/system handle it naturally (app exits)
     };
     window.addEventListener('popstate', onPop);
     return()=> window.removeEventListener('popstate', onPop);
   },[]);
 
-  // Fix: tab switch / minimize &mdash; use global flag + direct DOM to bypass React throttling
+  // Fix: tab switch / minimize — use global flag + direct DOM to bypass React throttling
   const typingRef = useRef(false);
   useEffect(()=>{ typingRef.current = typing; },[typing]);
 
   useEffect(()=>{
     const h=()=>{
       if(!document.hidden){
-        // Tab visible again &mdash; force React to re-render and scroll to bottom
+        // Tab visible again — force React to re-render and scroll to bottom
         if(_globalTyping || typingRef.current){
           setGlobalTyping(true);
           // Force React state sync
@@ -4088,31 +4077,8 @@ ReactDOM.flushSync(()=>{ setTyping(true); }); } catch(_){ setTyping(true); }
     const isImage = f.type.startsWith('image/');
 
     if (isImage) {
-      // ── Image Compression: resize large images before storing ──
       const reader = new FileReader();
-      reader.onload = ev => {
-        const img = new Image();
-        img.onload = () => {
-          const MAX = 1024; // max dimension px
-          let w = img.width, h = img.height;
-          if (w > MAX || h > MAX) {
-            const ratio = Math.min(MAX/w, MAX/h);
-            w = Math.round(w * ratio);
-            h = Math.round(h * ratio);
-          }
-          const canvas = document.createElement('canvas');
-          canvas.width = w; canvas.height = h;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, w, h);
-          // Use JPEG for photos, PNG for small/transparent
-          const quality = f.size > 500*1024 ? 0.75 : 0.88;
-          const mimeOut = f.type === 'image/png' && f.size < 200*1024 ? 'image/png' : 'image/jpeg';
-          const compressed = canvas.toDataURL(mimeOut, quality);
-          resolve({ content: null, preview: compressed, type: 'image' });
-        };
-        img.onerror = () => resolve({ content: null, preview: ev.target.result, type: 'image' });
-        img.src = ev.target.result;
-      };
+      reader.onload = e => resolve({ content: null, preview: e.target.result, type: 'image' });
       reader.readAsDataURL(f);
     } else if (isText) {
       const reader = new FileReader();
@@ -4132,7 +4098,7 @@ ReactDOM.flushSync(()=>{ setTyping(true); }); } catch(_){ setTyping(true); }
         // Extract readable strings (4+ printable chars)
         const extracted = raw.match(/[^\x00-\x1F\x7F-\xFF]{4,}/g) || [];
         const text = extracted.join(' ').replace(/\s+/g,' ').slice(0, 8000);
-        resolve({ content: text || '[PDF binary &mdash; text extraction limited]', preview: null, type: 'pdf' });
+        resolve({ content: text || '[PDF binary — text extraction limited]', preview: null, type: 'pdf' });
       };
       reader.readAsArrayBuffer(f);
     } else {
@@ -4147,7 +4113,7 @@ ReactDOM.flushSync(()=>{ setTyping(true); }); } catch(_){ setTyping(true); }
   const onFile = async (e) => {
     const picked = [...e.target.files].slice(0, 5);
     if (!picked.length) return;
-    toast_('Reading files...', 'info');
+    toast_('Reading files…', 'info');
     const newFiles = await Promise.all(picked.map(async f => {
       const { content, preview, type } = await readFileContent(f);
       return {
@@ -4172,32 +4138,19 @@ ReactDOM.flushSync(()=>{ setTyping(true); }); } catch(_){ setTyping(true); }
     if (f.size > 2 * 1024 * 1024) { toast_('Image too large (max 2MB)', 'warning'); return; }
     const reader = new FileReader();
     reader.onload = async (ev) => {
-      // Compress avatar: max 256x256, JPEG quality 0.85
-      const img = new Image();
-      img.onload = async () => {
-        const SZ = 256;
-        const canvas = document.createElement('canvas');
-        canvas.width = SZ; canvas.height = SZ;
-        const ctx = canvas.getContext('2d');
-        // Center-crop to square
-        const side = Math.min(img.width, img.height);
-        const ox = (img.width - side) / 2;
-        const oy = (img.height - side) / 2;
-        ctx.drawImage(img, ox, oy, side, side, 0, 0, SZ, SZ);
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-        setAvatarUrl(dataUrl);
-        try {
-          await fetch('/api/profile', {
-            method: 'PUT',
-            headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({avatar: dataUrl})
-          });
-          toast_('Avatar updated ✓', 'success');
-        } catch(_) {
-          toast_('Avatar saved locally', 'info');
-        }
-      };
-      img.src = ev.target.result;
+      const dataUrl = ev.target.result;
+      setAvatarUrl(dataUrl);
+      // sync to backend profile
+      try {
+        await fetch('/api/profile', {
+          method: 'PUT',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({avatar: dataUrl})
+        });
+        toast_('Avatar updated ✓', 'success');
+      } catch(_) {
+        toast_('Avatar saved locally', 'info');
+      }
     };
     reader.readAsDataURL(f);
     e.target.value='';
@@ -4211,7 +4164,7 @@ ReactDOM.flushSync(()=>{ setTyping(true); }); } catch(_){ setTyping(true); }
     const r=new SR();r.continuous=false;r.interimResults=true;r.lang=VOICE_LANGS[language]||'en-US';
     r.onresult=e=>{const t=Array.from(e.results).map(x=>x[0].transcript).join('');setInput(t);};
     r.onend=()=>setVoiceOn(false);r.onerror=()=>{setVoiceOn(false);toast_('Voice failed','error');};
-    recRef.current=r;r.start();setVoiceOn(true);toast_('Listening...','info');
+    recRef.current=r;r.start();setVoiceOn(true);toast_('Listening…','info');
   };
 
   // ── Audio Voice Message (MediaRecorder → Whisper) ──────────
@@ -4230,7 +4183,7 @@ ReactDOM.flushSync(()=>{ setTyping(true); }); } catch(_){ setTyping(true); }
         setAudioSeconds(0);
         setAudioRecording(false);
         const blob = new Blob(audioChunks.current,{type:mime});
-        toast_("Transcribing...","info");
+        toast_("Transcribing…","info");
         try{
           const fd = new FormData();
           fd.append("audio", blob, "voice.webm");
@@ -4250,7 +4203,7 @@ ReactDOM.flushSync(()=>{ setTyping(true); }); } catch(_){ setTyping(true); }
       setAudioRecording(true);
       setAudioSeconds(0);
       audioTimerRef.current = setInterval(()=>setAudioSeconds(s=>s+1),1000);
-      toast_("🎙️ Recording...","info");
+      toast_("🎙️ Recording…","info");
     }catch(e){
       toast_("Microphone access denied","error");
     }
@@ -4314,7 +4267,7 @@ ReactDOM.flushSync(()=>{ setTyping(true); }); } catch(_){ setTyping(true); }
         return u;
       });
     } else {
-      // Server still processing &mdash; add stopped message
+      // Server still processing — add stopped message
       setSessions(prev=>{
         const u=[...prev];
         const i=u.findIndex(s=>s.id===sid);
@@ -4425,7 +4378,7 @@ ReactDOM.flushSync(()=>{ setTyping(true); }); } catch(_){ setTyping(true); }
     if(compAbortRef.current) compAbortRef.current.abort();
     setCompStopped(true);
     setCompLoading({});
-    // Decrement count since it was stopped &mdash; user shouldn't lose a run
+    // Decrement count since it was stopped — user shouldn't lose a run
     setCompRunCount(p=>{ const n=Math.max(0,p-1); try{localStorage.setItem('omina_comp_runs',n);}catch{} return n; });
   };
   const runModelComp = async (prompt) => {
@@ -4586,7 +4539,7 @@ ReactDOM.flushSync(()=>{ setTyping(true); }); } catch(_){ setTyping(true); }
       const updated=[...prev];
       if(!sessionId){
         sessionId=Date.now().toString();
-        const ns={id:sessionId,title:text.slice(0,45)+(text.length>45?'...':''),messages:[userMsg],model,createdAt:Date.now(),folderId:activeFolderId||null};
+        const ns={id:sessionId,title:text.slice(0,45)+(text.length>45?'…':''),messages:[userMsg],model,createdAt:Date.now(),folderId:activeFolderId||null};
         updated.unshift(ns);
         setSid(sessionId);
         if(activeFolderId)setFolders(fs=>fs.map(f=>f.id===activeFolderId?{...f,sessionIds:[...f.sessionIds,sessionId]}:f));
@@ -4622,7 +4575,7 @@ ReactDOM.flushSync(()=>{ setTyping(true); }); } catch(_){ setTyping(true); }
     if(detectImageRequest(text) && !webSearch && !file) {
       try {
         const imgPrompt = extractImagePrompt(text);
-        toast_('🎨 Generating image...', 'info');
+        toast_('🎨 Generating image…', 'info');
         const res = await fetch('/api/generate-image', {
           method:'POST',
           headers:{'Content-Type':'application/json'},
@@ -4669,7 +4622,7 @@ ReactDOM.flushSync(()=>{ setTyping(true); }); } catch(_){ setTyping(true); }
 
       // Banglish gets extra strong instruction
       if(language==='banglish'){
-        langInstruction = ' CRITICAL RULE: Respond 100% in Banglish &mdash; Bengali written in Roman script ONLY. ZERO Bengali Unicode characters. Write like a Bangladeshi texting: "Bhai dekho, ami bujhaichi &mdash; eta onek easy. Prothome eta koro, tarpor ota korle hobe. Kono problem hole bolish." Use: ami, tumi, apni, bhai, ki, eta, koro, hobe, ache, na, to, re, je, ar, kemon, onek, valo, shob. Technical terms stay English.';
+        langInstruction = ' CRITICAL RULE: Respond 100% in Banglish — Bengali written in Roman script ONLY. ZERO Bengali Unicode characters. Write like a Bangladeshi texting: "Bhai dekho, ami bujhaichi — eta onek easy. Prothome eta koro, tarpor ota korle hobe. Kono problem hole bolish." Use: ami, tumi, apni, bhai, ki, eta, koro, hobe, ache, na, to, re, je, ar, kemon, onek, valo, shob. Technical terms stay English.';
       }
 
       // ── AUTO-DETECT: client-side language detection ──
@@ -4697,7 +4650,7 @@ ReactDOM.flushSync(()=>{ setTyping(true); }); } catch(_){ setTyping(true); }
         if(hasBanglaScript){
           langInstruction = ' CRITICAL: The user is writing in Bengali (বাংলা script). You MUST respond in Bengali script only. Use proper বাংলা.';
         } else if(banglishWords && !isMainlyLatin){
-          langInstruction = ' CRITICAL RULE: The user is writing in Banglish (Bengali in Roman/English script). Respond 100% in Banglish &mdash; Bengali words written in Roman script. ZERO Bengali Unicode. Example style: "Bhai, ami bujhte perechi. Eta koro: prothome X, tarpor Y. Kono problem hole janio."';
+          langInstruction = ' CRITICAL RULE: The user is writing in Banglish (Bengali in Roman/English script). Respond 100% in Banglish — Bengali words written in Roman script. ZERO Bengali Unicode. Example style: "Bhai, ami bujhte perechi. Eta koro: prothome X, tarpor Y. Kono problem hole janio."';
         } else if(hasArabic){
           langInstruction = ' CRITICAL: Respond in Arabic script only.';
         } else if(hasDevanagari){
@@ -4709,7 +4662,7 @@ ReactDOM.flushSync(()=>{ setTyping(true); }); } catch(_){ setTyping(true); }
         } else if(hasKorean){
           langInstruction = ' CRITICAL: Respond in Korean only.';
         } else if(isMainlyLatin){
-          // English or other Latin-based language &mdash; detect more specifically
+          // English or other Latin-based language — detect more specifically
           const isFrench = /\b(je|tu|il|nous|vous|ils|est|sont|avec|pour|dans|sur|que|qui|une|les|des|mon|ton|son)\b/.test(_t);
           const isSpanish = /\b(yo|tu|el|es|son|con|para|en|que|quien|una|los|las|mi|su|hola|como|bien|gracias)\b/.test(_t);
           const isGerman = /\b(ich|du|er|sie|wir|ist|sind|mit|für|in|auf|das|die|der|und|nicht|auch|ein|eine)\b/.test(_t);
@@ -4729,7 +4682,7 @@ ReactDOM.flushSync(()=>{ setTyping(true); }); } catch(_){ setTyping(true); }
         files.forEach(f => {
           if (f.content) {
             const label = f.fileType === 'pdf' ? '📄 PDF' : f.fileType === 'text' ? '📝 File' : '📎 File';
-            fileContext += `\n\n${label}: **${f.name}**\n\`\`\`\n${f.content.slice(0, 8000)}${f.content.length > 8000 ? '\n... [truncated]' : ''}\n\`\`\``;
+            fileContext += `\n\n${label}: **${f.name}**\n\`\`\`\n${f.content.slice(0, 8000)}${f.content.length > 8000 ? '\n… [truncated]' : ''}\n\`\`\``;
           } else if (f.fileType === 'image') {
             fileContext += `\n\n🖼️ Image attached: **${f.name}** (${Math.round(f.size/1024)}KB)`;
           }
@@ -4761,7 +4714,7 @@ Query: ${text}`
         const cached = offlineCache[cacheKey];
         if(cached){
           const botMsgId2 = Date.now()+1;
-          const botMsg2={id:botMsgId2,text:`📦 **Offline &mdash; Cached Response:**
+          const botMsg2={id:botMsgId2,text:`📦 **Offline — Cached Response:**
 
 ${cached}`,sender:'bot',model,timestamp:Date.now(),language};
           try{ ReactDOM.flushSync(()=>{setSessions(prev=>{const u=[...prev];const i=u.findIndex(s=>s.id===sessionId);if(i!==-1)u[i].messages.push(botMsg2);return u;});setTypewriterMsgId(botMsgId2);setTyping(false);setGlobalTyping(false);setTypingSid(null);}); }catch(_){setSessions(prev=>{const u=[...prev];const i=u.findIndex(s=>s.id===sessionId);if(i!==-1)u[i].messages.push(botMsg2);return u;});setTyping(false);setGlobalTyping(false);}
@@ -4774,7 +4727,7 @@ ${cached}`,sender:'bot',model,timestamp:Date.now(),language};
         }
       }
 
-      // Use XHR instead of fetch &mdash; XHR is NOT throttled when tab is hidden/minimized
+      // Use XHR instead of fetch — XHR is NOT throttled when tab is hidden/minimized
       const data = await new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         xhr.open('POST', '/chat', true);
@@ -4796,7 +4749,7 @@ ${cached}`,sender:'bot',model,timestamp:Date.now(),language};
         xhr.send(JSON.stringify({
           message: msgText,
           file_name: fn, file_names: files.map(f=>f.name),
-          system_prompt: sysPrompt + (aiMemories.length>0 ? '\n\n[USER MEMORY &mdash; facts you know about this user, always keep in mind]:\n' + aiMemories.map((m,i)=>`${i+1}. ${m.text}`).join('\n') : '') + '\n\n' + (MOODS.find(m=>m.id===mood.id)?.prompt||''),
+          system_prompt: sysPrompt + (aiMemories.length>0 ? '\n\n[USER MEMORY — facts you know about this user, always keep in mind]:\n' + aiMemories.map((m,i)=>`${i+1}. ${m.text}`).join('\n') : '') + '\n\n' + (MOODS.find(m=>m.id===mood.id)?.prompt||''),
           lang_instruction: langInstruction.trim(),
           persona_prompt: (PERSONAS.find(p=>p.id===persona)?.prompt||''),
           history: historyMsgs.slice(0,-1),
@@ -4839,7 +4792,7 @@ ${cached}`,sender:'bot',model,timestamp:Date.now(),language};
           // auto-speak removed: user clicks speaker icon manually
         });
       } catch(_){
-        // flushSync fallback &mdash; use normal setState
+        // flushSync fallback — use normal setState
         setSessions(prev=>{const u=[...prev];const i=u.findIndex(s=>s.id===sessionId);if(i!==-1)u[i].messages.push(botMsg);return u;});
         setTypewriterMsgId(botMsgId);
         setTyping(false);setGlobalTyping(false);setTypingSid(null);
@@ -4868,7 +4821,7 @@ ${cached}`,sender:'bot',model,timestamp:Date.now(),language};
   };
 
   const handleImgGen=(prompt,style)=>{
-    // Called when user clicks "Chat" from result page &mdash; adds context to chat
+    // Called when user clicks "Chat" from result page — adds context to chat
     const p=`I just generated an image with the prompt: "${prompt}" (style: ${style}). Can you suggest variations or improvements to this prompt?`;
     send(p);
   };
@@ -5002,7 +4955,7 @@ ${cached}`,sender:'bot',model,timestamp:Date.now(),language};
     if(!last) return;
     setSessions(prev=>prev.map(s=>s.id===sid?{...s,messages:s.messages.filter((m,i)=>!(i===s.messages.length-1&&m.sender==='bot'))}:s));
     setTimeout(()=>send(last.text),80);
-    toast_('Regenerating...','info');
+    toast_('Regenerating…','info');
   };
 
   const startEdit=msg=>{setEditMsgId(msg.id);setEditMsgVal(msg.text);};
@@ -5105,7 +5058,7 @@ Reply: ${botText.slice(0,800)}`,
     const i=msgs.findIndex(m=>m.id===botMsg.id);if(i<=0) return;
     const um=[...msgs].slice(0,i).reverse().find(m=>m.sender==='user');if(!um) return;
     const key=bkey(botMsg.id);const ex=branches[key];const cur=ex?ex.texts:[botMsg.text];
-    toast_('Generating alternate...','info');setTyping(true);
+    toast_('Generating alternate…','info');setTyping(true);
     try{const res=await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:um.text+' (Give a completely different approach.)',system_prompt:sysPrompt})});const data=await res.json();const nt=[...cur,data.reply||'No response.'];setBranches(p=>({...p,[key]:{texts:nt,idx:nt.length-1}}));toast_(`Branch ${nt.length} ready!`,'success');}
     catch{toast_('Branch failed','error');}finally{setTyping(false);}
   };
@@ -5467,7 +5420,7 @@ Text to analyze:
       const raw = (data.reply||'').replace(/\`\`\`json|\`\`\`/g,'').trim();
       const json = JSON.parse(raw);
       setToneResult(json);
-    }catch(e){toast_('Analysis failed &mdash; try again','error');}
+    }catch(e){toast_('Analysis failed — try again','error');}
     setToneLoading(false);
   };
 
@@ -5477,7 +5430,7 @@ Text to analyze:
         <div className="flex items-center gap-3 px-4 py-2 border-b" style={{borderColor:'rgba(248,113,113,.3)',background:'rgba(248,113,113,.06)'}}>
           <div className="w-2 h-2 rounded-full bg-red-400" style={{animation:'pulse 1s infinite'}}></div>
           <div className="voice-wave flex-shrink-0"><span/><span/><span/><span/><span/></div>
-          <span className="text-xs font-medium" style={{color:'#F87171'}}>Listening... speak now</span>
+          <span className="text-xs font-medium" style={{color:'#F87171'}}>Listening… speak now</span>
           <button onClick={toggleVoice} className="ml-auto text-xs px-2 py-0.5 rounded-lg border transition-all hover:bg-red-500 hover:text-white" style={{borderColor:'rgba(248,113,113,.4)',color:'#F87171'}}>Stop</button>
         </div>
       )}
@@ -5485,7 +5438,7 @@ Text to analyze:
         <div className="flex items-center gap-3 px-4 py-2 border-b" style={{borderColor:'rgba(239,68,68,.4)',background:'rgba(239,68,68,.06)'}}>
           <div style={{width:10,height:10,borderRadius:'50%',background:'#EF4444',animation:'pulse 1s infinite'}}></div>
           <div className="voice-wave flex-shrink-0"><span/><span/><span/><span/><span/></div>
-          <span className="text-xs font-bold" style={{color:'#EF4444'}}>🎙️ {Math.floor(audioSeconds/60).toString().padStart(2,'0')}:{(audioSeconds%60).toString().padStart(2,'0')} &mdash; Voice message</span>
+          <span className="text-xs font-bold" style={{color:'#EF4444'}}>🎙️ {Math.floor(audioSeconds/60).toString().padStart(2,'0')}:{(audioSeconds%60).toString().padStart(2,'0')} — Voice message</span>
           <button onClick={stopAudioRecord} className="ml-auto flex items-center gap-1.5 text-xs px-3 py-1 rounded-lg font-bold transition-all" style={{background:'#EF4444',color:'white'}}>
             <i className="fa-solid fa-stop text-[9px]"></i>Send
           </button>
@@ -5558,7 +5511,7 @@ Text to analyze:
                 {isExpanded&&(
                   <div className="border-t px-2 py-2 space-y-1" style={{borderColor:'var(--br)'}}>
                     <select onChange={e=>{if(e.target.value){addSessionToFolder(folder.id,e.target.value);e.target.value='';}}} className="w-full text-[11px] rounded-lg px-2 py-1.5 border outline-none mb-1" style={{background:'var(--bg2)',borderColor:'var(--br)',color:'var(--t2)'}}>
-                      <option value="">＋ Add existing chat...</option>
+                      <option value="">＋ Add existing chat…</option>
                       {sessions.filter(s=>!folder.sessionIds.includes(s.id)).map(s=><option key={s.id} value={s.id}>{s.title?.slice(0,30)}</option>)}
                     </select>
                     {folderSessions.length===0
@@ -5578,7 +5531,7 @@ Text to analyze:
   const suggestions=[{i:'fa-regular fa-image',t:'Create an image'},{i:'fa-solid fa-code',t:'Write me code'},{i:'fa-solid fa-pen-nib',t:'Write anything'},{i:'fa-solid fa-globe',t:'Search the web'},{i:'fa-regular fa-compass',t:'Teach me something'}];
 
   return(
-    <div className="flex" style={{height:'100dvh',width:'100vw',maxWidth:'100%',background:'var(--bg)',fontFamily:'DM Sans, sans-serif',position:'relative'}}>
+    <div className="flex" style={{height:'100dvh',width:'100vw',maxWidth:'100%',background:'var(--bg)',fontFamily:"'DM Sans',sans-serif",position:'relative'}}>
       <input type="file" ref={fileRef} onChange={onFile} className="hidden" accept="image/*,.pdf,.txt,.md,.json,.csv,.py,.js,.html,.css,.xml" multiple/>
       <Toast t={toast}/>
 
@@ -5772,7 +5725,7 @@ Text to analyze:
                   {[
                     {icon:'fa-fire',color:'#F97316',label:'Day Streak',val:streakDays},
                     {icon:'fa-database',color:'#60A5FA',label:'All-time msgs',val:totalAllTime},
-                    {icon:'fa-brain',color:'#A78BFA',label:'Models used',val:modelsUsed.length||'&mdash;'},
+                    {icon:'fa-brain',color:'#A78BFA',label:'Models used',val:modelsUsed.length||'—'},
                   ].map(s=>(
                     <div key={s.label} style={{flex:1,background:'rgba(255,255,255,.05)',border:'1px solid rgba(255,255,255,.08)',borderRadius:12,padding:'10px 8px',textAlign:'center'}}>
                       <i className={`fa-solid ${s.icon}`} style={{color:s.color,fontSize:13,marginBottom:5,display:'block'}}></i>
@@ -5809,9 +5762,9 @@ Text to analyze:
                 <div style={{borderRadius:14,border:'1px solid var(--br)',background:'var(--bg3)',padding:'12px 14px',marginBottom:16,display:'flex',flexDirection:'column',gap:10}}>
                   <p style={{margin:0,fontSize:10,fontWeight:700,letterSpacing:'.1em',textTransform:'uppercase',color:'var(--t3)',marginBottom:2}}>Insights</p>
                   {[
-                    {icon:'fa-trophy',color:'#F59E0B',label:'Longest chat today',val:longestChat?longestChat+' messages':'&mdash;'},
-                    {icon:'fa-ruler-horizontal',color:'#06B6D4',label:'Avg message length',val:avgLen?avgLen+' characters':'&mdash;'},
-                    {icon:'fa-clock',color:'#A78BFA',label:'Most active hour',val:hour+':00 &mdash; '+((hour+1)%24)+':00'},
+                    {icon:'fa-trophy',color:'#F59E0B',label:'Longest chat today',val:longestChat?longestChat+' messages':'—'},
+                    {icon:'fa-ruler-horizontal',color:'#06B6D4',label:'Avg message length',val:avgLen?avgLen+' characters':'—'},
+                    {icon:'fa-clock',color:'#A78BFA',label:'Most active hour',val:hour+':00 — '+((hour+1)%24)+':00'},
                     {icon:'fa-wand-magic-sparkles',color:'#EC4899',label:'AI models used today',val:modelsUsed.length>0?modelsUsed.join(', '):'None yet'},
                   ].map(r=>(
                     <div key={r.label} style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8}}>
@@ -5967,7 +5920,7 @@ Text to analyze:
                           style={{padding:'8px 12px',borderRadius:10,border:'1px solid var(--br)',background:'var(--bg3)',color:'var(--t2)',fontSize:12,textAlign:'left',cursor:'pointer',transition:'all .15s',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}
                           onMouseEnter={e=>{e.currentTarget.style.borderColor=curCat.color+'44';e.currentTarget.style.color='var(--t1)';}}
                           onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--br)';e.currentTarget.style.color='var(--t2)';}}>
-                          <i className="fa-solid fa-lightbulb" style={{color:curCat.color,fontSize:10,marginRight:7}}></i>{p.length>60?p.slice(0,60)+'...':p}
+                          <i className="fa-solid fa-lightbulb" style={{color:curCat.color,fontSize:10,marginRight:7}}></i>{p.length>60?p.slice(0,60)+'…':p}
                         </button>
                       ))}
                     </div>
@@ -6162,7 +6115,7 @@ Text to analyze:
                     <button onClick={()=>navigator.clipboard.writeText(chainSteps.map(s=>`Step ${s.step} [${s.type}]: ${s.title}\n${s.detail}`).join('\n\n')).then(()=>toast_('Copied!','success'))} style={{flex:1,padding:'11px',borderRadius:13,border:'1px solid rgba(16,185,129,.3)',background:'rgba(16,185,129,.07)',color:'#34d399',fontSize:12,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:7,transition:'all .15s'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(16,185,129,.14)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(16,185,129,.07)'}>
                       <i className="fa-solid fa-copy" style={{fontSize:10}}/>Copy All Steps
                     </button>
-                    <button onClick={()=>{const t=chainSteps.map(s=>`Step ${s.step}: ${s.title} &mdash; ${s.detail}`).join('\n');setShowChainViewer(false);setTimeout(()=>setInput(t),100);}} style={{flex:1,padding:'11px',borderRadius:13,border:'1px solid rgba(59,130,246,.3)',background:'rgba(59,130,246,.07)',color:'#60a5fa',fontSize:12,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:7,transition:'all .15s'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(59,130,246,.14)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(59,130,246,.07)'}>
+                    <button onClick={()=>{const t=chainSteps.map(s=>`Step ${s.step}: ${s.title} — ${s.detail}`).join('\n');setShowChainViewer(false);setTimeout(()=>setInput(t),100);}} style={{flex:1,padding:'11px',borderRadius:13,border:'1px solid rgba(59,130,246,.3)',background:'rgba(59,130,246,.07)',color:'#60a5fa',fontSize:12,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:7,transition:'all .15s'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(59,130,246,.14)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(59,130,246,.07)'}>
                       <i className="fa-solid fa-paper-plane" style={{fontSize:10}}/>Send to Chat
                     </button>
                   </div>
@@ -6511,7 +6464,7 @@ Text to analyze:
                   ))}
                 </div>
                 {/* Story text */}
-                <div style={{borderRadius:20,border:'1px solid rgba(245,158,11,.18)',background:'rgba(245,158,11,.02)',padding:'22px 24px',fontSize:14,lineHeight:1.95,color:'var(--t1)',whiteSpace:'pre-wrap',fontFamily:'DM Sans, sans-serif',marginBottom:16,letterSpacing:'.01em'}}>{storyResult}</div>
+                <div style={{borderRadius:20,border:'1px solid rgba(245,158,11,.18)',background:'rgba(245,158,11,.02)',padding:'22px 24px',fontSize:14,lineHeight:1.95,color:'var(--t1)',whiteSpace:'pre-wrap',fontFamily:"'DM Sans',sans-serif",marginBottom:16,letterSpacing:'.01em'}}>{storyResult}</div>
                 {/* Actions */}
                 <div style={{display:'flex',gap:8}}>
                   <button onClick={()=>navigator.clipboard.writeText(storyResult).then(()=>toast_('Story copied!','success'))} style={{flex:1,padding:'11px',borderRadius:13,border:'1px solid rgba(245,158,11,.3)',background:'rgba(245,158,11,.07)',color:'#F59E0B',fontSize:12,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:7,transition:'all .15s'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(245,158,11,.14)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(245,158,11,.07)'}>
@@ -6785,7 +6738,7 @@ Text to analyze:
                   <button onClick={()=>{setShowQuiz(false);if(featFromSettings){setFeatFromSettings(false);setShowSettings(true);setSettingsTab('quickaccess');}}} className="w-8 h-8 rounded-xl flex items-center justify-center transition-all" style={{color:'var(--t3)'}} onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,.08)';e.currentTarget.style.color='var(--t1)';}} onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='var(--t3)';}}><i className="fa-solid fa-xmark"></i></button>
                 </div>
               </div>
-              {/* Score strip &mdash; shows after quiz done */}
+              {/* Score strip — shows after quiz done */}
               {quizSubmitted?(
                 <div className="flex gap-2">
                   {[{lbl:'Score',val:quizScore+'%',col:quizScore>=70?'#10B981':'#EF4444'},{lbl:'Correct',val:Object.values(quizAnswers).filter((a,i)=>a===quizQuestions[i]?.answer).length+'/'+quizQuestions.length,col:'#F59E0B'},{lbl:'Grade',val:quizScore===100?'A+':quizScore>=80?'A':quizScore>=70?'B':quizScore>=60?'C':'D',col:'#818cf8'},{lbl:'Result',val:quizScore>=70?'Pass 🎉':'Retry 📚',col:quizScore>=70?'#10B981':'#EF4444'}].map(s=>(
@@ -6877,7 +6830,7 @@ Text to analyze:
                         const qs=JSON.parse(clean);
                         setQuizQuestions(Array.isArray(qs)?qs:[]);
                         setQuizAnswers({});setQuizSubmitted(false);setQuizScore(0);
-                      }catch(e){if(e.name!=='AbortError')toast_('Failed to generate quiz &mdash; check Ollama','error');}
+                      }catch(e){if(e.name!=='AbortError')toast_('Failed to generate quiz — check Ollama','error');}
                       finally{setQuizLoading(false); quizAbortRef.current=null;}
                     }} disabled={!quizConfig.topic.trim()} className="w-full py-3.5 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 disabled:opacity-40" style={{background:'linear-gradient(135deg,#F59E0B,#EF4444)',boxShadow:'0 4px 16px rgba(245,158,11,.25)'}}>
                       <i className="fa-solid fa-wand-magic-sparkles text-xs"></i>Generate Quiz
@@ -7167,7 +7120,7 @@ Text to analyze:
                       </div>
                       <div className="flex-1">
                         <p className="font-bold text-sm" style={{color:'var(--t1)'}}>Daily Challenge</p>
-                        <p className="text-[10px] mt-0.5" style={{color:'var(--t3)'}}>Test your {llLang} &mdash; earn streak points</p>
+                        <p className="text-[10px] mt-0.5" style={{color:'var(--t3)'}}>Test your {llLang} — earn streak points</p>
                       </div>
                       <div className="text-right">
                         <p className="text-2xl font-black" style={{color:'#F59E0B'}}>🔥 0</p>
@@ -7210,7 +7163,7 @@ Text to analyze:
                       <p className="text-[10px] font-bold uppercase tracking-widest" style={{color:'var(--t3)'}}>🏆 Leaderboard</p>
                       <span className="text-[9px] px-2 py-0.5 rounded-full" style={{background:'rgba(99,102,241,.15)',color:'#818cf8'}}>This Week</span>
                     </div>
-                    {[{name:'You',pts:0,badge:'🥇',col:'#F59E0B'},{name:'&mdash;',pts:0,badge:'🥈',col:'#94a3b8'},{name:'&mdash;',pts:0,badge:'🥉',col:'#cd7c32'}].map((p,i)=>(
+                    {[{name:'You',pts:0,badge:'🥇',col:'#F59E0B'},{name:'—',pts:0,badge:'🥈',col:'#94a3b8'},{name:'—',pts:0,badge:'🥉',col:'#cd7c32'}].map((p,i)=>(
                       <div key={i} className="flex items-center gap-3 py-2.5 border-b last:border-0" style={{borderColor:'rgba(255,255,255,.04)'}}>
                         <span className="text-lg w-6 text-center">{p.badge}</span>
                         <span className="text-sm font-bold flex-1" style={{color:'var(--t1)'}}>{p.name}</span>
@@ -7469,7 +7422,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
             )}
 
             <div className="overflow-y-auto sb" style={{maxHeight:420}}>
-              {/* Search results &mdash; flat list */}
+              {/* Search results — flat list */}
               {filtered&&(
                 <div className="py-1.5">
                   {filtered.length===0&&(
@@ -7500,7 +7453,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                 </div>
               )}
 
-              {/* Grouped list &mdash; no search */}
+              {/* Grouped list — no search */}
               {!filtered&&CMD_GROUPS.map((group,gi)=>(
                 <div key={gi}>
                   <div className="flex items-center gap-2 px-4 py-2 sticky top-0" style={{background:'#0d0f18',borderBottom:'1px solid rgba(255,255,255,.04)'}}>
@@ -8016,7 +7969,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                             const pct=Math.round(c/maxH*100);
                             const isPeak=h===peakHour;
                             return(
-                              <div key={h} className="flex-1 flex flex-col items-center gap-0.5" title={h+':00 &mdash; '+c+' msgs'}>
+                              <div key={h} className="flex-1 flex flex-col items-center gap-0.5" title={h+':00 — '+c+' msgs'}>
                                 <div className="w-full rounded-sm transition-all" style={{height:Math.max(2,pct*0.56)+'px',background:isPeak?'linear-gradient(0deg,#EC4899,#f472b6)':'rgba(255,255,255,.12)',boxShadow:isPeak?'0 0 8px rgba(236,72,153,.5)':'none'}}></div>
                               </div>
                             );
@@ -8141,7 +8094,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                             <span className="text-[10px] font-black px-2 py-0.5 rounded-lg" style={{background:col+'20',color:col}}>IDEA {i+1}</span>
                             <p className="font-bold text-sm" style={{color:'var(--t1)'}}>{idea.name}</p>
                           </div>
-                          <button onClick={()=>{setInput(idea.desc+' &mdash; tell me more about this idea');setShowCollider(false);}} className="text-[10px] px-2 py-0.5 rounded-lg border flex-shrink-0 transition-all" style={{borderColor:col+'35',color:col,background:'transparent'}} onMouseEnter={e=>e.currentTarget.style.background=col+'18'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                          <button onClick={()=>{setInput(idea.desc+' — tell me more about this idea');setShowCollider(false);}} className="text-[10px] px-2 py-0.5 rounded-lg border flex-shrink-0 transition-all" style={{borderColor:col+'35',color:col,background:'transparent'}} onMouseEnter={e=>e.currentTarget.style.background=col+'18'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
                             Explore →
                           </button>
                         </div>
@@ -8363,7 +8316,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
         });
         const timeline=Object.entries(dayMap).slice(-7).map(([day,wmap])=>{
           const top=Object.entries(wmap).sort((a,b)=>b[1]-a[1])[0];
-          return {day,word:top?.[0]||'&mdash;',count:top?.[1]||0};
+          return {day,word:top?.[0]||'—',count:top?.[1]||0};
         });
         const handleReset=()=>{const now=new Date().toISOString();setWcResetDate(now);try{localStorage.setItem('omina_wc_reset',now);}catch{}};
         const ignoreWord=w=>{const upd=[...wcIgnored,w];setWcIgnored(upd);try{localStorage.setItem('omina_wc_ignored',JSON.stringify(upd));}catch{}};
@@ -8419,7 +8372,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                   {label:'Total Words',val:totalWords.toLocaleString(),icon:'fa-align-left',col:'#6366f1'},
                   {label:'Unique',val:uniqueWords.toLocaleString(),icon:'fa-fingerprint',col:'#8b5cf6'},
                   {label:'In Cloud',val:sorted.length,icon:'fa-cloud',col:'#a78bfa'},
-                  {label:'Top Word',val:sorted[0]?.[0]||'&mdash;',icon:'fa-trophy',col:'#facc15'},
+                  {label:'Top Word',val:sorted[0]?.[0]||'—',icon:'fa-trophy',col:'#facc15'},
                 ].map(s=>(
                   <div key={s.label} className="flex flex-col gap-1 px-4 py-3" style={{background:'var(--bg2)'}}>
                     <div className="flex items-center gap-1.5">
@@ -8447,7 +8400,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                   <div className="flex flex-col items-center justify-center py-16 gap-3">
                     <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{background:'rgba(99,102,241,.1)'}}><i className="fa-solid fa-cloud text-2xl" style={{color:'rgba(99,102,241,.3)'}}></i></div>
                     <p className="text-sm font-medium" style={{color:'var(--t2)'}}>No words yet</p>
-                    <p className="text-xs text-center px-8" style={{color:'var(--t3)'}}>Keep chatting &mdash; words used {wcMinFreq+1}+ times appear here</p>
+                    <p className="text-xs text-center px-8" style={{color:'var(--t3)'}}>Keep chatting — words used {wcMinFreq+1}+ times appear here</p>
                   </div>
                 ):(
                   <div>
@@ -8460,7 +8413,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                             const size=11+Math.round(ratio*30);
                             const col=palette[i%palette.length];
                             return(
-                              <button key={word} onClick={()=>ignoreWord(word)} title={'Used '+count+'x &mdash; click to hide'} className="transition-all hover:opacity-60 active:scale-95" style={{fontSize:size,fontWeight:300+Math.round(ratio*500),color:col,lineHeight:1.4,padding:'2px 4px',borderRadius:6,background:'transparent',border:'none',cursor:'pointer'}}>
+                              <button key={word} onClick={()=>ignoreWord(word)} title={'Used '+count+'x — click to hide'} className="transition-all hover:opacity-60 active:scale-95" style={{fontSize:size,fontWeight:300+Math.round(ratio*500),color:col,lineHeight:1.4,padding:'2px 4px',borderRadius:6,background:'transparent',border:'none',cursor:'pointer'}}>
                                 {word}
                               </button>
                             );
@@ -8669,7 +8622,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                         </button>
                       )}
                     </div>
-                    {compStopped&&<p className="text-[11px] mt-2 flex items-center gap-1.5" style={{color:'#fb923c'}}><i className="fa-solid fa-circle-stop text-[10px]"></i>Stopped &mdash; not counted</p>}
+                    {compStopped&&<p className="text-[11px] mt-2 flex items-center gap-1.5" style={{color:'#fb923c'}}><i className="fa-solid fa-circle-stop text-[10px]"></i>Stopped — not counted</p>}
                   </div>
 
                   {/* Winner badge */}
@@ -8677,7 +8630,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                     <div className="mx-4 mt-3 px-4 py-2.5 rounded-2xl flex items-center gap-2 flex-shrink-0" style={{background:'rgba(245,158,11,.08)',border:'1px solid rgba(245,158,11,.2)'}}>
                       <i className="fa-solid fa-trophy" style={{color:'#F59E0B',fontSize:13}}></i>
                       <span className="text-xs font-bold" style={{color:'#F59E0B'}}>Longest response: {winners.name}</span>
-                      <span className="text-[10px] ml-1" style={{color:'var(--t3)'}}>· Tip: longer ≠ better &mdash; check quality!</span>
+                      <span className="text-[10px] ml-1" style={{color:'var(--t3)'}}>· Tip: longer ≠ better — check quality!</span>
                     </div>
                   )}
 
@@ -8707,7 +8660,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                               <div className="p-3 text-xs leading-relaxed flex-1" style={{color:'var(--t2)',minHeight:120}}>
                                 {loading&&<div className="space-y-2">{[80,60,90,50,70].map((w,i)=><div key={i} className="h-2 rounded-full animate-pulse" style={{width:w+'%',background:'rgba(255,255,255,.06)'}}/>)}</div>}
                                 {result&&!loading&&<div dangerouslySetInnerHTML={{__html:result.replace(/\n/g,'<br/>')}}/>}
-                                {!result&&!loading&&<span style={{color:'var(--t3)'}}>Waiting...</span>}
+                                {!result&&!loading&&<span style={{color:'var(--t3)'}}>Waiting…</span>}
                               </div>
                               {result&&metrics&&(
                                 <div className="px-3 py-2 border-t flex items-center justify-between gap-2 flex-wrap" style={{borderColor:'rgba(255,255,255,.06)'}}>
@@ -8743,7 +8696,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                           </div>
                           <p className="text-sm font-bold" style={{color:'var(--t1)'}}>{t.lbl}</p>
                         </div>
-                        <p className="text-[10px] leading-relaxed line-clamp-2" style={{color:'var(--t3)'}}>{t.prompt.slice(0,80)}...</p>
+                        <p className="text-[10px] leading-relaxed line-clamp-2" style={{color:'var(--t3)'}}>{t.prompt.slice(0,80)}…</p>
                         <div className="mt-2 flex items-center gap-1" style={{color:t.col}}>
                           <i className="fa-solid fa-arrow-right text-[9px]"></i>
                           <span className="text-[10px] font-bold">Use this prompt</span>
@@ -8852,7 +8805,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
               </div>
               <div className="text-right mt-4">
                 <div className="text-sm h-5 truncate" style={{color:'rgba(255,255,255,.3)',fontFamily:'monospace'}}>{calcExpr||' '}</div>
-                <div className="text-5xl font-thin mt-1 truncate" style={{color:'#fff',letterSpacing:'-2px',fontFamily:'SF Pro Display, system-ui, sans-serif'}}>{calcDisplay}</div>
+                <div className="text-5xl font-thin mt-1 truncate" style={{color:'#fff',letterSpacing:'-2px',fontFamily:"'SF Pro Display',system-ui,sans-serif"}}>{calcDisplay}</div>
               </div>
               {calcHistory.length>0&&(
                 <div className="mt-3 flex gap-2 overflow-x-auto pb-1" style={{scrollbarWidth:'none'}}>
@@ -8893,7 +8846,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                     gridColumn:`span ${btn.span}`,padding:'18px 8px',borderRadius:18,
                     background:btn.bg,color:btn.c,fontWeight:400,fontSize:20,
                     cursor:'pointer',transition:'all .1s',border:'none',
-                    fontFamily:'SF Pro Display, system-ui',
+                    fontFamily:"'SF Pro Display',system-ui",
                   }}
                   onMouseEnter={e=>{e.currentTarget.style.filter='brightness(1.3)';e.currentTarget.style.transform='scale(.97)';}}
                   onMouseLeave={e=>{e.currentTarget.style.filter='none';e.currentTarget.style.transform='scale(1)';}}>
@@ -8928,7 +8881,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
               <div className="relative">
                 <textarea
                   value={toneText} onChange={e=>setToneText(e.target.value)}
-                  placeholder="Paste any text &mdash; email, tweet, essay, message..."
+                  placeholder="Paste any text — email, tweet, essay, message…"
                   rows={4}
                   className="w-full rounded-2xl px-4 py-3.5 text-sm resize-none outline-none"
                   style={{background:'rgba(255,255,255,.05)',border:'1px solid rgba(167,139,250,.2)',color:'#fff',lineHeight:1.7,fontFamily:'inherit',transition:'border-color .2s'}}
@@ -8942,7 +8895,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                 className="w-full py-3 rounded-2xl font-bold text-sm transition-all disabled:opacity-40 flex items-center justify-center gap-2"
                 style={{background:'linear-gradient(135deg,#7C3AED,#4F46E5)',color:'white',boxShadow:toneText.trim()?'0 4px 20px rgba(124,58,237,.4)':'none'}}>
                 {toneLoading
-                  ?<><div style={{width:14,height:14,border:'2px solid rgba(255,255,255,.3)',borderTopColor:'#fff',borderRadius:'50%',animation:'spin 1s linear infinite'}}></div>Analyzing...</>
+                  ?<><div style={{width:14,height:14,border:'2px solid rgba(255,255,255,.3)',borderTopColor:'#fff',borderRadius:'50%',animation:'spin 1s linear infinite'}}></div>Analyzing…</>
                   :<><i className="fa-solid fa-waveform-lines"></i>Analyze Tone</>
                 }
               </button>
@@ -9035,7 +8988,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
             {/* ── Search Bar ── */}
             <div className="flex items-center gap-2 px-4 py-3 border-b flex-shrink-0" style={{borderColor:'var(--br)'}}>
               <i className="fa-solid fa-magnifying-glass text-sm flex-shrink-0" style={{color:'var(--t3)'}}></i>
-              <input autoFocus value={msgSearchQ} onChange={e=>setMsgSearchQ(e.target.value)} placeholder={searchMode==='regex'?'Enter regex pattern... e.g. \\bpython\\b':searchMode==='semantic'?'Semantic search &mdash; describe what you need...':'Search all messages...'} className="flex-1 bg-transparent text-sm outline-none" style={{color:'var(--t1)'}}/>
+              <input autoFocus value={msgSearchQ} onChange={e=>setMsgSearchQ(e.target.value)} placeholder={searchMode==='regex'?'Enter regex pattern… e.g. \\bpython\\b':searchMode==='semantic'?'Semantic search — describe what you need…':'Search all messages…'} className="flex-1 bg-transparent text-sm outline-none" style={{color:'var(--t1)'}}/>
               {msgSearchQ&&<span className="text-[10px] px-2 py-0.5 rounded-full font-bold flex-shrink-0" style={{background:'var(--bg3)',color:'var(--t3)'}}>{searchTab==='images'?imgSearchResults.length:searchTab==='related'?relatedChats.length:msgSearchResults.length}</span>}
               <span className="kbd flex-shrink-0">ESC</span>
             </div>
@@ -9154,7 +9107,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                         <span className="text-[10px] ml-auto truncate max-w-[160px]" style={{color:'var(--t3)'}}>{m.sessionTitle}</span>
                         {m.timestamp&&<span className="text-[9px] flex-shrink-0" style={{color:'var(--t3)'}}>{new Date(m.timestamp).toLocaleDateString()}</span>}
                       </div>
-                      <p className="text-xs leading-relaxed" style={{color:'var(--t2)'}} dangerouslySetInnerHTML={{__html:'...'+hi+'...'}}/>
+                      <p className="text-xs leading-relaxed" style={{color:'var(--t2)'}} dangerouslySetInnerHTML={{__html:'…'+hi+'…'}}/>
                     </button>
                   );
                 });
@@ -9259,7 +9212,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
             <div className="p-5 max-h-80 overflow-y-auto sb feat-loading-wrap">
               {summaryLoading&&<div className="feat-load-overlay"><div className="fl-clock"><div className="fl-hour"></div><div className="fl-minute"></div></div><span className="fl-label">Loading...</span></div>}
               {summaryLoading
-                ?<div className="flex flex-col items-center justify-center py-8 gap-3"><div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div><p className="text-sm" style={{color:'var(--t3)'}}>Generating summary...</p></div>
+                ?<div className="flex flex-col items-center justify-center py-8 gap-3"><div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div><p className="text-sm" style={{color:'var(--t3)'}}>Generating summary…</p></div>
                 :<div className="md-body" dangerouslySetInnerHTML={{__html:marked.parse(summaryText||'')}}/>
               }
             </div>
@@ -9350,7 +9303,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                             {keys.split(' + ').map((k,i)=>(
                               <React.Fragment key={i}>
                                 {i>0&&<span style={{color:'var(--t3)',fontSize:9,margin:'0 1px'}}>+</span>}
-                                <span style={{display:'inline-flex',alignItems:'center',padding:'2px 6px',borderRadius:5,background:'var(--bg)',border:'1px solid var(--brh)',color:'var(--t1)',fontSize:10,fontFamily:'JetBrains Mono, monospace',fontWeight:500,whiteSpace:'nowrap'}}>{k}</span>
+                                <span style={{display:'inline-flex',alignItems:'center',padding:'2px 6px',borderRadius:5,background:'var(--bg)',border:'1px solid var(--brh)',color:'var(--t1)',fontSize:10,fontFamily:"'JetBrains Mono',monospace",fontWeight:500,whiteSpace:'nowrap'}}>{k}</span>
                               </React.Fragment>
                             ))}
                           </div>
@@ -9360,7 +9313,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                   </div>
                 ))}
               </div>
-              <p className="text-center text-[10px] mt-4" style={{color:'var(--t3)'}}>Press <span style={{fontFamily:'JetBrains Mono, monospace'}}>Ctrl + /</span> anytime to open this panel</p>
+              <p className="text-center text-[10px] mt-4" style={{color:'var(--t3)'}}>Press <span style={{fontFamily:"'JetBrains Mono',monospace"}}>Ctrl + /</span> anytime to open this panel</p>
             </div>
           </div>
         </div>
@@ -9375,7 +9328,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
             <div className="rounded-2xl border overflow-hidden shadow-2xl" style={{background:'var(--bg2)',borderColor:'var(--br)'}}>
               <div className="flex items-center gap-3 px-4 py-3 border-b" style={{borderColor:'var(--br)'}}>
                 <i className="fa-solid fa-magnifying-glass text-sm" style={{color:'var(--t3)'}}></i>
-                <input ref={searchRef} value={searchQ} onChange={e=>setSearchQ(e.target.value)} placeholder="Search chats..." className="flex-1 bg-transparent text-sm outline-none placeholder-slate-500" style={{color:'var(--t1)'}}/>
+                <input ref={searchRef} value={searchQ} onChange={e=>setSearchQ(e.target.value)} placeholder="Search chats…" className="flex-1 bg-transparent text-sm outline-none placeholder-slate-500" style={{color:'var(--t1)'}}/>
                 <span className="kbd">ESC</span>
               </div>
               <div className="max-h-80 overflow-y-auto sb py-2">
@@ -9520,7 +9473,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
               <div className="relative">
                 <i className="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs" style={{color:'var(--t3)'}}></i>
                 <input value={favSearch} onChange={e=>setFavSearch(e.target.value)}
-                  placeholder="Search favorites..." className="w-full pl-8 pr-3 py-2 rounded-xl text-sm outline-none border"
+                  placeholder="Search favorites…" className="w-full pl-8 pr-3 py-2 rounded-xl text-sm outline-none border"
                   style={{background:'var(--bg3)',borderColor:'var(--br)',color:'var(--t1)'}}/>
               </div>
             </div>
@@ -9549,7 +9502,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                     </div>
                     {/* Message content */}
                     <div className="px-4 py-3" style={{background:'var(--bg2)'}}>
-                      <p className="text-sm" style={{color:'var(--t1)',lineHeight:1.6,whiteSpace:'pre-wrap',wordBreak:'break-word'}}>{m.text?.slice(0,400)}{m.text?.length>400?'...':''}</p>
+                      <p className="text-sm" style={{color:'var(--t1)',lineHeight:1.6,whiteSpace:'pre-wrap',wordBreak:'break-word'}}>{m.text?.slice(0,400)}{m.text?.length>400?'…':''}</p>
                     </div>
                   </div>
                 ))
@@ -9570,7 +9523,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
           <div className="w-full max-w-lg mi p-6 rounded-2xl border" style={{background:'var(--bg2)',borderColor:'rgba(139,92,246,.3)'}} onClick={e=>e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4"><div className="flex items-center gap-2"><i className="fa-solid fa-sliders text-purple-400"></i><span className="font-bold" style={{color:'var(--t1)'}}>Custom Instructions</span></div><button onClick={()=>setShowSysPrompt(false)} style={{color:'var(--t2)'}} className="hover:text-white"><i className="fa-solid fa-xmark"></i></button></div>
             <p className="text-xs mb-3" style={{color:'var(--t3)'}}>Tell Omina AI how to behave in every conversation.</p>
-            <textarea value={sysPrompt} onChange={e=>setSysPrompt(e.target.value)} className="w-full rounded-xl px-4 py-3 text-sm outline-none resize-none border" rows="7" style={{background:'var(--bg3)',borderColor:'rgba(139,92,246,.3)',color:'var(--t1)',fontFamily:'DM Sans, sans-serif'}}/>
+            <textarea value={sysPrompt} onChange={e=>setSysPrompt(e.target.value)} className="w-full rounded-xl px-4 py-3 text-sm outline-none resize-none border" rows="7" style={{background:'var(--bg3)',borderColor:'rgba(139,92,246,.3)',color:'var(--t1)',fontFamily:"'DM Sans',sans-serif"}}/>
             <div className="flex gap-2 mt-4">
               <button onClick={()=>setSysPrompt('You are Omina AI, a helpful assistant. Always use markdown formatting.')} className="px-4 py-2 rounded-xl text-xs border transition-all" style={{borderColor:'var(--br)',color:'var(--t2)'}}>Reset</button>
               <button onClick={()=>setShowSysPrompt(false)} className="flex-1 py-2 rounded-xl text-sm font-bold text-white bg-purple-600 hover:bg-purple-500 transition-all">Save</button>
@@ -9584,7 +9537,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
         <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 backdrop-blur-sm" style={{background:'rgba(0,0,0,.7)'}} onClick={()=>setShowFolderModal(false)}>
           <div className="w-full max-w-sm mi rounded-2xl border p-6" style={{background:'var(--bg2)',borderColor:'var(--br)'}} onClick={e=>e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4"><span className="font-bold" style={{color:'var(--t1)'}}>New Folder</span><button onClick={()=>setShowFolderModal(false)} style={{color:'var(--t2)'}} className="hover:text-white"><i className="fa-solid fa-xmark"></i></button></div>
-            <input value={newFName} onChange={e=>setNewFName(e.target.value)} onKeyDown={e=>e.key==='Enter'&&makeFolder()} placeholder="Folder name..." className="w-full rounded-xl px-4 py-2.5 text-sm outline-none mb-4 border" style={{background:'var(--bg3)',borderColor:'var(--br)',color:'var(--t1)'}}/>
+            <input value={newFName} onChange={e=>setNewFName(e.target.value)} onKeyDown={e=>e.key==='Enter'&&makeFolder()} placeholder="Folder name…" className="w-full rounded-xl px-4 py-2.5 text-sm outline-none mb-4 border" style={{background:'var(--bg3)',borderColor:'var(--br)',color:'var(--t1)'}}/>
             <p className="text-xs mb-2" style={{color:'var(--t3)'}}>Pick a color</p>
             <div className="flex gap-2.5 mb-5">{FC.map(c=><button key={c} onClick={()=>setNewFColor(c)} className={`w-8 h-8 rounded-full flex-shrink-0 transition-all ${newFColor===c?'ring-2 ring-white ring-offset-2 scale-110':''}`} style={{background:c,ringOffsetColor:'var(--bg2)'}}></button>)}</div>
             <button onClick={makeFolder} className="w-full py-2.5 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-500 transition-all">Create Folder</button>
@@ -9603,7 +9556,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
           <button onClick={()=>setShowSearch(true)} className="px-3 py-2 rounded-xl border transition-all" style={{background:'var(--bg3)',borderColor:'var(--br)',color:'var(--t2)'}} title="Search (Ctrl+K)"><i className="fa-solid fa-magnifying-glass text-xs"></i></button>
           <button onClick={()=>setShowFolderModal(true)} className="px-3 py-2 rounded-xl border transition-all" style={{background:'var(--bg3)',borderColor:'var(--br)',color:'var(--t2)'}} title="New folder"><i className="fa-solid fa-folder-plus text-xs"></i></button>
         </div>
-        {/* ── Folder section &mdash; fixed, does NOT scroll with history ── */}
+        {/* ── Folder section — fixed, does NOT scroll with history ── */}
         {folders.length>0&&(
           <div className="flex-shrink-0 border-b px-2 pt-2 pb-1" style={{borderColor:'var(--br)'}}>
             {/* Tag filter bar */}
@@ -9622,7 +9575,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
             <FolderSection/>
           </div>
         )}
-        {/* ── Chat history &mdash; scrollable independently ── */}
+        {/* ── Chat history — scrollable independently ── */}
         <div className="flex-1 overflow-y-auto sb p-2 space-y-4" style={{minHeight:0}}>
           {/* Tag filter bar (when no folders) */}
           {folders.length===0&&sessions.some(s=>s.tags&&s.tags.length>0)&&(
@@ -9667,7 +9620,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
         {/* Offline Banner */}
         {!isOnline&&<div className="flex items-center gap-2 px-4 py-2 text-xs font-medium flex-shrink-0 z-20 relative" style={{background:'rgba(234,179,8,.12)',borderBottom:'1px solid rgba(234,179,8,.25)',color:'#FCD34D'}}>
           <i className="fa-solid fa-wifi-slash text-xs animate-pulse"></i>
-          <span>You are offline &mdash; AI will use cached responses when available</span>
+          <span>You are offline — AI will use cached responses when available</span>
           <span className="ml-auto px-2 py-0.5 rounded-full text-[10px] font-bold" style={{background:'rgba(234,179,8,.2)'}}>{Object.keys(offlineCache).length} cached</span>
         </div>}
 
@@ -9692,7 +9645,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
             </button>
           </div>
         )}
-        {/* NAVBAR &mdash; Search button REMOVED */}
+        {/* NAVBAR — Search button REMOVED */}
         <div className="h-14 flex items-center justify-between px-3 md:px-4 flex-shrink-0 border-b mob-navbar-compact" style={{background:'var(--bg2)',borderColor:'var(--br)'}}>
           <div className="flex items-center gap-2">
             <button onClick={()=>setSidebarOpen(s=>!s)} className="p-2 rounded-lg transition-all hover:bg-white/5 active:scale-95" style={{color:'var(--t2)'}} title="Toggle sidebar">
@@ -9730,9 +9683,9 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
             );})()}
             {/* Msg search */}
             <button onClick={()=>setShowMsgSearch(true)} className="hide-mobile p-2 rounded-lg transition-all hover:bg-white/5" style={{color:'var(--t2)'}} title="Message search (Ctrl+Shift+F)"><i className="fa-solid fa-magnifying-glass-dollar text-sm"></i></button>
-            {/* Incognito toggle &mdash; upgraded */}
-            <button onClick={()=>{setIncognito(s=>!s);toast_(incognito?'Incognito OFF &mdash; chats will be saved':'Incognito ON &mdash; chats will not be saved',incognito?'info':'warning');}}
-              title="Incognito Mode &mdash; chats won't be saved"
+            {/* Incognito toggle — upgraded */}
+            <button onClick={()=>{setIncognito(s=>!s);toast_(incognito?'Incognito OFF — chats will be saved':'Incognito ON — chats will not be saved',incognito?'info':'warning');}}
+              title="Incognito Mode — chats won't be saved"
               style={{display:'flex',alignItems:'center',gap:6,padding:incognito?'5px 10px 5px 7px':'6px 8px',borderRadius:incognito?20:10,border:incognito?'1px solid rgba(167,139,250,.35)':'1px solid transparent',background:incognito?'rgba(167,139,250,.1)':'transparent',color:incognito?'#a78bfa':'var(--t2)',cursor:'pointer',transition:'all .2s',flexShrink:0}}
               onMouseEnter={e=>{ if(!incognito){e.currentTarget.style.background='rgba(167,139,250,.08)';e.currentTarget.style.borderColor='rgba(167,139,250,.2)';e.currentTarget.style.color='#a78bfa';} }}
               onMouseLeave={e=>{ if(!incognito){e.currentTarget.style.background='transparent';e.currentTarget.style.borderColor='transparent';e.currentTarget.style.color='var(--t2)';} }}>
@@ -9747,7 +9700,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
             </div>
             {/* Summary - only show when chatting */}
             {curSession&&msgs.length>2&&<button onClick={generateSummary} className="hide-mobile p-2 rounded-lg transition-all hover:bg-white/5" style={{color:'var(--t2)'}} title="Chat summary (Ctrl+M)"><i className="fa-solid fa-file-lines text-sm"></i></button>}
-            {/* Split View &mdash; desktop only */}
+            {/* Split View — desktop only */}
             <button onClick={()=>{if(splitView){setSplitView(false);setSplitSid(null);}else{const other=sessions.find(s=>s.id!==sid);if(other){setSplitSid(other.id);setSplitView(true);}else toast_('Need at least 2 chats for split view','info');}}} className="hide-mobile p-2 rounded-lg transition-all" style={{color:splitView?'#06B6D4':'var(--t2)',background:splitView?'rgba(6,182,212,.12)':'transparent'}} title="Split View (2 chats side-by-side)"><i className="fa-solid fa-columns text-sm"></i></button>
 
 
@@ -9831,7 +9784,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                     {/* ── Scrollable menu body ── */}
                     <div className="flex-1 overflow-y-auto" style={{scrollbarWidth:'thin'}}>
 
-                      {/* Quick Access grid &mdash; dynamic */}
+                      {/* Quick Access grid — dynamic */}
                       <div className="px-3 pt-3 pb-1">
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-[9px] font-bold tracking-widest uppercase" style={{color:'var(--t3)'}}>Quick Access</span>
@@ -9851,7 +9804,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                                 commands:()=>{setShowProfile(false);setShowCmdPalette(true);},
                                 digest:()=>{setShowProfile(false);setShowDigest(true);},
                                 randprompt:()=>{setShowProfile(false);setShowRandPrompt(true);},
-                                incognito:()=>{setIncognito(s=>!s);setShowProfile(false);toast_(incognito?'Incognito OFF':'Incognito ON &mdash; chats won\'t be saved',incognito?'info':'warning');},
+                                incognito:()=>{setIncognito(s=>!s);setShowProfile(false);toast_(incognito?'Incognito OFF':'Incognito ON — chats won\'t be saved',incognito?'info':'warning');},
                                 calculator:()=>{setShowProfile(false);setShowCalc(true);},
                                 tonedetect:()=>{setShowProfile(false);setShowToneDetector(true);},
                                 chain:()=>{setShowProfile(false);setShowChainViewer(true);},
@@ -9922,7 +9875,8 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                           ['fa-list','#818cf8','Chat Summary',()=>{setShowProfile(false);generateSummary();}],
                           ['fa-share-nodes','#60a5fa','Share Chat',()=>{setShowProfile(false);setShowShare(true);}],
                           ['fa-download','#94a3b8','Export JSON',()=>{exportJSON();setShowProfile(false);}],
-
+          ['fa-calculator','#34D399','Calculator',()=>{setShowProfile(false);setShowCalc(true);}],
+          ['fa-waveform-lines','#a78bfa','Tone Detector',()=>{setShowProfile(false);setShowToneDetector(true);}],
                         ].map(([ic,col,lbl,fn])=>(
                           <button key={lbl} onClick={fn} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-sm" style={{color:'var(--t1)',background:'transparent'}} onMouseEnter={e=>e.currentTarget.style.background='var(--bg3)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
                             <div className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0" style={{background:col+'18'}}>
@@ -10013,7 +9967,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                   <div className="flex items-center gap-2 mb-2 text-blue-400 text-sm"><i className="fa-solid fa-wand-magic-sparkles"></i><span className="font-medium">Hi {UDATA.name.split(' ')[0]} 👋</span></div>
                   <h1 className="front-title text-3xl md:text-5xl font-bold mb-3 text-center leading-tight" style={{color:'var(--t1)'}}>How can I help<br/>you today?</h1>
                   <p className="text-sm mb-4 text-center" style={{color:'var(--t2)'}}>Mode: <span style={{color:'var(--t1)',fontWeight:600}}><i className={`${mood.icon} ${mood.color} text-xs mr-1`}></i>{mood.name}</span> · Model: <span className={`${model.color} font-medium`}>{model.name}</span></p>
-                  {/* Quick language row &mdash; desktop only */}
+                  {/* Quick language row — desktop only */}
                   <div className="hidden md:flex flex-wrap justify-center gap-1.5 mb-5">
                     {LANGS.slice(0,10).map(l=>(
                       <button key={l.id} onClick={()=>setLanguage(l.id)}
@@ -10040,7 +9994,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       
                       <VoiceBar/>
                       <FileBar/>
-                      <textarea value={input} onChange={handleInput} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey&&enterSend){e.preventDefault();send();}}} placeholder={`Message ${model.name}...`} className="w-full bg-transparent px-4 md:px-5 pt-4 pb-2 max-h-40 resize-none outline-none text-sm placeholder-slate-500" style={{color:'var(--t1)'}} rows="1"/>
+                      <textarea value={input} onChange={handleInput} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey&&enterSend){e.preventDefault();send();}}} placeholder={`Message ${model.name}…`} className="w-full bg-transparent px-4 md:px-5 pt-4 pb-2 max-h-40 resize-none outline-none text-sm placeholder-slate-500" style={{color:'var(--t1)'}} rows="1"/>
                       <InputToolbar send={send} pickFile={pickFile} toggleVoice={toggleVoice} voiceOn={voiceOn} webSearch={webSearch} setWebSearch={setWebSearch} showImgGen={showImgGen} setShowImgGen={setShowImgGen} showCanvas={showCanvas} setShowCanvas={setShowCanvas} canvasMode={canvasMode} setCanvasMode={setCanvasMode} curSession={curSession} msgs={msgs} typing={typing} stopGen={stopGen} input={input} file={file} charCount={charCount} charLimit={charLimit} regen={regen} isFront={true} mood={mood} setMood={setMood}/>
                     </div>
                   </div>
@@ -10057,21 +10011,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
               ):(
                 /* MESSAGES */
                 <div className="w-full max-w-3xl flex-1 py-6 space-y-5">
-                  {/* ── Pagination: load older messages ── */}
-                  {msgs.length > msgVisibleCount && (
-                    <div style={{textAlign:'center',paddingBottom:8}}>
-                      <button
-                        onClick={()=>setMsgVisibleCount(c=>Math.min(c+MSG_PAGE, msgs.length))}
-                        style={{padding:'6px 20px',borderRadius:99,fontSize:11,fontWeight:700,background:'rgba(99,102,241,.1)',color:'#818cf8',border:'1px solid rgba(99,102,241,.25)',cursor:'pointer',transition:'all .18s',display:'inline-flex',alignItems:'center',gap:8}}
-                        onMouseEnter={e=>{e.currentTarget.style.background='rgba(99,102,241,.2)';e.currentTarget.style.borderColor='rgba(99,102,241,.4)';}}
-                        onMouseLeave={e=>{e.currentTarget.style.background='rgba(99,102,241,.1)';e.currentTarget.style.borderColor='rgba(99,102,241,.25)';}}>
-                        <i className="fa-solid fa-arrow-up" style={{fontSize:9}}></i>
-                        Load {Math.min(MSG_PAGE, msgs.length - msgVisibleCount)} older messages
-                        <span style={{fontSize:9,opacity:.55}}>({msgs.length - msgVisibleCount} hidden)</span>
-                      </button>
-                    </div>
-                  )}
-                  {msgs.slice(-msgVisibleCount).map((msg,idx)=>{const isLastMsg=msg.id===msgs[msgs.length-1]?.id;return(
+                  {msgs.map((msg,idx)=>(
                     <div key={msg.id} className={`mw flex gap-3 ${msg.sender==='user'?'justify-end':'justify-start'}`}>
                       {msg.sender==='bot'&&(()=>{
                         const msgPersona = PERSONAS.find(p=>p.id===(msg.persona||persona)) || PERSONAS[0];
@@ -10095,7 +10035,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                             <div className="rounded-2xl overflow-hidden border" style={{borderColor:'rgba(139,92,246,.25)',maxWidth:380}}>
                               <img src={msg.imageUrl} alt={msg.imagePrompt||'Generated image'} className="w-full h-auto block" style={{borderRadius:'inherit'}} onError={e=>{e.target.style.display='none';}}/>
                             </div>
-                            {msg.imagePrompt&&<p className="text-[10px] px-1" style={{color:'var(--t3)'}}>🎨 "{msg.imagePrompt.slice(0,80)}{msg.imagePrompt.length>80?'...':''}"</p>}
+                            {msg.imagePrompt&&<p className="text-[10px] px-1" style={{color:'var(--t3)'}}>🎨 "{msg.imagePrompt.slice(0,80)}{msg.imagePrompt.length>80?'…':''}"</p>}
                             <div className="flex gap-2 flex-wrap">
                               <button onClick={()=>{
                                 const a=document.createElement('a');
@@ -10139,7 +10079,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                             >
                               {msg.sender==='user'
                                 ?<p className="text-sm whitespace-pre-wrap" style={{color:'var(--t1)'}}>{msg.text}</p>
-                                :/* BOT MESSAGE &mdash; use typewriter for latest, normal for old */
+                                :/* BOT MESSAGE — use typewriter for latest, normal for old */
                                 <>
                                   {(()=>{
                                     // When canvasMode ON: strip code blocks from inline text
@@ -10209,11 +10149,11 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                           {timestamps&&msg.timestamp&&<span className="text-[10px] mr-1" style={{color:'var(--t3)'}}>{fmtTime(msg.timestamp)}</span>}
                           <button onClick={()=>copyMsg(msg)} className="p-1 rounded-lg transition-all" style={{color:copiedId===msg.id?'#10B981':'var(--t3)'}} title="Copy"><i className={`fa-${copiedId===msg.id?'solid fa-check':'regular fa-copy'} text-xs`}></i></button>
                           {msg.sender==='user'&&editMsgId!==msg.id&&<button onClick={()=>startEdit(msg)} className="p-1 rounded-lg transition-all hover:text-slate-300" style={{color:'var(--t3)'}} title="Edit"><i className="fa-solid fa-pen text-xs"></i></button>}
-                          {msg.sender==='bot'&&isLastMsg&&<button onClick={regen} className="p-1 rounded-lg transition-all hover:text-slate-300" style={{color:'var(--t3)'}} title="Regenerate"><i className="fa-solid fa-rotate-right text-xs"></i></button>}
+                          {msg.sender==='bot'&&idx===msgs.length-1&&<button onClick={regen} className="p-1 rounded-lg transition-all hover:text-slate-300" style={{color:'var(--t3)'}} title="Regenerate"><i className="fa-solid fa-rotate-right text-xs"></i></button>}
                           {msg.sender==='bot'&&<button onClick={()=>createBranch(msg)} disabled={typing} className="p-1 rounded-lg transition-all hover:text-purple-400 disabled:opacity-30" style={{color:'var(--t3)'}} title="Alternate reply"><i className="fa-solid fa-code-branch text-xs"></i></button>}
                           {msg.sender==='bot'&&<button onClick={()=>summarizeMsg(msg)} disabled={summarizing===msg.id} className="p-1 rounded-lg transition-all hover:text-cyan-400 disabled:opacity-40" style={{color:msgSummary[msg.id]?'#22d3ee':'var(--t3)'}} title="Summarize this reply"><i className={`fa-solid ${summarizing===msg.id?'fa-spinner fa-spin':'fa-compress-alt'} text-xs`}></i></button>}
                           {msg.sender==='bot'&&ttsVoices.length>0&&<button onClick={()=>ttsSpeaking?ttsStop():ttsSpeak(msg.text||'')} className="p-1 rounded-lg transition-all" style={{color:ttsSpeaking?'#3B82F6':'var(--t3)'}} title={ttsSpeaking?'Stop':'Read aloud'}><i className={`fa-solid ${ttsSpeaking?'fa-stop':'fa-volume-high'} text-xs`}></i></button>}
-                          {msg.sender==='bot'&&isLastMsg&&!typing&&<button onClick={()=>genFollowUps(msg.text,msg.id)} className="p-1 rounded-lg transition-all hover:text-violet-400" style={{color:followUpMsgId===msg.id?'#a78bfa':'var(--t3)'}} title="Follow-up suggestions"><i className="fa-solid fa-wand-magic-sparkles text-xs"></i></button>}
+                          {msg.sender==='bot'&&idx===msgs.length-1&&!typing&&<button onClick={()=>genFollowUps(msg.text,msg.id)} className="p-1 rounded-lg transition-all hover:text-violet-400" style={{color:followUpMsgId===msg.id?'#a78bfa':'var(--t3)'}} title="Follow-up suggestions"><i className="fa-solid fa-wand-magic-sparkles text-xs"></i></button>}
                           <button onClick={()=>toggleStar(msg.id)} className={`p-1 rounded-lg transition-all ${starred[msg.id]?'star-on':'hover:text-amber-400'}`} style={!starred[msg.id]?{color:'var(--t3)'}:{}} title="Star"><i className="fa-solid fa-star text-xs"></i></button>
 
                           {/* Voting */}
@@ -10317,8 +10257,8 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                             <div style={{lineHeight:1.6}} dangerouslySetInnerHTML={{__html:msgSummary[msg.id].replace(/\n/g,'<br/>')}}/>
                           </div>
                         )}
-                        {/* Follow-up suggestions &mdash; show after last bot msg */}
-                        {msg.sender==='bot'&&isLastMsg&&followUpMsgId===msg.id&&followUps.length>0&&!typing&&(
+                        {/* Follow-up suggestions — show after last bot msg */}
+                        {msg.sender==='bot'&&idx===msgs.length-1&&followUpMsgId===msg.id&&followUps.length>0&&!typing&&(
                           <div className="mt-3">
                             <p className="text-[10px] font-bold tracking-widest uppercase mb-2 flex items-center gap-1.5" style={{color:'var(--t3)'}}><i className="fa-solid fa-wand-magic-sparkles" style={{color:'#a78bfa'}}></i>Follow-up suggestions</p>
                             <div className="flex flex-wrap gap-2">
@@ -10334,7 +10274,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                         )}
                       </div>
                     </div>
-                  );})}
+                  ))}
                   {/* Image Analysis indicator */}
                   {analyzingImg&&(
                     <div className="flex gap-3 justify-start">
@@ -10343,7 +10283,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       </div>
                       <div className="flex items-center gap-2 rounded-2xl border px-3 py-2" style={{background:'var(--bg3)',borderColor:'rgba(139,92,246,.25)'}}>
                         <i className="fa-solid fa-spinner fa-spin text-xs" style={{color:'#8B5CF6'}}></i>
-                        <span className="text-xs" style={{color:'var(--t2)'}}>Analyzing image...</span>
+                        <span className="text-xs" style={{color:'var(--t2)'}}>Analyzing image…</span>
                       </div>
                     </div>
                   )}
@@ -10373,7 +10313,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                     onDragOver={e=>{e.preventDefault();setDragOverInput(true);}}
                     onDragLeave={()=>setDragOverInput(false)}
                     onDrop={e=>{e.preventDefault();setDragOverInput(false);const txt=e.dataTransfer.getData('text/plain');if(txt){const ta=inputRef.current;if(ta){const s=ta.selectionStart,en=ta.selectionEnd,v=input;const newVal=v.slice(0,s)+txt+v.slice(en);setInput(newVal);setTimeout(()=>{ta.selectionStart=ta.selectionEnd=s+txt.length;ta.focus();},0);}else setInput(p=>p+txt);toast_('Text dropped into input','success');}}}
-                    placeholder="Message Omina AI... (drag text here)" className="w-full bg-transparent px-4 md:px-5 pt-4 pb-2 max-h-40 resize-none outline-none text-sm placeholder-slate-500" style={{color:'var(--t1)',transition:'background .2s',background:dragOverInput?'rgba(6,182,212,.06)':'transparent'}} rows="1"/>
+                    placeholder="Message Omina AI… (drag text here)" className="w-full bg-transparent px-4 md:px-5 pt-4 pb-2 max-h-40 resize-none outline-none text-sm placeholder-slate-500" style={{color:'var(--t1)',transition:'background .2s',background:dragOverInput?'rgba(6,182,212,.06)':'transparent'}} rows="1"/>
                   <InputToolbar send={send} pickFile={pickFile} toggleVoice={toggleVoice} voiceOn={voiceOn} webSearch={webSearch} setWebSearch={setWebSearch} showImgGen={showImgGen} setShowImgGen={setShowImgGen} showCanvas={showCanvas} setShowCanvas={setShowCanvas} canvasMode={canvasMode} setCanvasMode={setCanvasMode} curSession={curSession} msgs={msgs} typing={typing} stopGen={stopGen} input={input} file={file} charCount={charCount} charLimit={charLimit} regen={regen} isFront={false} mood={mood} setMood={setMood}/>
                 </div>
                 <p className="text-center text-[10px] mt-2" style={{color:'var(--t3)'}}>Omina AI may make mistakes · Shift+Enter for new line</p>
@@ -10483,11 +10423,11 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
               </div>}
               {settingsTab==='language'&&<div className="af">
                 <h3 className="text-base font-semibold border-b pb-3 mb-4" style={{color:'var(--t1)',borderColor:'var(--br)'}}>Response Language</h3>
-                <p className="text-xs mb-4" style={{color:'var(--t3)'}}>AI will respond in the selected language. Banglish mode is expert-level &mdash; Bengali written in Roman script.</p>
+                <p className="text-xs mb-4" style={{color:'var(--t3)'}}>AI will respond in the selected language. Banglish mode is expert-level — Bengali written in Roman script.</p>
                 {/* Search box */}
                 <div className="relative mb-4">
                   <i className="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs" style={{color:'var(--t3)'}}></i>
-                  <input value={langSearch} onChange={e=>setLangSearch(e.target.value)} placeholder="Search language..."
+                  <input value={langSearch} onChange={e=>setLangSearch(e.target.value)} placeholder="Search language…"
                     className="w-full pl-8 pr-3 py-2 rounded-xl text-sm outline-none border"
                     style={{background:'var(--bg3)',borderColor:'var(--br)',color:'var(--t1)'}}/>
                 </div>
@@ -10537,7 +10477,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                 </div>
                 {persona!=='default'&&<div className="mt-4 p-3 rounded-xl border text-xs" style={{background:'rgba(99,102,241,.06)',borderColor:'rgba(99,102,241,.2)',color:'var(--t3)'}}>
                   <span style={{color:'#a5b4fc',fontWeight:600}}>Active: </span>
-                  {PERSONAS.find(p=>p.id===persona)?.label} &mdash; system prompt is auto-set. You can still edit it in Custom Instructions.
+                  {PERSONAS.find(p=>p.id===persona)?.label} — system prompt is auto-set. You can still edit it in Custom Instructions.
                 </div>}
               </div>}
               {settingsTab==='appearance'&&<div className="af">
@@ -10612,7 +10552,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       <input value={chatBgCustom} onChange={e=>setChatBgCustom(e.target.value)}
                         placeholder="linear-gradient(135deg, #1a1a2e, #16213e)"
                         className="w-full px-3 py-2 rounded-xl text-xs outline-none border"
-                        style={{background:'var(--bg3)',borderColor:'var(--br)',color:'var(--t1)',fontFamily:'JetBrains Mono, monospace'}}/>
+                        style={{background:'var(--bg3)',borderColor:'var(--br)',color:'var(--t1)',fontFamily:"'JetBrains Mono',monospace"}}/>
                       {chatBgCustom&&<div className="mt-2 h-12 rounded-xl border" style={{backgroundImage:chatBgCustom,borderColor:'var(--br)'}}/>}
                     </div>
                   )}
@@ -10687,7 +10627,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                             } else { toast_('Already saved','info'); }
                             setNewMemory('');
                           }}}
-                          placeholder="Type any fact about you... press Enter"
+                          placeholder="Type any fact about you… press Enter"
                           className="w-full pl-8 pr-3 py-2 rounded-xl text-xs outline-none border transition-all"
                           style={{background:'var(--bg3)',borderColor:'rgba(139,92,246,.2)',color:'var(--t1)'}}
                           onFocus={e=>e.target.style.borderColor='rgba(139,92,246,.5)'}
@@ -10833,7 +10773,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                     {ttsOpen&&(
                       <div className="p-4 space-y-4 border-t" style={{borderColor:'var(--br)'}}>
 
-                        {/* Speed & Pitch &mdash; top row */}
+                        {/* Speed & Pitch — top row */}
                         <div className="grid grid-cols-2 gap-3">
                           <div className="p-3 rounded-xl border" style={{background:'var(--bg)',borderColor:'rgba(59,130,246,.15)'}}>
                             <div className="flex justify-between items-center mb-2">
@@ -11067,7 +11007,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                             <div style={{width:32,height:32,borderRadius:8,flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center',background:f.col+'18'}}>
                               <i className={`fa-solid ${f.ic}`} style={{color:f.col,fontSize:13}}></i>
                             </div>
-                            <span style={{color:'var(--t1)',fontSize:12,fontWeight:500,flex:1,textAlign:'left',fontFamily:'DM Sans, sans-serif'}}>{f.lbl}</span>
+                            <span style={{color:'var(--t1)',fontSize:12,fontWeight:500,flex:1,textAlign:'left',fontFamily:"'DM Sans',sans-serif"}}>{f.lbl}</span>
                           </button>
                           {(!atMax||pinned)&&(
                             <button className="feat-pin-btn" onClick={toggle} title={pinned?'Unpin':'Pin'} style={{
@@ -11105,7 +11045,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                             }}>
                               <i className={`fa-solid ${f.ic}`} style={{color:f.col,fontSize:13}}></i>
                             </div>
-                            <span style={{color:'var(--t1)',fontSize:12,fontWeight:500,lineHeight:1.3,fontFamily:'DM Sans, sans-serif'}}>{f.lbl}</span>
+                            <span style={{color:'var(--t1)',fontSize:12,fontWeight:500,lineHeight:1.3,fontFamily:"'DM Sans',sans-serif"}}>{f.lbl}</span>
                           </div>
                           {editMode&&(
                             <div style={{
@@ -11223,7 +11163,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                               {k.split(' + ').map((p,i)=>(
                                 <React.Fragment key={i}>
                                   {i>0&&<span className="text-[9px] mx-0.5" style={{color:'var(--t3)'}}>+</span>}
-                                  <span style={{display:'inline-flex',alignItems:'center',padding:'2px 7px',borderRadius:5,background:'var(--bg)',border:'1px solid var(--brh)',color:'var(--t1)',fontSize:10,fontFamily:'JetBrains Mono, monospace',fontWeight:500}}>{p}</span>
+                                  <span style={{display:'inline-flex',alignItems:'center',padding:'2px 7px',borderRadius:5,background:'var(--bg)',border:'1px solid var(--brh)',color:'var(--t1)',fontSize:10,fontFamily:"'JetBrains Mono',monospace",fontWeight:500}}>{p}</span>
                                 </React.Fragment>
                               ))}
                             </div>
@@ -11255,111 +11195,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
   );
 }
 
-// ── Error Boundary ──────────────────────────────────────────
-class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false, error: null, info: null };
-  }
-  static getDerivedStateFromError(error) {
-    return { hasError: true, error };
-  }
-  componentDidCatch(error, info) {
-    this.setState({ info });
-    console.error('[Omina AI] Uncaught error:', error, info);
-  }
-  handleReload() { window.location.reload(); }
-  handleReset() {
-    if (window.confirm('This will clear all local data and reload. Continue?')) {
-      localStorage.clear();
-      window.location.reload();
-    }
-  }
-  render() {
-    if (!this.state.hasError) return this.props.children;
-    const err = this.state.error;
-    return React.createElement('div', {
-      style: {
-        minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center',
-        background:'#080B14', fontFamily:'DM Sans, sans-serif', padding:24
-      }
-    },
-      React.createElement('div', {
-        style: {
-          maxWidth:480, width:'100%', borderRadius:24, overflow:'hidden',
-          border:'1px solid rgba(239,68,68,.2)', background:'#0D1117'
-        }
-      },
-        // Red top bar
-        React.createElement('div', {
-          style: {
-            background:'linear-gradient(135deg,rgba(239,68,68,.15),rgba(220,38,38,.08))',
-            borderBottom:'1px solid rgba(239,68,68,.15)', padding:'20px 24px',
-            display:'flex', alignItems:'center', gap:14
-          }
-        },
-          React.createElement('div', {
-            style: {
-              width:44, height:44, borderRadius:14, flexShrink:0,
-              background:'rgba(239,68,68,.15)', border:'1px solid rgba(239,68,68,.3)',
-              display:'flex', alignItems:'center', justifyContent:'center'
-            }
-          },
-            React.createElement('i', { className:'fa-solid fa-triangle-exclamation', style:{fontSize:18, color:'#f87171'} })
-          ),
-          React.createElement('div', null,
-            React.createElement('p', { style:{fontSize:15, fontWeight:700, color:'#f1f5f9', margin:0} }, 'Something went wrong'),
-            React.createElement('p', { style:{fontSize:11, color:'rgba(148,163,184,.6)', margin:'3px 0 0'} }, 'Omina AI ran into an unexpected error')
-          )
-        ),
-        // Error detail
-        React.createElement('div', { style:{padding:'18px 24px'} },
-          React.createElement('div', {
-            style: {
-              background:'rgba(0,0,0,.3)', border:'1px solid rgba(239,68,68,.1)',
-              borderRadius:10, padding:'10px 14px', marginBottom:18
-            }
-          },
-            React.createElement('p', { style:{fontSize:10, fontWeight:700, color:'rgba(248,113,113,.6)', textTransform:'uppercase', letterSpacing:'.08em', margin:'0 0 5px'} }, 'Error'),
-            React.createElement('p', { style:{fontSize:11, color:'rgba(148,163,184,.7)', fontFamily:'monospace', margin:0, wordBreak:'break-word'} },
-              err ? err.toString() : 'Unknown error'
-            )
-          ),
-          React.createElement('p', { style:{fontSize:12, color:'rgba(148,163,184,.55)', marginBottom:18, lineHeight:1.6} },
-            'Your chats and data are safe. Try reloading &mdash; if the problem persists, use Reset to clear corrupted data.'
-          ),
-          // Buttons
-          React.createElement('div', { style:{display:'flex', gap:10} },
-            React.createElement('button', {
-              onClick: () => this.handleReload(),
-              style: {
-                flex:2, padding:'10px', borderRadius:12, fontSize:12, fontWeight:700,
-                background:'linear-gradient(135deg,#4F46E5,#7C3AED)', color:'#fff',
-                border:'none', cursor:'pointer', display:'flex', alignItems:'center',
-                justifyContent:'center', gap:8, boxShadow:'0 4px 14px rgba(79,70,229,.35)'
-              }
-            },
-              React.createElement('i', { className:'fa-solid fa-rotate-right', style:{fontSize:11} }),
-              'Reload App'
-            ),
-            React.createElement('button', {
-              onClick: () => this.handleReset(),
-              style: {
-                flex:1, padding:'10px', borderRadius:12, fontSize:12, fontWeight:700,
-                background:'transparent', color:'#f87171',
-                border:'1px solid rgba(239,68,68,.3)', cursor:'pointer'
-              }
-            }, 'Reset Data')
-          )
-        )
-      )
-    );
-  }
-}
-
-ReactDOM.createRoot(document.getElementById('root')).render(
-  React.createElement(ErrorBoundary, null, React.createElement(App, null))
-);
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 
 // Hide page loader after React mounts
 (function(){
