@@ -2571,7 +2571,7 @@ function TodoModal({todos,setTodos,onClose}) {
                 </div>
               </div>
             );
-          })
+          })}
         </div>
       </div>
     </div>
@@ -7696,7 +7696,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                             </div>
                           </div>
                         );
-                      })
+                      })}
                     </div>
                   </>
                 );
@@ -8820,7 +8820,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                             </div>
                           </div>
                         );
-                      })
+                      })}
                     </div>
                   )}
                 </div>
@@ -9552,8 +9552,8 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       <p className="text-sm" style={{color:'var(--t1)',lineHeight:1.6,whiteSpace:'pre-wrap',wordBreak:'break-word'}}>{m.text?.slice(0,400)}{m.text?.length>400?'...':''}</p>
                     </div>
                   </div>
-                );
-              })
+                ))
+              }
             </div>
             {/* Footer */}
             {allStarred.length>0&&<div className="p-4 border-t flex-shrink-0 flex items-center justify-between" style={{borderColor:'var(--br)'}}>
