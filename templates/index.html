@@ -1115,7 +1115,7 @@ function PricingModal({onClose,currentPlan,onSelectPlan}) {
                 )}
               </div>
             );
-          })
+          })}
         </div>
         <p style={{textAlign:'center',marginTop:20,fontSize:12,color:'var(--t3)'}}>
           <i className="fa-solid fa-shield-halved" style={{marginRight:6,color:'#34D399'}}></i>
@@ -6939,7 +6939,7 @@ Text to analyze:
                         {quizSubmitted&&q.explanation&&<p className="text-[10px] mt-2 leading-relaxed" style={{color:'var(--t3)'}}><span className="font-bold" style={{color:'#F59E0B'}}>Explanation:</span> {q.explanation}</p>}
                       </div>
                     );
-                  })
+                  })}
                   {!quizSubmitted&&(
                     <button onClick={()=>{
                       const score=Math.round((quizQuestions.filter((q,i)=>{
@@ -7367,7 +7367,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       {hasTag&&<i className="fa-solid fa-check text-[10px]" style={{color:tag.color}}></i>}
                     </button>
                   );
-                })
+                })}
               </div>
               <button onClick={()=>setShowTagModal(false)} className="w-full mt-4 py-2.5 rounded-xl text-sm font-bold text-white transition-all" style={{background:'linear-gradient(135deg,#4F46E5,#7C3AED)'}}>
                 Done
@@ -7464,7 +7464,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       <i className={'fa-solid '+c.icon} style={{fontSize:8}}></i>{cmd}
                     </button>
                   );
-                })
+                })}
               </div>
             )}
 
@@ -7738,7 +7738,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                           {c}
                         </button>
                       );
-                    })
+                    })}
                   </div>
                 </div>
                 <div>
@@ -7996,7 +7996,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                             </div>
                           </div>
                         );
-                      })
+                      })}
                     </div>
                   )}
 
@@ -8020,7 +8020,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                                 <div className="w-full rounded-sm transition-all" style={{height:Math.max(2,pct*0.56)+'px',background:isPeak?'linear-gradient(0deg,#EC4899,#f472b6)':'rgba(255,255,255,.12)',boxShadow:isPeak?'0 0 8px rgba(236,72,153,.5)':'none'}}></div>
                               </div>
                             );
-                          })
+                          })}
                         </div>
                         <div className="flex justify-between mt-1">
                           <span className="text-[9px]" style={{color:'var(--t3)'}}>0h</span>
@@ -8149,7 +8149,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                         <p className="text-[10px] flex items-center gap-1" style={{color:'var(--t3)'}}><i className="fa-solid fa-lightbulb text-[9px]" style={{color:col}}></i>{idea.use}</p>
                       </div>
                     );
-                  })
+                  })}
                 </div>
               )}
             </div>
@@ -8223,7 +8223,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       <i className={"fa-solid "+(isActive?'fa-circle-check':'fa-chevron-right')+" text-sm"} style={{color:isActive?p.color:'var(--t3)'}}></i>
                     </button>
                   );
-                })
+                })}
                 <button onClick={()=>{const name=prompt('New profile name:');if(!name)return;const colors=['#3B82F6','#8B5CF6','#10B981','#F59E0B','#EF4444','#EC4899','#06B6D4'];const np={id:'p'+Date.now(),name,avatar:name[0].toUpperCase(),color:colors[Math.floor(Math.random()*colors.length)],persona:'default',language:'auto',theme:'dark',model:'omina-basic',desc:'Custom profile'};setProfiles(prev=>[...(prev||DEFAULT_PROFILES),np]);toast_('Profile created!','success');}} className="w-full py-3 rounded-2xl text-sm border transition-all flex items-center justify-center gap-2" style={{borderColor:'rgba(37,99,235,.25)',color:'#60a5fa',background:'rgba(37,99,235,.05)'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(37,99,235,.1)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(37,99,235,.05)'}>
                   <i className="fa-solid fa-plus text-xs"></i>New Profile
                 </button>
@@ -8464,7 +8464,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                                 {word}
                               </button>
                             );
-                          })
+                          })}
                         </div>
                         <div className="flex items-center justify-between">
                           <p className="text-[10px]" style={{color:'var(--t3)'}}>Click any word to hide it · Showing top {Math.min(sorted.length,60)}</p>
@@ -8491,7 +8491,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                               <span className="text-[10px] w-8 text-right font-bold" style={{color:col}}>{pct}%</span>
                             </div>
                           );
-                        })
+                        })}
                       </div>
                     )}
 
@@ -8723,7 +8723,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                               )}
                             </div>
                           );
-                        })
+                        })}
                       </div>
                     )}
                   </div>
