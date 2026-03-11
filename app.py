@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session, make_response
-import os, re, json as _json, datetime as _dt, base64, io
+import os, re, json as _json, datetime as _dt, base64, io, urllib.parse
 from collections import Counter
 from groq import Groq
 import firebase_admin
@@ -8,6 +8,10 @@ try:
     import requests as _requests
 except ImportError:
     _requests = None
+try:
+    from duckduckgo_search import DDGS as _DDGS
+except ImportError:
+    _DDGS = None
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "omina-secret-2026")
@@ -987,5 +991,51 @@ def translate_message():
         )
         translated = completion.choices[0].message.content.strip()
         return jsonify({"success": True, "translated": translated, "target": target})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# ── Web Search ───────────────────────────────────────────────
+@app.route("/api/search", methods=["POST"])
+def web_search():
+    user = get_current_user()
+    if not user:
+        return jsonify({"success": False, "error": "Not logged in."}), 401
+    if not _DDGS:
+        return jsonify({"success": False, "error": "Search not available (duckduckgo-search not installed)."}), 503
+
+    data  = request.json or {}
+    query = data.get("query", "").strip()
+    count = min(int(data.get("count", 5)), 10)   # max 10 results
+
+    if not query:
+        return jsonify({"success": False, "error": "No query provided."}), 400
+
+    try:
+        with _DDGS() as ddgs:
+            raw = list(ddgs.text(query, max_results=count))
+
+        results = [
+            {
+                "title":   r.get("title", ""),
+                "url":     r.get("href",  ""),
+                "snippet": r.get("body",  ""),
+            }
+            for r in raw
+        ]
+
+        # Build a short summary for the AI to use
+        summary_lines = []
+        for i, r in enumerate(results, 1):
+            summary_lines.append(f"{i}. **{r['title']}**\n   {r['snippet']}\n   🔗 {r['url']}")
+        summary = "\n\n".join(summary_lines)
+
+        return jsonify({
+            "success": True,
+            "query":   query,
+            "results": results,
+            "summary": summary,
+            "count":   len(results),
+        })
+
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
