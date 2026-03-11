@@ -448,7 +448,6 @@ input:-webkit-autofill{-webkit-box-shadow:0 0 0 30px var(--bgi) inset!important;
 .img-preset-btn{transition:transform .12s, border-color .2s, color .15s, background .15s !important;}
 .img-preset-btn:hover{transform:translateY(-1px) !important;border-color:rgba(124,58,237,.5) !important;color:#a78bfa !important;background:rgba(124,58,237,.08) !important;}
 .img-preset-btn:active{transform:scale(.97) !important;}
-
 .img-chip-btn{transition:transform .1s, border-color .15s, background .15s, color .15s !important;}
 .img-chip-btn:hover{transform:scale(1.06) !important;}
 
@@ -1073,7 +1072,7 @@ function PricingModal({onClose,currentPlan,onSelectPlan}) {
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))',gap:16}}>
           {plans.map(p=>{
             const price=p.price[bill];const isCurr=currentPlan===p.id;const isBuying=buying===p.id;const isBought=bought===p.id;
-            return (
+            return(
               <div key={p.id} style={{borderRadius:20,padding:24,display:'flex',flexDirection:'column',background:p.grad,border:'1px solid '+p.border,position:'relative',transition:'transform .2s'}}
                 onMouseEnter={e=>e.currentTarget.style.transform='translateY(-4px)'}
                 onMouseLeave={e=>e.currentTarget.style.transform='translateY(0)'}>
@@ -1116,7 +1115,7 @@ function PricingModal({onClose,currentPlan,onSelectPlan}) {
                 )}
               </div>
             );
-          })}
+          })
         </div>
         <p style={{textAlign:'center',marginTop:20,fontSize:12,color:'var(--t3)'}}>
           <i className="fa-solid fa-shield-halved" style={{marginRight:6,color:'#34D399'}}></i>
@@ -2572,7 +2571,7 @@ function TodoModal({todos,setTodos,onClose}) {
                 </div>
               </div>
             );
-          })}
+          })
         </div>
       </div>
     </div>
@@ -5570,7 +5569,7 @@ Text to analyze:
                 )}
               </div>
             );
-          })}
+          })
         </div>
       )}
     </div>
@@ -6916,8 +6915,8 @@ Text to analyze:
                               let bg='var(--bg2)',bc='var(--br)',tc='var(--t2)';
                               if(quizSubmitted){if(isAns){bg='rgba(16,185,129,.12)';bc='rgba(16,185,129,.4)';tc='#10B981';}else if(selected&&!isAns){bg='rgba(239,68,68,.08)';bc='rgba(239,68,68,.3)';tc='#EF4444';}}
                               else if(selected){bg='rgba(245,158,11,.12)';bc='rgba(245,158,11,.4)';tc='#F59E0B';}
-                              return(<button key={oi} onClick={()=>{if(!quizSubmitted)setQuizAnswers(p=>({...p,[qi]:optKey}));}} className="w-full text-left px-3 py-2 rounded-xl text-xs border transition-all" style={{background:bg,borderColor:bc,color:tc}}>{opt}</button>);
-                            })}
+                              return(<button key={oi} onClick={()=>{if(!quizSubmitted)setQuizAnswers(p=>({...p,[qi]:optKey}));}} className="w-full text-left px-3 py-2 rounded-xl text-xs border transition-all" style={{background:bg,borderColor:bc,color:tc}}>{opt}</button>))
+                            }
                           </div>
                         )}
                         {/* True/False */}
@@ -6929,8 +6928,8 @@ Text to analyze:
                               let bg='var(--bg2)',bc='var(--br)',tc='var(--t2)';
                               if(quizSubmitted){if(isAns){bg='rgba(16,185,129,.12)';bc='rgba(16,185,129,.4)';tc='#10B981';}else if(selected&&!isAns){bg='rgba(239,68,68,.08)';bc='rgba(239,68,68,.3)';tc='#EF4444';}}
                               else if(selected){bg='rgba(245,158,11,.12)';bc='rgba(245,158,11,.4)';tc='#F59E0B';}
-                              return(<button key={v} onClick={()=>{if(!quizSubmitted)setQuizAnswers(p=>({...p,[qi]:v}));}} className="flex-1 py-2 rounded-xl text-xs font-bold border capitalize transition-all" style={{background:bg,borderColor:bc,color:tc}}>{v==='true'?'✅ True':'❌ False'}</button>);
-                            })}
+                              return(<button key={v} onClick={()=>{if(!quizSubmitted)setQuizAnswers(p=>({...p,[qi]:v}));}} className="flex-1 py-2 rounded-xl text-xs font-bold border capitalize transition-all" style={{background:bg,borderColor:bc,color:tc}}>{v==='true'?'✅ True':'❌ False'}</button>))
+                            }
                           </div>
                         )}
                         {/* Fill blank */}
@@ -6940,7 +6939,7 @@ Text to analyze:
                         {quizSubmitted&&q.explanation&&<p className="text-[10px] mt-2 leading-relaxed" style={{color:'var(--t3)'}}><span className="font-bold" style={{color:'#F59E0B'}}>Explanation:</span> {q.explanation}</p>}
                       </div>
                     );
-                  })}
+                  })
                   {!quizSubmitted&&(
                     <button onClick={()=>{
                       const score=Math.round((quizQuestions.filter((q,i)=>{
@@ -7368,7 +7367,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       {hasTag&&<i className="fa-solid fa-check text-[10px]" style={{color:tag.color}}></i>}
                     </button>
                   );
-                })}
+                })
               </div>
               <button onClick={()=>setShowTagModal(false)} className="w-full mt-4 py-2.5 rounded-xl text-sm font-bold text-white transition-all" style={{background:'linear-gradient(135deg,#4F46E5,#7C3AED)'}}>
                 Done
@@ -7465,7 +7464,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       <i className={'fa-solid '+c.icon} style={{fontSize:8}}></i>{cmd}
                     </button>
                   );
-                })}
+                })
               </div>
             )}
 
@@ -7697,7 +7696,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                             </div>
                           </div>
                         );
-                      })}
+                      })
                     </div>
                   </>
                 );
@@ -7739,7 +7738,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                           {c}
                         </button>
                       );
-                    })}
+                    })
                   </div>
                 </div>
                 <div>
@@ -7970,7 +7969,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                               </div>
                             </div>
                           );
-                        })}
+                        })
                       </div>
                     </div>
                   )}
@@ -7997,7 +7996,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                             </div>
                           </div>
                         );
-                      })}
+                      })
                     </div>
                   )}
 
@@ -8021,7 +8020,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                                 <div className="w-full rounded-sm transition-all" style={{height:Math.max(2,pct*0.56)+'px',background:isPeak?'linear-gradient(0deg,#EC4899,#f472b6)':'rgba(255,255,255,.12)',boxShadow:isPeak?'0 0 8px rgba(236,72,153,.5)':'none'}}></div>
                               </div>
                             );
-                          })}
+                          })
                         </div>
                         <div className="flex justify-between mt-1">
                           <span className="text-[9px]" style={{color:'var(--t3)'}}>0h</span>
@@ -8150,7 +8149,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                         <p className="text-[10px] flex items-center gap-1" style={{color:'var(--t3)'}}><i className="fa-solid fa-lightbulb text-[9px]" style={{color:col}}></i>{idea.use}</p>
                       </div>
                     );
-                  })}
+                  })
                 </div>
               )}
             </div>
@@ -8224,7 +8223,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       <i className={"fa-solid "+(isActive?'fa-circle-check':'fa-chevron-right')+" text-sm"} style={{color:isActive?p.color:'var(--t3)'}}></i>
                     </button>
                   );
-                })}
+                })
                 <button onClick={()=>{const name=prompt('New profile name:');if(!name)return;const colors=['#3B82F6','#8B5CF6','#10B981','#F59E0B','#EF4444','#EC4899','#06B6D4'];const np={id:'p'+Date.now(),name,avatar:name[0].toUpperCase(),color:colors[Math.floor(Math.random()*colors.length)],persona:'default',language:'auto',theme:'dark',model:'omina-basic',desc:'Custom profile'};setProfiles(prev=>[...(prev||DEFAULT_PROFILES),np]);toast_('Profile created!','success');}} className="w-full py-3 rounded-2xl text-sm border transition-all flex items-center justify-center gap-2" style={{borderColor:'rgba(37,99,235,.25)',color:'#60a5fa',background:'rgba(37,99,235,.05)'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(37,99,235,.1)'} onMouseLeave={e=>e.currentTarget.style.background='rgba(37,99,235,.05)'}>
                   <i className="fa-solid fa-plus text-xs"></i>New Profile
                 </button>
@@ -8465,7 +8464,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                                 {word}
                               </button>
                             );
-                          })}
+                          })
                         </div>
                         <div className="flex items-center justify-between">
                           <p className="text-[10px]" style={{color:'var(--t3)'}}>Click any word to hide it · Showing top {Math.min(sorted.length,60)}</p>
@@ -8492,7 +8491,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                               <span className="text-[10px] w-8 text-right font-bold" style={{color:col}}>{pct}%</span>
                             </div>
                           );
-                        })}
+                        })
                       </div>
                     )}
 
@@ -8724,7 +8723,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                               )}
                             </div>
                           );
-                        })}
+                        })
                       </div>
                     )}
                   </div>
@@ -8821,7 +8820,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                             </div>
                           </div>
                         );
-                      })}
+                      })
                     </div>
                   )}
                 </div>
@@ -9553,8 +9552,8 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                       <p className="text-sm" style={{color:'var(--t1)',lineHeight:1.6,whiteSpace:'pre-wrap',wordBreak:'break-word'}}>{m.text?.slice(0,400)}{m.text?.length>400?'...':''}</p>
                     </div>
                   </div>
-                ))
-              }
+                );
+              })
             </div>
             {/* Footer */}
             {allStarred.length>0&&<div className="p-4 border-t flex-shrink-0 flex items-center justify-between" style={{borderColor:'var(--br)'}}>
@@ -10335,7 +10334,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                         )}
                       </div>
                     </div>
-                  })}
+                  );})
                   {/* Image Analysis indicator */}
                   {analyzingImg&&(
                     <div className="flex gap-3 justify-start">
@@ -10748,7 +10747,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                                 </button>
                               </div>
                             );
-                          })}
+                          })
                         </div>
                       </div>
                     )}
@@ -10975,7 +10974,7 @@ Text: "${llPhraseInput}"`,system_prompt:'Translator. JSON only.'})});
                                 </div>
                               </div>
                             );
-                          })}
+                          })
                         </div>
                       )}
 
